@@ -38,7 +38,7 @@ const LOCK_PATH_RX = /\.claude[\/\\]closure-overrides(?:\.schema)?\.json|\.claud
 
 const PLAN_PATH_RX = /^plans[\/\\](pending|done)[\/\\][^\/\\]+\.md$/;
 
-const READ_ONLY_PREFIX_RX = /^\s*(cat\s|type\s|Get-Content\s|git\s+show\s|git\s+cat-file\s|git\s+diff\s|git\s+log\s|git\s+status\b|ls\s|dir\s|Test-Path\s)/i;
+const READ_ONLY_PREFIX_RX = /^\s*(cat\s|type\s|Get-Content\s|git\s+show\s|git\s+cat-file\s|git\s+diff\s|git\s+log\s|git\s+status\b|git\s+blame\b|git\s+rev-parse\b|git\s+ls-files\b|git\s+show-ref\b|ls\s|dir\s|Test-Path\s|head\s|tail\s|wc\s|grep\s|egrep\s|fgrep\s|findstr\s|Select-String\s)/i;
 
 const WRITE_OP_RX = /(>\s|>>\s|\|\s*tee\b|Tee-Object|Set-Content|Add-Content|Out-File|New-Item|Move-Item|Copy-Item|mv\s|cp\s|sed\s+.*-i\b|cat\s+>|cat\s+>>|\[(?:IO|System\.IO)\.File\]::Write|fs\.writeFile|fs\.appendFile|require\(.fs.\)\.write)/i;
 

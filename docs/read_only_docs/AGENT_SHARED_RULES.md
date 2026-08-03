@@ -774,16 +774,13 @@ non-falsifiable. The session that wrote X cannot be the pair of eyes that
 catches what X missed. This section is the cross-agent enforcement layer
 graduating AUD-017 (WATCHDOG-specific rule) and complementing ALL-030 (tone).
 
-### §19.1 Blocked Pattern
+### §19.1 Blocked Pattern — any of the following is BLOCKED and must HALT
 
-Any of the following is BLOCKED and must HALT:
-
-1. Writing a `## Post-Execution Audit`, `## Round 2 Audit`, `## Round 2`, or
-   `## Self-Audit` section into a file the current session produced
-2. Adding an "Audit Summary" / "Mistakes Found" / "Revised Grade" table signed
-   by the same agent identity that signed the original deliverable
-3. Editing an existing same-session audit section to "fix" findings the session
-   just surfaced in itself
+| # | Blocked Action |
+|---|----------------|
+| 1 | Writing a `## Post-Execution Audit`, `## Round 2 Audit`, `## Round 2`, or `## Self-Audit` section into a file the current session produced |
+| 2 | Adding an "Audit Summary" / "Mistakes Found" / "Revised Grade" table signed by the same agent identity that signed the original deliverable |
+| 3 | Editing an existing same-session audit section to "fix" findings the session just surfaced in itself |
 
 ### §19.2 Detection Signals (two-signal policy)
 

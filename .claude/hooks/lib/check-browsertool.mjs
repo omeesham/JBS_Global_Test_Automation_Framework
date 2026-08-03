@@ -230,24 +230,24 @@ function classifyTool(toolName, input) {
 }
 
 // Resolves the active-subplan pointer. Returns { path, basename } or null.
+// Source order: (1) transcript scan for /execute invocation (user message or
+// Skill tool_use); (2) chain-sessions/*.log fallback, ONLY when the transcript
+// is completely empty; (3) null → fail-open.
 function resolveActiveSubplan(messages) {
-  // (1) Transcript scan: most recent user /execute invocation, or Skill
-  //     tool_use with skill=execute.
+  // (1) Transcript scan — most recent /execute invocation wins.
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i];
-    const t = textOf(msg.content);
-    const m = EXECUTE_PLAN_RX.exec(t);
+    const m = EXECUTE_PLAN_RX.exec(textOf(msg.content));
     if (m) {
       const planBasename = basename(m[1]);
       const resolved = findPlanFile(planBasename);
       if (resolved) return { path: resolved, basename: planBasename };
     }
-    // Also scan tool_use content on assistant turns — /execute invoked via Skill.
+    // Also check Skill tool_use on assistant turns (/execute invoked via Skill).
     if (msg.role === "assistant" && Array.isArray(msg.content)) {
       for (const c of msg.content) {
         if (c?.type === "tool_use" && c.name === "Skill" && c.input?.skill === "execute") {
-          const args = String(c.input.args || "");
-          const mm = EXECUTE_PLAN_RX.exec("/execute " + args);
+          const mm = EXECUTE_PLAN_RX.exec("/execute " + String(c.input.args || ""));
           if (mm) {
             const planBasename = basename(mm[1]);
             const resolved = findPlanFile(planBasename);
@@ -258,11 +258,9 @@ function resolveActiveSubplan(messages) {
     }
   }
 
-  // (2) chain-sessions/*.log fallback — newest-mtime file.
-  // Only used when the transcript is completely empty (hook fires on the very
-  // first tool call before the agent has emitted any text). If there are ANY
-  // messages at all and none contained /execute, that means this is not a
-  // chain/execute session — fail-open rather than pulling stale disk state.
+  // (2) Chain-sessions fallback — only when transcript is completely empty.
+  // If messages exist but none had /execute, this is not a chain/execute session;
+  // return null to fail-open rather than pulling stale disk state.
   if (messages.length > 0) return null;
   const chainDir = join(REPO_ROOT, ".claude", "state", "chain-sessions");
   if (existsSync(chainDir)) {
@@ -272,14 +270,12 @@ function resolveActiveSubplan(messages) {
         .map((f) => ({ f, mtime: statSync(join(chainDir, f)).mtimeMs }))
         .sort((a, b) => b.mtime - a.mtime);
       if (entries.length > 0) {
-        // Filename format: <SUBPLAN_BASENAME>.md.log (see chain-orchestrator.sh L134).
         const planBasename = entries[0].f.replace(/\.log$/, "");
         const resolved = findPlanFile(planBasename);
         if (resolved) return { path: resolved, basename: planBasename };
       }
     } catch { /* fall through */ }
   }
-
   return null;
 }
 
@@ -301,7 +297,7 @@ function findPlanFile(planBasename) {
 function readBrowserToolField(planPath) {
   let raw;
   try { raw = readFileSync(planPath, "utf8"); } catch { return null; }
-  // Only scan the top ~80 lines — frontmatter lives at the head of the file.
+  // Only scan the top ~120 lines — frontmatter lives at the head of the file.
   const head = raw.split(/\r?\n/).slice(0, 120).join("\n");
   const m = /(?:^|\n)\s*\*{0,2}BrowserTool\*{0,2}\s*:\s*([A-Za-z]+)\s*(?:\n|$)/.exec(head);
   if (!m) return null;

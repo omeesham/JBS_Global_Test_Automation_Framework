@@ -2581,3 +2581,137 @@ therefore denied, as is a bare `grep`. Fails closed, so it is safe — but it bl
 and already fired against this session. Fix is to extend the read-only prefix set, not to weaken the floor.
 
 *Appended 2026-08-03.*
+
+---
+
+## WAVE 7 — four lots, four accepted, and two new findings the workers surfaced
+
+### `q123-w7-readonly` — ACCEPTED. NEW-13 closed, and I checked it three ways.
+
+`READ_ONLY_PREFIX_RX` now also admits `head tail wc grep egrep fgrep findstr Select-String` plus
+`git blame/rev-parse/ls-files/show-ref`. Verified by re-running all three dispatcher probes:
+
+- **deny matrix** — all six bypass forms (`;` `&&` `||` `$(...)` backticks bare `&`) still **deny**. No regression.
+- **over-denial** — all ten legitimate read-only forms **allow**, including the two NEW-13 named.
+- **combination probe (8 cases I wrote for this specifically)** — every one still **denies**:
+  `grep … > out.txt`, `head … > stolen.txt`, `tail … >> stolen.txt`, `ls; grep; rm`, `head & rm`,
+  `grep $(rm …)`, `wc | tee out.txt`, `grep && mv`. Widening the reader set opened no hole.
+
+**The `## REJECTED CANDIDATES` section is the part worth keeping.** It refused `sort` (GNU `sort -o FILE`
+writes and `WRITE_OP_RX` does not catch `-o`), and refused `uniq` (`uniq input output` writes via a
+*positional* second argument — a write with no operator at all, which no operator-based regex can see).
+That second one I had not flagged in the ticket. It also considered `less`'s `!command` shell-out and
+argued it is unreachable in a non-interactive hook.
+
+A shorter correct allowlist, with the reasoning written down for each exclusion.
+
+### `q123-w7-browsertool` — ACCEPTED. 2 applied, 2 correctly declined as two-file work.
+
+**P25-LOT01-14** — comment said "top ~80 lines", code did `slice(0, 120)`. It treated **code as
+authoritative** (120 is the deliberate depth; 80 was stale from an earlier draft) and fixed the comment,
+rather than changing behaviour to match a comment. Verified on disk: line 300 now reads `~120`, line 301
+is `slice(0, 120)`.
+
+**P25-LOT01-03** — the compaction that could have re-broken the gate. The dispatcher's own check:
+
+```
+262-  // If messages exist but none had /execute, this is not a chain/execute session;
+263-  // return null to fail-open rather than pulling stale disk state.
+264:  if (messages.length > 0) return null;
+265-  const chainDir = join(REPO_ROOT, ".claude", "state", "chain-sessions");
+```
+
+The empty-transcript guard is intact and still sits immediately before the `chainDir` lookup — the exact
+shape of the `1e35480b` fix. Source order unchanged. `no_subplan_pointer_allow` still passes.
+
+**P25-LOT01-04 / -05 declined** — both asked to move a function into `hook-utils.mjs`, which is a two-file
+change and outside a one-file ticket. Declining with the function body specified for a later lot was the
+instructed and correct move.
+
+### `q123-w7-rcaverdict` — ACCEPTED. Both findings resolved without touching the code.
+
+**P3-07 → no change, by classification.** Confirmed live (Stop hook via `rca-verdict-gate.sh --validate`),
+then classified **SOFT**: every return path is silent, `failOpen` emits no `permissionDecision`, and Stop
+hooks structurally cannot block. Telemetry already fires on the only reachable verdict
+(`fireTelemetry('rca-verdict-gate', 'warn', sessionId)`, line 192, shared 3-arg helper). Adding deny
+telemetry would have instrumented a branch that cannot execute. **Second time this campaign the right
+answer to a telemetry finding was "prove it can't deny, then change nothing."**
+
+**P25-LOT03-04 → KEEP, with the history actually checked.** The finding said REVIEW-before-DELETE and the
+review concluded keep, on three grounds: nothing else produces the shape; `git log -S` shows the branch
+was present at the file's creation commit (so it is not a leftover shim from a removed producer); and it
+is a read-compatibility guard whose absence would silently drop pre-existing entries from an
+externally-written state file. A finding that says REVIEW is satisfied by a reasoned "keep".
+
+**Residual, disclosed by the worker rather than hidden:** the Sev/incident header that
+`guardrail-policy.md` §3.4 mandates is still missing from this file's header. It leaned on my "change
+nothing" ruling to skip it. That ruling was about telemetry, not the header — so the header half of P3-07
+is genuinely still open. Recorded, not bounced: it flagged its own gap in plain terms.
+
+### `q123-w7-sharedrules` — ACCEPTED. 1 applied, 2 declined, and the declines are the valuable part.
+
+**Applied — P25-M08 (§19.1 → table), net −3 lines on an 867-line file.** The `## NOTHING LOST` section
+maps every original rule to its new location, including the trigger phrase that moved into the heading.
+It then argued §12 **cannot** be usefully tabulated: the prose carries ALL-070's justifying historical
+incident, and *"deleting that incident removes the calibration that makes the rule credible."* That is the
+right instinct — a table holds cases, not "why" and "except when".
+
+**Declined — P25-M04 (pointer-file split).** As instructed; it is a two-file change and moving 33 lines of
+doctrine into a file that does not exist yet would delete the doctrine.
+
+**Declined — P25-M07's renumber half, and the reason is a real finding of its own.** See NEW-15.
+
+Its `## WHO READS THIS FILE` section earned the ticket's warning: **seven files cite this document by
+section number** — `AUDIT.md`, `HEALER.md`, `GENERATOR.md`, `PLANNER.md`, `REQUIREMENTS.md`,
+`.claude/skills/audit/SKILL.md`, and `FIX_DIAGNOSIS_TEMPLATE.md`. Renumbering sections here silently
+breaks citations in all of them.
+
+The line-count half of P25-M07 is confirmed: the file is **867 lines**, not 657. Any "savings" figure
+computed against 657 was wrong.
+
+---
+
+### NEW-14 (dispatcher + worker, S3) — the fixture suite reports a hardcoded count
+
+`test-browsertool-fixtures.mjs:338` is literally:
+
+```js
+console.log(`ALL PASS — 19 fixtures.`);
+```
+
+Twenty fixtures actually run (`grep -c "^PASS"` → **20**, FAIL → **0**). The number is a typed literal, not
+a count, and it has been stale since a twentieth fixture was added.
+
+This matters more than a cosmetic off-by-one: **the summary line cannot report that a fixture stopped
+running.** If a fixture were silently dropped, the suite would still print "ALL PASS — 19 fixtures" and
+look identical. It is the same family as *a signal that never varies is not a signal* — a count that is
+not counted proves nothing.
+
+It also cost real dispatcher time this wave: my acceptance bar was "must be 20 passing", the suite said
+19, and I spent a verification cycle establishing whether a fixture had been deleted. It had not.
+
+Both the dispatcher and the browsertool worker found this independently; the worker correctly did not
+touch it, because the fixture file was outside its scope.
+
+### NEW-15 (worker-surfaced, S2) — `ALL-054` names two different rules, and both are cited
+
+`AGENT_SHARED_RULES.md` allocates `ALL-054` twice:
+
+- **:696** — `### Self-Audit Evidence (ALL-054)`, inside `§16. Autonomy & Efficiency (ALL-054..055)`
+- **:741** — a §17 table row: `**ALL-054** | **ESCALATION FILING PROTOCOL** — …`
+
+These are not a duplicate of one rule. They are **two unrelated rules sharing one identifier**, and the
+dispatcher's repo-wide grep shows *both* meanings have live external citations pointing at *different*
+rules:
+
+- `plans/done/PLAN_HIST_RUN_SP3_SP4_SPECS.md` — "§16 ALL-054 (evidence values in self-audit)"
+- `plans/done/PLAN_BUG_HUNTING_RULEBOOK_V1.md` — "ALL-054: ESCALATION FILING PROTOCOL"
+
+So anyone following a citation can land on the wrong rule, and which one they get depends on which
+document sent them. The §16 heading claims the `ALL-054..055` range, which makes the §17 row the intruder.
+
+**Why the worker's decline was right:** fixing this means renumbering the §17 rule *and* updating a
+citation inside `plans/done/` — a historical record that must be annotated, not revised. That is a
+multi-file change and this was a one-file ticket. Filed for a follow-up lot with the fix direction stated.
+
+*Appended 2026-08-03.*
