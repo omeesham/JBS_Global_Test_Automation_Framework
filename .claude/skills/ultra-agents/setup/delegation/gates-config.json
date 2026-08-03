@@ -7,14 +7,20 @@
     "gate": "config-liveness-guard",
     "sev": "S1",
     "incident": "2026-07-13 /assistants ON was theater for 2 days — flag with no liveness proof changed no behavior",
-    "ramp_note": "Lands deny per owner emergency-accept (LR-069 §3.3.1); kill-switch flip to announce if false-positive rate > 0 in first 5 sessions"
+    "ramp_target": "deny",
+    "ramp_criterion": "zero false positives across first 5 sessions with liveness-proof present on every flagged change; kill-switch reverts to announce on any false positive",
+    "ramp_started": "2026-07-13",
+    "ramp_complete": false
   },
   "G1": {
     "mode": "announce",
     "gate": "delegation-envelope-gate",
     "sev": "S0",
     "incident": "2026-07-13 source-proven: /assistants on|off only writes assistant-state.json; sole consumer picks a reminder string; no PreToolUse gate enforces delegate-by-default",
-    "ramp_note": "S0 lands deny immediately; kill-switch is the safety valve"
+    "ramp_target": "deny",
+    "ramp_criterion": "S0 severity — targeted for immediate deny flip; currently in announce as supervised ramp phase; kill-switch is the safety valve",
+    "ramp_started": "2026-07-13",
+    "ramp_complete": false
   },
   "G2": {
     "mode": "announce",
@@ -24,14 +30,18 @@
     "ramp_target": "deny",
     "ramp_criterion": "zero false fires across 20 real weight-worthy actions with full envelope presence",
     "ramp_started": "2026-07-13",
-    "ramp_complete": false
+    "ramp_complete": false,
+    "ramp_note": "S0 gate currently in announce as supervised ramp phase; deny flip pending ramp_criterion met"
   },
   "G3": {
     "mode": "announce",
     "gate": "isolation-perimeter-gate",
     "sev": "S0",
     "incident": "2026-07-13 isolation verified once at setup but not a standing gate; account-switch could change behavior silently; personal-path writes not gated",
-    "ramp_note": "S0 lands deny immediately; narrow scope (out-of-perimeter paths) keeps false-positive risk low"
+    "ramp_target": "deny",
+    "ramp_criterion": "S0 severity — targeted for immediate deny flip; currently in announce as supervised ramp phase; narrow scope (out-of-perimeter paths) keeps false-positive risk low",
+    "ramp_started": "2026-07-13",
+    "ramp_complete": false
   },
   "G4": {
     "mode": "announce",

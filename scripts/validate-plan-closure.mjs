@@ -23,6 +23,14 @@
 //   --coverage-mode=<off|announce|deny>      Override closure-config.json coverage_mode for this run.
 //   --test-status-mode=<off|announce|deny>   Override closure-config.json test_status_mode for this run.
 //   --dry-run also forces Cx + Ct measurement (verdict-neutral, exit 0).
+//
+// Exit-code classification (2026-07-31) — Sev: S1 (silent quality drift: a permanently
+//   unresolvable FAIL item trains readers to ignore the gate, so a real finding gets missed).
+//   Graduating incident: 2026-07-31 — PLAN_FIX_AT_SOURCE_NOT_WRAPPERS AC-5 quotes the root
+//   tsconfig `include` value `**/*.ts` as expected grep output; checkCr reported
+//   `Cr FAIL — Glob pattern uncheckable: **/*.ts` because execSync throws on the detector's
+//   exit 2 (UNCHECKABLE) and the catch hard-coded FAIL. Cr/Ci now carry a third status,
+//   UNCHECKABLE, which is reported but never folds into the plan verdict.
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, renameSync, appendFileSync } from 'node:fs';
 import { resolve, join, dirname, basename, relative, sep } from 'node:path';
@@ -918,13 +926,22 @@ function checkCr(body, planPath) {
   } catch (err) {
     const output = (err.stdout || '') + (err.stderr || '');
     const lines = output.split('\n').filter(l => l.trim());
+    // Capture both FAIL and UNCHECKABLE detail lines (exclude the VERDICT summary line itself).
     const items = lines
-      .filter(l => /FAIL/.test(l) && !/^VERDICT:/.test(l.trim()))
+      .filter(l => /\b(?:FAIL|UNCHECKABLE)\b/.test(l) && !/^VERDICT:/.test(l.trim()))
       .map(l => ({ reason: l.trim() }));
     if (items.length === 0) {
       items.push({ reason: output.trim().slice(0, 300) || 'Detector exited non-zero with no parseable output' });
     }
-    return { check: 'Cr', status: 'FAIL', overridable: false, items };
+    // Exit codes are tri-state: 0 = PASS, 1 = FAIL, 2 = UNCHECKABLE.
+    // UNCHECKABLE means the detector could not verify a cited string (glob path form,
+    // git-excluded artifact, unreadable file) — this is NOT proof of a fake fix; it is
+    // informational and verdict-neutral. The detector's own FAIL > UNCHECKABLE > PASS
+    // precedence (check-recurrence-trial.mjs:536-543) guarantees a real finding can never
+    // hide behind an uncheckable result: genuineFailures.length non-zero forces exit 1.
+    // Both conditions required: crash-exit or exit-2-without-announcement stays FAIL (fail-closed).
+    const isUncheckable = err.status === 2 && /^VERDICT:\s*UNCHECKABLE/m.test(output);
+    return { check: 'Cr', status: isUncheckable ? 'UNCHECKABLE' : 'FAIL', overridable: false, items };
   }
 }
 
@@ -958,13 +975,22 @@ function checkCi(body, planPath) {
   } catch (err) {
     const output = (err.stdout || '') + (err.stderr || '');
     const lines = output.split('\n').filter(l => l.trim());
+    // Capture both FAIL and UNCHECKABLE detail lines (exclude the VERDICT summary line itself).
     const items = lines
-      .filter(l => /FAIL/.test(l) && !/^VERDICT:/.test(l.trim()))
+      .filter(l => /\b(?:FAIL|UNCHECKABLE)\b/.test(l) && !/^VERDICT:/.test(l.trim()))
       .map(l => ({ reason: l.trim() }));
     if (items.length === 0) {
       items.push({ reason: output.trim().slice(0, 300) || 'Detector exited non-zero with no parseable output' });
     }
-    return { check: 'Ci', status: 'FAIL', overridable: false, items };
+    // Exit codes are tri-state: 0 = PASS, 1 = FAIL, 2 = UNCHECKABLE.
+    // UNCHECKABLE means the detector could not verify a cited string (glob path form,
+    // git-excluded artifact, unreadable file) — this is NOT proof of a fake fix; it is
+    // informational and verdict-neutral. The detector's own FAIL > UNCHECKABLE > PASS
+    // precedence (check-interaction-coverage.mjs lines 2334/2347) guarantees a real finding
+    // can never hide behind an uncheckable result: hasFail wins over uncheckable on exit.
+    // Both conditions required: crash-exit or exit-2-without-announcement stays FAIL (fail-closed).
+    const isUncheckable = err.status === 2 && /^VERDICT:\s*UNCHECKABLE/m.test(output);
+    return { check: 'Ci', status: isUncheckable ? 'UNCHECKABLE' : 'FAIL', overridable: false, items };
   }
 }
 
@@ -1033,7 +1059,7 @@ function validatePlan(body, planPath, opts = {}) {
   const c6Enforced = !opts.dryRun && c6Mode === 'deny';
   const parentCascadeMode = c6Enforced ? 'deny' : (c6Measured ? 'measure' : 'off');
 
-  const overrides = loadOverrides(opts.overrideMode || 'enforce');
+  const overrides = opts.overridesData !== undefined ? opts.overridesData : loadOverrides(opts.overrideMode || 'enforce');
   const c1 = checkC1(body, bn, overrides);
   const c2 = checkC2(body);
   const c3 = checkC3(body, planPath);
@@ -1426,6 +1452,103 @@ function runSelfTest() {
           console.log(`    ${c.check}: ${c.status} (${c.items.length} items)`);
         }
       }
+      failed++;
+    }
+  }
+
+  // Targeted Cr classification assertions (cr-classification/ subdirectory — not swept by generic loop above).
+  const crDir = join(FIXTURE_DIR, 'cr-classification');
+  const uncheckableFixture = join(crDir, 'uncheckable-glob.md');
+  const failFixture = join(crDir, 'fail-absent-artifact.md');
+
+  // Fail-closed: a missing fixture means the gate never ran — same posture as checkCr:905-910.
+  if (!existsSync(uncheckableFixture) || !existsSync(failFixture)) {
+    if (!existsSync(uncheckableFixture)) {
+      console.log(`  [FAIL] cr-classification fixture missing: ${uncheckableFixture}`);
+      failed++;
+    }
+    if (!existsSync(failFixture)) {
+      console.log(`  [FAIL] cr-classification fixture missing: ${failFixture}`);
+      failed++;
+    }
+  } else {
+    const uncheckableBody = readFileSync(uncheckableFixture, 'utf-8');
+    const failBody = readFileSync(failFixture, 'utf-8');
+
+    // CR-UNCHECKABLE: checkCr on uncheckable-glob.md must return UNCHECKABLE (not FAIL as before this fix).
+    const crUncheckable = checkCr(uncheckableBody, uncheckableFixture);
+    if (crUncheckable.status === 'UNCHECKABLE') {
+      console.log('  [PASS] CR-UNCHECKABLE: checkCr(uncheckable-glob.md) → UNCHECKABLE');
+      passed++;
+    } else {
+      console.log(`  [FAIL] CR-UNCHECKABLE: checkCr(uncheckable-glob.md) → expected UNCHECKABLE, got ${crUncheckable.status}`);
+      failed++;
+    }
+
+    // CR-FAIL-STILL-BITES: checkCr on fail-absent-artifact.md must still return FAIL (fix did not blanket-downgrade).
+    const crFail = checkCr(failBody, failFixture);
+    if (crFail.status === 'FAIL') {
+      console.log('  [PASS] CR-FAIL-STILL-BITES: checkCr(fail-absent-artifact.md) → FAIL');
+      passed++;
+    } else {
+      console.log(`  [FAIL] CR-FAIL-STILL-BITES: checkCr(fail-absent-artifact.md) → expected FAIL, got ${crFail.status}`);
+      failed++;
+    }
+
+    // CR-UNCHECKABLE-IS-VERDICT-NEUTRAL: validatePlan on uncheckable-glob.md must return plan PASS
+    // while its Cr check entry reads UNCHECKABLE — both halves asserted.
+    const vpUncheckable = validatePlan(uncheckableBody, uncheckableFixture, {
+      overrideMode: 'enforce', forceCheck: true, c6Mode: 'off', coverageMode: 'off',
+      testStatusMode: 'off', recurrenceTrialMode: 'deny', interactionCoverageMode: 'off',
+    });
+    const vpUncheckableCr = (vpUncheckable.checks || []).find(c => c.check === 'Cr');
+    if (vpUncheckable.status === 'PASS' && vpUncheckableCr && vpUncheckableCr.status === 'UNCHECKABLE') {
+      console.log('  [PASS] CR-UNCHECKABLE-IS-VERDICT-NEUTRAL: validatePlan(uncheckable-glob.md) → plan PASS, Cr UNCHECKABLE');
+      passed++;
+    } else {
+      console.log(`  [FAIL] CR-UNCHECKABLE-IS-VERDICT-NEUTRAL: plan=${vpUncheckable.status}, Cr=${vpUncheckableCr?.status} — expected plan PASS + Cr UNCHECKABLE`);
+      failed++;
+    }
+
+    // CR-FAIL-FOLDS-UNDER-DENY: validatePlan on fail-absent-artifact.md must return plan FAIL.
+    const vpFail = validatePlan(failBody, failFixture, {
+      overrideMode: 'enforce', forceCheck: true, c6Mode: 'off', coverageMode: 'off',
+      testStatusMode: 'off', recurrenceTrialMode: 'deny', interactionCoverageMode: 'off',
+    });
+    if (vpFail.status === 'FAIL') {
+      console.log('  [PASS] CR-FAIL-FOLDS-UNDER-DENY: validatePlan(fail-absent-artifact.md) → plan FAIL');
+      passed++;
+    } else {
+      console.log(`  [FAIL] CR-FAIL-FOLDS-UNDER-DENY: validatePlan(fail-absent-artifact.md) → expected FAIL, got ${vpFail.status}`);
+      failed++;
+    }
+  }
+
+  // C1-OVERRIDE: bad-c1-with-override-fixture.md with fixture overrides loaded → C1 PASS.
+  // C1-OVERRIDE-WITHOUT: same fixture without overrides → C1 FAIL.
+  // Validates the override suppression path directly via checkC1 (fixture doesn't satisfy C2+).
+  const overrideFixturePath = join(FIXTURE_DIR, 'bad-c1-with-override-fixture.md');
+  const fixtureOverridesPath2 = join(FIXTURE_DIR, '_overrides.json');
+  if (!existsSync(overrideFixturePath) || !existsSync(fixtureOverridesPath2)) {
+    if (!existsSync(overrideFixturePath)) { console.log(`  [FAIL] C1-OVERRIDE fixture missing: ${overrideFixturePath}`); failed++; }
+    if (!existsSync(fixtureOverridesPath2)) { console.log(`  [FAIL] C1-OVERRIDE _overrides.json missing: ${fixtureOverridesPath2}`); failed++; }
+  } else {
+    const overrideFixtureBody = readFileSync(overrideFixturePath, 'utf-8');
+    const fixtureOverridesLoaded = JSON.parse(readFileSync(fixtureOverridesPath2, 'utf-8')).overrides || [];
+    const c1With = checkC1(overrideFixtureBody, 'bad-c1-with-override-fixture.md', fixtureOverridesLoaded);
+    if (c1With.status === 'PASS') {
+      console.log('  [PASS] C1-OVERRIDE: checkC1(bad-c1-with-override-fixture.md) with fixture overrides → PASS');
+      passed++;
+    } else {
+      console.log(`  [FAIL] C1-OVERRIDE: checkC1(bad-c1-with-override-fixture.md) with fixture overrides → expected PASS, got ${c1With.status}`);
+      failed++;
+    }
+    const c1Without = checkC1(overrideFixtureBody, 'bad-c1-with-override-fixture.md', []);
+    if (c1Without.status === 'FAIL') {
+      console.log('  [PASS] C1-OVERRIDE-WITHOUT: checkC1(bad-c1-with-override-fixture.md) without overrides → FAIL');
+      passed++;
+    } else {
+      console.log(`  [FAIL] C1-OVERRIDE-WITHOUT: checkC1(bad-c1-with-override-fixture.md) without overrides → expected FAIL, got ${c1Without.status}`);
       failed++;
     }
   }

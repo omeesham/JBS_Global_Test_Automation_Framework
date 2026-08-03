@@ -1629,3 +1629,229 @@ in **exactly one** phase, and the per-phase counts must sum to 95. Then the spli
 the 196-item DISPATCHER worklist is the standing queue after that.
 
 *Appended 2026-07-30 at owner halt.*
+
+---
+
+## ▶ RESUMED — 2026-08-03
+
+### Split plan verified and filed
+
+`q123-splitplan-v2` passed the dispatcher's own per-phase check. Five independent groups, all clean:
+
+| check | result |
+|---|---|
+| per-phase claimed count vs IDs actually listed | 6/6 phases match |
+| phase counts sum vs manifest | 95 = 95 |
+| any ID in two phases | 0 |
+| set equality vs `OFF-REPO-TRANSFER-MANIFEST.md` | 0 missing, 0 extra |
+| tally vs the phase tables (where v1 failed) | 0 disagreements |
+
+The worker's diagnosis held up: v1's phase *tables* were always correct; only the tally text was wrong,
+via range shorthand that swallowed `P2-LOT09-01`. No finding actually moved phase.
+
+**Filed** as `plans/pending/SUBPLAN_OFFREPO_RECONCILIATION.md`. On filing the dispatcher normalised the
+frontmatter to repo convention (`Status: Pending`, `Created`, `Owner`, `PermissionMode: default`,
+`Model: claude-opus-4-8`) and dropped the `## PHASE ASSIGNMENT CHANGES` section — a v1→v2 changelog is
+draft-review scaffolding, and that story lives here instead. `npm run plans:reindex` re-ran: 133 pending.
+
+Fable Q2 condition 2 is now satisfiable — the split is filed and no parent has flipped DONE.
+
+### The worklist's file paths were wrong for 46 findings
+
+Before dispatching anything against `DISPATCHER-WORKLIST.md`, every one of its 98 asserted paths was
+checked against `git ls-files`. The path column is **not** repo-relative:
+
+| bucket | groups | findings |
+|---|---|---|
+| path exists in the repo as written — dispatchable | 76 | 139 |
+| path resolves by basename to a **different** repo path | 15 | 46 |
+| not in the repo at all — cannot be a dispatcher edit | 1 | 1 |
+| glob / multi-file heading — needs hand resolution | 6 | 10 |
+
+The big one: nine `.claude/hooks/lib/*` groups actually mean the **repo templates** under
+`.claude/skills/ultra-agents/setup/{delegation,hooks}/` — `scorecard.mjs` (9 findings), `gates-config.json`
+(5), `delegation-gate.mjs` (3), `delegation-nudge.mjs` (3), `config-liveness-registry.json` (3),
+`labor-gate.mjs` (2), `ua-worker-guard.mjs` (2), plus `routing-policy.json` / `model-registry.json` /
+`uplink-policy.json` (2 each). Every one of those is **inert until installed** — fixing the template
+changes no running behaviour, and the install is the owner's action.
+
+`P2-LOT04-24` (`.claude/hooks/lib/scorecard.json`) exists nowhere in the repo → **reclassified OWNER**.
+
+Because the mapping is *derived*, no ticket is allowed to treat it as fact: each carries a
+`## PATH-MISMATCH` section and an instruction to stop rather than edit the nearest lookalike.
+
+### Two lots pulled from wave 1 before dispatch
+
+`delegation-gate.mjs` and `delegation-nudge.mjs` both want to extract shared symbols into a common
+hook-lib (`fireTelemetry`, `hasPipelineIdentity`, `REPO_CWD_PREFIX`). That is **one** design decision
+across a shared file — running them as parallel tickets would collide. They go out later as a single
+serialised ticket.
+
+`.claude/skills/ultra-agents/copilot-worker.sh` (5 findings) is **held deliberately**: it is the dispatch
+wrapper itself. No worker edits it while other workers are being dispatched through it. It goes last, solo.
+
+Live repo hooks (`check-todo-injection.mjs`, `check-browsertool.mjs`, `check-execution-completion.mjs`,
+`check-identity-switch.mjs`) are also deferred to a serialised round — `.claude/settings.json` wires them
+into this very session, so a mid-edit syntax error breaks the session doing the reviewing.
+
+### Wave 1 dispatched — 4 lots, 26 findings
+
+| run-id | file | findings | credits |
+|---|---|---|---|
+| `q123-w1-scorecard` | `setup/delegation/scorecard.mjs` | 9 | 140 |
+| `q123-w1-navigation` | `.claude/context/navigation.md` | 7 | 120 |
+| `q123-w1-gatescfg` | `setup/delegation/gates-config.json` | 5 | 80 |
+| `q123-w1-closureval` | `scripts/validate-plan-closure.mjs` | 5 | 150 |
+
+Disjoint files, disjoint verify surfaces, no shared-module extraction — safe to run concurrently.
+`validate-plan-closure.mjs` is LIVE (invoked by `check-plan-closure.mjs:34` behind `plan-closure-gate.sh`),
+so its ticket requires `--self-test` before, after every single finding, and at the end, with a
+revert-that-finding rule if the suite ever goes red.
+
+*Appended 2026-08-03.*
+
+### Wave 1 — lots accepted so far
+
+**`q123-w1-gatescfg` — ACCEPTED. 5/5 applied.**
+
+The defect was four gates whose prose claimed they denied while their `mode` read `announce`. The fix
+makes the prose true and normalises G0/G1/G3 onto G2's existing four-key ramp schema. Dispatcher checks,
+run independently of the report:
+
+- `git diff` — 3 hunks, surgical, **no `"mode":` line touched**
+- every gate's live `sev`/`mode` re-read straight from the JSON: G0 S1, G1 S0, G2 S0, G3 S0, G4 S1, G5 S1,
+  **all six `announce`** — the report's MODES UNCHANGED table is accurate, not asserted
+- `ramp_started: "2026-07-13"` was flagged as inferred; it matches the date G2/G4/G5 already carry and
+  every gate's own `incident` line, so it is convention-matching, not invention
+
+**`q123-w1-scorecard` — ACCEPTED. 8 applied, 1 correctly declined.**
+
+The ticket carried a deliberate trap: P2-LOT04-14 said delete `orchestrate` and `research` from
+`WORK_TYPES`, and `research` is a work-type this dispatcher was actively using in the same wave. The
+worker checked the wrapper first and declined the deletion, citing `copilot-worker.sh:88`
+(`_WORK_TYPE_ENUM=...|research|orchestrate`). That is the correct answer.
+
+`node --check` cannot see the two failure modes that actually matter here, so both were checked directly:
+
+- **imports** — the new code introduces `homedir`, `existsSync`, `writeFileSync`; all three are imported
+  (lines 4–6). A syntax check would have passed a missing import and failed at runtime.
+- **smoke test** — `node scorecard.mjs` with no args loads and prints usage, exit 0.
+- `NON_GREEN_OUTCOMES` derived by filter is set-identical to the hand-written list it replaced.
+- the `~/.copilot/agents` repath is right — `CLAUDE.md` § FIRST RUN uses that exact path. The worker
+  reached it by inference (it was scope-barred from reading `~/.copilot/`) and said so; the conclusion
+  holds independently.
+- `AGENTS` is not orphaned — still used at line 222, which checks both dirs.
+
+### Two new findings this wave
+
+| id | class | finding |
+|---|---|---|
+| NEW-01 | **OWNER** | `G1`, `G2`, `G3` all carry `sev: S0` with `mode: announce`. `.claude/rules/guardrail-policy.md:36` says S0 is *"the sole deny-on-landing exception"*. Three S0 gates are not enforcing. Confirmed by reading both files directly. The running copy is off-repo, so the flip is the owner's call. |
+| NEW-02 | DISPATCHER | `copilot-worker.sh` `--effort` validation prints `Auto-correcting to 'xhigh'` and then hard-exits anyway. The auto-correct is dead code — it should correct **or** reject, not both. Goes into the held `copilot-worker.sh` lot. |
+
+### One worker death, RCA'd
+
+`q123-w1-agentsprobe` — exit 2, zero credits, died at flag validation before dispatch. Cause: **dispatcher
+error, not worker.** `--effort max` was passed to `gpt-5.5`, whose top verified tier is `xhigh`. Re-sent as
+`q123-w1-agentsprobe2` with `--effort xhigh`. The wrapper's contradictory auto-correct is filed as NEW-02.
+
+### A 12-finding refactor put on hold pending a read-only probe
+
+All 12 `.claude/agents/` findings (`*.md` ×5, `GENERATOR.md` ×3, `AUDIT.md` ×2, `PLANNER.md` ×2) are one
+change: strip duplicated rule blocks out of per-agent system prompts and leave a pointer to
+`AGENT_SHARED_RULES.md`.
+
+**That is only a dedupe if the agent structurally reads that file.** If it does not, it is a rule
+deletion with a sentence claiming otherwise — across every pipeline agent at once. `q123-w1-agentsprobe2`
+is a write-nothing probe answering exactly that, separately for the spawned-subagent path and the
+`/identity` path, with file:line for the loader or an explicit list of where it looked and found none.
+No agent prompt gets edited until that verdict is in.
+
+*Appended 2026-08-03.*
+
+### `q123-w1-closureval` — ACCEPTED, and it exposed the wave's biggest problem
+
+1 of 5 applied. The other 4 were **already fixed** — in `c2b0e339`, this campaign's own earlier
+checkpoint. The worker said so plainly rather than inventing work, which is the right answer.
+
+Dispatcher verification, run independently:
+
+- `--self-test` → **34 passed, 0 failed, exit 0**. The live closure validator works.
+- baseline was **32** passed; the +2 are `C1-OVERRIDE` and `C1-OVERRIDE-WITHOUT` — real new assertions
+  from P25-M17, which the worker **wired** rather than deleting. It threaded `opts.overridesData` into
+  `validatePlan` and proved both directions. The finding offered "wire or DELETE"; wiring was the better
+  branch and it took it.
+- `git log -S` on each supposedly-deleted symbol: introduced in `32398e28`, removed in `c2b0e339`.
+  Only surviving references are in finding documents describing the finding. Nothing in code.
+- no importers — `git grep "from '...validate-plan-closure"` is empty, so the deletions cannot have
+  broken a caller elsewhere.
+
+### **The worklist is not a work queue** — 65 of 196 are suspect already-done
+
+`DISPATCHER-WORKLIST.md` was built by merging classification reports. Classification answers *who owns
+this finding*. It never asked *is this finding still open*. Roughly 47 findings were fixed earlier in this
+same campaign and none were subtracted.
+
+Machine intersection of the 196 queue IDs against all 28 prior `*-APPLIED.md` reports in the chip tree:
+
+| | |
+|---|---|
+| dispatcher queue | **196** |
+| appear in a prior APPLIED report — suspect closed | **65** |
+| no prior mention — presumed open | **131** |
+
+Written to `out-merge-final/STALE-SUSPECTS.md`, grouped by target file so each can be checked in one pass.
+"Appears in an APPLIED report" is a **suspicion, not a verdict** — an id can appear there as declined.
+`q123-w1-navigation` is the proof: all 7 of its ids appear in `out-fw-nav`, yet 4 still had real work.
+
+**No further lot is dispatched without checking its ids against that list first.** Dispatching a lot of
+no-ops costs credits and returns nothing.
+
+### `q123-w1-navigation` — BOUNCED
+
+4 applied, 3 declined by its own account. The registry extraction (P2-LOT13-24) is **verified good**:
+every line removed from `navigation.md` was diffed against the new `.claude/context/exploration-registry.md`
+and the move is verbatim. The 55 KB is real — those table rows are enormous.
+
+But P2-LOT13-02 is reported as *"Before: (no change) / After: (no change)"* and its row is **gone from
+disk**:
+
+```
+| Client-specific agent rules (Encore) | `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md` | — |
+```
+
+That asserted path does **not** exist; `clients/encore/CLAUDE.md` does. So it was exactly the row the
+finding described, the instructed branch was **REPATH not DELETE**, and the report denies the change
+happened. The search was also inverted — the worker looked for the repath *destination* instead of
+checking which asserted paths were broken.
+
+`q123-w1-nav-bounce` restores the row repathed and re-verifies all seven claims against the file as it
+now stands. A report that denies a change that happened invalidates its other claims too.
+
+**Lesson for the dispatcher, not the worker**: a *declined* claim needs the same disk cross-check as an
+applied one. Verifying only the APPLIED rows would have missed this entirely.
+
+### The 12-finding agent-prompt dedupe — REJECTED, and settled without a probe
+
+`q123-w1-agentsprobe2` died `no-deliverable` after doing all the research — 100 credits was too small for
+an open-ended repo-wide loader trace, and the budget ran out between finding the answer and writing it.
+**Dispatcher sizing error.** Its partial notes named `pipeline/worker/index.ts`, which was enough to
+finish the question directly:
+
+- `pipeline/worker/index.ts:209` reads **one** agent file and that is the prompt. Line 218's fallback is
+  "Agent file not found … using thin prompt" — no second source.
+- `git grep AGENT_SHARED_RULES` across `*.ts *.mjs *.js *.sh`: **every** hit is a gate reading it for
+  validation (`check-identity-ownership`, `check-subplan-identity`, `check-enforcement-claims`) or prose
+  inside an error string. **Nothing concatenates it into a prompt.**
+
+So: spawned agent path = **neither** (structural nor instructed). `/identity` path = **instructed** only.
+
+Deleting a rule block from `GENERATOR.md` and leaving a pointer therefore does not deduplicate the rule —
+it removes it from every spawned GENERATOR. This lands on the decision rule this campaign already set:
+*"Instantiation → pointer (deleting an early copy for a later reference) = reject as prompt-weakening,
+regardless of token savings."*
+
+**Disposition — each of the 12 splits in half:** adding canonical text to `AGENT_SHARED_RULES.md` stays
+actionable; **deleting the per-agent copy is rejected.** No agent prompt loses a block.
+
+*Appended 2026-08-03.*

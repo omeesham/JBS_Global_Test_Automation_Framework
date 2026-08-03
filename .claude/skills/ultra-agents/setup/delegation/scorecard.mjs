@@ -54,8 +54,14 @@ function buildWins(ledger, oi) {
   return w;
 }
 
-// ── record ────────────────────────────────────────────────────────────────────
-const NON_GREEN_OUTCOMES = new Set(['refuted','failed','env-blocked','bounced-then-green']);
+function loadCosts(dir) {
+  const p = join(dir, 'model-costs.json');
+  if (!existsSync(p)) { console.error(`scorecard: model-costs.json not found at '${p}' — cannot compute cost estimates`); process.exit(1); }
+  try { return JSON.parse(readFileSync(p, 'utf8')); } catch (e) { console.error(`scorecard: model-costs.json at '${p}' is not valid JSON: ${e.message}`); process.exit(1); }
+}
+
+
+const NON_GREEN_OUTCOMES = new Set([...OUTCOMES].filter(o => o !== 'green'));
 function doRecord(a) {
   const rid = a['run-id'], tkt = a.ticket, wt = a['work-type'], oc = a.outcome, ts = a.ts;
   if (!rid || !tkt || !wt || !oc) { console.error('record: --run-id --ticket --work-type --outcome all required'); process.exit(1); }
@@ -111,7 +117,7 @@ function doRecord(a) {
 function doReport(a) {
   const ledger   = rjl(LEDGER);
   const outcomes = rjl(join(DIR, 'outcomes.jsonl'));
-  const costs    = rjson(join(DIR, 'model-costs.json'));
+  const costs    = loadCosts(DIR);
   const policy   = rjson(join(DIR, 'routing-policy.json'), { work_types: {} });
   const reg      = rjson(join(DIR, 'model-registry.json'), { models: [] });
   const rows     = a.session ? ledger.filter(r => r.run_id.startsWith(a.session)) : ledger;
@@ -158,7 +164,7 @@ function doReport(a) {
   const regIds  = new Set((reg.models || []).map(m => m.id));
   const polMods = new Set(Object.values(policy.work_types || {}).flatMap(arr => arr.map(e => e.model)));
   console.log('\n=== D9 PIN FRESHNESS ===');
-  const agDir = AGENTS;
+  const agDir = join(homedir(), '.copilot', 'agents');
   if (existsSync(agDir)) {
     for (const f of readdirSync(agDir).filter(f => f.endsWith('.agent.md'))) {
       const pin = (readFileSync(join(agDir, f), 'utf8').match(/^model:\s*(.+)$/m) || [])[1]?.trim();
@@ -190,8 +196,8 @@ function doReport(a) {
 
   // D12a — doctrine cross-copy
   console.log('\n=== D12 DOCTRINE CROSS-COPY ===');
-  const SCHEMA_FIELDS = ['DOCTRINE_READ','FILES_INSPECTED','PLAN','DIFF_SUMMARY','VERIFY_OUTPUT','DOCS_UPDATED','CLEANUP','BLOCKERS_DEVIATIONS'];
-  const docCopies = [join(AGENTS, 'council-worker.agent.md'), join(DIR, 'ticket-template.md')];
+  const SCHEMA_FIELDS = ['DOCTRINE_READ','FILES_INSPECTED','PLAN','DIFF_SUMMARY','VERIFY_ARTIFACTS','EXTERNAL_CONTENT_CONSUMED','ASK','DOCS_UPDATED','CLEANUP','BLOCKERS_DEVIATIONS'];
+  const docCopies = [join(homedir(), '.copilot', 'agents', 'council-worker.agent.md'), join(DIR, 'ticket-template.md')];
   let allSchemasClean = true;
   for (const cp of docCopies) {
     if (!existsSync(cp)) {
@@ -261,14 +267,16 @@ function doReport(a) {
     if (compliancePct != null && compliancePct < 100) console.log(`  [ALARM §6.4] advisory compliance ${compliancePct}% < 100% — fix compliance FIRST; every other vital sign is noise while it's low.`);
     // §6 sign 1 — dead ratchet: consult count flat across last 3 report runs (consults must trend DOWN as questions graduate to rules)
     const histPath = join(DIR, 'uplink-report-history.jsonl');
-    appendFileSync(histPath, JSON.stringify({ ts: 'unknown', consults, compliancePct }) + '\n');
-    const hist = rjl(histPath).slice(-3);
+    appendFileSync(histPath, JSON.stringify({ ts: new Date().toISOString(), consults, compliancePct }) + '\n');
+    const histAll = rjl(histPath);
+    if (histAll.length > 3) writeFileSync(histPath, histAll.slice(-3).map(r => JSON.stringify(r)).join('\n') + '\n');
+    const hist = histAll.slice(-3);
     if (hist.length === 3 && hist[0].consults === hist[1].consults && hist[1].consults === hist[2].consults) {
       console.log(`  [ALARM §6.1] consult count flat (${consults}) across last 3 reports — dead ratchet: consults must trend DOWN as answers graduate into rules (Phase 4.1). Check the graduation loop.`);
     }
   }
 
-  writeFileSync(join(DIR, 'scorecard.json'), JSON.stringify({ generated: 'unknown', rows: sRows, model_counts: mCounts }, null, 2) + '\n');
+  writeFileSync(join(DIR, 'scorecard.json'), JSON.stringify({ generated: new Date().toISOString(), rows: sRows, model_counts: mCounts }, null, 2) + '\n');
   console.log('\n(scorecard.json written)');
 }
 
@@ -328,12 +336,12 @@ function doCommit(a) {
     if (!ns) continue;
     const pid = `${model}::${wt}::${status}->${ns}`;
     if (pid !== cid) continue;
-    const ent = { model, status: ns, since: 'unknown', evidence: `scorecard commit ${pid}` };
+    const ent = { model, status: ns, since: new Date().toISOString(), evidence: `scorecard commit ${pid}` };
     if (pe) Object.assign(pe, ent);
     else { pol.work_types[wt] = pol.work_types[wt] || []; pol.work_types[wt].push(ent); }
-    pol.updated = 'unknown';
+    pol.updated = new Date().toISOString();
     writeFileSync(pPath, JSON.stringify(pol, null, 2) + '\n');
-    appendFileSync(logPath, `approved: in-chat unknown  change-id:${cid}\n`);
+    appendFileSync(logPath, `approved: in-chat ${new Date().toISOString()}  change-id:${cid}\n`);
     console.log(`committed: ${cid}`); found = true; break;
   }
   if (!found) { console.error(`commit: no active proposal matches '${cid}'`); process.exit(1); }
@@ -346,7 +354,7 @@ function doSelect(a) {
   if (!wt)  { console.error('select: --work-type is required'); process.exit(1); }
   if (!fam) { console.error('select: --exclude-family or --for-model is required'); process.exit(1); }
   const policy  = rjson(join(DIR, 'routing-policy.json'), { work_types: {} });
-  const costs   = rjson(join(DIR, 'model-costs.json'));
+  const costs   = loadCosts(DIR);
   const entries = (policy.work_types[wt] || []).filter(e => e.status === 'proven' && family(e.model) !== fam);
   if (!entries.length) {
     process.stderr.write(`select: no cross-family proven model for '${wt}' excluding family '${fam}'\n`);
