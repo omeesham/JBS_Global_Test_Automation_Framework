@@ -33,14 +33,14 @@ if printf '%s' "$input" | grep -q '"stop_hook_active"[[:space:]]*:[[:space:]]*tr
 fi
 
 state_dir=".claude/state"
-mkdir -p "$state_dir" 2>/dev/null || true
 failure_log="$state_dir/hook-failures.log"
 
 if [ -z "${input:-}" ]; then
   exit 0
 fi
 
-lib_path=".claude/hooks/lib/relevant-injection.mjs"
+mkdir -p "$state_dir" 2>/dev/null || true
+lib_path="$(dirname "${BASH_SOURCE[0]}")/lib/relevant-injection.mjs"
 if [ ! -f "$lib_path" ]; then
   printf '%s relevant-injection.sh: lib missing at %s; allowing.\n' \
     "$(date -u +%FT%TZ)" "$lib_path" >> "$failure_log" 2>/dev/null || true

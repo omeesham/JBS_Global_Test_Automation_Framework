@@ -33,21 +33,12 @@ fi
 # Empty stdin (harness passes no payload on routine Stop) — silent allow, no node spawn.
 if [ -z "$input" ]; then exit 0; fi
 
-if [ -z "$mode" ]; then
-  mkdir -p .claude/state 2>/dev/null || true
-  printf '%s\n' "$(date -u +%FT%TZ) execution-completion-gate.sh: missing mode argv[1]; allowing." \
-    >> .claude/state/hook-failures.log 2>/dev/null || true
-  exit 0
-fi
+_fail() { mkdir -p .claude/state 2>/dev/null || true; printf '%s\n' "$(date -u +%FT%TZ) execution-completion-gate.sh: $1; allowing." >> .claude/state/hook-failures.log 2>/dev/null || true; }
+
+if [ -z "$mode" ]; then _fail "missing mode argv[1]"; exit 0; fi
 
 lib_path="$(dirname "${BASH_SOURCE[0]}")/lib/check-execution-completion.mjs"
-
-if [ ! -f "$lib_path" ]; then
-  mkdir -p .claude/state 2>/dev/null || true
-  printf '%s\n' "$(date -u +%FT%TZ) execution-completion-gate.sh: lib missing at $lib_path; allowing." \
-    >> .claude/state/hook-failures.log 2>/dev/null || true
-  exit 0
-fi
+if [ ! -f "$lib_path" ]; then _fail "lib missing at $lib_path"; exit 0; fi
 
 # Pass mode + full stdin JSON to lib; lib emits stdout verbatim (warning text)
 # when a mandated artifact is missing, silent otherwise.

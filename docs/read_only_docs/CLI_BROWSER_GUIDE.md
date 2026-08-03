@@ -183,6 +183,8 @@ The `permissions.allow` array already includes the hook's invocation path + the 
 
 **Disabling**: remove the entry above. Files stay on disk; a flip-back is reversible.
 
+**After enabling or disabling**: log the action in the activity log.
+
 **Override handshake** (when hook is active):
 
 If an agent genuinely needs the other-class tool mid-subplan (visual check from a `BrowserTool: cli` subplan, or vice versa), the escape path is:

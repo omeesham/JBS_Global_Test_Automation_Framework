@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
 # bug-baseline-gate.sh — PreToolUse wrapper for the LR-034 baselineComparison enum gate.
-#
-# Fires on PreToolUse (matcher: "Edit|Write|NotebookEdit"). Passes the harness
-# stdin JSON to .claude/hooks/lib/check-bug-baseline.mjs, which DENIES the write
-# when a clients/<id>/reports/bugs/BUG-*.json sets baselineComparison to a value outside the
-# LR-034 enum (regression-from-baseline | intentional-UX-change | baseline-absent |
-# not-checked), or marks regression without an existing old-site-baseline artifact.
-# Non-bug paths are never scanned. Edits that don't touch baselineComparison pass.
+# Fires on PreToolUse (matcher: "Edit|Write|NotebookEdit").
 #
 # Fail-OPEN: any error → reason appended to .claude/state/hook-failures.log, allow.
 # A broken gate must never wedge the session.
