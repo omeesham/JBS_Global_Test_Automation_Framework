@@ -1855,3 +1855,140 @@ regardless of token savings."*
 actionable; **deleting the per-agent copy is rejected.** No agent prompt loses a block.
 
 *Appended 2026-08-03.*
+
+### `q123-w2-guardrailcfg` — ACCEPTED. 1 applied, 1 correctly declined.
+
+**P2-02 — `skill_route_*` keys deleted.** The finding's basis was "no active wrapper read found", which is
+a claim, so the dispatcher re-ran the search independently rather than inheriting it:
+`git grep skill_route` returns hits **only** in `plans/done/PLAN_WORKER_SKILL_ROUTING.md`,
+`plans/pending/PLAN_ULTRAAUDIT_FIX_WAVE.md`, and `_ULTRAAUDIT_FINDINGS.md` — all documents describing the
+keys, zero code readers. Safe. JSON still parses.
+
+**P2-10 — duplicate `_stall_guard_comment` — already gone.** `git show HEAD` and `git show 50e20c25` both
+return a count of 1. Removed in `367363ff`, well before this wave.
+
+**P1-M06 untouched, as instructed**, with a read-only note for the owner: `_stall_note` already labels the
+repo copy documentation-only; whether that label suffices or the keys need a `_mirror_` marker is the
+owner's call.
+
+*Note on the diff:* `guardrail-config.json` carries a large uncommitted `client_surface_*` / `arm_c_output_*`
+block that predates this session. It is **not** this worker's work — it was already dirty at session start.
+
+### Correcting my own staleness claim
+
+Earlier this session the stale-suspect intersection was described as "65 of 196 already done." That
+overstates what the instrument can see, and the correction matters:
+
+- **It has false positives.** All 7 `navigation.md` ids appeared in a prior report, yet 4 had real work.
+- **It has false negatives.** `P2-10` was **not** flagged suspect — it was fixed by an ordinary commit
+  (`367363ff`), not by a chip `*-APPLIED.md` report. The intersection only sees worker-applied fixes.
+
+So the suspect list is a **prioritisation aid, not a gate.** The real check is per-finding against current
+disk, and only the worker doing the lot can run it.
+
+The reassuring part: **the workers are catching this themselves and reporting it honestly.** Three lots so
+far returned "already fixed, nothing to do" with evidence rather than inventing work. The cost of a stale
+finding is therefore one honest dispatch, not a wrong edit — much cheaper than feared, and it does not
+justify pausing the queue. The order of work still uses the list; the queue is not gated on it.
+
+*Appended 2026-08-03.*
+
+### `q123-w2-doctrinetest` — ACCEPTED. 3/3, and the suite was red before it started.
+
+Both "vacuous test" findings were real, and the worker proved each rather than asserting it:
+
+- **DEFECT-5** was not merely vacuous, it was **permanently failing**. Baseline run: `28 pass / 1 fail`.
+  The test passed an `onWalkError` callback as a 4th argument to `findMatchingRules`, which the dispatcher
+  confirmed at `scripts/ticket-doctrine-from-scope.mjs:245` takes exactly two parameters
+  (`inputPaths, rules`). The extra arg was silently discarded, so `errorCalled` could never become true and
+  the assert always threw. `scripts/ticket-doctrine-from-scope.test.mjs` has been carrying a red test in
+  HEAD.
+- **DEFECT-4** was tautological in the other direction. The worker deliberately broke the subject to
+  simulate the exact bug the test claims to catch — and the test still **passed**, because `walkTriggered`
+  could never be set by a callback the subject never invokes. Subject restored and verified clean.
+
+Both diagnoses re-derived independently by the dispatcher from the subject's signature, not taken on the
+report's word. Suite now **28 pass / 0 fail**, subject file untouched.
+
+P2-LOT16-02 took the REWRITE branch as instructed rather than deleting, so the glob-intersection behaviour
+is now actually asserted instead of merely claimed.
+
+*Appended 2026-08-03.*
+
+### `q123-w2-uplinktest` — work landed, claim did not survive. BOUNCED.
+
+Two things nearly went wrong here, both worth recording.
+
+**1. `git` could not see the work at all.** `.claude/hooks/lib/uplink/` is gitignored
+(`.gitignore:279`), so `git diff` and `git status --porcelain` both returned empty for a directory the
+worker had just rewritten. The first read of that was "nothing landed." It had: `uplink.test.mjs` grew
+19 → 21 tests. **A clean git surface is not evidence of no change when the path is ignored** — check
+mtime and content, not git.
+
+**2. The redactor was verified restored, byte-for-byte.** The worker temporarily broke `redact.mjs` to
+prove vacuity. `sha256(redact.mjs) == sha256(redact.mjs.bak) == 8dd3e2f2…`, the `__NEVER_MATCH__` marker
+is gone, and the Authorization rule is intact at line 14. No S0 exposure was left behind.
+
+**The bounce.** The run died `no-deliverable` before writing its report, so the dispatcher ran the
+fails-on-purpose proof the ticket had demanded, disabling one redaction rule at a time:
+
+```
+baseline (redactor intact)                        -> pass 21, fail 0
+BREAK pattern 1 — Authorization header regex      -> pass 21, fail 0    <-- nothing failed
+BREAK SENSITIVE_KEY (password|passwd|pwd|secret)  -> pass 20, fail 1
+```
+
+**Disabling the Authorization header rule outright changes nothing.** P2-LOT12-06 was supposed to end
+exactly that condition. The likely cause is that the replacement `ghp_`-shaped fixture is caught by a
+*different* rule, so the test passes whether or not pattern 1 works — the secret gets redacted, the rule
+under test never runs.
+
+The vacuity did not go away. It moved. `q123-w2-uplinktest-b` carries the machine evidence, requires a
+rule-1-only input (or an OBJECTION explaining that the rules overlap everywhere, which would itself be a
+real finding about the redactor), and demands a per-test fails-on-purpose row.
+
+**Two process corrections shipped in the bounce ticket**: write the report incrementally rather than at
+the end — the last run did every piece of work and then lost all of it — and stop writing `_patch*.mjs`
+iterations; it left four attempts at one edit plus a `_show.mjs` in the output directory, against a ticket
+that said create zero files beyond the report. Budget raised 160 → 280.
+
+### The general lesson this wave keeps teaching
+
+A test suite that goes green proves the suite ran, not that the thing it guards works. The only proof is
+breaking the guarded rule and watching the suite notice. Three lots this wave contained a test that could
+not fail: two in `ticket-doctrine-from-scope.test.mjs` (one of them permanently red in HEAD), one here.
+Every future ticket touching a test file carries the fails-on-purpose requirement.
+
+*Appended 2026-08-03.*
+
+### `q123-w2-uplinktest-b` — ACCEPTED. 3/3 proven, verified by the dispatcher's own harness.
+
+The bounce worked. Re-running the dispatcher's break-one-rule-at-a-time harness against the new suite:
+
+```
+baseline (redactor intact)                   -> pass 21, fail 0
+BREAK pattern 1 — Authorization header regex -> pass 20, fail 1
+   failing: redact: Authorization header with Basic credential is redacted
+BREAK SENSITIVE_KEY                          -> pass 20, fail 1
+final sha256(redact.mjs) == sha256(.bak)     -> true
+```
+
+Pattern 1 is now genuinely covered. The worker found the isolating input the previous attempt missed: a
+`Basic` base64 credential, which patterns 2 and 5 do not match, so the assertion depends on rule 1 alone.
+Test count stayed 21 — it replaced the vacuous fixture rather than padding the suite.
+
+All three findings carry a fails-on-purpose row with the rule disabled and the failure pasted.
+
+**Its OBJECTION is the most useful output of the lot** and explains the whole failure class: patterns 1
+and 2 overlap by design (defence in depth), so *any* bearer token inside an `Authorization:` header is
+caught three times over. That redundancy is correct for safety and fatal for testing — a fixture that
+does not isolate exactly one rule produces a test that cannot fail. That is why the first attempt's
+`ghp_` fixture looked like a fix and was not.
+
+**New finding, self-declared by the worker rather than hidden:**
+
+| id | class | finding |
+|---|---|---|
+| NEW-03 | DISPATCHER | `P2-LOT12-05`'s test is titled "…without an Authorization header", implying it covers pattern 2 (bearer-in-prose), but its fixture uses a `ghp_` token which pattern 5 catches. Disabling pattern 2 does **not** fail it. Pattern 2 therefore still has no test that can fail. Verified by the worker; not bounced, because the three ticketed findings are all proven and this is a fourth. |
+
+*Appended 2026-08-03.*

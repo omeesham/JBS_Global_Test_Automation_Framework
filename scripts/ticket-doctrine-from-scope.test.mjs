@@ -184,76 +184,37 @@ test('integration: dedup with real rules — same path twice yields same result 
   assert.deepEqual(single, doubled);
 });
 
-// ---------- glob-scope expansion tests (strategy b) ----------
+// ---------- glob-scope intersection tests (strategy c — glob-intersection) ----------
 
-test('glob-scope: clients/*/tests/** yields specs.md via filesystem expansion', () => {
+test('glob-scope: clients/*/tests/** yields specs.md via glob-intersection', () => {
   const rules = loadRules(RULES_DIR);
-  const actual = findMatchingRules(['clients/*/tests/**'], rules, REPO_ROOT);
+  const actual = findMatchingRules(['clients/*/tests/**'], rules);
   assert.ok(actual.includes('.claude/rules/specs.md'), `missing specs.md in ${JSON.stringify(actual)}`);
   assert.ok(actual.length >= 1, `expected at least 1 rule, got ${JSON.stringify(actual)}`);
 });
 
-test('regression: concrete path still works when repoRoot is passed', () => {
+test('glob-scope: concrete path yields correct rules via glob-intersection', () => {
   const rules = loadRules(RULES_DIR);
-  const actual = findMatchingRules(['clients/encore/tests/foo.spec.ts'], rules, REPO_ROOT);
+  const actual = findMatchingRules(['clients/encore/tests/foo.spec.ts'], rules);
   assert.ok(actual.includes('.claude/rules/specs.md'), `missing specs.md in ${JSON.stringify(actual)}`);
 });
 
 test('glob-scope no-match: nonexistent dir glob returns empty without crashing', () => {
   const rules = loadRules(RULES_DIR);
-  const actual = findMatchingRules(['nonexistent-xyz-abc-dir/**'], rules, REPO_ROOT);
+  const actual = findMatchingRules(['nonexistent-xyz-abc-dir/**'], rules);
   assert.deepEqual(actual, []);
 });
 
-// ---------- DEFECT-4: concrete paths skip FS walk ----------
+// ---------- concrete path matching ----------
 
-test('efficiency (defect-4): concrete path with file-as-root does not trigger FS walk', () => {
-  // A file (not a dir) as repoRoot causes ENOTDIR on readdirSync — an unexpected error.
-  // If the FS walk were triggered for a concrete path, onWalkError would fire.
-  // With the efficiency fix, concrete paths use strategy (a) only — no walk, no callback.
-  const tmpDir = mkdtempSync(join(tmpdir(), 'doctrine-test-'));
-  const fakeRoot = join(tmpDir, 'not-a-dir');
-  writeFileSync(fakeRoot, 'not a directory');
-  let walkTriggered = false;
-  let result;
-  try {
-    result = findMatchingRules(
-      ['scripts/foo.mjs'],
-      [{ ruleFile: 'x', globs: ['scripts/**/*.mjs'] }],
-      fakeRoot,
-      () => { walkTriggered = true; },
-    );
-  } finally {
-    rmSync(tmpDir, { recursive: true });
-  }
+test('concrete path: returns correct match (glob-intersection, no FS walk)', () => {
+  // findMatchingRules uses pure glob-intersection — no filesystem access of any kind.
+  // A concrete path matches a rule glob iff the two globs structurally intersect.
+  const result = findMatchingRules(
+    ['scripts/foo.mjs'],
+    [{ ruleFile: 'x', globs: ['scripts/**/*.mjs'] }],
+  );
   assert.deepEqual(result, ['x']);
-  assert.ok(!walkTriggered, 'onWalkError was triggered — concrete path incorrectly triggered FS walk');
-});
-
-// ---------- DEFECT-5: unexpected walk errors are not silently swallowed ----------
-
-test('defect-5: unexpected walk error (ENOTDIR) triggers onWalkError callback', () => {
-  // 'clients/**' has glob metacharacters → strategy (b) triggers the FS walk.
-  // 'docs/**/*.md' does NOT match 'clients/**' directly → strategy (a) fails.
-  // The repoRoot is a file (not a dir) → readdirSync returns ENOTDIR (unexpected).
-  // The callback must fire; the error must NOT be silently swallowed.
-  const tmpDir = mkdtempSync(join(tmpdir(), 'doctrine-test-'));
-  const fakeRoot = join(tmpDir, 'not-a-dir');
-  writeFileSync(fakeRoot, 'not a directory');
-  let errorCalled = false;
-  let caughtErr = null;
-  try {
-    findMatchingRules(
-      ['clients/**'],
-      [{ ruleFile: 'x', globs: ['docs/**/*.md'] }],
-      fakeRoot,
-      (err) => { errorCalled = true; caughtErr = err; },
-    );
-  } finally {
-    rmSync(tmpDir, { recursive: true });
-  }
-  assert.ok(errorCalled, 'expected onWalkError to be called for ENOTDIR (not silently swallowed)');
-  assert.ok(caughtErr !== null, 'expected the error object to be passed to onWalkError');
 });
 
 // ---------- DEFECT-7: FS-independent structural glob-overlap (non-existent dirs) ----------
