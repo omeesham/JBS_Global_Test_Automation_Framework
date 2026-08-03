@@ -31,9 +31,11 @@
 
 import { execSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = process.cwd();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(__dirname, '..');
 const PAGES_GLOB_ROOT = join(ROOT, 'clients');
 
 // --- Shared scan building blocks (brace-matched method extraction + save/verify regexes) ---

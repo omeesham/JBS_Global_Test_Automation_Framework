@@ -3140,3 +3140,150 @@ disk — which is the argument for writing acceptance criteria as *measurements*
 **99 of 196 closed.** Over half.
 
 *Appended 2026-08-03.*
+
+---
+
+## WAVE 10 — the multi-file ticket works, and the dirty-tree heuristic earned its keep
+
+### The experiment
+
+Every ticket in this campaign so far has been **one file**, because early workers died batch-writing and
+the one-file rule was the mitigation. Now that "create the report first and append as you go" has proven
+to be the actual fix (two tickets died without it, both delivered first try with it), the one-file rule is
+paying a cost it may no longer need to: the tail of this queue is ~40 files carrying a single finding each,
+and a dispatch apiece is wasteful.
+
+Wave 10 tests a **strictly sequential multi-file ticket**: two and three files respectively, with the rule
+*finish file N completely — edit, verify, append its report section — before opening file N+1.*
+
+### `q123-w10-tailsweep` — ACCEPTED. 3 files, 3 findings, **all three already done**, zero edits.
+
+| finding | claim | dispatcher check |
+|---|---|---|
+| P25-M14 — `sortPending()` dead, delete | already deleted in a prior session | `git grep sortPending` across `scripts/ pipeline/ src/ .claude/**/*.mjs` → **empty**. Confirmed gone. |
+| P25-LOT05-04 — add a `--staged` no-op comment | already present | `check-doc-script-parity.mjs:106` carries it |
+| P25-LOT05-05 — the same comment | already present | `check-reload-wait.mjs:104` carries it |
+
+The worker's grep is worth quoting, because it is the right way to read a "dead symbol" result:
+
+> `sortPending` does NOT appear in any source file. The three hits are plan/docs tracking files only —
+> not code.
+
+All three hits were the finding's **own paper trail** — `PLAN_ULTRAAUDIT_FIX_WAVE.md`,
+`_ULTRAAUDIT_FINDINGS.md`, and this reconciliation file. A careless reader sees three grep hits and
+concludes the symbol is alive. The distinction between *code that references a symbol* and *documents that
+discuss it* is the whole answer.
+
+**And the two comments differ from each other, correctly:**
+
+```js
+// check-doc-script-parity.mjs:106
+if (a === '--staged') { continue; } // --staged accepted for hook uniformity but is a no-op — this script always scans all pairs
+// check-reload-wait.mjs:104
+if (a === '--staged') { continue; } // ... this script always scans all page-object files
+```
+
+The ticket said: *"If the two files' situations differ, the two comments should differ. Do not paste the
+same line twice for consistency."* Whoever wrote them originally did exactly that — "all pairs" vs "all
+page-object files". Each says what that specific script actually scans.
+
+**Verdict on the experiment: the multi-file ticket held.** Three files, sequential, complete report, no
+deaths, no scope creep, and it correctly refused to manufacture work on three already-satisfied rows.
+
+### The dirty-tree cross-check predicted two of these three
+
+`dirty-check.mjs` (built after the chainplan discovery) flagged `scripts/check-doc-script-parity.mjs`
+(P25-LOT05-04) and `scripts/check-reload-wait.mjs` (P25-LOT05-05) as **suspect already-applied**. Both
+were. It did not flag `plans-reindex.mjs`, which was also already done — a false negative, because that
+one had been committed rather than left dirty.
+
+That is the heuristic behaving exactly as its caveat says: **dirty ⇒ suspect** is useful, **clean ⇒ open**
+is not safe. The three classes of already-done work in this queue are now all observed:
+
+1. fixed in a **prior chip report** — caught by the original stale-check
+2. fixed and left **uncommitted** in the working tree — caught by `dirty-check.mjs`
+3. fixed and **committed** — caught by neither; only a worker with the file open finds it
+
+Class 3 is why every ticket carries "check whether it is already satisfied before applying" and why the
+remaining count stays an upper bound on work rather than a measure of it.
+
+*Appended 2026-08-03.*
+
+### `q123-w10-savechecks` — ACCEPTED. 2/2, both real bugs, and its objection turned into a proven finding.
+
+**P25-M09 — a checker that made correct specs fail.** `check-save-route-parity.mjs` held a list of
+recognised save helpers that omitted `clickSaveAndCaptureDialog`, so a spec saving only through that
+helper was reported as having no save route. The worker proved the helper is real before widening the
+list — `clients/encore/src/pages/locations/location-currency.page.ts:171`, dispatcher-confirmed on that
+exact line — rather than taking the finding's word for it.
+
+**P25-M10 — a checker that could silently scan nothing.** `check-save-honesty.mjs` derived its root from
+`process.cwd()`. Run from anywhere but the repo root, it resolves the wrong root, finds no files, and
+**passes because it scanned nothing.** That is the invisibility failure this campaign keeps finding, in a
+gate whose whole job is to catch dishonest saves.
+
+Fixed at line 38: `const ROOT = resolve(__dirname, '..')`, derived from `import.meta.url`.
+
+**The worker could not demonstrate the fix and said so.** Its shell refused a `cd` into a subdirectory, so
+it argued from the code instead — honestly labelled as reasoning, not evidence. That is the right way to
+report a blocked verification, and it is also exactly when the dispatcher should stop reading and measure.
+
+`execFileSync` takes an explicit `cwd`, so I ran both scripts from five different working directories:
+
+```
+### check-save-honesty
+  repo root        -> PASS: save-honesty (LR-067) — 22 page object file(s) scanned, 0 violations.
+  scripts/         -> PASS: ... 22 page object file(s) scanned, 0 violations.
+  .claude/hooks/   -> PASS: ... 22 page object file(s) scanned, 0 violations.
+  clients/encore/  -> PASS: ... 22 page object file(s) scanned, 0 violations.
+  system temp      -> PASS: ... 22 page object file(s) scanned, 0 violations.
+  IDENTICAL across all 5 working directories — cwd-independent.
+```
+
+Same file count from every directory, including one outside the repo entirely. P25-M10 is proven, not
+argued.
+
+### NEW-18 (dispatcher, S2 — PROVEN) — the sibling checker is still cwd-dependent, and its error lies
+
+The ticket asked the worker to flag the same defect in the sibling if present. It did, under `## OBJECTION`,
+and honestly marked it **"implied"** — reasoned from the code, not observed. The same five-directory run
+observes it:
+
+```
+### check-save-route-parity
+  repo root        -> PASS: save-route parity (LR-066) — all 2 registered save route(s) drive a real Save...
+  scripts/         -> FAIL: REGISTRY is empty; the gate has nothing to check.
+  .claude/hooks/   -> FAIL: REGISTRY is empty; the gate has nothing to check.
+  clients/encore/  -> FAIL: REGISTRY is empty; the gate has nothing to check.
+  system temp      -> FAIL: REGISTRY is empty; the gate has nothing to check.
+```
+
+`REGISTRY` is a literal array in the file (line 26) with **two** entries. It is never empty. What actually
+happens is that each entry's `specPath` is a repo-relative string resolved against `process.cwd()`, so
+from any other directory every file read misses, `checked` ends at 0, and line 114 reports the wrong
+cause.
+
+Two distinct defects, and the second is the nastier one:
+
+1. **cwd-dependence** — same class as P25-M10, unfixed here.
+2. **the error message misdiagnoses itself.** It says the registry is empty when the registry is fine and
+   the file reads failed. Anyone debugging this goes and stares at `REGISTRY`, which is correct, and finds
+   nothing wrong.
+
+Mitigating: this one fails **closed** — it reports FAIL rather than passing vacuously, so it cannot green
+a bad spec. But a gate that fails whenever it is invoked from the wrong directory, with a message pointing
+at the wrong cause, is a gate someone eventually disables. Filed with the fix direction: derive `ROOT` from
+`import.meta.url` exactly as its sibling now does, and make line 114 distinguish "registry has no entries"
+from "entries exist but none could be read".
+
+### Wave 10 scoreboard
+
+| lot | verdict | findings |
+|---|---|---|
+| w10-tailsweep | ACCEPTED | 3 (all already done; zero edits) |
+| w10-savechecks | ACCEPTED | 2 (both applied, both real bugs) |
+
+**104 of 196 closed.** The multi-file sequential ticket worked in both lots — 5 files across 2 dispatches,
+no deaths, no scope creep.
+
+*Appended 2026-08-03.*

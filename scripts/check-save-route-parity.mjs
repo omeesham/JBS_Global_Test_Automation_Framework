@@ -39,6 +39,7 @@ const REGISTRY = [
 const REAL_SAVE_HELPERS = [
   'clickSaveExpectDialog',
   'clickSaveWithDialog',
+  'clickSaveAndCaptureDialog',
   'confirmSaveAndGetNewId',
   'saveAndVerifyCase',
   'saveAndConfirm',
