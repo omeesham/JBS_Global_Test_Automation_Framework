@@ -177,8 +177,11 @@ git -C "$REPO_ROOT" archive HEAD clients/encore/ | tar -x -C "$SCRATCH" --strip-
 #     docs/ or specs_planning/ files that were added via git add -f during migrations).
 #     Derived from DENY_GLOBS via --emit-exclusions (scripts/verify-no-forbidden.mjs)
 #     so this list cannot drift from the deny-list and is never hand-written here.
-#     NOTE: DENY_GLOBS is defined in scripts/lib/forbidden-patterns.mjs (the single
-#     source of truth shared with the write-time jargon hook); update it there.
+#     NOTE: DENY_GLOBS is defined in scripts/lib/forbidden-patterns.mjs line 21
+#     (the single source of truth shared with the write-time jargon hook); update it
+#     there. A drift between that list and what this script strips would cause internal
+#     files (credentials, agent docs, specs_planning/) to pass through to the client
+#     payload undetected.
 #     .env.local and all other denied files are covered automatically — no coincidental
 #     dependency on the shipped .gitignore to filter credentials.
 #     NOTE: --emit-exclusions emits repo-relative paths (clients/encore/foo); the

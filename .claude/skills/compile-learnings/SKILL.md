@@ -1,6 +1,6 @@
 ---
 name: compile-learnings
-description: Scan agent-mistakes.md for patterns with 3+ occurrences, graduate recurring patterns into permanent CLAUDE.md rules and decision trees. Periodic skill — run weekly or when flagged by /reflect.
+description: Scan agent-mistakes.md for patterns with 3+ occurrences, graduate recurring patterns into permanent rules (.claude/rules/ or docs/read_only_docs/LEARNED_RULES.md) and decision trees. Periodic skill — run weekly or when flagged by /reflect.
 user-invocable: true
 auto-calls: identity
 tools: Read, Glob, Grep, Write, Edit
@@ -8,7 +8,7 @@ tools: Read, Glob, Grep, Write, Edit
 
 # /compile-learnings — Pattern Graduation
 
-> **LR lookup / write**: when reading existing `LR-NNN` rules OR graduating a new rule, check the right home. Path-scoped framework rules live in `.claude/rules/<topic>.md` (angular, specs, hooks-identity, browser-tool, pipeline, baseline, data, inventory) — they auto-load on matching file edits. Cross-cutting framework rules live in `docs/read_only_docs/LEARNED_RULES.md`. Client-specific rules (e.g., Encore page/Jira/URL naming) live in `clients/${ACTIVE_CLIENT}/CLAUDE.md` with `LR-ENC-NNN` prefix. Stack-generic patterns (Angular/Radix/Playwright) graduate to the matching `.claude/rules/<topic>.md` file as `LR-NNN`; cross-cutting patterns (handoff discipline, networkidle ban, activity-log) graduate to `LEARNED_RULES.md`. Root `CLAUDE.md` is the orientation layer and does NOT host LR bodies anymore.
+> **LR lookup / write**: when reading existing `LR-NNN` rules OR graduating a new rule, check the right home. Path-scoped framework rules live in `.claude/rules/<topic>.md` (angular, specs, hooks-identity, browser-tool, pipeline, baseline, data, inventory) — they auto-load on matching file edits. Cross-cutting framework rules live in `docs/read_only_docs/LEARNED_RULES.md`. Client-specific rules (e.g., Encore page/Jira/URL naming) live in `clients/${ACTIVE_CLIENT}/CLAUDE.md` with `LR-ENC-NNN` prefix. Stack-generic patterns (Angular/Radix/Playwright) graduate to the matching `.claude/rules/<topic>.md` file as `LR-NNN`; cross-cutting patterns (handoff discipline, networkidle ban, activity-log) graduate to `docs/read_only_docs/LEARNED_RULES.md`. Root `CLAUDE.md` is the orientation layer and does NOT host LR bodies anymore.
 
 Turns recurring mistakes into permanent rules. Without this, the same mistakes get logged over and over but never graduate into enforceable project-wide rules. This is the learning loop that makes the system compound.
 
@@ -190,7 +190,7 @@ None — this is a standalone periodic utility.
 2. ...
 
 ### Actions Taken
-- Graduated to CLAUDE.md: [count] rules
+- Graduated to .claude/rules/ or docs/read_only_docs/LEARNED_RULES.md: [count] rules
 - Decision trees created/updated: [count]
 - Agent-specific rules added: [count] (to which agents)
 - Entries marked graduated: [count]

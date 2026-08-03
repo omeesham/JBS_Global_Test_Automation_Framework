@@ -55,6 +55,10 @@ export const DENY_GLOBS = [
   /\.env\.production$/,
   /\.env\.staging$/,
   /\.env\.example$/,
+  // Internal unit-test directory — framework self-tests, never client deliverables.
+  /\/tests\/_unit\//,
+  // Any underscore-prefixed internal test subdirectory (generalised form of the above).
+  /\/tests\/_[^/]+\//,
 ];
 
 // ── Repo-wide markers (sentinels that should never appear anywhere) ───────────
@@ -101,6 +105,15 @@ export const MARKER_GREP_CLIENT_ONLY = [
   // Internal date-stamped report paths
   /reports\/testid-verification\//,
   /JIRA_VERIFICATION_\d{4}-\d{2}-\d{2}/,
+
+  // ── Runtime Proxy interception in client page-object code ─────────────────
+  // Sev: S1 — silent quality drift; a Proxy intercepting method calls hides
+  // per-method labelling from every reader of the source.
+  // Graduating incident: PLAN_FIX_AT_SOURCE_NOT_WRAPPERS, 2026-07-31 — the
+  // page-object step Proxy was retired and replaced by per-method @step decorators.
+  // Scope: client source only (isClientShipping path gate applied by consumers).
+  /\bnew Proxy\s*\(/,
+  /\bProxyHandler\b/,
 ];
 
 // ── Source-comment jargon (soft tokens — GATE-INVISIBLE to the hard set above) ─

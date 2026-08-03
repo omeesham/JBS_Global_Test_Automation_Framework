@@ -21,6 +21,7 @@
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
+import { stagedFiles } from './lib/git-staged.mjs';
 
 // --- Registry: modules whose sibling create/save routes share one page (differ only by route param / mode).
 const REGISTRY = [
@@ -65,19 +66,6 @@ function describeBlock(src, title) {
 
 function drivesRealSave(block) {
   return REAL_SAVE_HELPERS.some((h) => new RegExp('\\b' + h + '\\s*\\(').test(block));
-}
-
-function stagedFiles() {
-  try {
-    return new Set(
-      execSync('git diff --cached --name-only', { encoding: 'utf8' })
-        .split('\n')
-        .map((s) => s.trim())
-        .filter(Boolean),
-    );
-  } catch {
-    return new Set();
-  }
 }
 
 const stagedOnly = process.argv.includes('--staged');

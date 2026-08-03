@@ -2,7 +2,7 @@
 name: audit
 description: Three-mode critique skill — DEFAULT/review (full-chain audit: prompt→intent→plan→execution→outcome, focuses on what was NOT done), --mode=slop (anti-over-engineering DROP/KEEP audit, binary verdicts only), --mode=upgrade (self-referential check: does this newly created rule/skill apply to current session work?). Use review for "audit", "find issues", "what's missing", "what broke", "check everything". Use slop for "slop", "sloppy", "over-engineered", "reduce surface", "minimize edits", "inflated". Use upgrade for "upgrade", "does this apply", "just wrote a rule". Default = review when no --mode given.
 user-invocable: true
-auto-calls: identity, reflect
+auto-calls: identity, reflect (review mode only)
 tools: Read, Glob, Grep, Bash, WebSearch, Agent, TodoWrite, TaskCreate, TaskUpdate, TaskList
 ---
 
@@ -61,11 +61,20 @@ Identify what is being audited:
 For each target file, check BOTH:
 
 **Signal A — Activity-log recency**
-```bash
-# Rows dated within last 6 hours mentioning target file AND current identity
-grep -iE "^\| 2026-04-15T(0[8-9]|1[0-9]|2[0-3]):" clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md \
+```sh
+# sh/bash — Rows dated within last 6 hours mentioning target file AND current identity
+# Replace the date prefix with today's date (YYYY-MM-DD) and the relevant hour range
+grep -iE "^\| <YYYY-MM-DD>T(0[8-9]|1[0-9]|2[0-3]):" clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-activity-log.md \
   | grep -iF "<TARGET_FILE_BASENAME>" \
   | grep -iE "\| (owner|watchdog|giver|builder|hunter|healer|gardener) \|"
+```
+```powershell
+# PowerShell equivalent
+$log = "clients/$env:ACTIVE_CLIENT/specs_planning/_internal/agent-activity-log.md"
+Get-Content $log |
+  Select-String "^\| <YYYY-MM-DD>T" |
+  Select-String -SimpleMatch "<TARGET_FILE_BASENAME>" |
+  Select-String "owner|watchdog|giver|builder|hunter|healer|gardener"
 ```
 Signal A fires if any row matches both the target file AND your current identity.
 
@@ -235,6 +244,12 @@ grep -rEn "Section 0 — .{0,40}Blocker|UNFILLED-BLOCKED-SECTION|structural bloc
   clients/*/specs_planning/_internal/neutral-eye-audits/ \
   clients/*/specs_planning/_internal/field-inventories/ 2>/dev/null
 ```
+```powershell
+# PowerShell equivalent
+Get-ChildItem "clients" -Recurse -File -ErrorAction SilentlyContinue |
+  Where-Object { $_.FullName -match "specs_planning[\\/]_internal[\\/](walk-evidence-[^\\/]+\.md$|neutral-eye-audits|field-inventories)" } |
+  Select-String -Pattern "Section 0 — .{0,40}Blocker|UNFILLED-BLOCKED-SECTION|structural blocker|provisioning invariant|unattended execution risk|indefinite if .{1,80} fires|Path \d+ \(NOT taken in this session\)|cannot complete .{0,80}strict.{0,40}line.{0,80}in this single session"
+```
 
 ### Per-match classification
 
@@ -399,10 +414,6 @@ Grep for `### Sonnet Handoff` in pasted content or the referenced plan file. If 
 - Completed list verified: [OK / N mismatches]
 - Gate compliance: [OK / gates skipped]
 ```
-
-## Review-mode Auto-Calls
-
-- `/reflect` — after audit verdict is delivered (capture learnings)
 
 ## Review-mode Rules
 - NEVER rubber-stamp — if everything looks perfect, you're not looking hard enough

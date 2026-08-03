@@ -1,49 +1,24 @@
 #!/usr/bin/env node
 /**
- * Per-test baseline gate (LR-019).
+ * Per-test baseline gate (LR-019) — Sev S2. Graduating incident: 2026-06-30 audit found
+ * LR-019 had rotted on five save-capable specs; gate created 2026-07-01 to catch regression.
  *
- * LR-019: a spec that mutates persisted state (toggle / set / fill / select, then asserts Save
- * enables or a value persists after reload) MUST reset to a known baseline PER-TEST, in
- * `test.beforeEach` (after the nav guard) — a first-test-only baseline (a reset inside the first
- * test's body) is INSUFFICIENT, because Playwright retries/parallel re-run a single test's
- * `beforeEach` but NOT the first test's body.
+ * A save-capable describe must reset state per-test in test.beforeEach — a first-test-only
+ * reset is insufficient because Playwright retries run beforeEach but not the first test body.
  *
- * This gate is registry-driven (no TypeScript parser; deterministic text-slicing), modelled on
- * check-save-route-parity.mjs (LR-066). It recognises EVERY legitimate per-test mechanism, so it
- * does not false-flag the FCC runner or fresh-open create pages:
- *   - beforeEach-reset : `ensureDefaultState` / `ensureEmptyState` / `ensureClean*` /
- *                        `ensureAllGridColumnsVisible` / `reloadAndReselect` called inside the
- *                        describe's `test.beforeEach`.
- *   - fcc              : the describe drives tests through the FCC runner `saveAndVerifyCase({ baseline })`,
- *                        whose `baseline` is compile-required and runs per-test.
- *   - fresh-open       : the describe's `test.beforeEach` opens a fresh page (`open(...)`), which is the
- *                        per-test baseline for read-only / create-page describes.
+ * Recognised mechanisms: beforeEach-reset (ensureDefaultState / ensureEmptyState / ensureClean* /
+ * reloadAndReselect in beforeEach), fcc (saveAndVerifyCase({ baseline })), fresh-open (open() in beforeEach).
  *
- * Two registry kinds:
- *   - WAIVED  : a whole spec whose per-test-baseline fix is deferred to that submodule's FCC subplan
- *               (tracked in plans/pending/PLAN_BIG_PIVOT_FCC_MASTER.md). Passes with a recorded reason —
- *               the waiver is the durable backlog marker; the FCC subplan removes it when it lands the fix.
- *   - ENFORCED: a compliant spec whose save-capable describes each declare the mechanism they use. The
- *               gate verifies that mechanism's token is actually present, so a future edit that strips the
- *               baseline (a regression) fails the gate.
- *
- * Scope note (logged, not silent): the ENFORCED set covers the Location Settings tab family — the same
- * `ensureDefaultState`-in-`beforeEach` pattern the WAIVED gaps will adopt, so a regression in that family
- * is caught. Corporate-pricing / local-office save specs are protected by their own mechanisms + the
- * LR-066 gate + the FCC runner; they are surfaced by the glob WARN pass below (visible, not blocking)
- * rather than transcribed describe-by-describe. Add an ENFORCED entry to ratchet any of them into hard
- * coverage.
- *
- * Usage:
- *   node scripts/check-per-test-baseline.mjs            # scan every registered spec + glob-warn the rest
- *   node scripts/check-per-test-baseline.mjs --staged   # scan only registered/save-capable specs that are git-staged
- *
- * Exit 0 = every enforced save-capable describe has a recognised per-test mechanism (or is waived).
- * Exit 1 = an enforced describe lost its mechanism, a registered spec is missing, or a waiver reason is too short.
+ * WAIVED = fix deferred to the spec's FCC subplan; ENFORCED = mechanism verified each run.
+ * Glob WARN pass surfaces unregistered save-capable describes (non-blocking).
+ * Usage: node scripts/check-per-test-baseline.mjs [--staged]
+ * Exit 0: all enforced describes compliant. Exit 1: violation found.
  */
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { join, relative, sep, resolve } from 'node:path';
 import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { stagedFiles } from './lib/git-staged.mjs';
 
 const TESTS_GLOB_ROOT = 'clients';
 
@@ -194,16 +169,6 @@ function hasAnyMechanism(block) {
   return FCC_RE.test(block) || RESET_HELPER_RE.test(beforeEachSlice(block)) || FRESH_OPEN_RE.test(beforeEachSlice(block));
 }
 
-function stagedFiles() {
-  try {
-    return new Set(
-      execSync('git diff --cached --name-only', { encoding: 'utf8' })
-        .split('\n').map((s) => s.trim()).filter(Boolean),
-    );
-  } catch {
-    return new Set();
-  }
-}
 
 function walkSpecs(dir, out) {
   let entries;
@@ -220,86 +185,92 @@ function walkSpecs(dir, out) {
   }
 }
 
-const stagedOnly = process.argv.includes('--staged');
-const staged = stagedOnly ? stagedFiles() : null;
+function main() {
+  const stagedOnly = process.argv.includes('--staged');
+  const staged = stagedOnly ? stagedFiles() : null;
 
-const failures = [];
-const warnings = [];
-let checked = 0;
+  const failures = [];
+  const warnings = [];
+  let checked = 0;
 
-const registeredPaths = new Set([...WAIVED.map((w) => w.specPath), ...ENFORCED.map((e) => e.specPath)]);
+  const registeredPaths = new Set([...WAIVED.map((w) => w.specPath), ...ENFORCED.map((e) => e.specPath)]);
 
-// 1) WAIVED — record the deferral; validate the reason is substantive.
-for (const w of WAIVED) {
-  if (stagedOnly && !staged.has(w.specPath)) continue;
-  if (!existsSync(w.specPath)) {
-    failures.push(`${w.specPath}: WAIVED spec not found on disk (stale registry entry?)`);
-    continue;
-  }
-  if (!w.reason || w.reason.trim().length < 20) {
-    failures.push(`${w.specPath}: waiver reason must be >= 20 chars (got "${w.reason ?? ''}")`);
-    continue;
-  }
-  checked++;
-  console.log(`WAIVED: ${w.specPath} — ${w.reason}`);
-}
-
-// 2) ENFORCED — verify each declared describe carries its declared mechanism.
-for (const entry of ENFORCED) {
-  if (stagedOnly && !staged.has(entry.specPath)) continue;
-  if (!existsSync(entry.specPath)) {
-    failures.push(`${entry.specPath}: ENFORCED spec not found on disk`);
-    continue;
-  }
-  const src = readFileSync(entry.specPath, 'utf8');
-  for (const d of entry.describes) {
-    checked++;
-    const block = describeBlock(src, d.title, d.occurrence ?? 1);
-    if (block === null) {
-      failures.push(`${entry.specPath} :: describe "${d.title}" — not found (title drift? update the registry)`);
+  // 1) WAIVED — record the deferral; validate the reason is substantive.
+  for (const w of WAIVED) {
+    if (stagedOnly && !staged.has(w.specPath)) continue;
+    if (!existsSync(w.specPath)) {
+      failures.push(`${w.specPath}: WAIVED spec not found on disk (stale registry entry?)`);
       continue;
     }
-    if (!hasMechanism(block, d.mechanism)) {
-      failures.push(
-        `${entry.specPath} :: describe "${d.title}" — declared per-test mechanism "${d.mechanism}" is MISSING. ` +
-          `LR-019: a save-capable describe must reset baseline per-test (ensureDefaultState in beforeEach, ` +
-          `the FCC runner baseline, or a fresh open()). If the mechanism legitimately changed, update the registry.`,
-      );
+    if (!w.reason || w.reason.trim().length < 20) {
+      failures.push(`${w.specPath}: waiver reason must be >= 20 chars (got "${w.reason ?? ''}")`);
+      continue;
+    }
+    checked++;
+    console.log(`WAIVED: ${w.specPath} — ${w.reason}`);
+  }
+
+  // 2) ENFORCED — verify each declared describe carries its declared mechanism.
+  for (const entry of ENFORCED) {
+    if (stagedOnly && !staged.has(entry.specPath)) continue;
+    if (!existsSync(entry.specPath)) {
+      failures.push(`${entry.specPath}: ENFORCED spec not found on disk`);
+      continue;
+    }
+    const src = readFileSync(entry.specPath, 'utf8');
+    for (const d of entry.describes) {
+      checked++;
+      const block = describeBlock(src, d.title, d.occurrence ?? 1);
+      if (block === null) {
+        failures.push(`${entry.specPath} :: describe "${d.title}" — not found (title drift? update the registry)`);
+        continue;
+      }
+      if (!hasMechanism(block, d.mechanism)) {
+        failures.push(
+          `${entry.specPath} :: describe "${d.title}" — declared per-test mechanism "${d.mechanism}" is MISSING. ` +
+            `LR-019: a save-capable describe must reset baseline per-test (ensureDefaultState in beforeEach, ` +
+            `the FCC runner baseline, or a fresh open()). If the mechanism legitimately changed, update the registry.`,
+        );
+      }
     }
   }
-}
 
-// 3) GLOB WARN — surface save-capable specs that are neither WAIVED nor ENFORCED, so the registry can't rot.
-const allSpecs = [];
-walkSpecs(TESTS_GLOB_ROOT, allSpecs);
-for (const rel of allSpecs) {
-  if (registeredPaths.has(rel)) continue;
-  if (stagedOnly && !staged.has(rel)) continue;
-  let src;
-  try { src = readFileSync(rel, 'utf8'); } catch { continue; }
-  for (const { title, block } of allDescribeBlocks(src)) {
-    if (!SAVE_CAPABLE_RE.test(block)) continue; // not save-capable → no baseline needed
-    if (hasAnyMechanism(block)) continue; // already has a recognised mechanism → fine
-    warnings.push(`${rel} :: describe "${title.slice(0, 60)}" — save-capable, no recognised per-test mechanism and not registered.`);
+  // 3) GLOB WARN — surface save-capable specs that are neither WAIVED nor ENFORCED, so the registry can't rot.
+  const allSpecs = [];
+  walkSpecs(TESTS_GLOB_ROOT, allSpecs);
+  for (const rel of allSpecs) {
+    if (registeredPaths.has(rel)) continue;
+    if (stagedOnly && !staged.has(rel)) continue;
+    let src;
+    try { src = readFileSync(rel, 'utf8'); } catch { continue; }
+    for (const { title, block } of allDescribeBlocks(src)) {
+      if (!SAVE_CAPABLE_RE.test(block)) continue; // not save-capable → no baseline needed
+      if (hasAnyMechanism(block)) continue; // already has a recognised mechanism → fine
+      warnings.push(`${rel} :: describe "${title.slice(0, 60)}" — save-capable, no recognised per-test mechanism and not registered.`);
+    }
   }
-}
 
-if (stagedOnly && checked === 0 && warnings.length === 0) {
-  console.log('SKIP: per-test baseline (LR-019) — no registered or save-capable spec is staged.');
+  if (stagedOnly && checked === 0 && warnings.length === 0) {
+    console.log('SKIP: per-test baseline (LR-019) — no registered or save-capable spec is staged.');
+    process.exit(0);
+  }
+
+  if (warnings.length) {
+    console.warn('\nWARN: per-test baseline (LR-019) — save-capable describe(s) not covered by the registry (review; not blocking):');
+    for (const w of warnings) console.warn('  ? ' + w);
+  }
+
+  if (failures.length) {
+    console.error('\nFAIL: per-test baseline (LR-019) — a save-capable describe is missing its per-test baseline:\n');
+    for (const f of failures) console.error('  - ' + f);
+    console.error(`\n${failures.length} violation(s) across ${checked} checked entr(y/ies). See LR-019 in .claude/rules/specs.md.`);
+    process.exit(1);
+  }
+
+  console.log(`\nPASS: per-test baseline (LR-019) — ${checked} registered entr(y/ies) compliant (${WAIVED.length} waived, ${ENFORCED.reduce((n, e) => n + e.describes.length, 0)} enforced), ${warnings.length} warning(s).`);
   process.exit(0);
 }
 
-if (warnings.length) {
-  console.warn('\nWARN: per-test baseline (LR-019) — save-capable describe(s) not covered by the registry (review; not blocking):');
-  for (const w of warnings) console.warn('  ? ' + w);
-}
-
-if (failures.length) {
-  console.error('\nFAIL: per-test baseline (LR-019) — a save-capable describe is missing its per-test baseline:\n');
-  for (const f of failures) console.error('  - ' + f);
-  console.error(`\n${failures.length} violation(s) across ${checked} checked entr(y/ies). See LR-019 in .claude/rules/specs.md.`);
-  process.exit(1);
-}
-
-console.log(`\nPASS: per-test baseline (LR-019) — ${checked} registered entr(y/ies) compliant (${WAIVED.length} waived, ${ENFORCED.reduce((n, e) => n + e.describes.length, 0)} enforced), ${warnings.length} warning(s).`);
-process.exit(0);
+const __selfPath = fileURLToPath(import.meta.url);
+const __mainArg = process.argv[1] ? resolve(process.argv[1]) : '';
+if (__mainArg === __selfPath) main();

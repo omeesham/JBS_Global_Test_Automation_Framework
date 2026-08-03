@@ -24,6 +24,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isCommentLine, markerInCommentBlockAbove } from './lib/spec-scan-helpers.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_REPO_ROOT = path.resolve(__dirname, '..');
@@ -38,16 +39,6 @@ const EMPTY_OR_COMMENTED_CATCH_RE = /\.catch\s*\(\s*\(\s*\w*\s*\)\s*=>\s*\{\s*(?
 const LOAD_BEARING_RE = /\.click\w*\s*\(|\.reload\s*\(|\b(?:clickSave\w*|saveAndConfirm|saveChanges|clickSaveWithDialog)\s*\(/;
 // Justification marker (comment), case-insensitive: `// best-effort: …` / `/* best-effort … */`.
 const BEST_EFFORT_RE = /best-effort/i;
-
-/** True when a comment-only line (`// …` or a `* …` / `/* …` JSDoc line). */
-function isCommentLine(l) { return /^\s*(?:\/\/|\*|\/\*)/.test(l ?? ''); }
-/** True when `re` appears in the contiguous comment block immediately above line index `i`. */
-function markerInCommentBlockAbove(lines, i, re) {
-  for (let j = i - 1; j >= 0 && isCommentLine(lines[j]); j--) {
-    if (re.test(lines[j])) return true;
-  }
-  return false;
-}
 
 /**
  * Scan one page-object's source. Returns findings: { line, snippet }.

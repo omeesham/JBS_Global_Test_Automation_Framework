@@ -31,6 +31,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isCommentLine, markerInCommentBlockAbove, walkSpecFiles } from './lib/spec-scan-helpers.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_REPO_ROOT = path.resolve(__dirname, '..');
@@ -42,16 +43,6 @@ const WAIT_FOR_TIMEOUT_RE = /\bwaitForTimeout\s*\(/;
 const RAW_SLEEP_RE = /(?<![.\w])setTimeout\s*\(/;
 // Exemption marker — this line, or the contiguous comment block directly above, proves a negative.
 const SLEEP_OK_RE = /sleep-ok\s*:/i;
-
-/** True when a comment-only line (`// …` or a `* …` / `/* …` JSDoc line). */
-function isCommentLine(l) { return /^\s*(?:\/\/|\*|\/\*)/.test(l ?? ''); }
-/** True when `re` appears in the contiguous comment block immediately above line index `i`. */
-function markerInCommentBlockAbove(lines, i, re) {
-  for (let j = i - 1; j >= 0 && isCommentLine(lines[j]); j--) {
-    if (re.test(lines[j])) return true;
-  }
-  return false;
-}
 
 /**
  * Scan one spec's source. Returns findings: { line, kind, snippet }.
@@ -76,27 +67,6 @@ export function findSleeps(text) {
     findings.push({ line: i + 1, kind, snippet: line.trim() });
   }
   return findings;
-}
-
-// ---------- file walker ----------
-export function walkSpecFiles(repoRoot) {
-  const out = [];
-  const clientsDir = path.join(repoRoot, 'clients');
-  if (!fs.existsSync(clientsDir)) return out;
-  for (const client of fs.readdirSync(clientsDir)) {
-    const testsRoot = path.join(clientsDir, client, 'tests');
-    if (!fs.existsSync(testsRoot)) continue;
-    walkDir(testsRoot, out);
-  }
-  return out;
-}
-
-function walkDir(dir, out) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) { walkDir(full, out); continue; }
-    if (entry.isFile() && entry.name.endsWith('.spec.ts')) out.push(full);
-  }
 }
 
 export function buildReport({ repoRoot, filePaths }) {

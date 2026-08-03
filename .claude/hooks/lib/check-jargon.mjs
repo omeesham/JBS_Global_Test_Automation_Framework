@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // check-jargon.mjs — LR-058 write-time jargon gate (PreToolUse on Edit|Write|NotebookEdit).
+// Sev: S3 | Graduating incident: P3-08 (jargon telemetry gap 2026-08-03)
 //
 // PURPOSE
 //   The ship/commit-time gate (scripts/verify-no-forbidden.mjs) only catches internal jargon
@@ -35,6 +36,7 @@
 import { readFileSync, existsSync, mkdirSync, appendFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
+import { fireTelemetry } from "./hook-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
@@ -152,7 +154,7 @@ async function runHook() {
     const verdict = await evaluate(payload);
     if (verdict.allow) emitAllow();
     else {
-      try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `jargon-gate, ${new Date().toISOString()}, deny, ${verdict.rel || 'unknown'}\n`); } catch {}
+      fireTelemetry('jargon-gate', 'deny', verdict.rel || 'unknown');
       emitDeny(verdict.reason);
     }
   } catch (e) {

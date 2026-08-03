@@ -33,6 +33,7 @@
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { execSync } from 'node:child_process';
+import { stagedFiles } from './lib/git-staged.mjs';
 
 const TESTS_GLOB_ROOT = 'clients';
 
@@ -95,16 +96,6 @@ export function classifyReset(block) {
   return 'no-reset';                                          // no reset action (that is #2's concern)
 }
 
-function stagedFiles() {
-  try {
-    return new Set(
-      execSync('git diff --cached --name-only', { encoding: 'utf8' })
-        .split('\n').map((s) => s.trim()).filter(Boolean),
-    );
-  } catch {
-    return new Set();
-  }
-}
 
 function walkSpecs(dir, out) {
   let entries;

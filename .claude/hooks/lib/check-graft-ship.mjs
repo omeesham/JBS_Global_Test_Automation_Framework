@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // check-graft-ship.mjs — PreToolUse hook lib. BACKSTOP for the Claude-Bash git-commit vector:
+// Sev: S3 | Graduating incident: P3-06 (graft-ship telemetry gap 2026-08-03)
 // blocks a `git commit` when a file is staged AND has further unstaged worktree changes — i.e.
 // the commit would capture the STALE index copy, not the tested working tree (the NM-2265
 // stale-index defect: a graft was `git add`-ed, then corrected in the worktree, never re-staged).
@@ -20,6 +21,7 @@ import { readFileSync, appendFileSync, mkdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
+import { fireTelemetry } from './hook-utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -36,7 +38,7 @@ function emitAllow(reason) {
 }
 
 function emitDeny(reason) {
-  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `graft-ship-gate, ${new Date().toISOString()}, deny, bash-command\n`); } catch {}
+  fireTelemetry('graft-ship-gate', 'deny', 'bash-command');
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: reason },
   }));

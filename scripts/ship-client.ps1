@@ -66,6 +66,16 @@ if ($Client -eq 'encore') {
     }
 }
 
+# Pre-flight: refuse clients with aggregate workbooks — use ship-branch.sh for scope-trimmed delivery.
+$manifestFile = "scripts/deliverable/delivery-manifest.$Client.json"
+if (Test-Path $manifestFile) {
+    $hasAggWb = & node -e "const m=JSON.parse(require('fs').readFileSync(process.argv[1],'utf-8'));console.log(Array.isArray(m.aggregate_workbooks)&&m.aggregate_workbooks.length>0?'yes':'no')" $manifestFile 2>$null
+    if ($hasAggWb -eq 'yes') {
+        Write-Error "ERR: client '$Client' manifest declares aggregate workbooks that require scope trimming. Use scripts/ship-branch.sh — it runs xlsx-trim to remove withheld module sheets."
+        exit 1
+    }
+}
+
 # Stage into a temp dir; $Out is populated only after the authoritative verify passes.
 $stagingDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
 New-Item -ItemType Directory -Force -Path $stagingDir | Out-Null
@@ -79,9 +89,9 @@ try {
     $tarExe = "$env:SystemRoot\System32\tar.exe"
     $archivePath = Join-Path $stagingDir '_archive.tar'
     & git archive HEAD "clients/$Client/" --output $archivePath
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    if ($LASTEXITCODE -ne 0) { Write-Error "ERR: git archive failed (exit $LASTEXITCODE)"; exit $LASTEXITCODE }
     & $tarExe -x -C $stagingDir -f $archivePath --strip-components=2
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }  # P2-LOT17-07: check before destroying evidence
+    if ($LASTEXITCODE -ne 0) { Write-Error "ERR: tar extract failed (exit $LASTEXITCODE) — _archive.tar preserved at $archivePath for diagnostics"; exit $LASTEXITCODE }
     Remove-Item -Force $archivePath
 
     # Strip deny-listed files from staging.
@@ -119,9 +129,34 @@ try {
             ForEach-Object { Remove-Item -Force -ErrorAction SilentlyContinue $_ }
     }
 
+    # Supply a blank starter environment file so the customer receives it as referenced in
+    # setup instructions. verify-no-forbidden confirms it is the blank template (not credentials)
+    # via --require-env-local below.
+    $envTemplate = Join-Path $repoRoot 'scripts\deliverable\env-local.template'
+    if (-not (Test-Path $envTemplate)) {
+        Write-Error "ERR: blank starter environment file missing at $envTemplate — payload cannot be assembled."
+        exit 1
+    }
+    Copy-Item -LiteralPath $envTemplate -Destination (Join-Path $stagingDir '.env.local') -Force
+
     # Authoritative gate: verify staged payload contains zero deny-listed files.
-    & node scripts/verify-no-forbidden.mjs "--target=$stagingDir"
+    & node scripts/verify-no-forbidden.mjs "--target=$stagingDir" "--require-env-local"
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+    # Approved-scope gate (Encore only) — every payload file must resolve to an approved module.
+    # For full Encore release control use scripts/ship-branch.sh instead of this general path.
+    if ($Client -eq 'encore') {
+        if (Test-Path 'scripts/verify-approved-scope.mjs') {
+            & node scripts/verify-approved-scope.mjs "--target=$stagingDir" "--client=encore"
+            if ($LASTEXITCODE -ne 0) {
+                Write-Error "ERR: approved-scope gate failed — payload contains unapproved files. Use scripts/ship-branch.sh for Encore releases."
+                exit 1
+            }
+        } else {
+            Write-Error "ERR: scripts/verify-approved-scope.mjs not found — refusing to ship Encore via client:ship. Use scripts/ship-branch.sh."
+            exit 1
+        }
+    }
 
     # $Out safety: refuse unconditionally if $Out is a git worktree (-Force does NOT override).
     if (Test-Path $Out) {
@@ -144,7 +179,7 @@ try {
 
     # Post-ship: defense in depth — verify the final output contains zero deny-listed files
     # (S0 gate per LR-069; placed before npm install to avoid scanning node_modules).
-    & node scripts/verify-no-forbidden.mjs "--target=$Out"
+    & node scripts/verify-no-forbidden.mjs "--target=$Out" "--require-env-local"
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
     # Post-ship: deliverable must NOT contain a GitHub workflow (client requirement —

@@ -171,6 +171,7 @@ This is non-negotiable. Every subplan gets this. Every plan summary must cite th
 
 ## Auto-Calls
 
+- `/identity` — Identity Gate, before all steps (no-op if compatible identity active)
 - `/research` — Step 0, before exploration, when unfamiliar territory is involved
 
 ## Output

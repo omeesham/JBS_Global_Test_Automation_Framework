@@ -32,6 +32,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { walkSpecFiles } from './lib/spec-scan-helpers.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_REPO_ROOT = path.resolve(__dirname, '..');
@@ -103,27 +104,6 @@ export function findUnfailable(text) {
   }
 
   return findings;
-}
-
-// ---------- file walker ----------
-export function walkSpecFiles(repoRoot) {
-  const out = [];
-  const clientsDir = path.join(repoRoot, 'clients');
-  if (!fs.existsSync(clientsDir)) return out;
-  for (const client of fs.readdirSync(clientsDir)) {
-    const testsRoot = path.join(clientsDir, client, 'tests');
-    if (!fs.existsSync(testsRoot)) continue;
-    walkDir(testsRoot, out);
-  }
-  return out;
-}
-
-function walkDir(dir, out) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) { walkDir(full, out); continue; }
-    if (entry.isFile() && entry.name.endsWith('.spec.ts')) out.push(full);
-  }
 }
 
 export function buildReport({ repoRoot, filePaths }) {

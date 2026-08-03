@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // check-no-verify.mjs — PreToolUse hook lib. Hard-blocks git hook-bypass on Bash
+// Sev: S3 | Graduating incident: P3-05 (no-verify telemetry gap 2026-08-03)
 // commands so the local pre-commit / pre-push gates can never be skipped.
 //
 // WHY (COUNCIL AUDIT 2026-07-08): the spec↔MD↔XLSX parity gate + xlsx-freshness
@@ -21,6 +22,7 @@
 import { readFileSync, appendFileSync, mkdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
+import { fireTelemetry } from './hook-utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -77,7 +79,7 @@ function emitAllow(reason) {
 }
 
 function emitDeny(reason) {
-  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `no-verify-gate, ${new Date().toISOString()}, deny, bash-command\n`); } catch {}
+  fireTelemetry('no-verify-gate', 'deny', 'bash-command');
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: reason },
   }));

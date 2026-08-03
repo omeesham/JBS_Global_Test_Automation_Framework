@@ -20,7 +20,7 @@ When the user invokes `/questionnaire`, your job is to close ALL gaps, doubts, a
 5. Do NOT show the topic list to the user — just start asking
 
 ### Step 2: Ask Questions
-- Ask **up to 10 questions in a single batch** using the AskUserQuestion tool when topics are independent
+- Ask **up to 5 questions in a single batch** using the AskUserQuestion tool when topics are independent
 - Only use multiple batches when answers from earlier questions materially change what you need to ask next
 - Continue until ALL topics are resolved
 

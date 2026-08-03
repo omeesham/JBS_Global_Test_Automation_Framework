@@ -32,6 +32,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
+import { stagedFiles } from './lib/git-staged.mjs';
 
 const TSCONFIG = 'clients/encore/tsconfig.json';
 const ALLOWLIST_PATH = 'scripts/dead-exports-allowlist.json';
@@ -69,17 +70,6 @@ function runTsPrune() {
   const allParsed = raw.split('\n').map(parseTsPruneLine).filter(Boolean);
   const findings = allParsed.filter((f) => !f.usedInModule);
   return { ok: true, findings, totalParsedLines: allParsed.length, rawEmpty: !raw.trim() };
-}
-
-function stagedFiles() {
-  try {
-    return new Set(
-      execSync('git diff --cached --name-only', { encoding: 'utf8' })
-        .split('\n').map((s) => s.trim()).filter(Boolean),
-    );
-  } catch {
-    return new Set();
-  }
 }
 
 const isClientTsFile = (rel) => /^clients\/[^/]+\/(src|tests)\/.*\.ts$/.test(rel);
