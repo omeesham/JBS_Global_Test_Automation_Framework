@@ -139,7 +139,7 @@ cd clients/encore
 npm run typecheck                                                        # expect: clean
 npx playwright test tests/corporate-pricing/corporate-pricing-detail.spec.ts --workers=2     # expect: green on distinct offices
 npx playwright test tests/corporate-pricing/corporate-pricing-strategy.spec.ts --workers=2   # expect: green on distinct offices
-npx playwright test tests/corporate-pricing/corporate-pricing-override.spec.ts --workers=2   # expect: green; pg-override row per-office
+npx playwright test tests/corporate-override --workers=2   # expect: green; pg-override row per-office
 grep -rnE "^(export )?const .*=.*corpPricingFixturesFor\(" tests/corporate-pricing/   # expect: empty (no module-level resolution)
 grep -rn "'1604'" src/data/corporate-pricing/ tests/corporate-pricing/   # expect: only per-office map KEY '1604' + comments
 node ../../scripts/check-office-isolation.mjs   # expect: green (F1.1/F1.3/no-new-1604)
