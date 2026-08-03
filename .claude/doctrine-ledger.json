@@ -122,7 +122,7 @@
       "line": 80,
       "unenforced": "prior-fix trial requirement is prose-only (/rca + /planning skill steps); machine closure-check named in rule is still in plans/pending",
       "severity": "S1",
-      "recipient": "plans/pending/SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md"
+      "recipient": "plans/pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md"
     },
     {
       "id": "a-final-q-is-non-skippable-before-any-session-ends",
@@ -487,6 +487,12 @@
       "file": ".claude/rules/plan-closure.md",
       "line": 24,
       "enforced_by": "scripts/validate-plan-closure.mjs:165"
+    },
+    {
+      "id": ".claude/rules/no-wrappers.md#preamble",
+      "file": ".claude/rules/no-wrappers.md",
+      "line": 15,
+      "enforced_by": "scripts/lib/forbidden-patterns.mjs:115"
     }
   ]
 }
