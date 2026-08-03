@@ -37,7 +37,7 @@ Graduated from agent-mistakes.md. Practical decision trees for recurring situati
 **When you see** (any 2+ co-occurring): button transitions enabled → disabled in <500ms · no toast appears · no row in history tab · `window.__api` / fetch hook captures zero save-endpoint calls · form reverts on reload.
 
 **Do** (execute IN ORDER, stop at first hit — do NOT skip ahead):
-1. `document.querySelectorAll('[role="alertdialog"], [role="dialog"]:not([aria-hidden="true"])')` — any hits? → **use the existing `clickSaveAndConfirm` / `clickSaveWithDialog` helper** (navigation.md §B row; `local-office-settings.page.ts:138` wraps `base-page.ts:350`). DO NOT hand-roll a click driver.
+1. `document.querySelectorAll('[role="alertdialog"], [role="dialog"]:not([aria-hidden="true"])')` — any hits? → **use the existing `clickSaveAndConfirm` / `clickSaveWithDialog` helper** (navigation.md §B row; `local-office-settings.page.ts:52` wraps `clients/encore/src/pages/base.page.ts:288`). DO NOT hand-roll a click driver.
 2. `document.querySelectorAll('[aria-invalid="true"], .text-destructive, [data-invalid]')` — any hits? → form validation is blocking save. Fix the invalid field.
 3. `window.__api` / fetch-hook shows a save-endpoint call with 4xx/5xx status? → server-side issue. File via LR-034.
 4. Read the live onClick body: `btn[Object.getOwnPropertyNames(btn).find(k=>k.startsWith('__reactProps'))].onClick.toString()` — contains an `isTrusted` / `user-activation` gate? → only NOW consider trust-event workarounds.
