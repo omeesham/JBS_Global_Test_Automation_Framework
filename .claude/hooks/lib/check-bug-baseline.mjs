@@ -2,13 +2,10 @@
 // check-bug-baseline.mjs — LR-034 baselineComparison enum gate (PreToolUse on Edit|Write|NotebookEdit).
 //
 // THE HOLE THIS CLOSES (GAP-C / RC-6)
-//   clients/<id>/reports/bugs/BUG-*.json files accept a free-text `baselineComparison`. The
-//   2026-06-18 Pricing session filed BUG-LOC-PRI-001 with
-//   `"baselineComparison": "not-yet-verified"` — not even a valid LR-034 value —
-//   inverting the truth hierarchy (a bug classified before the baseline was walked).
-//   Nothing validated it. This DENY-capable PreToolUse gate rejects any write to a
-//   BUG-*.json whose baselineComparison is outside the LR-034 enum, and requires a
-//   real baseline artifact reference when the classification is regression.
+//   BUG-*.json `baselineComparison` accepted free text — the 2026-06-18 Pricing session
+//   filed BUG-LOC-PRI-001 with "not-yet-verified" (not an LR-034 enum value), classifying
+//   a bug before the baseline was walked. This DENY gate rejects values outside the enum
+//   and requires an existing baseline artifact for "regression-from-baseline".
 //
 // SCOPE: fires ONLY when tool_input.file_path resolves to
 //   clients/<id>/reports/bugs/BUG-*.json. Scans the NEW content fragment
@@ -29,12 +26,12 @@
 import { readFileSync, existsSync, mkdirSync, appendFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
+import { fireTelemetry } from "./hook-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
 const STATE_DIR = join(REPO_ROOT, ".claude", "state");
 const FAILURE_LOG = join(STATE_DIR, "hook-failures.log");
-const GATE_FIRES_LOG = join(STATE_DIR, "gate-fires.log");
 
 const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit"]);
 
@@ -183,7 +180,7 @@ function emitAllow(reason) {
 }
 
 function emitDeny(reason, target) {
-  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `bug-baseline-gate, ${new Date().toISOString()}, deny, ${target || 'session'}\n`); } catch {}
+  fireTelemetry('bug-baseline-gate', 'deny', target || 'session');
   process.stdout.write(
     JSON.stringify({
       hookSpecificOutput: {

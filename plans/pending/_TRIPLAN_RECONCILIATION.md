@@ -2924,3 +2924,219 @@ testing produces confident-looking output with no discriminating power.*
 **87 of 196 closed.** Zero bounces this wave.
 
 *Appended 2026-08-03.*
+
+---
+
+## WAVE 9 (partial) — the telemetry picture, measured at last
+
+### `q123-w9-baselines` — ACCEPTED. 2/2, and the classification went the other way this time.
+
+**P3-11 — HARD, so telemetry was genuinely needed.** This is the third gate this campaign has classified,
+and the first to come out HARD. The worker's proof is the distinction that matters:
+
+> `emitDeny` emits `"permissionDecision": "deny"`. The shell wrapper exits 0 always but passes the JSON
+> verbatim — **the deny verdict is in the JSON payload, not the exit code.**
+
+That is exactly why `check-execution-completion.mjs` and `check-rca-verdict.mjs` were SOFT (they emit no
+`permissionDecision` at all) while this one is HARD despite the same `exit 0`. A worker reading exit codes
+alone would have got all three wrong.
+
+Import added at line 29, one call on the deny branch.
+
+**Dispatcher verification — with a probe that actually trips the gate.** I built a payload from the
+source's own constants (`BUG_PATH_RX`, `VALID_BASELINE_ENUM`) rather than a plausible-looking one:
+
+| case | want | got |
+|---|---|---|
+| invalid enum value (the 2026-06-18 incident shape) | deny | deny |
+| valid enum value `not-checked` | allow | allow |
+| `regression-from-baseline` with no baseline artifact | deny | deny |
+| same content, unrelated file path | allow | allow |
+
+The gate discriminates in all four directions, and `gate-fires.log` gained
+`bug-baseline-gate, …, deny, session` lines from **real trips**.
+
+*My first run had `new-in-new-site` as the "valid" value and it denied. I had invented that value without
+reading `VALID_BASELINE_ENUM` (line 38: `regression-from-baseline`, `intentional-UX-change`,
+`baseline-absent`, `not-checked`). The gate was right and my probe was wrong. Third probe-payload error
+this session — recording it, because a probe I wrote is not more trustworthy than a worker's claim.*
+
+**P25-LOT01-07 — the header compacted from 11 lines to 5, and it kept the incident.** The replacement
+still names the bug (`BUG-LOC-PRI-001`, 2026-06-18, free-text `baselineComparison`), the rule violated
+(the LR-034 enum), and what breaks without the gate. It wrote 5 lines instead of the requested ~4 and said
+why — which is the right call when the line target and the meaning conflict.
+
+### `q123-w9-guardrailpolicy` — ACCEPTED. The LIT/DARK table is now measured, not asserted.
+
+**P3-13 was the real work and it produced the first honest telemetry census of this repo's gates.** Every
+row carries file:line, and the dispatcher re-ran the grep and confirmed all of them:
+
+| gate | status |
+|---|---|
+| `check-md-first` | LIT (`:141` own inline def, `:202` call) |
+| `check-client-surface-size` | LIT (`:60`, `:210`, `:222`) |
+| `check-client-surface-write` | LIT (`:42` import + 7 call sites) |
+| `check-bug-baseline` | LIT (`:29`, `:183`) — **landed this wave** |
+| `check-identity-switch` | LIT (`:37`, `:145`, `:295`, `:307`) |
+| `check-plan-closure` | LIT (`:27` + 6 call sites) — **landed this campaign** |
+| `check-todo-injection` | LIT (`:40`, `:721`) — **landed this campaign** |
+| `check-execution-completion` | **LIT — SOFT-COMPLETE** (`:236` warn only; Stop hook, cannot deny) |
+| `check-rca-verdict` | **LIT — SOFT-COMPLETE** (`:192` warn only; Stop hook, cannot deny) |
+| `check-browsertool` · `check-graft-ship` · `check-jargon` · `check-no-verify` · `check-mistake-ledger` | **DARK** — zero calls |
+
+Dispatcher spot-audit: all five DARK gates return `grep -c fireTelemetry` = **0**. Confirmed.
+
+**The SOFT-COMPLETE row is the part that stops a future false alarm.** §3.4 now carries the definition:
+
+> SOFT-COMPLETE = gate fires on its only reachable verdict; it cannot deny, so the "0 deny-fires in 90
+> days" demotion trigger does not apply.
+
+Without that, the demotion sweep would eventually flag two correctly-instrumented Stop hooks as dead gates
+and delete them for never producing a deny-fire they are structurally incapable of producing.
+
+**It also corrected the doc against itself:** the previous §3.4 text claimed `check-mistake-ledger` was
+LIT. It has zero calls. That claim was wrong and is now fixed.
+
+**P25-LOT03-05 — the recount finding was stale twice over.** It corrected 97 → 117; the file measured
+**172** today. The deeper point, which the ticket asked to be carried into the fix: a line count or line
+range written into prose rots on the next edit. A citation like "LR-070 (lines 100-116)" is a reference
+with a shelf life.
+
+**P1-M13 — half already done.** `hook-utils.mjs:102` already exports the canonical 3-arg
+`fireTelemetry(gate, verdict, target)`. The "wire every branch" half is per-gate work in other files and
+correctly stayed out of a one-file ticket.
+
+### Two findings in the still-running identity lot are already satisfied
+
+The census incidentally answers part of the next ticket. `check-identity-switch.mjs:37` reads:
+
+```js
+import { textOf, isInExecuteContext, hasOverrideAuthorization, fireTelemetry } from "./hook-utils.mjs";
+```
+
+So **P2-LOT11-03** ("extract `textOf()` to hook-utils") and **P3-09** ("add `fireTelemetry`") are both
+already done — `textOf` is imported, and telemetry fires at `:145` announce, `:295` and `:307` deny. That
+lot's ticket instructs the worker to check before acting, so it should reach the same conclusion
+independently; if it instead "adds" either one, that is a bounce.
+
+### NEW-17 (dispatcher, S3) — one gate still carries a divergent private telemetry helper
+
+The census makes it precise: `check-md-first.mjs:141` defines its **own** `fireTelemetry(verdict, target)`
+— **two** arguments — while the shared `hook-utils.mjs:102` takes **three** `(gate, verdict, target)`.
+Every other repo-side gate now uses the shared one.
+
+So `check-md-first`'s rows in `gate-fires.log` are written by different code with a different signature
+from every other gate's. It is the last repo-side divergence and it is the pattern three tickets in this
+campaign have had to explicitly warn workers not to copy. Filed for a follow-up lot.
+
+*Appended 2026-08-03.*
+
+### CORRECTION to the section above — I called P3-09 "already done". It was not.
+
+The census section above states that both `P2-LOT11-03` and `P3-09` were already satisfied in
+`check-identity-switch.mjs`. **Half of that is wrong**, and the error is instructive.
+
+I read the file while the `w9-identityswitch` worker was **still running**, so what I saw at
+`:37/:145/:295/:307` was that worker's in-flight edit, not prior state. The pre-dispatch backup settles it:
+
+```
+backup (pre-wave-9):  grep -c fireTelemetry  ->  0
+backup line 37:  import { textOf, isInExecuteContext, hasOverrideAuthorization } from "./hook-utils.mjs";
+now:             import { textOf, isInExecuteContext, hasOverrideAuthorization, fireTelemetry } from "./hook-utils.mjs";
+```
+
+So, precisely:
+
+- **P2-LOT11-03** (`textOf` from hook-utils) — **was** already done before wave 9. That half stands.
+- **P3-09** (`fireTelemetry`) — **was not.** Zero references pre-dispatch, four now. The worker added it,
+  its report is accurate, and my inference was wrong.
+
+**The lesson:** reading a file to judge a lot that is concurrently being worked is reading a moving target.
+The sha256-verified pre-dispatch backup is the only stable reference for "what was there before", and it
+is the second time this session it has decided a question I would otherwise have got wrong.
+
+### `q123-w9-identityswitch` — ACCEPTED. 4/4, three already applied, one landed.
+
+**P2-LOT11-09 — the override ordering, verified in all four directions.** The ordering logic lives in
+`hook-utils.mjs::hasOverrideAuthorization` and was already correct; the worker proved it rather than
+asserting it:
+
+| case | transcript | verdict |
+|---|---|---|
+| request → approval → write, same path, in window | valid | **allow** |
+| approval appears **before** its request | stale approval | **deny** |
+| approval names a **different path** | mismatched | **deny** |
+| approval **outside** the turn window (>3 assistant turns) | expired | **deny** |
+
+The first row matters as much as the other three: an override gate that stops honouring valid overrides
+blocks legitimate authorized writes. All four came back right.
+
+**P2-LOT11-10** — both override call sites already delegate to the same `hasOverrideAuthorization`, so the
+semantics are already centralized. Nothing to do.
+
+**P3-09 — applied.** Import extended on line 37, telemetry wired on all three deny/announce branches
+(`:145` announce, `:295` and `:307` deny), and the superseded inline `appendFileSync` + `GATE_FIRES_LOG`
+constant removed — the same tidy-up pattern the other gates got.
+
+### `q123-w9-fixtures` — work ACCEPTED on my own verification; the REPORT failed.
+
+Ledger: `ok=false exit_reason=no-report-schema report_sections=0`. The worker created
+`W9-FIXTURES.md` at 21:31 containing only `## STATUS: IN PROGRESS` and died at 21:36 without filling it
+in. **There is no report to accept.** So every claim below is the dispatcher's own measurement.
+
+**NEW-14 fixed, and fixed on both paths:**
+
+```js
+let passed = 0;
+  if (ok) passed++; else failures++;
+    console.error(`FAILED — ${passed} passed, ${failures} failed.`);
+  console.log(`ALL PASS — ${passed} fixtures.`);
+```
+
+Previously the pass summary was the literal `` `ALL PASS — 19 fixtures.` `` and the failure summary
+reported only a failure count with no denominator. Both now compute. The suite prints **`ALL PASS — 20
+fixtures.`** and `grep -c "^PASS"` returns **20** — the number and the reality finally agree.
+
+**The compaction kept what mattered.** 54 lines removed, 11 added. What went was a stream-of-consciousness
+record of four abandoned approaches (env override, tmp fake-repo, pre-seeding, "SIMPLER APPROACH
+(final)"). What replaced it is six lines carrying every load-bearing fact:
+
+```js
+// DESIGN: test subplan files are written directly into plans/pending/ with a
+// _TEST_BROWSERTOOL_ prefix. We cannot use a fake-repo env override because
+// check-browsertool.mjs resolves REPO_ROOT from __dirname with no env escape.
+// The _TEST_ prefix keeps them sorted first and easy to grep+delete.
+// The finally-block cleanup is MANDATORY — plans:reindex:check complains if
+// test files linger after the run.
+```
+
+That keeps the three things a deletion could have lost: **why** the env override was rejected (which is
+what stops the next person re-proposing it), the prefix convention, and the **mandatory** finally-block
+cleanup warning — without which a failed run leaves `_TEST_*` files in `plans/pending/` and trips
+`plans:reindex:check`.
+
+**No collateral damage.** The ticket required temporarily breaking `check-browsertool.mjs` for the
+fails-on-purpose step and restoring it. `git status` shows it **not modified** — it matches HEAD, i.e. the
+committed wave-7 state. Restored correctly.
+
+*(A sha256 comparison against my backup showed a mismatch and briefly looked like damage. It was not: that
+backup was taken before wave 7 edited and committed the file, so a difference is expected. `git status`
+against HEAD is the correct check here, not the backup.)*
+
+**Disposition: the work is correct and is kept; the run is recorded as a deliverable failure.** This is
+the fourth worker this campaign to do good work and die before writing it down. The difference this time
+is that the ticket's verification steps were mechanical enough that I could re-derive every claim from
+disk — which is the argument for writing acceptance criteria as *measurements* rather than *assertions*.
+
+### Wave 9 scoreboard
+
+| lot | verdict | findings |
+|---|---|---|
+| w9-baselines | ACCEPTED | 2 (both applied; gate classified HARD, telemetry proven on a real trip) |
+| w9-guardrailpolicy | ACCEPTED | 3 (LIT/DARK census measured; SOFT-COMPLETE state added) |
+| w9-identityswitch | ACCEPTED | 4 (1 applied, 3 already done) |
+| w9-fixtures | work accepted, report failed | 3 (NEW-14 + 2 compactions, all verified by dispatcher) |
+
+**99 of 196 closed.** Over half.
+
+*Appended 2026-08-03.*

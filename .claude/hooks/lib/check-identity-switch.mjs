@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // check-identity-switch.mjs — returns JSON decision for identity-switch gate.
+// Sev: S1 | Graduating incident: LR-043 (identity-ownership lockout 2026-04-23)
 //
 // MODES (dispatched by presence of argv[3]):
 //
@@ -28,35 +29,18 @@
 // Fail-open policy: any parse error → allow (same posture as
 // check-finalq-required.mjs + check-rubberstamp.mjs).
 
-import { readFileSync, existsSync, writeFileSync, mkdirSync, renameSync, appendFileSync } from "node:fs";
+import { readFileSync, existsSync, writeFileSync, mkdirSync, renameSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
 import { tmpdir } from "node:os";
 import { ownershipFor, canWrite, isPipelineArtifact, ownerRoleFor } from "../../../scripts/identity-ownership.mjs";
+import { textOf, isInExecuteContext, hasOverrideAuthorization, fireTelemetry } from "./hook-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
 const STATE_DIR = join(REPO_ROOT, ".claude", "state");
-const GATE_FIRES_LOG = join(STATE_DIR, "gate-fires.log");
 
 const MUTATION_TOOLS = new Set(["Edit", "Write", "NotebookEdit"]);
-// Layer-1 /execute-context lookback window (mirrors check-todo-injection). Declared
-// at top level — the PreToolUse dispatch runs during module load, before the helper
-// block below, so this const must initialize before isInExecuteContext() can run (TDZ).
-// keep in sync with check-todo-injection.mjs (EXECUTE_LOOKBACK twin)
-const EXECUTE_LOOKBACK = 200;
-// Override window: env-configurable, default 3, hard ceiling 10 (not overridable by env).
-const OVERRIDE_TURNS = Math.min(10, Math.max(1, parseInt(process.env.IDENTITY_OVERRIDE_TURNS ?? "3", 10) || 3));
-const OVERRIDE_AUTH_RX = /\b(override approved|override ok|approve override|authorized to override|i authorize|you are authorized)\b/i;
-// Line-anchored to avoid matching prose mentions like "the [OVERRIDE-REQUEST]
-// convention" (mid-sentence; must start a line). Tolerates common markdown
-// wrappers around the tag — backticks (`[OVERRIDE-REQUEST]`), blockquote
-// (`> [OVERRIDE-REQUEST]`), bullet (`- [OVERRIDE-REQUEST]` / `* ...`), and
-// emphasis (`_[OVERRIDE-REQUEST]_`) — because natural chat formatting adds
-// these and the strict `^\s*\[` anchor rejected legitimate handshakes
-// (SCOPED 2026-04-23 regression fix, LR-043 remediation).
-const OVERRIDE_REQUEST_RX = /(?:^|\n)[\s`>*_-]*\[OVERRIDE-REQUEST\][\s`]*\S/;
-const BATCH_APPROVAL_RX = /^\s*\[OVERRIDE-EXPLICIT-APPROVAL-BATCH\]/m;
 const BANNER_RX = /\[([A-Z]+)\s*\|/;
 const IDENTITY_SWITCH_RX = /IDENTITY SWITCH:\s*\[?([A-Z]+)\]?\s*(?:->|→)\s*\[?([A-Z]+)\]?/;
 const CONSTRAINT_EXTRACT_RX = /^##\s*\[IDENTITY-ACTIVE:\s*([A-Z]+)\]/m;
@@ -139,7 +123,7 @@ function handlePreToolUse(rawInput) {
   // context-loading check ("adopt the role before writing the role's artifacts"),
   // not a re-introduction of blanket OWNER access-control. Honors the
   // identity-gate-config.json ramp knob; fail-open on any error.
-  if (currentIdentity === "OWNER" && isPipelineArtifact(relPath) && isInExecuteContext()) {
+  if (currentIdentity === "OWNER" && isPipelineArtifact(relPath) && isInExecuteContext(messages)) {
     const mode = readGateMode();
     if (mode !== "off") {
       const role = ownerRoleFor(relPath) || "a pipeline role";
@@ -150,7 +134,7 @@ function handlePreToolUse(rawInput) {
         `role's test deliverable silently skips that role's gates. ` +
         `Override = one-shot break-glass ([OVERRIDE-REQUEST] ${relPath} + user "override approved").`;
       if (mode === "deny") {
-        if (hasOverrideAuthorization(relPath)) {
+        if (hasOverrideAuthorization(messages, relPath)) {
           emitAllow(`[OVERRIDE] OWNER authorized to write ${relPath} — user-typed approval matched`);
           return;
         }
@@ -158,6 +142,7 @@ function handlePreToolUse(rawInput) {
         return;
       }
       // announce: allow + persist a warning that the Layer-4 /final-q + /audit nets read.
+      fireTelemetry("identity-gate", "announce", relPath);
       const sessionId = toolInput.session_id || toolInput.sessionId || "unknown";
       persistAnnounceWarning(sessionId, relPath, role);
       emitAllow(`[IDENTITY-GATE announce] ${msg}`);
@@ -171,7 +156,7 @@ function handlePreToolUse(rawInput) {
   const o = ownershipFor(currentIdentity, relPath);
 
   // Override path: in last 3 assistant turns, OVERRIDE-REQUEST for this path + user authorization.
-  if (hasOverrideAuthorization(relPath)) {
+  if (hasOverrideAuthorization(messages, relPath)) {
     emitAllow(`[OVERRIDE] ${currentIdentity} authorized to write ${relPath} — user-typed approval matched`);
     return;
   }
@@ -179,50 +164,7 @@ function handlePreToolUse(rawInput) {
   emitDeny(currentIdentity, relPath, o);
 }
 
-function hasOverrideAuthorization(path) {
-  let sawRequest = false;
-  let sawAuth = false;
-  let asstTurnCount = 0;
-
-  // Scan backward from most recent; only consider last OVERRIDE_TURNS assistant turns.
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const msg = messages[i];
-    if (msg.role === "assistant") {
-      asstTurnCount++;
-      if (asstTurnCount > OVERRIDE_TURNS) break;
-      const t = textOf(msg.content);
-      if (OVERRIDE_REQUEST_RX.test(t) && t.includes(path)) sawRequest = true;
-    } else if (msg.role === "user") {
-      const t = textOf(msg.content);
-      if (OVERRIDE_AUTH_RX.test(t) || BATCH_APPROVAL_RX.test(t)) sawAuth = true;
-    }
-    if (sawRequest && sawAuth) return true;
-  }
-  return false;
-}
-
 // --- Layer 1 (PLAN_IDENTITY_ENFORCEMENT) helpers ---
-// (EXECUTE_LOOKBACK is declared with the top-level constants — TDZ-safe for the
-// PreToolUse dispatch that runs during module load.)
-
-// Is an /execute active? Mirror of check-todo-injection.mjs isInExecute: walking
-// back from the latest message, /execute is active iff we hit a Skill=execute
-// before a Skill=final-q (final-q closes the /execute scope). Bounded lookback.
-function isInExecuteContext() {
-  const start = messages.length - 1;
-  const stop = Math.max(0, start - EXECUTE_LOOKBACK);
-  for (let i = start; i >= stop; i--) {
-    const msg = messages[i];
-    if (!msg || msg.role !== "assistant" || !Array.isArray(msg.content)) continue;
-    for (const c of msg.content) {
-      if (c?.type !== "tool_use" || c.name !== "Skill") continue;
-      const skill = (c.input?.skill || "").toLowerCase();
-      if (skill === "final-q") return false; // /final-q closed the /execute scope
-      if (skill === "execute") return true;
-    }
-  }
-  return false;
-}
 
 // Ramp knob: .claude/identity-gate-config.json {mode: off|announce|deny}, ramped
 // exactly like closure-config.json's c6_mode. Env IDENTITY_GATE_MODE overrides
@@ -319,28 +261,6 @@ function findLastAssistant() {
   return null;
 }
 
-function textOf(content) {
-  if (!content) return "";
-  if (typeof content === "string") return content;
-  if (!Array.isArray(content)) return "";
-  let out = "";
-  for (const c of content) {
-    if (typeof c === "string") { out += c + "\n"; continue; }
-    if (c?.type === "text" && typeof c.text === "string") out += c.text + "\n";
-  }
-  return out;
-}
-
-// Relativize a target path to a repo-root-relative forward-slash path before the
-// §2 ownership lookup. The Edit/Write/NotebookEdit tools pass ABSOLUTE paths
-// (mandatory on Windows, where this repo root contains spaces), but OWNERSHIP_ROWS
-// patterns are relative + `^…$`-anchored — so an absolute path matches nothing and
-// every pipeline identity default-denies. Strip the REPO_ROOT prefix (derived from
-// this hook's own location at load, so it tracks repo renames automatically) rather
-// than a hardcoded repo-dir name. Windows paths are case-insensitive, so the prefix
-// compare is case-folded; the remainder keeps its original case for the (case-
-// sensitive) glob match. A relative path (fixtures, or a tool that passed one)
-// shares no prefix with REPO_ROOT and simply passes through unchanged.
 function normalizePath(p) {
   let n = p.replace(/\\/g, "/");
   const root = REPO_ROOT.replace(/\\/g, "/").replace(/\/+$/, "");
@@ -372,7 +292,7 @@ function emitAllow(reason) {
 // Emit a deny with a caller-supplied reason (Layer-1 gate uses this; the §2
 // gate uses emitDeny below, which builds an ownership-specific message).
 function emitDenyReason(reason) {
-  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `identity-gate, ${new Date().toISOString()}, deny, session\n`); } catch {}
+  fireTelemetry("identity-gate", "deny", "session");
   const out = {
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
@@ -384,7 +304,7 @@ function emitDenyReason(reason) {
 }
 
 function emitDeny(identity, path, ownership) {
-  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `identity-gate, ${new Date().toISOString()}, deny, ${path}\n`); } catch {}
+  fireTelemetry("identity-gate", "deny", path);
   const reason =
     `[IDENTITY-GATE] ${identity} cannot ${ownership.action === "READ" ? "write (READ only)" : "access"} ${path} per ${ownership.reason}. ` +
     `Options: (1) invoke /identity <NEW> to switch to a compatible identity (re-reads rules + emits Step 6.5 Constraint Extract), ` +

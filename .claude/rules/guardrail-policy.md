@@ -55,16 +55,26 @@ Severity is assigned at capture time by the agent logging the mistake (via `/ref
 
 One shared append-only log. Without this the demotion review is unauditable prose.
 
-> **⚠ KNOWN-GAP (2026-07-13 — flagged, NOT fixed):** this mandate is only partially wired. Only
-> `check-md-first.mjs` + `check-mistake-ledger.mjs` actually emit fire telemetry; the other ≥8
-> deny/announce gate libs (`check-plan-closure`, `check-todo-injection`, `check-browsertool`,
-> `check-graft-ship`, `check-bug-baseline`, `check-identity-switch`, `check-jargon`, `check-no-verify`)
-> are DARK — they never append to `gate-fires.log`. The demotion review below therefore runs on
-> partial signal and could wrongly retire a still-live gate as "0 fires in 90 days". Fix (when
-> someone gets to it) = a shared `fireTelemetry(gate, verdict, target)` helper called on every
-> deny/announce branch of the dark libs. Surfaced by a cross-family gap-hunt debate; the ranking +
-> evidence live in the delegation `decision-debates.jsonl` (2026-07-13 entry). Left as a flag by
-> owner direction — parallel plans may touch these libs; if still unused later it gets removed anyway.
+> **⚠ PARTIALLY-WIRED (2026-07-13 flagged; updated 2026-08-03):** the shared helper `fireTelemetry(gate, verdict, target)` is implemented and exported at `.claude/hooks/lib/hook-utils.mjs:102`. LIT/DARK state as measured across all gate libs (source: `grep -rn fireTelemetry .claude/hooks/lib/`):
+>
+> | Gate | Status | Detail |
+> |---|---|---|
+> | `check-md-first.mjs` | **LIT** | own inline helper (not shared); fires on deny/announce (line 202) |
+> | `check-client-surface-size.mjs` | **LIT** | shared helper; announce branches (lines 210, 222) |
+> | `check-client-surface-write.mjs` | **LIT** | shared helper; deny + announce branches (lines 125, 139, 157, 173, 196, 227, 232) |
+> | `check-bug-baseline.mjs` | **LIT** | shared helper; deny branch (line 183) |
+> | `check-identity-switch.mjs` | **LIT** | shared helper; announce (line 145) + deny branches (lines 295, 307) |
+> | `check-plan-closure.mjs` | **LIT** | shared helper; deny + announce branches (lines 91, 213, 269, 273, 291, 376) |
+> | `check-todo-injection.mjs` | **LIT** | shared helper; deny branch (line 721) |
+> | `check-execution-completion.mjs` | **LIT — SOFT-COMPLETE** | Stop hook; only reachable verdict is `warn` (line 236); structurally cannot deny — demotion-review "0 deny-fires" trigger does not apply |
+> | `check-rca-verdict.mjs` | **LIT — SOFT-COMPLETE** | Stop hook; only reachable verdict is `warn` (line 192); structurally cannot deny — demotion-review "0 deny-fires" trigger does not apply |
+> | `check-browsertool.mjs` | **DARK** | can deny; no telemetry wired — demotion review runs on incomplete signal |
+> | `check-graft-ship.mjs` | **DARK** | can deny; no telemetry wired — demotion review runs on incomplete signal |
+> | `check-jargon.mjs` | **DARK** | can deny; no telemetry wired — demotion review runs on incomplete signal |
+> | `check-no-verify.mjs` | **DARK** | can deny; no telemetry wired — demotion review runs on incomplete signal |
+> | `check-mistake-ledger.mjs` | **DARK** | announce-only Stop hook; no telemetry wired (prior LIT claim in this doc was incorrect — grep finds zero `fireTelemetry` calls) |
+>
+> **SOFT-COMPLETE** = gate fires on its only reachable verdict; it cannot deny, so the "0 deny-fires in 90 days" demotion trigger does not apply. **DARK** = gate can deny (or announce) but fires no telemetry — these are real gaps where the demotion review runs on incomplete signal and could wrongly retire a live gate. The 5 DARK gates above remain unwired; wiring each is per-gate work outside this doc. Surfaced by a cross-family gap-hunt debate; evidence in `decision-debates.jsonl` (2026-07-13 entry).
 
 **Demotion review** (at `/compile-learnings` cadence, reading `gate-fires.log`):
 - deny-gate with 0 fires in 90 days AND no class recurrence → demote to `announce`

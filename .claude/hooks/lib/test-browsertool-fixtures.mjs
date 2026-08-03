@@ -16,24 +16,12 @@
 //   override handshake                → allow
 //   non-browser tool (Edit, Read)     → allow (short-circuit)
 //
-// Each fixture writes:
-//   1. A JSONL transcript file containing user + assistant messages
-//   2. A tmp subplan .md file with the BrowserTool frontmatter under test
-//      (symlinked/copied into a tmp plans/pending/ shadow so the hook's
-//      findPlanFile() resolves it). To keep the test hermetic, we instead
-//      override the plan-lookup by using a real subplan path in the /execute
-//      message. The test subplan files are written under a tmp shadow of
-//      the REPO's plans/pending/ — via environment var REPO_ROOT override.
-//
-// DESIGN DECISION: rather than mock the filesystem, we write fixtures
-// against a tmp-directory "repo" that mirrors the real layout
-// (`<tmpdir>/fake-repo/plans/pending/SUBPLAN_FOO.md` + chain-sessions dir),
-// then invoke the checker with BROWSERTOOL_REPO_ROOT pointing at it. The
-// checker respects that override (see check-browsertool.mjs REPO_ROOT
-// resolution — env override applied if present). If the env override isn't
-// wired, the fixtures fall back to real plan files that exist in the repo
-// (SUBPLAN_PWC2_06_BROWSERTOOL_GATE_HOOK.md has BrowserTool=none; we use a
-// small set of known-frontmatter plans as anchors).
+// DESIGN: test subplan files are written directly into plans/pending/ with a
+// _TEST_BROWSERTOOL_ prefix. We cannot use a fake-repo env override because
+// check-browsertool.mjs resolves REPO_ROOT from __dirname with no env escape.
+// The _TEST_ prefix keeps them sorted first and easy to grep+delete.
+// The finally-block cleanup is MANDATORY — plans:reindex:check complains if
+// test files linger after the run.
 
 import { writeFileSync, mkdtempSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -45,39 +33,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const checker = join(__dirname, "check-browsertool.mjs");
 
 // Build a tmp fake-repo shadow so the checker's findPlanFile() has predictable
-// subplan files regardless of whatever exists in the real repo. We expose it
-// to the checker via an env var (if the checker supports it) OR by pre-
-// seeding known subplan names with specific frontmatter into the REAL repo's
-// plans/pending/ scratch (undesirable — skip).
-//
-// Since the current check-browsertool.mjs resolves REPO_ROOT from __dirname
-// and doesn't read an env override, we take a different tack: we build the
-// fixture transcript to reference EXISTING real-repo subplans whose
-// BrowserTool values we know. The fixtures below pin their assertions to
-// real plan files that have stable frontmatter.
-//
-// Known anchors in this repo (checked at fixture-prep time):
-//   plans/pending/SUBPLAN_PWC2_06_BROWSERTOOL_GATE_HOOK.md  → BrowserTool: none
-//   plans/pending/SUBPLAN_PWC2_03_PIPELINE_AGENTS_CLI_REWRITE.md  → BrowserTool: both
-//   plans/pending/SUBPLAN_PWC2_07_MCP_RETIREMENT_AND_PILOT.md  → BrowserTool: both
-//   plans/pending/PLAN_PLAYWRIGHT_CLI_PRIMARY_CHROME_SPECIALIST.md → BrowserTool: none
-//
-// For cli + chrome assertions we need actual files — we write them to the
-// tmp dir and set BROWSERTOOL_FIXTURE_DIR to point at a scratch plans shadow.
-//
-// SIMPLER APPROACH (final): write subplan files into real `plans/pending/`
-// with a test-only prefix (`_TEST_BROWSERTOOL_*`), then CLEAN them up at
-// end. This avoids needing an env hook. Downside: pollutes plans/pending/
-// during the test run. We mitigate by:
-//   - Naming prefix `_TEST_BROWSERTOOL_` (underscored, sorts first; easy to
-//     grep + delete).
-//   - Try/finally cleanup.
-//   - The real /planning validator ignores `_TEST_` prefixed files (grep for
-//     that convention before relying on it).
-//
-// Confirmed: plans/INDEX.md is regenerated from filesystem (LR-035); the
-// `plans:reindex:check` gate will complain if test files linger. The
-// finally-block cleanup is mandatory.
+// subplan files regardless of whatever exists in the real repo.
 
 const tmpPlansShadow = join(__dirname, "..", "..", "..", "plans", "pending");
 const testFiles = [
@@ -113,6 +69,7 @@ for (const tf of testFiles) {
 // Also ensure a transcript tmp dir.
 const dir = mkdtempSync(join(tmpdir(), "bt-fix-"));
 
+let passed = 0;
 let failures = 0;
 
 // --- Transcript helpers (same shape as test-identity-switch-fixtures.mjs) ---
@@ -143,7 +100,7 @@ function runFixture(name, fixture, toolInput, expectDecision) {
   try { decision = JSON.parse(out).hookSpecificOutput?.permissionDecision ?? "missing"; } catch { /* */ }
   const ok = decision === expectDecision;
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  expect=${expectDecision}  got=${decision}  ${ok ? "" : "raw=" + out}`);
-  if (!ok) failures++;
+  if (ok) passed++; else failures++;
 }
 
 try {
@@ -332,10 +289,10 @@ try {
 
   console.log("");
   if (failures > 0) {
-    console.error(`FAILED — ${failures} fixture(s) did not match expected decision.`);
+    console.error(`FAILED — ${passed} passed, ${failures} failed.`);
     process.exit(1);
   }
-  console.log(`ALL PASS — 19 fixtures.`);
+  console.log(`ALL PASS — ${passed} fixtures.`);
 } finally {
   // Clean up test subplan files.
   const { unlinkSync, existsSync } = await import("node:fs");
