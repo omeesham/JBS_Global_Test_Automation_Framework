@@ -295,6 +295,51 @@ function handleEditMode(payload) {
   }
 }
 
+// Walk cmd and extract every $(...) interior, recursively, using paren-depth tracking
+// so nested $( inside $( are captured at every level.
+function extractDollarSubContents(cmd) {
+  const results = [];
+  let i = 0;
+  while (i < cmd.length - 1) {
+    if (cmd[i] === '$' && cmd[i + 1] === '(') {
+      let depth = 1;
+      let j = i + 2;
+      while (j < cmd.length && depth > 0) {
+        if (cmd[j] === '(') depth++;
+        else if (cmd[j] === ')') depth--;
+        j++;
+      }
+      const inner = cmd.slice(i + 2, j - 1);
+      results.push(inner);
+      results.push(...extractDollarSubContents(inner)); // recurse into inner levels
+      i = j;
+    } else {
+      i++;
+    }
+  }
+  return results;
+}
+
+// Extract every command text that could execute in a shell string.
+// Structural rule: the following can each introduce a new command —
+//   ||  &&  ;  |  \n  & (bare background)  $(...) interior  `...` interior
+// ALL of them must be classified to prevent bypass via command substitution or backgrounding.
+function extractAllCommandSegments(cmd) {
+  // Split on all top-level shell command separators.
+  // & alone (background) is treated as a separator; || and && are tried first in alternation
+  // so && is never split as two bare &.
+  const topLevel = cmd.split(/\|\||&&|[;|\n&]/);
+
+  // Extract $(...) interiors at all nesting depths via paren-depth tracking.
+  // Extract `...` backtick substitution interiors (single-depth; backticks don't nest).
+  const inner = extractDollarSubContents(cmd);
+  const backtickRx = /`([^`]*)`/g;
+  let m;
+  while ((m = backtickRx.exec(cmd)) !== null) inner.push(m[1]);
+
+  return [...topLevel, ...inner];
+}
+
 // === --bash-mode (R2 + V1 + NV1) ===
 function handleBashMode(payload) {
   const toolName = payload.tool_name || payload.toolName || '';
@@ -313,9 +358,10 @@ function handleBashMode(payload) {
     return;
   }
 
-  // Lock path mentioned — split on shell separators and classify every segment.
+  // Lock path mentioned — extract ALL command segments (top-level separators +
+  // command-substitution interiors) and classify every one.
   // A command is read-only only when ALL segments are read-only (no write ops).
-  const segments = cmd.split(/\|\||&&|[;|\n]/);
+  const segments = extractAllCommandSegments(cmd);
   const allReadOnly = segments.every(seg => {
     const trimmed = seg.trim();
     if (!trimmed) return true;

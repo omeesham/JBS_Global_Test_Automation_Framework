@@ -2399,3 +2399,185 @@ present** (`.claude/hooks/lib/uplink/*`, `plans/pending/PLAN_LAZY_CEO_DELEGATOR.
 not list ignored files. That is a limitation of the check, not evidence the files are absent.
 
 *Appended 2026-08-03.*
+
+---
+
+## WAVE 6 — the re-dispatches, and what "already done" actually looks like when verified
+
+The two tickets that died writing their reports were re-dispatched with one line added — *create the
+report file first and append as you go* — and a Sonnet seat. **Both delivered on the first attempt.** That
+confirms the death was a ticket defect, not a model or budget problem: same tickets, same findings, same
+budgets, one instruction different.
+
+### `q123-w6-rotation` — ACCEPTED. 3 of 3 already done, zero edits, and that is the correct outcome.
+
+`.claude/skills/ultra-agents/tavily-mcp/src/rotation.ts` is **clean against HEAD**, so this is committed
+state — the findings were simply stale. Every claim was re-verified by the dispatcher against disk rather
+than accepted from the report:
+
+| finding | claim | dispatcher check |
+|---|---|---|
+| P2-LOT18-04 | `MAX_ROTATIONS` already renamed | line 8 is `const MAX_KEY_ATTEMPTS = 4;`; zero `MAX_ROTATIONS` in any `.ts` — confirmed |
+| P2-LOT18-03 | `formatExhaustedMessage()` already extracted | defined line 165, called at 177 and 225 — confirmed |
+| P2-LOT18-02 | retry-exhaustion behaviour already documented | design comment present at 261-263 — confirmed |
+
+The P2-LOT18-02 comment is worth quoting, because the finding offered DOCUMENT-or-FIX and someone already
+chose DOCUMENT, explicitly:
+
+```ts
+// Design: per-key 429-retry budget exhausted → return immediately.
+// The outer rotation loop is NOT resumed; remaining keys are not tried.
+// Rate-limit signals call-level capacity pressure, not a key-level auth issue.
+```
+
+That is the difference between a bug and a design choice, written down where the next reader will hit it.
+The worker traced the control flow anyway — `retries429` is declared inside the outer loop, so it is
+per-key scoped; a 401/432/433 breaks to the outer loop and tries the next key, while 429-exhaustion
+returns. The finding's premise ("leaves remaining keys untried") is factually right and deliberately so.
+
+**Zero edits was the right answer, and the ticket had to permit it.** The ticket said so in terms: *"If all
+three are already done or wrong, that is a complete and valuable outcome — say so and stop. Do not
+manufacture work."*
+
+### `q123-w6-chainplan` — ACCEPTED. 4 confirmed already-applied, 1 declined, zero edits.
+
+The interesting half is P1-M21, because that annotation **asserts two facts** and an annotation asserting
+something false is exactly the slop this sweep exists to remove. Both halves were verified, and the
+dispatcher re-ran the checks independently:
+
+- **`check_allowlist` deleted (PBUG-11).** `grep -rn "check_allowlist" .claude/hooks/` → **exit 1, zero
+  matches.** `chain-guards.sh` exposes eight functions (`parse_verdict`, `check_branch`,
+  `check_stop_marker`, `check_cap`, `check_cli_effort_supports_xhigh`, `map_effort_for_cli`,
+  `write_pause_notice`, `pause_chain`) and none is `check_allowlist`. **TRUE.**
+- **Invariant preserved by queue-only iteration.** `chain-orchestrator.sh` reads `cs_get '.queue'` (line
+  203) and indexes positionally (`cs_get ".queue.$new_index.file"`, lines 229-231). Dispatcher's own
+  check: **zero references to `plans/pending` anywhere in the orchestrator** — it cannot glob the
+  directory, so a plan dropped in mid-chain has no reachable code path. **TRUE.**
+
+P1-M15's Execution Summary target exists (line 640) and P1-M17/P1-M14's `parse-verdict.mjs` exists on
+disk. All four annotations are accurate, not just present.
+
+**P1-M16 declined, correctly.** D17's effort-tier wording was cross-checked against `map_effort_for_cli`
+(chain-guards.sh:81-97) and the orchestrator header, and it matches the live implementation. "Update the
+wording" was not a defect.
+
+### NEW-12 (worker-surfaced, S3) — D7 understates the CLI's effort tiers
+
+While checking D17 the worker noticed **D7 (plan line 76)** lists valid CLI effort values as
+`low|medium|high|max` — omitting `xhigh`. D17 and the live `map_effort_for_cli` both include it. It
+correctly refused to fix this under P1-M16's scope and flagged it instead. Filed as a one-line
+annotation job for a later lot.
+
+Worth noting the resonance: this is the third distinct place in this campaign where an effort-tier
+description does not match what the code accepts (see NEW-02 on `copilot-worker.sh`). The tiers are a
+recurring source of stale documentation across two unrelated subsystems.
+
+### Wave scoreboard
+
+| lot | verdict | findings |
+|---|---|---|
+| w5-execcomp | ACCEPTED | 4 (2 applied, 1 no-change-proven, 1 declined) |
+| w6-rotation | ACCEPTED | 3 (all already-done, verified) |
+| w6-chainplan | ACCEPTED | 5 (4 already-applied verified, 1 declined) |
+| w5-planclosure | PARTIAL — bounced for 3 uncovered forms | 3 (2 applied, 1 declined) |
+| w5-todoinj | REJECTED — broke the gate, restored | 6 re-dispatched |
+
+**12 findings closed on evidence in wave 6.** Nine of those needed no code change at all — the honest
+outcome, reached by checking rather than by editing.
+
+*Appended 2026-08-03.*
+
+---
+
+## WAVE 6 (cont.) — the bounce closed the holes, and then showed me what the fix cost
+
+### `q123-w6-planclosure` — ACCEPTED. All three holes closed, verified by the dispatcher's own probe.
+
+Re-running the **same probe script** that produced the bounce, against the worker's new code:
+
+```
+| cmd-subst $()    | deny | deny | OK |
+| backticks        | deny | deny | OK |
+| bare ampersand   | deny | deny | OK |
+| semicolon        | deny | deny | OK |
+| and-and          | deny | deny | OK |
+| read-only pair   | allow | allow | OK |
+RESULT: no holes — every dispatcher-named form is covered.
+```
+
+`## ASK` was empty, so nothing blocked acceptance. `## RESIDUAL` is honest and specific: bash **process
+substitution** `<(...)` / `>(...)` is not extracted, and the worker states plainly that catching a bare
+`rm` inside `<(...)` is out of reach without a real shell parser. A documented residual beats a silent one.
+
+### But the floor over-denies, and I found that by probing what I did NOT ask for
+
+The bounce ticket only required the deny-side matrix plus the previous allow-set. So I wrote a second probe
+for over-denial specifically — the failure mode a widening trades into — and it found two:
+
+| read-only command | verdict |
+|---|---|
+| `cat <lock> \| head -20` | **deny** |
+| `grep -n "x" <lock>` | **deny** |
+
+Cause: `READ_ONLY_PREFIX_RX` allows `cat, type, Get-Content, git show/diff/log/status, ls, dir, Test-Path`.
+`head`, `wc` and `grep` are not in it. Under the old whole-string test, `cat X | head` matched on `cat` at
+the head of the string and the `head` segment was never examined. Under the per-segment floor, every
+segment must pass — so a read-only pipe consumer now fails.
+
+**Attribution, stated honestly.** I tried to separate "pre-existing" from "introduced by the floor" by
+running three versions side by side. The middle column (`841a09a3`) **errored out** — I had copied the
+file to a scratch dir where its relative `./hook-utils.mjs` import could not resolve, so that column is
+unusable. What the run does establish, from the `HEAD~1` column, which ran clean:
+
+- `cat <lock> | head -20` — allow before, **deny now**. Regression introduced by the floor.
+- `cat <lock> | wc -l` — allow before, **deny now**. Same.
+- `grep -n "x" <lock>` — **deny before and deny now**. Pre-existing; `grep` was never in the allowlist.
+- `cat <lock>`, `git diff -- <lock>` — allow both sides. Unaffected.
+- `ls <lock>; rm <lock>` — allow before, deny now. **That is the intended fix.**
+
+I cannot say whether the pipe regression arrived with the w5 floor or the w6 widening, and I am not going
+to guess. The direction of the fix is the same either way.
+
+**Severity.** It fails *closed*, so nothing unsafe is permitted — but it blocks legitimate read-only
+inspection of a lock path. Concretely: it fired on my own probe invocation during this session and denied
+it. Filed as **NEW-13** and ticketed, not left.
+
+**Lesson for my own ticket-writing, second time this wave.** The bounce ticket asked for the deny matrix
+and got a perfect deny matrix. The over-denial was found because I probed a dimension the ticket never
+mentioned. An acceptance list defines the ceiling of what gets checked — so the adversarial pass has to
+come from outside it.
+
+### `q123-w6-todoinj` — ACCEPTED. The re-scope was right: 5 of 6 were already done.
+
+The lot that broke the gate last time came back clean, and the specific failure did not recur:
+
+- **743 → 742 lines**, net −1. Not a replacement. (The previous attempt jumped 743 → 1468.)
+- **The import is there**, and correctly extended the existing one rather than adding a second:
+  `import { isInExecuteContext, hasOverrideAuthorization, fireTelemetry } from "./hook-utils.mjs";`
+- **It ran the gate**, both paths — allow, and a real deny — and confirmed the telemetry actually landed:
+  `gate-fires.log` shows `todo-injection-gate, 2026-08-03T15:27:54.704Z, deny, session`.
+
+Dispatcher's independent check: line 40 import present, 742 lines, one `fireTelemetry` call, gate executes
+live and returns valid JSON.
+
+**Findings:** P3-04 applied. The other five were already satisfied on disk — the fixtures suite exists
+(untracked, 283 lines, 10 fixtures) and **was proven able to fail** (broke the missing-state deny →
+`FAIL in_execute_missing_state_deny expect=deny got=allow`, restored → green). `textOf` and
+`EXECUTE_LOOKBACK` have no local duplicates at all, so those two rows had nothing to remove.
+
+One honest note the worker volunteered and I confirmed: `git diff --stat` reads +27/−751 on this file,
+which looks alarming and is **not** its doing — that is the HEAD (1466-line) vs working-tree (742-line)
+delta from the uncommitted 2026-07-30 compaction. Its own change was one line.
+
+Minor gap, recorded not bounced: only the deny branch fires telemetry. The pre-existing inline logging
+also only covered deny, so no coverage was lost — but if this gate has an announce path, it is still dark.
+
+### NEW-13 (dispatcher, S2) — the lock-path floor denies read-only pipe consumers
+
+`check-plan-closure.mjs`'s per-segment floor requires every segment to match `READ_ONLY_PREFIX_RX`, which
+lists only `cat, type, Get-Content, git show/diff/log/status, ls, dir, Test-Path`. Any pipeline through a
+read-only consumer (`head`, `tail`, `wc`, `sort`, `uniq`, `findstr`, `Select-String`, `Select-Object`) is
+therefore denied, as is a bare `grep`. Fails closed, so it is safe — but it blocks legitimate inspection
+and already fired against this session. Fix is to extend the read-only prefix set, not to weaken the floor.
+
+*Appended 2026-08-03.*
