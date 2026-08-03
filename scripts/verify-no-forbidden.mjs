@@ -334,7 +334,7 @@ function checkStagedDiff() {
     if (rel.startsWith('plans/pending/')) {
       let planBuf;
       try {
-        planBuf = execSync(`git show :${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+        planBuf = execFileSync('git', ['show', `:${rel}`], { cwd: REPO_ROOT, encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024 });
       } catch { continue; }
       if (!hasStatusDoneAnyForm(planBuf)) continue;
     }
@@ -349,7 +349,7 @@ function checkStagedDiff() {
     if (/\.(xlsx|xlsm|xls|png|jpg|jpeg|gif|pdf|ico|zip|tar|gz|woff2?|ttf|eot|otf|mp4|webm|wav|mp3)$/i.test(rel)) continue;
     let buf;
     try {
-      buf = execSync(`git show :${rel}`, { cwd: REPO_ROOT, encoding: 'utf-8' });
+      buf = execFileSync('git', ['show', `:${rel}`], { cwd: REPO_ROOT, encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024 });
     } catch {
       continue;
     }
