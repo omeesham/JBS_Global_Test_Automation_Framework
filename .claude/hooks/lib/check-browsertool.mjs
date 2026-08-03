@@ -259,6 +259,11 @@ function resolveActiveSubplan(messages) {
   }
 
   // (2) chain-sessions/*.log fallback — newest-mtime file.
+  // Only used when the transcript is completely empty (hook fires on the very
+  // first tool call before the agent has emitted any text). If there are ANY
+  // messages at all and none contained /execute, that means this is not a
+  // chain/execute session — fail-open rather than pulling stale disk state.
+  if (messages.length > 0) return null;
   const chainDir = join(REPO_ROOT, ".claude", "state", "chain-sessions");
   if (existsSync(chainDir)) {
     try {

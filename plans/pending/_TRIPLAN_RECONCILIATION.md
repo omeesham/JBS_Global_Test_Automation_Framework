@@ -1992,3 +1992,110 @@ does not isolate exactly one rule produces a test that cannot fail. That is why 
 | NEW-03 | DISPATCHER | `P2-LOT12-05`'s test is titled "…without an Authorization header", implying it covers pattern 2 (bearer-in-prose), but its fixture uses a `ghp_` token which pattern 5 catches. Disabling pattern 2 does **not** fail it. Pattern 2 therefore still has no test that can fail. Verified by the worker; not bounced, because the three ticketed findings are all proven and this is a fourth. |
 
 *Appended 2026-08-03.*
+
+## Wave 3 — dispatched 2026-08-03
+
+### A live gate is red right now, and the dispatcher confirmed it before ticketing
+
+`P3-12` said *"settings.json wires it live; 1/19 fixture FAILS."* Verified directly:
+
+```
+node .claude/hooks/lib/test-browsertool-fixtures.mjs   ->  19 PASS, 1 FAIL, exit 1
+FAIL  no_subplan_pointer_allow   expect=allow  got=deny
+reason: "Subplan SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md declares BrowserTool=cli,
+         but the pending call is Chrome MCP ..."
+```
+
+The fixture supplies **no** subplan pointer, and the gate named a specific subplan anyway.
+`SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md` happens to be the subplan this repo's **paused chain state**
+has been parked on since 2026-07-12 — so the hypothesis handed to the worker is that
+`resolveActiveSubplan()` falls back to chain state on disk when the transcript yields nothing. If that
+holds, every no-subplan Chrome MCP call in this repo is currently judged against whatever subplan the
+chain is parked on, which would be a live over-fire on a `deny`-mode gate.
+
+**It is a hypothesis, explicitly labelled as one in the ticket, to be proven or killed** — not handed
+over as a diagnosis to implement against.
+
+**Dispatcher decision on "FIX-OR-DISABLE": FIX.** Removing a live wrong-tool gate to make a fixture green
+trades a real protection for a green check. The ticket forbids editing the fixture, flipping its
+expectation, or unwiring `settings.json` — and offers the honest alternative: if the worker concludes the
+fixture's expectation is wrong, it must stop and argue it rather than quietly make the two agree.
+
+### The other four `check-browsertool` findings are deliberately deferred
+
+`P25-LOT01-03/-04/-05/-14` are line-count compactions and merges into `hook-utils.mjs`. Compacting a live
+gate on top of a known-broken fallback is how a small bug becomes unfindable. They come after the
+functional fix lands, not with it. The ticket makes touching them a hard bounce.
+
+Same reasoning defers `check-execution-completion.mjs`'s three COMPACT findings; its functional one
+(`P3-10`, classify layer + telemetry) is queued next rather than bundled.
+
+### Live-hook safety measure
+
+Before dispatching anything at `.claude/hooks/lib/`, sha256-verified backups of all five live hook libs
+plus `copilot-worker.sh` were taken outside the repo. These hooks are wired into the session doing the
+reviewing; a broken one blocks its own oversight. The tickets require `node --check` plus a full fixture
+run after **every** edit, with an immediate revert if the suite drops below its current pass count.
+
+Also dispatched: `q123-w3-liveness` — 3 findings on the config-liveness registry template. Its ticket
+carries one specific warning: `P2-LOT04-09` asks to replace behaviour **hashes** with semantic **labels**,
+and a label is a claim where a hash is evidence. Labels may be added; hashes may only be removed if the
+worker can show nothing reads them.
+
+*Appended 2026-08-03.*
+
+### `q123-w3-browsertool` — ACCEPTED. The live over-fire is fixed.
+
+**The hypothesis held exactly.** `resolveActiveSubplan()` has two sources: a transcript scan for
+`/execute <plan>.md`, and a chain-sessions fallback reading the newest `.log` in
+`.claude/state/chain-sessions/`. The fallback fired **unconditionally** whenever the transcript scan found
+nothing — so with the chain parked on `SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md` since 2026-07-12, every
+no-`/execute` Chrome MCP call in this repo was judged against that subplan's `BrowserTool: cli` frontmatter
+and denied.
+
+The fix is one guard at `.claude/hooks/lib/check-browsertool.mjs:262`:
+
+```js
+if (messages.length > 0) return null;
+```
+
+restricting the fallback to the only case its own comment documents — the hook firing on the very first
+tool call before the agent has emitted any text.
+
+**Adversarial check the dispatcher ran before accepting**, because a fix that stops an over-fire is the
+classic way to introduce an under-fire: does this blind the gate in genuine chain sessions, where
+`messages` is non-empty almost immediately? No. `chain-orchestrator.sh:116-117` states it plainly — *"Only
+that session's transcript opens with the user prompt `/execute <current_file>`."* Chain sessions are caught
+by source 1 and never needed the fallback. No hole.
+
+Fixtures **20/20, exit 0** (was 19 pass / 1 fail). Fixture file, `browsertool-gate.sh`, and
+`settings.json` all unedited — the `settings.json` diff visible in the tree has an mtime of 17:31, two and
+a half hours before this run, and belongs to earlier client-surface work.
+
+### `q123-w3-liveness` — ACCEPTED. 2 applied, 1 correctly refused, and the refusal is the good part.
+
+**P2-LOT04-09 — the `_sha` fields never contained hashes.** Their values are strings like
+`final-0713:g0:liveness-assert:on-detects-unregistered-flag`. The rename to `on_behavior_label` /
+`off_behavior_label` changes no value; it stops the key name lying about what it holds. The dispatcher's
+warning in the ticket — *a label is a claim where a hash is evidence* — turned out to be the right check
+applied to a field that was already a claim wearing a hash's name.
+
+**P2-LOT04-10 declined, and the finding was wrong.** `_state_path` is not self-referencing: it points at
+`~/.claude/delegation/config-liveness-registry.json` while the file itself lives at
+`.claude/skills/ultra-agents/setup/delegation/`. It records where the template installs to — real
+information. Correctly refused.
+
+**P2-LOT04-11 applied.** `registered_by` and `last_proven` were byte-identical across all entries, so the
+hoist to `_registered_by` / `_last_proven` is legitimate on today's data. The report's required
+`## HOIST EVIDENCE` section came back empty; the dispatcher verified it from the diff instead — every
+removed line carries the same value. Not bounced for that, but noted.
+
+### Three more findings out of wave 3
+
+| id | class | finding |
+|---|---|---|
+| NEW-04 | **OWNER** | The config-liveness registry's job is to prove a gate's ON behaviour differs from its OFF behaviour. Its `on/off_behavior_sha` fields hold **prose, not hashes**, and `isRegistered()` reads only `flag` and `config_file` — nothing consumes them. G0's liveness proof is therefore unproven by its own registry. This matches `/delegation-temp`'s own honest-gaps table, which lists G0 as PENDING. |
+| NEW-05 | DISPATCHER | Hoisting `last_proven` to a file header removes per-gate provenance. Correct today because all entries share one batch timestamp; the next single-gate re-proof will have nowhere to record its own date. Whoever builds the G0 proof mechanism needs to push it back down. |
+| NEW-06 | DISPATCHER | `test-browsertool-fixtures.mjs` prints `ALL PASS — 19 fixtures` while emitting 20 `PASS` lines. Its summary counter is off by one — the same counter-vs-reality shape this wave keeps finding. |
+
+*Appended 2026-08-03.*
