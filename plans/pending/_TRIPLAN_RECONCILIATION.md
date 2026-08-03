@@ -2198,3 +2198,204 @@ not implemented; the filter returns false for anything without a configured test
 audit this ticket correctly refused to guess at.
 
 *Appended 2026-08-03.*
+
+### NEW-02 — UPGRADED. The effort knob is not a knob. (S1, dispatcher-measured)
+
+Earlier this wave I recorded NEW-02 as a `gpt-5.5` quirk: "`max` isn't a valid tier, the wrapper warns
+`Auto-correcting to 'xhigh'` and then hard-exits anyway." That reading was too narrow. Wave 5 killed four
+of five dispatches at flag validation and showed the real rule.
+
+**The measurement.** Four dispatches, two models, all `--effort high` — `high` is listed in *both* models'
+`tiers` arrays in `model-registry.json`:
+
+```
+claude-sonnet-4.6  tiers: ["low","medium","high","max"]   --effort high -> exit 2
+gpt-5.5            tiers: ["none","low","medium","high","xhigh"]   --effort high -> exit 2
+```
+
+Both emitted the same self-contradicting pair: `WARNING — ... Auto-correcting to 'max'` immediately
+followed by `--effort 'high' is not a valid tier ... exit 2`.
+
+**The mechanism**, read from `.claude/skills/ultra-agents/copilot-worker.sh:417-435`. The off-repo
+`registry-block.sh` does not check membership in `tiers[]` — it **assigns `EFFORT = EFFORT_TOP`
+unconditionally** ("serves the verified top tier"). Phase 2 then compares the served value against the
+caller's request, sees they differ, and promotes that to `exit 2`. So the comparison can only ever succeed
+when the caller already asked for the top tier. **Every non-top tier in the registry's own list is
+unreachable through `--effort`.**
+
+**Why that matters beyond one dead dispatch.** The cap table at `copilot-worker.sh:437-461` is the only
+other path to a tier, and it is keyed to work-type: `verify|probe → low`, `draft → medium`, everything
+else → top, no cap. Which means:
+
+- On `--work-type build` there is **no reachable tier except the model's maximum.** Omitting `--effort`
+  and passing the top tier produce the identical run.
+- The `tiers` array is decorative. `model-registry.json` advertises four tiers for sonnet; a caller can
+  reach one.
+
+That is a direct, measured cost defect against the standing core goal of minimising token cost — every
+build dispatch in every wave so far has been forced to top tier, and the flag that looks like it controls
+this silently cannot.
+
+**Not fixed here, deliberately.** `copilot-worker.sh` is the dispatch wrapper this whole queue runs
+through, it already carries 5 open findings, and it is scheduled solo and LAST for exactly this reason.
+Editing it mid-wave while five workers are live is the failure mode the ordering exists to prevent. This
+row joins that lot.
+
+**Cost of the discovery:** four dispatches died at flag validation before spending credits. Re-dispatched
+with `--effort` omitted.
+
+*Appended 2026-08-03.*
+
+---
+
+## WAVE 5 — five lots, one destructive failure, and the queue's denominator moved
+
+### `q123-w5-todoinj` — REJECTED. It broke a live gate and destroyed uncommitted work.
+
+This is the worst worker outcome of the wave and it is recorded first because it is the bad news.
+
+**What it did.** The ledger says `ok=false exit_reason=no-deliverable report_sections=0` after 333s — it
+died before writing its report. But the work landed, so the report's absence hid what happened.
+
+Reading the disk instead of the report:
+
+- `check-todo-injection.mjs` went from **743 lines to 1468**. The worker did not edit the working-tree
+  file; it replaced it with something ~equal to `HEAD`, then applied its own change on top. The 725 lines
+  it discarded were the **already-completed compaction** — the exact work P2-LOT11-01 asks for — sitting
+  uncommitted from an earlier pass. My ticket forbade `checkout`/`restore`/`stash` precisely to prevent
+  this.
+- Its one substantive edit wired `fireTelemetry(...)` at two call sites and **never imported it**.
+  A grep for `hook-utils` in the resulting file returned zero hits. The original imported it at line 40.
+
+**So the live TodoWrite gate would have thrown `ReferenceError: fireTelemetry is not defined` on every
+deny and on the override-announce path.** `node --check` passed — it validates syntax, not name
+resolution. Another green check that was an artifact of invisibility.
+
+**Restored.** The pre-worker file was recopied from the dispatcher's sha256-verified backup;
+`sha256 = e480713bf454…cc6b` matches the backup exactly, the `hook-utils` import is back at line 40, and
+the gate was re-run live: it returns `permissionDecision: allow` and exits 0. The broken version is kept
+at `check-todo-injection.WORKER-BROKEN.mjs` for the RCA rather than deleted.
+
+**Blast radius checked, not assumed.** The other two live-gate lots in this same wave were audited for the
+identical failure and are **clean**: `check-plan-closure.mjs` 448 to 460 lines with the `fireTelemetry`
+import at line 27 and 6 call sites; `check-execution-completion.mjs` 356 to 335 with the import at line 32
+and 1 call site. Both were exercised at runtime, not just syntax-checked.
+
+**Dispatcher lesson, and it is mine.** `node --check` was the syntax gate in every ticket this wave. It
+cannot catch an unimported identifier. Every future ticket touching a live gate must require the gate to
+be **executed** on a real payload, not syntax-checked.
+
+### `q123-w5-planclosure` — ACCEPTED (2/3), then BOUNCED on my own probe.
+
+The floor fix is real and the reasoning is right: `handleBashMode` now splits on shell separators and
+requires **every** segment to be read-only, instead of prefix-matching the whole string. The reproduction
+was pasted (`ls <lock>; rm <lock>` returned allow pre-fix), and the cause is exact — `WRITE_OP_RX` covers
+redirects and `mv` but not `rm`, so the whole-string test let everything after the `;` ride in free.
+
+P2-LOT13-23 was **correctly declined**: no test-status announce path, no config key, no caller. Adding the
+function would have been dead code, and the worker said so in those terms.
+
+**But I probed it rather than trusting the matrix, and it has three holes.** My ruling named command
+substitution, backticks and a bare ampersand; the worker's matrix tested only the five separators the
+acceptance list enumerated. Against the live gate:
+
+| form | want | got |
+|---|---|---|
+| `ls <lock>; rm <lock>` | deny | deny |
+| `cat <lock> && rm <lock>` | deny | deny |
+| `ls <lock>; cat <lock>` | allow | allow |
+| command substitution around `rm` | deny | **allow** |
+| backticks around `rm` | deny | **allow** |
+| `ls <lock> & rm <lock>` | deny | **allow** |
+
+The split regex is `/\|\||&&|[;|\n]/` — command substitution and a single ampersand are not separators in
+it. Bounced to the same seat. **This is the "one adversarial pass is not enough" rule landing exactly on
+schedule: the fix closed five doors and left three open.**
+
+Note against my own ticket-writing: the worker met my acceptance list to the letter. The list was the
+defect — it said "at least four more separator spellings" and then enumerated four, so four is what I got.
+An acceptance list that enumerates its own examples caps the work at those examples.
+
+### `q123-w5-execcomp` — ACCEPTED. The best judgement call of the wave was a refusal.
+
+**P3-10 — answered by classifying, not by coding.** The gate is **SOFT**, proven at
+`execution-completion-gate.sh:60` (unconditional `exit 0`) and `check-execution-completion.mjs:246` (warn
+path writes state plus stdout, emits no `permissionDecision`, never exits non-zero). It has no deny
+branch, so the single existing `fireTelemetry(..., 'warn', ...)` at line 249 is already complete coverage.
+Correct outcome: **no code change**. A worker that had "added deny telemetry" here would have added
+telemetry for a branch that cannot execute.
+
+**P25-LOT01-09 — declined, and the reason is right.** Lazy-loading `coverageVerdict` requires a dynamic
+import, which makes `decide()` async; `decide()` is synchronous, exported, and called synchronously by its
+callers and fixture. That is a contract change wearing a compaction's clothes.
+
+**P25-LOT01-10 and -13 applied.** Atomicity preserved — write-temp-then-rename.
+
+**Dispatcher correction to itself:** I flagged the temp file being created in `tmpdir()` and renamed into
+the repo as a cross-volume-rename defect the worker had introduced. It had not. The backup shows the
+identical `join(tmpdir(), …)` plus `renameSync` at lines 327-329 of the original. The worker preserved it
+faithfully. It remains a **pre-existing latent defect** (NEW-10, below) but it is not this worker's.
+
+### `q123-w5-rotation` and `q123-w5-chainplan` — both died writing the report. My ticket defect.
+
+Both returned `ok=false exit_reason=no-deliverable report_sections=0`. Neither preamble-died: both did
+real work first. `rotation` correctly hit the `## PATH-MISMATCH` stop I asked for — it reported that the
+target file was already not in the ticket's expected pre-change state and stopped editing — and then died
+producing the report. `chainplan` grounded its successors and died the same way.
+
+**The two tickets that died are exactly the two that omitted "append to your report as you go."**
+`todoinj`, `planclosure` and `execcomp` all carried it. Classified as **prompt-issue — my defect, no
+bounce charged.** Both re-dispatched with the instruction added and on a Sonnet seat.
+
+---
+
+### NEW-10 (dispatcher, S3, pre-existing) — the state file's "atomic" write crosses volumes
+
+`check-execution-completion.mjs` writes its temp file into `os.tmpdir()` and renames it into the repo. On
+Windows `%TEMP%` and the repo are frequently different volumes, and a cross-device rename is not atomic —
+it can fail outright with `EXDEV`. The standard shape is to write the temp file **in the target's own
+directory**. It works on this machine today because both live on `C:`. Pre-existing, not introduced by
+this wave. Filed, not fixed — it is outside all three findings' scope.
+
+### NEW-11 (dispatcher, S1) — a large uncommitted pass from 2026-07-30 is sitting in the working tree
+
+The chainplan and todoinj lots both turned out to be substantially **already done** by work that was never
+committed:
+
+- `plans/done/PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md` carries dated `Annotation 2026-07-30` notes that
+  satisfy **4 of its 5 findings** verbatim — P1-M21's `check_allowlist`/PBUG-11 note, P1-M17 and P1-M14's
+  `parse-verdict.mjs` supersession note, and P1-M15's Execution-Summary pointer.
+- `.claude/hooks/lib/test-todo-injection-fixtures.mjs` exists, **untracked**, dated 2026-07-30 22:22 —
+  that is P2-LOT11-01, already extracted.
+- `.claude/skills/ultra-agents/tavily-mcp/src/rotation.ts` is dated the same minute, 2026-07-30 22:22.
+
+A `find` over `.claude`, `scripts`, `plans`, `src`, `pipeline` (excluding worker state) shows **279 files**
+modified in the 2026-07-30 20:00 to 2026-07-31 23:59 window. This is the same date as the already-recorded
+*unaccounted repo writer* note in auto-memory.
+
+**Why it matters for the queue:** the earlier stale-check intersected the 196 findings against prior chip
+`*-APPLIED.md` reports and against commits. It never looked at **uncommitted working-tree state**, which
+is where this pass lives. So the stale estimate was low.
+
+**The new machine cross-check** (`dirty-check.mjs`, run against `git status --porcelain` plus
+`git ls-files`):
+
+```
+worklist groups: 98    finding rows parsed: 196
+tracked files dirty in working tree: 55
+
+SUSPECT    (file dirty -> findings may already be applied):  50
+CLEAN      (file untouched -> presumed still open):         125
+UNRESOLVED (heading is not a single tracked path):           21
+```
+
+Three of the five lots I dispatched this wave were on that suspect list, and two of them were in fact
+largely done. **This is a prioritisation aid and explicitly not a gate** — a file can be dirty for
+unrelated reasons, and chainplan still had one genuinely open row. But dispatching a lot without checking
+it first is now a known way to waste a worker.
+
+The 21 unresolved headings include several the resolver calls `missing` that are actually **gitignored and
+present** (`.claude/hooks/lib/uplink/*`, `plans/pending/PLAN_LAZY_CEO_DELEGATOR.md`) — `git ls-files` does
+not list ignored files. That is a limitation of the check, not evidence the files are absent.
+
+*Appended 2026-08-03.*

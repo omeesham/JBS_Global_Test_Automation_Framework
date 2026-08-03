@@ -24,6 +24,7 @@ import { readFileSync, existsSync, appendFileSync, mkdirSync, writeFileSync } fr
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join, basename } from 'node:path';
 import { execSync } from 'node:child_process';
+import { fireTelemetry } from './hook-utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -87,6 +88,7 @@ function failClosed(reason, planBasename) {
       writeFileSync(counterFile, JSON.stringify({ count: counter + 1, last: new Date().toISOString() }) + '\n', 'utf-8');
     }
   } catch { /* swallow */ }
+  fireTelemetry('check-plan-closure', 'deny', planBasename || 'lock-path');
   emitDeny(`[PLAN-CLOSURE FAIL-CLOSED] Validator error on plan-path or lock-path. ${reason}. This is NOT overridable — fix the underlying issue.`);
 }
 
@@ -96,8 +98,7 @@ function emitAllow(reason) {
   process.stdout.write(JSON.stringify(out));
 }
 
-function emitDeny(reason, target) {
-  try { if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true }); appendFileSync(GATE_FIRES_LOG, `plan-closure-gate, ${new Date().toISOString()}, deny, ${target || 'session'}\n`); } catch {}
+function emitDeny(reason) {
   const out = {
     hookSpecificOutput: {
       hookEventName: 'PreToolUse',
@@ -209,6 +210,7 @@ function handleEditMode(payload) {
 
   // B1 + V1: LOCK-PATHS CHECK FIRST (before any plan-path filter)
   if (LOCK_PATH_RX.test(relPath) || LOCK_PATH_RX.test(targetPath)) {
+    fireTelemetry('check-plan-closure', 'deny', relPath);
     emitDeny(`[PLAN-CLOSURE LOCK] "${relPath}" is a closure-gate lock path. Only the user may edit this file directly. Agent writes are denied across both Edit/Write AND Bash matchers (R2).`);
     return;
   }
@@ -264,11 +266,11 @@ function handleEditMode(payload) {
       // would fail under deny. Validator already kept them out of the verdict (status PASS).
       if ((parsed.c6_mode || 'off') === 'announce') {
         const announceMsg = buildC6AnnounceWarning(parsed, planBasename);
-        if (announceMsg) process.stderr.write(announceMsg);
+        if (announceMsg) { fireTelemetry('check-plan-closure', 'announce', planBasename); process.stderr.write(announceMsg); }
       }
       if ((parsed.coverage_mode || 'off') === 'announce') {
         const covMsg = buildCoverageAnnounceWarning(parsed, planBasename);
-        if (covMsg) process.stderr.write(covMsg);
+        if (covMsg) { fireTelemetry('check-plan-closure', 'announce', planBasename); process.stderr.write(covMsg); }
       }
       emitAllow(`Plan closure validation: ${parsed.status}`);
       return;
@@ -286,6 +288,7 @@ function handleEditMode(payload) {
       ).join('; ')}`
     ).join('\n');
 
+    fireTelemetry('check-plan-closure', 'deny', planBasename);
     emitDeny(`[PLAN-CLOSURE FAIL] Status: DONE blocked by closure validation.\n\n${details}\n\nC1 is overridable via .claude/closure-overrides.json (user-only). C2/C3/C4/C5/C6 are NOT overridable — remediate the plan body.`);
   } catch (e) {
     failClosed(`Validator execution error: ${e.message}`, planBasename);
@@ -310,12 +313,21 @@ function handleBashMode(payload) {
     return;
   }
 
-  // Lock path mentioned — check read-only allowlist
-  if (READ_ONLY_PREFIX_RX.test(cmd) && !WRITE_OP_RX.test(cmd)) {
+  // Lock path mentioned — split on shell separators and classify every segment.
+  // A command is read-only only when ALL segments are read-only (no write ops).
+  const segments = cmd.split(/\|\||&&|[;|\n]/);
+  const allReadOnly = segments.every(seg => {
+    const trimmed = seg.trim();
+    if (!trimmed) return true;
+    return READ_ONLY_PREFIX_RX.test(trimmed) && !WRITE_OP_RX.test(trimmed);
+  });
+
+  if (allReadOnly) {
     emitAllow('Lock-path read-only inspection allowed');
     return;
   }
 
+  fireTelemetry('check-plan-closure', 'deny', cmd.slice(0, 80));
   emitDeny(`[PLAN-CLOSURE LOCK] Bash command mentions closure-gate lock path. Only read-only inspection commands (cat, type, Get-Content, git show/diff/log/status, ls, dir, Test-Path) without write/redirect operators are allowed. Agent writes to lock paths are denied (R2).`);
 }
 

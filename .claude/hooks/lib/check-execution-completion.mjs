@@ -2,34 +2,21 @@
 // check-execution-completion.mjs — Stop-hook detector for the "silent checkpoint"
 // failure mode (LR-060 / GAP-A / GAP-B).
 //
-// THE HOLE THIS CLOSES
-//   Every plan-closure gate (LR-055 C1-C6, the Per-Identity Matrix audit, LR-040)
-//   keys on the `Status: DONE` flip. An /execute that does partial work, leaves the
-//   plan PENDING, writes a chat summary, and stops NEVER trips any of them — the
-//   mandated phases can be silently skipped. This is exactly how the 2026-06-18
-//   Pricing FCC session shipped with its Phase 0.5b baseline walk un-run.
+// THE HOLE THIS CLOSES: plan-closure gates (LR-055 C1-C6, Per-Identity Matrix audit,
+// LR-040) key on the `Status: DONE` flip. An /execute that does partial work, stays
+// PENDING, and stops NEVER trips any of them — mandated phases are silently skipped.
+// This is exactly how the 2026-06-18 Pricing FCC session shipped with Phase 0.5b
+// baseline walk un-run.
 //
-//   This Stop hook fires when a session ends inside an active /execute of a plan
-//   file and a mandated artifact that plan declared is missing on disk — with no
-//   `## Deferral Authorization` block recorded. It is a DETECTIVE + FORCING-FUNCTION,
-//   not a hard block: Stop hooks cannot veto session end. It writes a warning to
-//   `.claude/state/execution-completion-warnings-<sid>.json` (read by /final-q +
-//   /audit, which floor the verdict) and emits one concise stdout line.
+// SCOPE: fires ONLY when (a) transcript shows an active /execute of a *plan file*
+// (not ad-hoc/conversational), AND (b) plan Status is not DONE, AND (c) no
+// `## Deferral Authorization` block, AND (d) a dated FCC `_internal` artifact the
+// plan names is genuinely absent. NEVER fires on ad-hoc `/execute "do X"`,
+// conversational stops, or DONE plans.
 //
-// SCOPE (intentionally narrow — keeps it low-noise, unlike the removed blanket
-// final-q Stop hook, LR-042 §A): fires ONLY when
-//   (a) the transcript shows an active /execute of a *plan file* (not ad-hoc, not
-//       a conversational stop), AND
-//   (b) the plan's Status is not DONE, AND
-//   (c) the plan has no `## Deferral Authorization` block, AND
-//   (d) a dated FCC `_internal` artifact the plan names is genuinely absent.
-// It NEVER fires on ad-hoc `/execute "do X"`, conversational stops, or DONE plans.
-//
-// MODE: the bash wrapper passes `--validate` as argv[2] (Stop hooks have no
-// capture phase). Any non-`--no-run` invocation runs the hook.
-//
-// FAIL-OPEN: any error → logged to .claude/state/hook-failures.log, silent (Stop
-// hooks carry no permissionDecision). A broken gate must never wedge the session.
+// DETECTIVE + FORCING-FUNCTION, not a hard block — Stop hooks cannot veto session
+// end. Writes to `.claude/state/execution-completion-warnings-<sid>.json` (read by
+// /final-q + /audit, which floor the verdict). Fail-open: errors → hook-failures.log.
 //
 // Companion: .claude/hooks/execution-completion-gate.sh (wrapper, Stop array in
 // settings.json); tests in .claude/hooks/lib/test-execution-completion-fixtures.mjs.
@@ -312,20 +299,12 @@ function safeLoadTranscript(transcriptPath) {
 function appendStateEntry(target, entry) {
   let existing = [];
   if (existsSync(target)) {
-    try {
-      const parsed = JSON.parse(readFileSync(target, "utf8"));
-      if (Array.isArray(parsed)) existing = parsed;
-    } catch {
-      existing = [];
-    }
+    try { const p = JSON.parse(readFileSync(target, "utf8")); if (Array.isArray(p)) existing = p; } catch { /* */ }
   }
   existing.push(entry);
-  atomicWrite(target, JSON.stringify(existing, null, 2));
-}
-
-function atomicWrite(target, contents) {
+  // Atomic write: write-to-temp then rename — partial-write safety preserved.
   const tmp = join(tmpdir(), `exec-completion-${process.pid}-${Date.now()}.tmp`);
-  writeFileSync(tmp, contents);
+  writeFileSync(tmp, JSON.stringify(existing, null, 2));
   renameSync(tmp, target);
 }
 
