@@ -128,6 +128,9 @@ website/.claude/settings.local.json
 .claude/private/
 current_plan.md
 
+# Self-clean quarantine runtime (sweep.mjs moves debris here; never tracked)
+.claude/state/selfclean/
+
 # Chain orchestration runtime state (see PLAN_CHAIN_PER_SESSION_ORCHESTRATION.md; only .gitkeep tracked)
 .claude/state/*.json
 .claude/state/*.jsonl
@@ -137,6 +140,13 @@ current_plan.md
 .claude/state/chain-sessions/
 .claude/state/chain-archive/
 .claude/state/chain-sessions-green/*
+# Delegation worker run state: every dispatch writes a run dir here. Thousands of them.
+# Was only covered by a local .git/info/exclude, which never reaches a clone - so every
+# colleague saw the whole pile as untracked. The registry below is the one tracked file:
+# scripts/ticket-skill-scan.mjs hard-requires it and FATALs without it.
+.claude/state/ua-worker/*
+!.claude/state/ua-worker/skill-transfer-registry.md
+
 !.claude/state/.gitkeep
 !.claude/state/chain-sessions-green/.gitkeep
 # Parity-mission staging + recon (SECRET-tier mirrors of ~/.claude control surface; never tracked)
