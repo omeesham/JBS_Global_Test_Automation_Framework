@@ -8,10 +8,9 @@
  * Fires only on the EXECUTED program — never on suite runners mentioned inside data
  * (heredoc bodies, redirect payloads, echo/printf strings, grep patterns).
  *
- * v4: Per-pipeline-part classification. Every part in a pipeline is checked for shell-c
- * wrappers (recursively), spec execution, and browser walks. The segment-level
- * data-command skip is removed — classification runs on every part first, so a data
- * prefix can never hide a gated part behind a short-circuit.
+ * v5: Grouping / substitution handling (subshell, $(), backticks), command-runner
+ * stripping (xargs, timeout, nohup, etc.), newline splitting, npx-flag tolerance.
+ * Reuses the v4 recursion depth bound for all recursive classification.
  *
  * @module build/labor-gate
  */
@@ -92,7 +91,12 @@ function splitCompoundCommand(command) {
       segments.push(current);
       current = '';
       i += 2;
-    } else if (command[i] === ';') {
+    } else if (command[i] === ';' || command[i] === '\n') {
+      segments.push(current);
+      current = '';
+      i += 1;
+    } else if (command[i] === '&') {
+      // bare background operator — starts a new command segment
       segments.push(current);
       current = '';
       i += 1;
@@ -222,7 +226,7 @@ function extractShellCPayload(cmd) {
  * Check if a simple command segment (single pipeline part) is a spec execution.
  */
 function isSpecExecution(cmd) {
-  const program = getLeadingProgram(cmd);
+  let program = getLeadingProgram(cmd);
   const trimmed = cmd.trim();
 
   let normalized = trimmed;
@@ -230,11 +234,49 @@ function isSpecExecution(cmd) {
     normalized = normalized.replace(/^\w+=\S*\s+/, '');
   }
 
+  // Normalize: strip leading ./ and Windows .cmd/.exe suffixes from the leading program
+  program = program.replace(/^\.\//, '').replace(/\.(cmd|exe)$/i, '');
+  normalized = normalized.replace(/^\.\//, '').replace(/^(\S+)\.(cmd|exe)(\s)/i, '$1$3');
+
+  // Normalize Windows backslash path separators (e.g. node_modules\.bin\playwright)
+  if (/^node_modules\\/.test(normalized)) {
+    normalized = normalized.replace(/\\/g, '/');
+    program = getLeadingProgram(normalized);
+  }
+
   if (program === 'npx') {
-    if (/^npx\s+playwright(@\S*)?\s+test\b/.test(normalized)) return true;
+    // Tokenize to handle flag-value pairs (e.g. npx -p @playwright/test playwright test)
+    const npxTokens = tokenise(normalized);
+    const NPX_VALUE_FLAGS = new Set(['-p', '-c', '--package', '--registry', '--cache', '--prefix', '--call']);
+    let i = 1;
+    while (i < npxTokens.length && npxTokens[i].startsWith('-')) {
+      i += NPX_VALUE_FLAGS.has(npxTokens[i]) ? 2 : 1;
+    }
+    if (i < npxTokens.length && /^playwright(@\S*)?$/.test(npxTokens[i]) &&
+        i + 1 < npxTokens.length && npxTokens[i + 1] === 'test') {
+      return true;
+    }
   } else if (program === 'npm' || program === 'pnpm' || program === 'yarn') {
-    if (/^(npm|pnpm|yarn)\s+run\s+\S*(e2e|test|spec|suite|playwright|regression|smoke)\S*\b/.test(normalized)) return true;
+    // Tokenize to handle flags between 'run' and the script name (e.g. --silent, -s)
+    if (/^(npm|pnpm|yarn)\s+run\b/.test(normalized)) {
+      const runTokens = tokenise(normalized);
+      let k = 2;
+      while (k < runTokens.length && runTokens[k].startsWith('-')) k++;
+      if (k < runTokens.length && /\S*(e2e|test|spec|suite|playwright|regression|smoke)\S*/i.test(runTokens[k])) return true;
+    }
     if (/^(npm|pnpm|yarn)\s+test\b/.test(normalized)) return true;
+    // exec / dlx — binary execution (npm exec, pnpm exec, pnpm dlx, yarn dlx)
+    if (/^(npm|pnpm|yarn)\s+(exec|dlx)\s+/.test(normalized)) {
+      const execTokens = tokenise(normalized);
+      let j = 2;
+      while (j < execTokens.length && execTokens[j].startsWith('-')) j++;
+      if (j < execTokens.length && /^playwright(@\S*)?$/.test(execTokens[j]) &&
+          j + 1 < execTokens.length && execTokens[j + 1] === 'test') {
+        return true;
+      }
+    }
+    // pnpm/yarn can run local binaries directly (pnpm playwright test)
+    if (/^(pnpm|yarn)\s+playwright(@\S*)?\s+test\b/.test(normalized)) return true;
   } else if (program === 'node_modules/.bin/playwright') {
     if (/^node_modules\/\.bin\/playwright\s+test\b/.test(normalized)) return true;
   } else if (program === 'playwright') {
@@ -248,16 +290,116 @@ function isSpecExecution(cmd) {
  * Detect browser-walk commands (playwright-cli).
  */
 function isBrowserWalk(cmd) {
-  const program = getLeadingProgram(cmd);
+  let program = getLeadingProgram(cmd);
   const trimmed = cmd.trim();
   let normalized = trimmed;
   while (/^\w+=\S*\s/.test(normalized)) {
     normalized = normalized.replace(/^\w+=\S*\s+/, '');
   }
+  // Normalize: strip leading ./ and Windows .cmd/.exe suffixes from the leading program
+  program = program.replace(/^\.\//, '').replace(/\.(cmd|exe)$/i, '');
+  normalized = normalized.replace(/^\.\//, '').replace(/^(\S+)\.(cmd|exe)(\s)/i, '$1$3');
   if (program === 'playwright-cli' || program === 'npx') {
-    if (/^(npx\s+)?playwright-cli(@\S*)?\b/.test(normalized)) return true;
+    if (/^(npx\s+(?:-\S+\s+)*)?playwright-cli(@\S*)?\b/.test(normalized)) return true;
   }
   return false;
+}
+
+/** Programs whose argument is itself a command — strip the runner and its flags, classify the rest */
+const COMMAND_RUNNERS = new Set(['xargs', 'timeout', 'nohup', 'time', 'stdbuf', 'nice', 'command']);
+
+/**
+ * If `cmd`'s leading program is a command runner, strip the runner and its flags,
+ * return the remaining command string. Otherwise return null.
+ */
+function extractRunnerPayload(cmd) {
+  const tokens = tokenise(cmd);
+  if (tokens.length < 2) return null;
+
+  let idx = 0;
+  // Skip leading variable assignments (FOO=bar ...)
+  while (idx < tokens.length && /^\w+=/.test(tokens[idx])) idx++;
+  if (idx >= tokens.length) return null;
+
+  const program = tokens[idx];
+  if (!COMMAND_RUNNERS.has(program)) return null;
+  idx++;
+
+  // Skip the runner's own flags
+  while (idx < tokens.length && tokens[idx].startsWith('-')) idx++;
+
+  // For timeout, also skip the duration argument (first positional after flags)
+  if (program === 'timeout' && idx < tokens.length) idx++;
+
+  if (idx >= tokens.length) return null;
+  return tokens.slice(idx).join(' ');
+}
+
+/**
+ * Extract command payloads from grouping / substitution constructs.
+ * Handles: subshell ( ... ), command substitution $( ... ), backtick ` ... `.
+ * Respects single-quote boundaries (content inside '...' is literal, not a substitution).
+ */
+function extractGroupingPayloads(cmd) {
+  const payloads = [];
+  const trimmed = cmd.trim();
+
+  // 1. Entire part is a subshell: ( ... )
+  if (trimmed.length >= 2 && trimmed[0] === '(' && trimmed[0] !== '$') {
+    let depth = 1;
+    let j = 1;
+    while (j < trimmed.length && depth > 0) {
+      if (trimmed[j] === '(') depth++;
+      else if (trimmed[j] === ')') depth--;
+      j++;
+    }
+    if (depth === 0 && j === trimmed.length) {
+      payloads.push(trimmed.slice(1, j - 1));
+      return payloads; // subshell consumes the entire part
+    }
+  }
+
+  // 2. Scan for $(...) and `...` outside single quotes
+  let i = 0;
+  let inSingle = false;
+
+  while (i < trimmed.length) {
+    const ch = trimmed[i];
+
+    if (ch === "'" && !inSingle) { inSingle = true; i++; continue; }
+    if (ch === "'" && inSingle)  { inSingle = false; i++; continue; }
+    if (inSingle) { i++; continue; }
+
+    // $( ... ) command substitution (skip $(( arithmetic )))
+    if (ch === '$' && i + 1 < trimmed.length && trimmed[i + 1] === '(') {
+      if (i + 2 < trimmed.length && trimmed[i + 2] === '(') { i++; continue; }
+      let depth = 1;
+      const start = i + 2;
+      let j = start;
+      while (j < trimmed.length && depth > 0) {
+        if (trimmed[j] === '(') depth++;
+        else if (trimmed[j] === ')') depth--;
+        if (depth > 0) j++;
+      }
+      if (depth === 0) payloads.push(trimmed.slice(start, j));
+      i = j + 1;
+      continue;
+    }
+
+    // Backtick substitution
+    if (ch === '`') {
+      const start = i + 1;
+      let j = start;
+      while (j < trimmed.length && trimmed[j] !== '`') j++;
+      if (j < trimmed.length) payloads.push(trimmed.slice(start, j));
+      i = j + 1;
+      continue;
+    }
+
+    i++;
+  }
+
+  return payloads;
 }
 
 /**
@@ -265,6 +407,8 @@ function isBrowserWalk(cmd) {
  * v4: per-pipeline-part classification — every part is checked for shell-c wrappers
  * (recursively), spec execution, and browser walks. No segment-level data-command
  * skip runs before classification; a data prefix can never hide a gated part.
+ * v5: grouping/substitution ($(), backticks, subshell parens), command-runner stripping
+ * (xargs, timeout, nohup, time, stdbuf, nice), newline splitting, npx-flag tolerance.
  * @param {string} command - The full bash command string from the Bash tool
  * @param {number} [_depth=0] - Internal recursion depth for shell-c unwrap
  * @returns {{ allow: boolean, pattern?: string, reason?: string }}
@@ -310,7 +454,34 @@ export function checkCommand(command, _depth = 0) {
         continue;
       }
 
-      // 3b: direct spec execution or browser walk → deny
+      // 3b: command runner (xargs, timeout, nohup, etc.) → strip runner + flags, recurse
+      const runnerPayload = extractRunnerPayload(trimmedPart);
+      if (runnerPayload !== null) {
+        const inner = checkCommand(runnerPayload, _depth + 1);
+        if (!inner.allow) {
+          return {
+            allow: false,
+            pattern: SPEC_PATTERN_NAME,
+            reason: `Detected spec/test execution via command runner: ${trimmedPart.slice(0, 80)}`,
+          };
+        }
+        continue;
+      }
+
+      // 3c: grouping / substitution — ( ... ), $( ... ), backticks → recurse each payload
+      const groupPayloads = extractGroupingPayloads(trimmedPart);
+      for (const payload of groupPayloads) {
+        const inner = checkCommand(payload, _depth + 1);
+        if (!inner.allow) {
+          return {
+            allow: false,
+            pattern: SPEC_PATTERN_NAME,
+            reason: `Detected spec/test execution inside grouping construct: ${trimmedPart.slice(0, 80)}`,
+          };
+        }
+      }
+
+      // 3d: direct spec execution or browser walk → deny
       if (isSpecExecution(trimmedPart) || isBrowserWalk(trimmedPart)) {
         return {
           allow: false,

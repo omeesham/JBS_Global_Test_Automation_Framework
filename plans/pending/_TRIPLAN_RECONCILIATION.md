@@ -2715,3 +2715,212 @@ citation inside `plans/done/` — a historical record that must be annotated, no
 multi-file change and this was a one-file ticket. Filed for a follow-up lot with the fix direction stated.
 
 *Appended 2026-08-03.*
+
+---
+
+## The template-half "extract to shared lib" family — 6 findings closed with zero dispatches
+
+Four worklist headings pointed at files that **do not exist** at `.claude/hooks/lib/`:
+`delegation-gate.mjs`, `delegation-nudge.mjs`, `labor-gate.mjs`, `ua-worker-guard.mjs`. A `find` resolves
+every one of them to `.claude/skills/ultra-agents/setup/hooks/` — the **template half** of the two-halves
+system, inert in the repo until someone copies it to `~/.claude/hooks/`. (The other hits are state
+snapshots under `.claude/state/parity-recon/` and `.claude/state/delegation-audit/`, which are mirrors,
+not live code.)
+
+That resolution decides five findings on architecture, before any worker touches them.
+
+**The measurement:** `grep -hn "^import.*from ['\"]\./" .claude/skills/ultra-agents/setup/hooks/*.mjs`
+returns **zero hits across all 11 templates.** Not one imports a sibling. That is not an oversight — it is
+the contract. Each template is copied *individually* into `~/.claude/hooks/`, where
+`.claude/hooks/lib/hook-utils.mjs` does not exist and no shared lib is shipped alongside them. A template
+that imported a sibling would throw `ERR_MODULE_NOT_FOUND` the moment it was installed.
+
+So "extract the local copy into the shared hook-lib" is **architecturally wrong for any template file**,
+regardless of how much duplication it removes. The duplication is what makes them installable.
+
+| id | file | action asked | disposition |
+|---|---|---|---|
+| P2-LOT03-07 | delegation-gate.mjs | extract shared `fireTelemetry` to hook-lib | **REJECTED** |
+| P2-LOT03-08 | delegation-gate.mjs | extract shared `hasPipelineIdentity` to hook-lib | **REJECTED** |
+| P2-LOT03-11 | ua-worker-guard.mjs | extract `fireTelemetry` copy to shared lib | **REJECTED** |
+| P2-LOT03-12 | ua-worker-guard.mjs | extract `readConfig`/`assistantExplicitlyOff` to hook-lib | **REJECTED** |
+| P2-LOT03-13 | delegation-nudge.mjs | move `REPO_CWD_PREFIX` to a shared constant | **REJECTED** |
+| P2-LOT12-03 | check-mistake-ledger.mjs | MERGE `safeLoadTranscript` to shared lib | **still open** — repo-side file, `hook-utils.mjs` is reachable |
+
+Plus one that resolves itself: **P2-LOT12-08** reads `KEEP: valid defense-in-depth`. Its own action is to
+change nothing. Closed as already-dispositioned.
+
+**This is the same shape as the rejected agent-prompt dedupe earlier in this campaign**, and it is worth
+naming as a recurring auditor blind spot: *a duplicate-code finding assumes both copies can reach one
+definition.* When the copies live on opposite sides of an install boundary — a repo file and a file that
+will be copied to `~/.claude/`, or a shared rulebook and a prompt nothing concatenates it into —
+deduplicating deletes a working copy and replaces it with an unreachable reference.
+
+**The check that settles it, in one line:** can the file, *at the location it will actually execute from*,
+resolve the import? If not, the duplication is load-bearing.
+
+Six findings closed on evidence. Zero credits spent.
+
+*Appended 2026-08-03.*
+
+---
+
+## WAVE 8 — and the head-of-command bug turns out to be a family
+
+### `q123-w8-laborgate` — ACCEPTED. 1 real bug fixed, 1 already applied.
+
+**P2-LOT03-17 — reproduced before it was fixed, which is the whole point.**
+`splitCompoundCommand` split on `&&`, `||`, `;` and newline but **not on a bare `&`**. The worker built
+the trip case and pasted the pre-fix verdict:
+
+```
+cmd: ls /tmp & npm test
+{"permissionDecision":"allow","permissionDecisionReason":"labor-gate: no real execution detected — allow"}
+```
+
+A backgrounded spec run rode in behind a harmless `ls`. **Verified after the fix by the dispatcher's own
+10-case probe**, not by the worker's matrix:
+
+| case | want | got |
+|---|---|---|
+| `ls /tmp & npm test` | deny | deny |
+| `ls /tmp && npm test` | deny | deny |
+| `ls /tmp; npm test` | deny | deny |
+| `ls /tmp \|\| npm test` | deny | deny |
+| `echo hi \n npx playwright test` | deny | deny |
+| `ls /tmp & npx playwright test` | deny | deny |
+| `ls /tmp` | allow | allow |
+| `git status` | allow | allow |
+| `cat README.md` | allow | allow |
+| `ls /tmp && git status` | allow | allow |
+
+Every later-segment labour caught; no trivial read newly tripped. The four allow rows matter as much as
+the six deny rows — a labour gate that trips on `git status` gets switched off.
+
+**P2-LOT03-09 — already applied, and it quoted the source instead of guessing.** The ticket forbade
+inventing "the PBUG-09 fix" from its four-word summary. The worker found it in
+`plans/done/SUBPLAN_PARITY_BUGFIXES.md` — *"hasPipelineIdentity returns FIRST identity in a message, not
+LAST … Scan msg.content in reverse"* — and then found it already present. Dispatcher confirmed on disk at
+line 531: `// PBUG-09: scan content in REVERSE so the LAST identity Skill call in the message decides.`
+
+### `q123-w8-nudge` — ACCEPTED. 2/2, and the threshold now has a provenance.
+
+**P2-LOT03-14 — it found the origin instead of writing "this is arbitrary".** Traced the 200-char constant
+to `.claude/skills/delegation-temp/SKILL.md:79` — *"any command >200 chars carrying repo paths"* — a
+verbatim match, confirmed by the dispatcher. `git log -S` shows the value arrived in the initial ship
+commit with no measurement note. So: the number is a faithful transcription of a prose rule, and **the
+prose rule itself was never measured.**
+
+The comment it wrote passes the test the ticket set (could a reader decide whether 250 is safe?):
+
+```js
+// 200-char threshold: transcribed from the Bash-legwork-gate spec in
+// .claude/skills/delegation-temp/SKILL.md ("any command >200 chars carrying repo paths").
+// The value was set by judgment, not measured against real command distributions.
+// To retune: sample a representative session's bash payloads, find the length that
+// separates single-file peeks from multi-step searches, and update the SKILL.md spec
+// and this constant together. Do not change one without the other.
+```
+
+That last line is the valuable part — it names the **two places that must agree**, which is how this
+constant would otherwise drift out of sync with its own spec.
+
+---
+
+## The head-of-command family — three gates, same bug, same missing separator
+
+This is the wave's structural finding, and it was not on any worklist.
+
+| gate | separator set before fix | status |
+|---|---|---|
+| `check-plan-closure.mjs` | matched only the **head** of the whole string | fixed w5/w6 — `;` `&&` `\|\|` `\|` newline `$()` backticks `&` |
+| `setup/hooks/labor-gate.mjs` | `&&` `\|\|` `;` newline — **no bare `&`** | fixed w8 |
+| `.claude/hooks/lib/check-graft-ship.mjs` | `/&&\|\\\|\\\|\|;\|\\\|/` — **no bare `&`, no newline** | **suspect, unproven — see below** |
+
+Two independent gates, written at different times for different purposes, both failed to treat a bare `&`
+as a command separator. In both cases the exploit was the same shape: put something harmless first, hide
+the real command after the separator the parser cannot see.
+
+**Recurrence convicts the pattern, not just the instances.** Any gate that decides from a Bash command
+string needs the same floor: split on every construct that can begin a command, classify all segments,
+take the strictest verdict.
+
+### NEW-16 (dispatcher, SUSPECT — explicitly NOT proven)
+
+`check-graft-ship.mjs:70` splits on `&&`, `||`, `;`, `|` and **omits a bare `&` and a newline** — the same
+narrower-than-necessary set as the two confirmed instances. Its `isCommit()` segments a command so a
+later command's flags cannot leak into the commit's flag analysis, and the code path that skips the gate
+is `if (/--all\b/.test(commitPart)) continue;`. So the theoretical failure is a flag from an unsplit
+neighbouring command bleeding into `commitPart` and making the gate skip itself.
+
+**I could not demonstrate it, and I am not going to claim it.** My probe fed six variants (control plus
+five separators) and the gate returned `allow` for **every single one, including the control**
+`git commit -am "x"`. That means my payload never made the gate reach a deny in any configuration — so
+the run has no discriminating power at all. Per this campaign's own rule: *a gate-trip probe needs a valid
+payload; absence-of-deny proves nothing.*
+
+Filed as a suspect for a follow-up ticket whose first job is to construct a payload that makes this gate
+actually deny, and only then to test the separators. Recording an unproven suspicion as a finding would be
+the exact failure mode this sweep exists to remove.
+
+*Appended 2026-08-03.*
+
+### `q123-w8-parseverdict` — ACCEPTED. 2/2, and it refused the shared helper for the right reason.
+
+**P2-LOT03-05 — the swap that would have been wrong.** The finding says "replace the local
+`extractText()`". The obvious move is to reach for `hook-utils.mjs::textOf`, which several findings in
+this campaign have pointed at. The worker checked and **refused**, with the distinction stated exactly:
+
+> `textOf(content)` operates on a **single** message content block. `extractTextFromTranscript(raw)`
+> parses a full multi-line JSONL transcript. These are NOT equivalent — `textOf` does not parse JSONL.
+
+So the finding meant the *module-level* function already in this same file, not the shared one. It then
+proved the local and module-level versions were character-for-character identical before deduping.
+Confirmed on disk: only `extractTextFromTranscript` survives, at line 127.
+
+**P2-LOT03-06 — the extraction, done to the standard this campaign has been demanding.**
+`parse-verdict.mjs` 749 → 496 lines; `parse-verdict.test.mjs` created at 247 lines, **45 tests**.
+
+- **The suite is proven able to fail**, in five steps: green (45 pass) → broke `parseCrossCheckRow` to
+  return null → **RED, 3 of 45 failed**, exit 1 → restored, `sha256 = D86FF67B…502F` matched the
+  pre-break value → green again.
+- **The count is computed, not typed.** The summary is `` `ALL PASS — ${total} tests.` `` where `total`
+  increments per assertion. That is the direct application of NEW-14 from the previous wave — a sibling
+  suite prints a hardcoded "19 fixtures" while 20 run, and this one cannot drift the same way.
+- **The retired mechanism kept a signpost.** `--self-test` no longer runs the suite, but invoking it does
+  not fail silently — line 412 emits *"--self-test removed: run `node parse-verdict.test.mjs` instead."*
+  That is the importer half of retiring a mechanism, handled without being asked.
+- Its ESM guard at line 463 is `pathToFileURL(process.argv[1] ?? "")` — the `?? ""` makes it total, which
+  is exactly the NEW-07 fragility flagged earlier in this campaign on a different script.
+
+**Dispatcher verification — and a probe failure worth recording.** My first smoke test used `printf` and
+wrote a literal backslash-n, so the module returned `NONE` and briefly looked broken. That was my payload,
+not its code. Re-run with properly constructed JSONL, all five behavioural cases pass:
+
+| case | want | got |
+|---|---|---|
+| GREEN under the audit heading | GREEN | GREEN |
+| RED under the audit heading | RED | RED |
+| YELLOW under the audit heading | YELLOW | YELLOW |
+| verdict text with **no** audit heading | NONE | NONE |
+| two headings — last one wins | GREEN | GREEN |
+
+The last two are the rules that matter: the verdict must anchor on `## /final-q audit` so prose mentioning
+"verdict" cannot fake one, and a later heading must beat an earlier one. Both survived the extraction.
+
+*Second time this session a probe of mine returned a misleading result because the payload was wrong —
+the graft-ship probe above is the other. Recording both, because a probe that cannot trip the thing it is
+testing produces confident-looking output with no discriminating power.*
+
+### Wave 8 scoreboard
+
+| lot | verdict | findings |
+|---|---|---|
+| w8-laborgate | ACCEPTED | 2 (1 real bug fixed + reproduced, 1 already applied) |
+| w8-nudge | ACCEPTED | 2 (both applied; threshold traced to its source) |
+| w8-parseverdict | ACCEPTED | 2 (both applied; suite proven able to fail) |
+| template-half rejections | CLOSED, zero dispatches | 6 |
+
+**87 of 196 closed.** Zero bounces this wave.
+
+*Appended 2026-08-03.*

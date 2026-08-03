@@ -185,6 +185,12 @@ function isRecursiveGrepLong(cmd) {
   return candidates.length > 0;
 }
 
+// 200-char threshold: transcribed from the Bash-legwork-gate spec in
+// .claude/skills/delegation-temp/SKILL.md ("any command >200 chars carrying repo paths").
+// The value was set by judgment, not measured against real command distributions.
+// To retune: sample a representative session's bash payloads, find the length that
+// separates single-file peeks from multi-step searches, and update the SKILL.md spec
+// and this constant together. Do not change one without the other.
 function isLongSourceCmd(cmd) {
   return cmd.length > 200 && SOURCE_PATH_SEG.test(cmd);
 }
@@ -202,12 +208,9 @@ function isWarn(cmd) {
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 async function readStdin() {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    process.stdin.on('data', c => chunks.push(c));
-    process.stdin.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-    process.stdin.on('error', reject);
-  });
+  const chunks = [];
+  for await (const chunk of process.stdin) chunks.push(chunk);
+  return Buffer.concat(chunks).toString('utf8');
 }
 
 async function main() {
