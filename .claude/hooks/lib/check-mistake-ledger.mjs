@@ -53,6 +53,7 @@ import {
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
 import { tmpdir } from "node:os";
+import { safeLoadTranscript } from './hook-utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
@@ -370,27 +371,8 @@ function runSelfTest() {
 }
 
 // ---------------------------------------------------------------------------
-// I/O helpers (transcript load + state file, mirrored from check-rca-verdict.mjs)
+// I/O helpers (state file, mirrored from check-rca-verdict.mjs)
 // ---------------------------------------------------------------------------
-
-function safeLoadTranscript(transcriptPath) {
-  if (!transcriptPath || !existsSync(transcriptPath)) return [];
-  try {
-    const raw = readFileSync(transcriptPath, "utf8");
-    const messages = [];
-    for (const line of raw.split(/\r?\n/)) {
-      if (!line.trim()) continue;
-      try {
-        const obj = JSON.parse(line);
-        const msg = obj.message ?? obj;
-        if (msg && msg.role) messages.push(msg);
-      } catch { /* skip bad line */ }
-    }
-    return messages;
-  } catch {
-    return [];
-  }
-}
 
 function appendStateEntry(target, entry) {
   let existing = [];

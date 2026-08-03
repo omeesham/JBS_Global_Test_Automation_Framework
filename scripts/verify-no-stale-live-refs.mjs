@@ -65,7 +65,7 @@ const INCLUDE = (p) => {
     /^clients\/[^/]+\/CLAUDE\.md$/.test(p) ||
     p === 'CLAUDE.md' ||
     p === 'docs/read_only_docs/AGENT_SHARED_RULES.md' ||
-    /^\.claude\/(agents|rules|context|skills)\//.test(p) ||
+    /^\.claude\/(agents|rules|context|skills|hooks)\//.test(p) ||
     /^clients\/[^/]+\/specs_planning\/_internal\/field-(case-generation|inventory-spec)\.md$/.test(p) ||
     /^scripts\//.test(p) ||
     /^plans\/pending\//.test(p) ||
@@ -80,6 +80,7 @@ const EXCLUDE = (p) =>
   /^\.work\//.test(p) ||
   /^scripts\/test-fixtures\//.test(p) ||
   /^scripts\/sp00-fixme-path\.test\.ts$/.test(p) || // test fixture: intentionally tests stale-path resolution
+  /^\.claude\/hooks\/lib\/test-[^/]+\.mjs$/.test(p) || // hook test fixtures: intentionally contain path examples
   /CURRENT_STATE\.md$/.test(p) ||
   /restructure-map-/.test(p) ||
   /verify-no-stale-live-refs\.mjs$/.test(p) ||

@@ -95,12 +95,21 @@ function buildRefIndex(stems) {
   const plansDir = join(REPO_ROOT, 'plans');
   const docsDir = join(REPO_ROOT, 'docs');
 
+  const claudeDir = join(REPO_ROOT, '.claude');
+  // Exclude ephemeral state/worktrees from the claude-md scan — those dirs hold
+  // session artifacts and chip outputs that reference many names transiently; they
+  // would produce false-positive "live-ref" verdicts for anything mentioned in a
+  // work log or state snapshot.
+  const claudeState = join(REPO_ROOT, '.claude', 'state');
+  const claudeWorktrees = join(REPO_ROOT, '.claude', 'worktrees');
+
   const sources = [
     { cls: 'code', root: REPO_ROOT, exts: new Set(['.ts', '.mjs', '.js']), skip: [plansDone] },
     { cls: 'plan', root: plansDir, exts: new Set(['.md']), skip: [plansDone] },
     { cls: 'config', root: REPO_ROOT, exts: new Set(['.json']), skip: [nodeModules] },
     { cls: 'hook', root: REPO_ROOT, exts: new Set(['.sh']), skip: [] },
     { cls: 'doc', root: docsDir, exts: new Set(['.md']), skip: [] },
+    { cls: 'claude', root: claudeDir, exts: new Set(['.md']), skip: [claudeState, claudeWorktrees] },
   ];
 
   const index = new Map(stems.map(s => [s, []]));

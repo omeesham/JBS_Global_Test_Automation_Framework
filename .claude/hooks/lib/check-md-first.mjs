@@ -37,13 +37,15 @@ import { readFileSync, existsSync, mkdirSync, appendFileSync, readdirSync, unlin
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
+import { fireTelemetry } from './hook-utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const STATE_DIR = join(REPO_ROOT, '.claude', 'state');
 const FAILURE_LOG = join(STATE_DIR, 'hook-failures.log');
-const GATE_FIRES_LOG = join(STATE_DIR, 'gate-fires.log');
 const GUARDRAIL_CONFIG = join(REPO_ROOT, '.claude', 'guardrail-config.json');
+
+function normPath(p) { return String(p).replace(/\\/g, '/'); }
 
 // TC ID regex — mirrors check-tc-parity.ts TC_PATTERN (identical dialect; no second parser).
 const TC_ID_SOURCE = 'TC-[A-Z]+-[A-Z]+-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*';
@@ -60,11 +62,11 @@ const MUTATION_TOOLS = new Set(['Edit', 'Write', 'NotebookEdit']);
 
 export function isSpecPath(filePath) {
   if (!filePath) return false;
-  return SPEC_PATH_RX.test(String(filePath).replace(/\\/g, '/'));
+  return SPEC_PATH_RX.test(normPath(filePath));
 }
 
 export function extractClient(filePath) {
-  const m = String(filePath).replace(/\\/g, '/').match(SPEC_PATH_RX);
+  const m = normPath(filePath).match(SPEC_PATH_RX);
   return m ? m[1] : null;
 }
 
@@ -123,7 +125,7 @@ export function readGateMode() {
 
 function toRepoRel(p) {
   if (!p) return '';
-  const norm = String(p).replace(/\\/g, '/');
+  const norm = normPath(p);
   const root = REPO_ROOT.replace(/\\/g, '/').replace(/\/$/, '');
   if (norm.startsWith(root + '/')) return norm.slice(root.length + 1);
   return norm.replace(/^\.?\//, '');
@@ -136,10 +138,6 @@ export function appendToLog(logPath, line) {
     if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true });
     appendFileSync(logPath, line + '\n');
   } catch { /* swallow — logging failure must never wedge a session */ }
-}
-
-function fireTelemetry(verdict, targetPath) {
-  appendToLog(GATE_FIRES_LOG, `md-first-gate, ${new Date().toISOString()}, ${verdict}, ${toRepoRel(targetPath)}`);
 }
 
 // ── Decision engine ────────────────────────────────────────────────────────────
@@ -199,7 +197,7 @@ export function evaluate(payload, opts = {}) {
 
   const rel = toRepoRel(targetPath);
 
-  if (!opts.skipTelemetry) fireTelemetry(mode === 'deny' ? 'deny' : 'announce', targetPath);
+  if (!opts.skipTelemetry) fireTelemetry('md-first-gate', mode === 'deny' ? 'deny' : 'announce', toRepoRel(targetPath));
 
   if (mode === 'deny') {
     return { allow: false, missing, rel, reason: buildDenyMsg(missing, rel) };

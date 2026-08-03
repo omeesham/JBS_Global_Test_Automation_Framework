@@ -82,7 +82,7 @@ Why it exists: adopting a pipeline role (`/identity GIVER`) is what loads that r
 
 ### B. Stop hook — session-end override audit — DEPRECATED 2026-04-23
 
-`.claude/hooks/override-discipline-gate.sh` + `lib/check-override-discipline.mjs` (SP-IDS-02): removed from `.claude/settings.json` during the remediation incident. The companion `.mjs` + `.sh` files remain on disk (tolerant regex still patched for parity with `check-identity-switch.mjs`) but are not wired to any hook event. **Do not reintroduce**: with OWNER short-circuited in §A, overrides now only trigger when a pipeline identity hits a real §2 deny — rare enough that session-end audit is overhead not protection. Reconsider only if pipeline-identity override abuse actually appears in chain-session audits.
+`override-discipline-gate.sh` + `lib/check-override-discipline.mjs` (SP-IDS-02): removed from `.claude/settings.json` during remediation; files remain on disk but unwired — do not reintroduce (OWNER short-circuit makes pipeline-identity overrides rare; reconsider only if override abuse appears in chain-session audits).
 
 ### C. Stop hook — banner drift + switch-without-extract detection (second mode of SP-IDS-01's hook)
 

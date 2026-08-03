@@ -353,11 +353,7 @@ export const CORRUPTION = [
  * Read every data row from the workbook, tagged with its sheet.
  * Skips the Overview sheet. Throws if the workbook is missing.
  */
-export function readWorkbookRows(xlsxPath) {
-  if (!existsSync(xlsxPath)) {
-    throw new Error(`[xlsx-lint] workbook not found: ${xlsxPath} (run "npm run xlsx:build" first)`);
-  }
-  const wb = XLSX.readFile(xlsxPath);
+function readWorkbookRowsFromWb(wb) {
   const rows = [];
   for (const sheetName of wb.SheetNames) {
     if (sheetName === 'Overview') continue;
@@ -380,13 +376,24 @@ export function readWorkbookRows(xlsxPath) {
   return rows;
 }
 
+export function readWorkbookRows(xlsxPath) {
+  if (!existsSync(xlsxPath)) {
+    throw new Error(`[xlsx-lint] workbook not found: ${xlsxPath} (run "npm run xlsx:build" first)`);
+  }
+  return readWorkbookRowsFromWb(XLSX.readFile(xlsxPath));
+}
+
 /**
  * Lint a workbook. Returns:
  *   { ok, rowsScanned, vocabHits[], integrityViolations[], warnings[] }
  * ok === true  ⇔  zero vocab hits AND zero integrity violations (warnings do not fail).
  */
 export function lintWorkbook(xlsxPath) {
-  const allRows = readWorkbookRows(xlsxPath);
+  if (!existsSync(xlsxPath)) {
+    throw new Error(`[xlsx-lint] workbook not found: ${xlsxPath} (run "npm run xlsx:build" first)`);
+  }
+  const wb = XLSX.readFile(xlsxPath);
+  const allRows = readWorkbookRowsFromWb(wb);
   const vocabHits = [];
   const integrityViolations = [];
   const warnings = [];
@@ -414,8 +421,7 @@ export function lintWorkbook(xlsxPath) {
   // so scan its client-facing title rows (1-2) explicitly for internal vocab such as
   // "(mode: list-only)". The bare-date rule is excluded here — the banner legitimately
   // carries a generation timestamp; the metric rows (3+) are exempt entirely.
-  const ovWb = XLSX.readFile(xlsxPath);
-  const ovSheet = ovWb.Sheets['Overview'];
+  const ovSheet = wb.Sheets['Overview'];
   if (ovSheet) {
     const ovRows = XLSX.utils.sheet_to_json(ovSheet, { header: 1, defval: '' });
     for (let i = 0; i < Math.min(2, ovRows.length); i++) {

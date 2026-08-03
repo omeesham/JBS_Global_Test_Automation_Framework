@@ -31,6 +31,7 @@
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve, join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { STOPWORDS } from "./lib/stopwords.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
@@ -55,23 +56,7 @@ const MIN_HITS = 1;
 // up keyword expansion).
 const PROMPT_TOKEN_CAP_CHARS = 1000;
 
-// Common stopwords. Excludes domain-meaningful tokens like "plan", "spec", "test".
-const STOPWORDS = new Set([
-  "the","a","an","of","in","to","for","on","at","by","with","from","is","are","was","were",
-  "be","been","being","have","has","had","do","does","did","will","would","can","could",
-  "may","might","must","shall","should","that","this","these","those","it","its","my","your",
-  "his","her","our","their","all","any","every","some","not","and","or","but","if","then",
-  "when","what","where","who","why","how","also","just","now","here","there","i","you","we",
-  "they","he","she","them","us","me","him","which","such","more","less","than","very",
-  "out","up","down","over","under","into","onto","upon","off","about","against","between",
-  "during","before","after","above","below","through","without","within","across",
-  "yes","ok","okay","one","two","three","first","next","old","good","bad",
-  "make","made","get","got","see","look","took","go","goes","went","come","came",
-  "use","used","using","done","mean","means","need","needs",
-  "let","like","want","find","found","tell","ask","asked","please",
-  "via","per","upon","onto","through","along","among","via",
-  "let","say","said","sure","seem","seems","really","try","tried","again","still",
-]);
+// Common stopwords imported from scripts/lib/stopwords.mjs
 
 function tokenize(text) {
   if (!text) return [];

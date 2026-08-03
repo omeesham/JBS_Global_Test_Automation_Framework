@@ -28,6 +28,7 @@
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { STOPWORDS } from "./lib/stopwords.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
@@ -47,23 +48,7 @@ const RESEARCH_PATTERN_KEYWORDS = new Set([
   "research", "investigate", "explore", "survey", "unfamiliar", "practices",
 ]);
 
-// Stopwords — identical set to run-relevant-scan.mjs for consistent tokenization.
-const STOPWORDS = new Set([
-  "the","a","an","of","in","to","for","on","at","by","with","from","is","are","was","were",
-  "be","been","being","have","has","had","do","does","did","will","would","can","could",
-  "may","might","must","shall","should","that","this","these","those","it","its","my","your",
-  "his","her","our","their","all","any","every","some","not","and","or","but","if","then",
-  "when","what","where","who","why","how","also","just","now","here","there","i","you","we",
-  "they","he","she","them","us","me","him","which","such","more","less","than","very",
-  "out","up","down","over","under","into","onto","upon","off","about","against","between",
-  "during","before","after","above","below","through","without","within","across",
-  "yes","ok","okay","one","two","three","first","next","old","good","bad",
-  "make","made","get","got","see","look","took","go","goes","went","come","came",
-  "use","used","using","done","mean","means","need","needs",
-  "let","like","want","find","found","tell","ask","asked","please",
-  "via","per","upon","onto","through","along","among",
-  "say","said","sure","seem","seems","really","try","tried","again","still",
-]);
+// Stopwords imported from scripts/lib/stopwords.mjs
 
 function safeRead(p) {
   try { return readFileSync(p, "utf8"); } catch { return null; }

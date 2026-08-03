@@ -84,6 +84,32 @@ export function hasOverrideAuthorization(messages, targetPath) {
 
 export { EXECUTE_LOOKBACK };
 
+/**
+ * Load a JSONL transcript file into a messages array.
+ * Each line is parsed as JSON; the `.message` envelope (if present) is unwrapped.
+ * Lines that fail to parse are silently skipped. Returns [] on any I/O error.
+ * @param {string} transcriptPath
+ * @returns {Array}
+ */
+export function safeLoadTranscript(transcriptPath) {
+  if (!transcriptPath || !existsSync(transcriptPath)) return [];
+  try {
+    const raw = readFileSync(transcriptPath, 'utf8');
+    const messages = [];
+    for (const line of raw.split(/\r?\n/)) {
+      if (!line.trim()) continue;
+      try {
+        const obj = JSON.parse(line);
+        const msg = obj.message ?? obj;
+        if (msg && msg.role) messages.push(msg);
+      } catch { /* skip bad line */ }
+    }
+    return messages;
+  } catch {
+    return [];
+  }
+}
+
 // ── Fire telemetry (LR-069 §3.4) ─────────────────────────────────────────────
 
 import { existsSync, mkdirSync, appendFileSync } from 'node:fs';

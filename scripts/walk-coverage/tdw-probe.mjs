@@ -67,7 +67,17 @@ if (args.click) {
     await page.waitForTimeout(1500);
     clickProbe = await page.evaluate(() => {
       const vis = el => { const r = el.getBoundingClientRect && el.getBoundingClientRect(); return r && r.width > 0 && r.height > 0; };
-      const collect = (sel) => { const out = []; const w = n => { if (n.matches && n.matches(sel) && vis(n)) out.push((n.getAttribute('aria-label') || n.textContent || '').trim().slice(0, 50)); if (n.shadowRoot) w(n.shadowRoot); for (const c of (n.children || [])) w(c); }; w(document.documentElement); return out; };
+      const collect = (sel) => {
+        const out = [];
+        const walk = (n) => {
+          if (n.matches && n.matches(sel) && vis(n))
+            out.push((n.getAttribute('aria-label') || n.textContent || '').trim().slice(0, 50));
+          if (n.shadowRoot) walk(n.shadowRoot);
+          for (const c of (n.children || [])) walk(c);
+        };
+        walk(document.documentElement);
+        return out;
+      };
       const dialogs = collect('[role="dialog"],[role="alertdialog"]');
       const options = collect('[role="option"]').slice(0, 12);
       return { dialogAppeared: dialogs.length > 0, dialogTitles: dialogs.slice(0, 3), optionCount: options.length, optionsSample: options };

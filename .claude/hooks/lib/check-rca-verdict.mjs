@@ -31,7 +31,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, appendF
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
 import { tmpdir } from "node:os";
-import { fireTelemetry } from "./hook-utils.mjs";
+import { fireTelemetry, safeLoadTranscript } from "./hook-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
@@ -245,30 +245,8 @@ function findRcaWindow(messages) {
 }
 
 // ---------------------------------------------------------------------------
-// Transcript loading (JSONL — same shape used by check-todo-injection.mjs)
+// Transcript loading (JSONL — now provided by hook-utils.mjs safeLoadTranscript)
 // ---------------------------------------------------------------------------
-
-function safeLoadTranscript(transcriptPath) {
-  if (!transcriptPath || !existsSync(transcriptPath)) return [];
-  try {
-    const raw = readFileSync(transcriptPath, "utf8");
-    const lines = raw.split(/\r?\n/);
-    const messages = [];
-    for (const line of lines) {
-      if (!line.trim()) continue;
-      try {
-        const obj = JSON.parse(line);
-        const msg = obj.message ?? obj;
-        if (msg && msg.role) messages.push(msg);
-      } catch {
-        /* skip bad line */
-      }
-    }
-    return messages;
-  } catch {
-    return [];
-  }
-}
 
 // ---------------------------------------------------------------------------
 // State file I/O — append-style: each Stop event in an /rca window with a

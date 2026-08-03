@@ -1,10 +1,10 @@
 {
-  "_doc": "HARD layer (UPLINK_DOCTRINE §5). Read by the Supervisor (copilot-worker.sh uplink wires + .claude/hooks/lib/uplink/*.mjs) ONLY — the Worker never sees this file and cannot talk around it. Governs WHETHER anything happens: wire thresholds, budgets, class routing, oracle ladder, packet cap. Mirror of ASKING_DOCTRINE.md (SOFT layer). BOTH-HALVES RULE (§5): every steering change edits this file AND ASKING_DOCTRINE.md together — anything only here is a mystery to the Worker.",
+  "_doc": "HARD layer (UPLINK_DOCTRINE §5): wire thresholds, budgets, class routing, oracle ladder, packet cap. Mirror of ASKING_DOCTRINE.md (SOFT layer) — edit both together.",
   "_provenance": "PLAN_UPLINK_PROTOCOL Phase 0.1 (2026-07-12). Sev S1 graduating incident: Rutvik owner directive 2026-07-12, assumption-leak class. LR-070. Lands announce-first per LR-069 §3.3 — NOTHING enforces until Phase 7 calibration flips mode to enforce.",
   "mode": "announce",
   "wires": {
     "attempt_consult_at": 2,
-    "stall_consult": "ride STALL_MODE",
+    "stall_consult": true,
     "empty_result_consult": true,
     "recovered_stall_consult": true
   },
