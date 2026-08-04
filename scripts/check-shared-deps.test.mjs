@@ -142,7 +142,7 @@ test('integration: full scenario across 6 cases', () => {
 
     // Case 2 (BROKEN, inert plan): plan references a gitignored evidence artifact
     writeFile(repo, 'plans/done/old-plan.md',
-      'Walk evidence: clients/encore/specs_planning/_internal/walk-evidence.md\n',
+      'Walk evidence: `clients/encore/specs_planning/_internal/walk-evidence.md`\n',
     );
 
     // Case 3 (FINE): reference to .env.local — must NOT flag
