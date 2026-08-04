@@ -3,7 +3,7 @@
  * check-shared-deps.mjs — broken-reference gate.
  *
  * THE INCIDENT: walk-evidence artifacts at clients/encore/specs_planning/_internal/ were referenced
- * in tracked files but matched .gitignore line 185 (`clients/*/specs_planning/`). A colleague's
+ * in tracked files but matched .gitignore line 185 (`clients/<id>/specs_planning/`). A colleague's
  * agent stalled on arrival because those files structurally cannot reach a fresh clone.
  *
  * WHAT IT DOES:
@@ -141,7 +141,7 @@ export function isFine(relPath) {
  *   from './rel'         — relative ESM imports in .ts/.mjs
  *
  * NOT extracted (false-positive sources):
- *   http/https URLs, mailto:, glob patterns (*/?), email addresses (@user with no /),
+ *   http/https URLs, mailto:, glob patterns (* or ?), email addresses (@user with no /),
  *   fragment-only links (#section), absolute paths outside the repo.
  *
  * @param {string} text
