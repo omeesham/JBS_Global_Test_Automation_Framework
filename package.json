@@ -113,6 +113,7 @@
     "verify:no-stale-refs": "node scripts/verify-no-stale-live-refs.mjs",
     "check:browsertool-parity": "node scripts/check-browsertool-parity.mjs",
     "check:lr-embed-parity": "node scripts/check-lr-embed-parity.mjs",
+    "check:prune": "node scripts/prune-check.mjs",
     "check:per-test-baseline": "node scripts/check-per-test-baseline.mjs",
     "check:step-labels": "node scripts/check-step-labels.mjs --enforce",
     "check:spec-quality": "node scripts/check-unfailable-assertions.mjs --enforce && node scripts/check-swallowed-failures.mjs --enforce && node scripts/check-spec-sleeps.mjs --enforce && node scripts/check-reload-wait.mjs --enforce && node scripts/check-vacuous-grid-assertions.mjs && node scripts/check-reject-oracle.mjs && node scripts/check-doctrine-ledger.mjs",
@@ -123,6 +124,15 @@
     "check:enforcement-claims": "node scripts/check-enforcement-claims.mjs",
     "check:dispatch-argv": "node scripts/check-dispatch-argv.mjs",
     "check:fixture-provenance": "node scripts/walk-coverage/check-fixture-provenance.mjs",
+    "test:spec-trim": "node scripts/spec-trim.test.mjs",
+    "test:stale-live-refs": "node scripts/verify-no-stale-live-refs.test.mjs",
+    "test:xlsx-camelcase-fn": "node scripts/xlsx-camelcase-fn.test.mjs",
+    "test:shared-deps-gate": "node scripts/check-shared-deps.test.mjs",
+    "test:todo-injection-fixtures": "node .claude/hooks/lib/test-todo-injection-fixtures.mjs",
+    "selfclean": "node .claude/hooks/lib/selfclean/sweep.mjs",
+    "selfclean:restore": "node .claude/hooks/lib/selfclean/sweep.mjs --restore",
+    "selfclean:gc": "node .claude/hooks/lib/selfclean/sweep.mjs --gc",
+    "selfclean:status": "node .claude/hooks/lib/selfclean/sweep.mjs --status",
     "prepare": "npm run plans:hooks:install"
   },
   "keywords": [

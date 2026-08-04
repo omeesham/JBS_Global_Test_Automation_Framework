@@ -85,6 +85,8 @@ tmp/
 
 # Security files
 *token*
+# Markdown in the team-memory folder is never a credential; the broad rule stays in force everywhere else.
+!.claude/collaborator-memory/*.md
 *.pem
 *.key
 

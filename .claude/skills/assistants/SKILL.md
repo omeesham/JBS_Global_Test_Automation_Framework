@@ -42,7 +42,7 @@ Default when absent: `"off"`.
 
 SessionStart primer reads this file and announces state every session:
 - ON  → `ASSISTANT MODE: ON — brief the chief; you interrogate + compact`
-- OFF → `ASSISTANT MODE: OFF — direct council admin (legacy)`
+- OFF → `ASSISTANT MODE: OFF — copilot off; direct execution, no dispatches`
 
 **Ship default is ON** (locked decision), but the FIRST supervised goal runs while Rutvik
 watches. State was SEEDED `off` at build time; the supervised-goal step flips it on.
@@ -59,7 +59,7 @@ watches. State was SEEDED `off` at build time; the supervised-goal step flips it
 ### `/assistants off`
 
 1. Write `{"assistant":"off"}` atomically (same tmp+rename pattern).
-2. Print: `ASSISTANT MODE: OFF — direct council admin (legacy)`
+2. Print: `ASSISTANT MODE: OFF — copilot off; direct execution, no dispatches`
 
 **Note**: Only Rutvik confirms the off. Never auto-off based on failure count — Claude
 REPORTS to Rutvik with evidence + recommendation; Rutvik confirms the flip.
@@ -81,8 +81,9 @@ REPORTS to Rutvik with evidence + recommendation; Rutvik confirms the flip.
 
 - COPILOT LAYER OFF: no copilot dispatches of any kind — no worker tickets, no reviewers, no chief.
 - Claude executes deliverables itself: pipeline identities for spec/page-object work, skills as
-  usual, Claude subagents where genuinely needed (`[UA-SPAWN-JUSTIFIED: ...]` until the guard patch
-  lands, unnecessary after).
+  usual, Claude subagents where genuinely needed (each spawn prompt must carry
+  `[UA-SPAWN-JUSTIFIED: <reason>]` while the spawn guard is active) — zero copilot dispatches of
+  any kind.
 - Delegation-stack state (ledger, scorecard, routing-policy) is left untouched — the stack is
   dormant, not dismantled; flipping back ON resumes CEO-delegator mode unchanged.
 

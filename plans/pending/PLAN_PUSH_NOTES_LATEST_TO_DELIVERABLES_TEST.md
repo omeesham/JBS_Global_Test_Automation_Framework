@@ -150,7 +150,7 @@ What this does internally (per [scripts/ship-client.sh](scripts/ship-client.sh))
 
 1. Preflight: working tree clean in `clients/encore/`, `src/`, `pipeline/` (Phase 1 satisfied this).
 2. Preflight: `clients/encore/` exists.
-3. Preflight: `verify-vendor-fresh.mjs --client=encore` (no-op since 2026-05-19 per `_vendor_deprecation_note`).
+3. ~~Preflight: vendor-freshness check~~ — `verify-vendor-fresh.mjs` was retired in commit `93a07763` (chore(trim04): remove deprecated verify-vendor-fresh); this step no longer exists and has no successor.
 4. Preflight: `verify-no-forbidden.mjs --client=encore` (deny-list against tracked files).
 5. `git archive HEAD clients/encore/ | tar -x -C /tmp/encore-deliv-2026-05-19 --strip-components=2`.
 6. Post-ship: `verify-no-forbidden.mjs --target=/tmp/encore-deliv-2026-05-19` (defense in depth).
