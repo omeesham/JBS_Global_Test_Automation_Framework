@@ -290,7 +290,7 @@ plans/pending/PLAN_REPO_MARKER_AND_PAIRING_REMEDIATION.md
 
 # Delegation plans stay local — the working mechanism ships, its planning history does not
 plans/pending/PLAN_ULTRA_AGENTS_COPILOT_WORKER.md
-plans/pending/PLAN_UPLINK_PROTOCOL.md
+# PLAN_UPLINK_PROTOCOL.md ships as of 2026-08-03 (Rutvik GO): the doctrine ledger names it as the LR-063 recipient, so it must exist on every clone.
 plans/pending/SUBPLAN_UPLINK_WAVE2.md
 plans/pending/PLAN_LAZY_CEO_DELEGATOR.md
 plans/pending/PLAN_COPILOT_INTEGRATION_ULTRAAUDIT.md

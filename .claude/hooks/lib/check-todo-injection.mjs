@@ -942,8 +942,8 @@ function runSelfTest() {
     () => !isBannedPhraseTarget("src/components/foo.ts"),
   ]);
   cases.push([
-    "banned-target negative clients/encore/specs/",
-    () => !isBannedPhraseTarget("clients/encore/specs/foo.spec.ts"),
+    "banned-target negative clients/encore/tests/",
+    () => !isBannedPhraseTarget("clients/encore/tests/foo.spec.ts"),
   ]);
 
   // 12. scanBannedPhrases — positive matches.
@@ -1005,7 +1005,7 @@ function runSelfTest() {
   // 15. isSpecPath — positive + negative.
   cases.push([
     "isSpecPath positive .spec.ts",
-    () => isSpecPath("clients/encore/specs/locations/location-shared-setup.spec.ts"),
+    () => isSpecPath("clients/encore/tests/locations/location-shared-setup.spec.ts"),
   ]);
   cases.push([
     "isSpecPath positive .test.ts",
