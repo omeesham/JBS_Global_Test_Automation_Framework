@@ -17,6 +17,12 @@ Clean everything Claude and Copilot have ever written — inside this repository
 
 ---
 
+## ⚠ TRI-PLAN MUTUAL GATE — welded to ULTRAAUDIT + FIX_WAVE (2026-07-20, Rutvik-directed)
+
+These three plans are ONE gated unit — running any ONE obligates the other two: `PLAN_COPILOT_INTEGRATION_ULTRAAUDIT` ⇄ `PLAN_ULTRAAUDIT_FIX_WAVE` ⇄ `PLAN_REPO_SLOP_SWEEP` (this). The shared re-hunt (full **1,853** machine denominator) + fix-list ⇄ delete-list reconciliation is performed **ONCE and shared** across all three — whoever runs first performs it; the other two CONSUME the artifact, they do not repeat it. **Shared artifact path**: plans/pending/_TRIPLAN_RECONCILIATION.md — produced once by whichever plan runs first; the other two consume it and do not regenerate it. Required sections: collision matrix, staged-artifact register, folded-in new S0/S1 findings. **Staleness note (2026-07-30)**: this roster was enumerated 2026-07-18. The file is 1,937 total lines / 1,901 non-blank — the 1,901 figure is a NON-BLANK count and must not be used as a line offset (doing so silently drops the final ~36 rows, including website/frontend entries such as website/frontend/src/data/jiraconfig.txt). Commits have landed since enumeration. Re-run the enumerator and diff against this roster before certifying any sweep complete. The ULTRAAUDIT parent now also carries this gate (previously naked — its `_ULTRAAUDIT_MANIFEST.md` ~197-file denominator is SUPERSEDED by the 1,853 roster; this makes Owner Decision (e) below accurate). The mechanics for this plan are STEP 0 of the Execution Order immediately below.
+
+---
+
 ## Execution Order (READ FIRST — baked 2026-07-19, Rutvik-directed)
 
 This plan is PARKED. A future (rested) session runs these IN ORDER — do not rush to execute:
@@ -92,21 +98,21 @@ Everything Claude and Copilot have written outside the repository boundary. Disp
 
 The following are the live delegation system shipped to the team repo on 2026-07-29 (commit `e37d13cf`). **No lot in this plan may delete, move, or modify any item below.** Deleting any of them breaks the workforce on this machine and desynchronises it from what colleagues installed.
 
-- `~/.claude/.credentials.json` — live credentials
-- `~/.claude/settings.json` — live and load-bearing (wires the delegation hooks)
-- `~/.claude/mcp.json`
-- `~/.claude.json`
-- `~/.claude/hooks/*.mjs`
-- `~/.claude/delegation/config.json`
-- `~/.claude/delegation/model-registry.json`
-- `~/.claude/delegation/registry-block.sh`
-- `~/.claude/delegation/DUTY_STACK.md`
-- `~/.claude/delegation/uplink-policy.json`
-- `~/.claude/delegation/routing-policy.json`
-- `~/.claude/delegation/ticket-template.md`
-- `~/.claude/delegation/ASKING_DOCTRINE.md`
-- `~/.claude/delegation/gates/` (entire directory)
-- `~/.copilot/agents/`
+- (off-repo) ~/.claude/.credentials.json — live credentials
+- (off-repo) ~/.claude/settings.json — live and load-bearing (wires the delegation hooks)
+- (off-repo) ~/.claude/mcp.json
+- (off-repo) ~/.claude.json
+- (off-repo) ~/.claude/hooks/*.mjs
+- (off-repo) ~/.claude/delegation/config.json
+- (off-repo) ~/.claude/delegation/model-registry.json
+- (off-repo) ~/.claude/delegation/registry-block.sh
+- (off-repo) ~/.claude/delegation/DUTY_STACK.md
+- (off-repo) ~/.claude/delegation/uplink-policy.json
+- (off-repo) ~/.claude/delegation/routing-policy.json
+- (off-repo) ~/.claude/delegation/ticket-template.md
+- (off-repo) ~/.claude/delegation/ASKING_DOCTRINE.md
+- (off-repo) ~/.claude/delegation/gates/ (entire directory)
+- (off-repo) ~/.copilot/agents/
 - `~/.copilot/config.json`
 - `~/.copilot/mcp-config.json`
 
@@ -114,7 +120,7 @@ The following are the live delegation system shipped to the team repo on 2026-07
 
 ### Categorisation
 
-**Category A (dispatchable, no per-item GO):** `%LOCALAPPDATA%/Temp/claude/` session scratch dirs · `~/.copilot/updater/` · `~/.copilot/logs/` · `data.db.pre-update-backup-*` · the 40 `*.bak-*` files · `~/.claude/shell-snapshots/` · `~/.claude/session-env/` · `~/.claude/cache/`
+**Category A (dispatchable, no per-item GO):** `%LOCALAPPDATA%/Temp/claude/` session scratch dirs · `~/.copilot/updater/` · `~/.copilot/logs/` · `data.db.pre-update-backup-*` · the 42 (machine-enumerated 2026-07-30) `*.bak-*` files · `~/.claude/shell-snapshots/` · `~/.claude/session-env/` · `~/.claude/cache/`
 
 **Category C/D (per-item GO before anything):** `~/.claude/projects/` transcripts — 898 MB, but they are the provenance record for every session; deletion is a real loss, not just space · `~/.copilot/session-state/` 786 MB — the evidence behind every worker run · `~/.claude/plans/` — read all 33 before disposition; a plan outside `plans/` may hold work nobody tracked · `~/.claude/delegation/` accumulated run state, excluding the live config named in the NEVER-TOUCH block above
 
@@ -122,13 +128,39 @@ The following are the live delegation system shipped to the team repo on 2026-07
 
 ### Lot ORP-A1 — Temp scratch dirs + stale update artifacts *(Category A — dispatchable)*
 
-**Scope:** `%LOCALAPPDATA%/Temp/claude/` (614 MB), `~/.copilot/updater/` (181 MB), `~/.copilot/logs/` (7.8 MB), `data.db.pre-update-backup-*` (1 file), the 40 `*.bak-*` files across `~/.claude` and `~/.copilot`.
+**Blocked pending carve-out**: 19 of the 42 matched files carry DO-NOT-DELETE, pending-GO, or NEVER-TOUCH rulings (11 sit inside ~/.claude/delegation/gates/ and ~/.copilot/agents/, both NEVER-TOUCH per this plan's own lines 114-115). This lot MUST NOT run as Category A until those 19 are excluded. The remaining 23 stay Category A.
+
+**Scope:** `%LOCALAPPDATA%/Temp/claude/` (614 MB), `~/.copilot/updater/` (181 MB), `~/.copilot/logs/` (7.8 MB), `data.db.pre-update-backup-*` (1 file), the 42 (machine-enumerated 2026-07-30) `*.bak-*` files across `~/.claude` and `~/.copilot`.
 
 **Action**: Remove the above. Confirm none is in the NEVER-TOUCH list before removing.
 
 **Verify battery**:
 1. `%LOCALAPPDATA%/Temp/claude/` → empty or absent after removal
 2. None of the NEVER-TOUCH paths modified — verify each exists and is unchanged after
+
+#### ORP-A1 — EXCLUDED (per-item Rutvik GO required)
+
+| # | File | Collision type | Citation |
+|---|---|---|---|
+| 1 | `~/.claude/hooks/delegation-gate.mjs.bak-lcd07` | **DO NOT DELETE — UNIQUE CONTENT** | `_ULTRAAUDIT_FINDINGS.md:142` (P2-LOT08-03); FIX_WAVE Decision 3 |
+| 2 | `~/.claude/delegation/config.json.bak-lcd04` | **DO NOT DELETE — merge first** | `_ULTRAAUDIT_FINDINGS.md:129` (P2-13) |
+| 3 | `~/.claude/hooks/check-delegation-envelope.mjs.bak-cheatproof-20260715` | PENDING-GO (Rutvik GO per file) | `_ULTRAAUDIT_FINDINGS.md:528` (P2-LOT08 batch) |
+| 4 | `~/.claude/hooks/delegation-gate.mjs.bak-cheatproof-20260715` | PENDING-GO | P2-LOT08 batch |
+| 5 | `~/.claude/hooks/delegation-nudge.mjs.bak-lcd03` | PENDING-GO | P2-LOT08-04 |
+| 6 | `~/.claude/hooks/delegation-nudge.mjs.bak-lcd04` | PENDING-GO | P2-LOT08-05 |
+| 7 | `~/.claude/hooks/delegation-primer.mjs.bak-lcd03` | PENDING-GO | P2-LOT08-06 |
+| 8 | `~/.claude/hooks/labor-gate.mjs.bak-cheatproof-20260715` | PENDING-GO | P2-LOT08 batch |
+| 9 | `~/.claude/delegation/gates/verify-run.mjs.bak2-cheatproof-20260715` | NEVER-TOUCH directory | `PLAN_REPO_SLOP_SWEEP.md:114` — `gates/` is entire-dir protected |
+| 10 | `~/.copilot/agents/chief.agent.md.bak-2026-07-14T09-38-29-747Z` | NEVER-TOUCH dir + PENDING-GO | `PLAN_REPO_SLOP_SWEEP.md:115` + P2-LOT10 |
+| 11 | `~/.copilot/agents/chief.agent.md.bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
+| 12 | `~/.copilot/agents/council-planner.agent.md.bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
+| 13 | `~/.copilot/agents/council-reviewer.agent.md.bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
+| 14 | `~/.copilot/agents/council-verifier.agent.md.bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
+| 15 | `~/.copilot/agents/council-worker.agent.md.bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
+| 16 | `~/.copilot/agents/council-worker.agent.md.bak-hardening-20260725` | NEVER-TOUCH dir (post-audit, no individual ruling) | `PLAN_REPO_SLOP_SWEEP.md:115` |
+| 17 | `~/.copilot/agents/council-worker.agent.md.bak-prefix-kill-20260725` | NEVER-TOUCH dir | same |
+| 18 | `~/.copilot/agents/council-worker.agent.md.bak-prefix-kill-20260725155919` | NEVER-TOUCH dir | same |
+| 19 | `~/.copilot/agents/council-worker.agent.md.bak-repin46-20260725` | NEVER-TOUCH dir | same |
 
 ---
 
@@ -319,7 +351,7 @@ Dispatchable after Rutvik confirms overall plan. Each lot requires the verify ba
 - `.claude/state/delegation-audit/critic-completeness.md`, `fight-design-brief.md`
 - `.claude/state/delegation-audit/m2-build-delegation.md`, `research-1-external.md`, `ticket-A-classify.md`
 - `.claude/state/delegation-audit/inputs/hooks/delegation-gate.mjs`
-- `.claude/state/delegation-audit/inputs/hooks/ua-worker-guard.mjs`
+- `.claude/state/delegation-audit/inputs/hooks/ua-worker-guard.mjs` (gitignored — not git-tracked; filesystem delete, not git rm)
 - `.claude/state/delegation-audit/inputs/memory/feedback_agent_cost_frugality.md` (and 34 other feedback_* files — see _REPO_SLOP_FINDINGS.md § .claude/ bucket for full list)
 
 **KEEP** (reviewer overturn — confirmed live reference):
@@ -555,3 +587,382 @@ The following are **out of scope** for this sweep — council confirmed KEEP or 
 - **All 16-lot KEEP verdicts** (~1,440 rows): load-bearing files confirmed by executor + cross-provider reviewer. Not revisited here.
 - **plans/pending/ files with missing Status frontmatter** (11 files, LOT-11 KEEP-S2): flagged as hygiene gap, not slop — address in a separate frontmatter-hygiene pass.
 - **`.claude/state/` live operational families**: gate-fires.log, closure-attempts/, warning JSONs, active worktrees, chain-sessions/, ua-worker/ current-audit artifacts. Protected by the self-cleaner's live-state registry (see Lot C1).
+
+---
+
+### Execution Summary
+
+Execution not yet performed. This plan is explicitly PARKED (see "Execution Order" §STEP 0 and the TRI-PLAN MUTUAL GATE). No lots have been actioned; no deletions, relocations, or fixes have been applied. The plan awaits Rutvik GO and completion of the shared reconciliation prerequisite.
+
+---
+
+# EXECUTION ORDER + ONE-SYSTEM SCOPE (added 2026-08-05, Rutvik GO)
+
+**Run order for the tri-plan unit**: 1️⃣ **this plan** (its § S-0 rebuilds the denominator everything else
+consumes) → 2️⃣ `PLAN_ULTRAAUDIT_FIX_WAVE` (its PREREQ-1 is only satisfiable after § S-0a runs) →
+3️⃣ `PLAN_COPILOT_INTEGRATION_ULTRAAUDIT` (most complete; back it up first — it is gitignored, one copy).
+This reconciles the older "Execution Order" STEP 0 above: STEP 0's protection stands (no Category C/D
+harness lot before the re-hunt + reconciliation), but the re-hunt now runs over the § S-0a regenerated
+four-quadrant denominator, which THIS plan produces first — FIX_WAVE consumes it, it does not lead.
+
+**ONE SYSTEM (scoping law for every lot and DECIDE below)**: Claude and Copilot are halves of the same
+framework. Every lot, pass, and decision in this plan applies across the WHOLE system — the repository,
+`~/.claude/` (hooks, delegation control plane, memory), and `~/.copilot/` (agents, config, state) — unless
+its text names a narrower scope with a reason. A lot executed Claude-only or repo-only, when its class of
+target exists on the other side too, is a scoping defect, not a done lot.
+
+**Execution mechanics**: at execution start, batch every unfilled `DECIDE:` line through `/questionnaire`
+(decision mode) so Rutvik answers in one pass, not scattered mid-run asks. `/regression-guard` WRAPs every
+code-touching lot (B1, B2, C1, C2, D3). Evidence home: the audit artifacts cited below are preserved
+in-repo at `plans/pending/_audit-evidence-0805/` — `C:\Users\rutvi\aud\` is scheduled for teardown and
+must never be the only copy.
+
+---
+
+# AUDIT FINDINGS TO DISPOSITION (wired 2026-08-05)
+
+**Where this came from**: a two-round council audit of everything the framework touched 2026-07-27 →
+2026-08-05, plus a from-scratch rebuild of the machine denominator. Full report:
+`plans/pending/_audit-evidence-0805/AUDIT-REPORT-V2.md`. Ledger:
+`plans/pending/_audit-evidence-0805/PROGRESS.md`. Re-runnable check:
+`plans/pending/_audit-evidence-0805/reaudit2.mjs` (6/6 at wiring time; ran from the since-torn-down
+`C:\Users\rutvi\aud\` workspace — the copies here are the durable record, sha256-verified).
+
+**The audit was READ-ONLY by instruction.** Every action below was deliberately NOT taken so the owner
+could decide. **This plan is where they actually get done** — create, update, delete, or just read, as
+each decision goes.
+
+**How to use this section**: every block ends in a `DECIDE:` line. Fill it, then execute it through this
+plan's normal lot flow. An unfilled DECIDE blocks that item only — nothing else.
+
+**State at wiring** (council-measured, 40 roster items): DONE 13 · PARTIAL 14 · NOT-STARTED 8 ·
+SUPERSEDED 1 · UNVERIFIABLE 4 → **about 33% done**.
+
+---
+
+## S-0 · The denominator this plan uses covers 1.2% of what exists
+
+This plan's machine denominator is `.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`,
+generated 2026-07-18. Rebuilt from scratch on 2026-08-05 across four quadrants with no judgment
+exclusions:
+
+| population | files |
+|---|---|
+| repo tracked | 2,053 |
+| repo untracked (not ignored) | 55,751 |
+| repo ignored | 81,126 |
+| `~/.claude` | 5,489 |
+| `~/.copilot` | 11,599 |
+| **total, deduped** | **156,018** |
+| **the roster this plan calls its denominator** | **1,854 rows** |
+| **roster rows that match something existing today** | **1,503 — 0.96%** |
+| **roster rows covering either off-repo root** | **0** |
+
+Cross-checked with a second instrument (PowerShell `Get-ChildItem -Force` against bash `find`): agreed
+within 1 and 3 files on live directories that had active sessions writing to them.
+
+**A second council seat re-derived this whole accounting blind** — none of these numbers appeared in its
+ticket. It reproduced the totals exactly, its bucket sum closed at 156,018 with **zero fall-through rows**
+(the dispatcher's own sum was one short, and the seat found the row that had been lost — a `.docx` whose
+filename contains spaces). It also corrected the coverage figure: 1,854 is the roster's *row count*, but
+only **1,503** of those rows match a file that exists today, so the honest coverage is **0.96% — about 1
+path in 104.** And it flagged a trap worth keeping: if you dedupe without preserving root scope, five
+`~/.claude` paths collide with same-named repository paths and the total silently drops to 156,013.
+
+**Worse than the coverage number**: of the 1,854 rows, **1,773 are tagged `normal`** and only **81** carry
+a slop smell. The action list was built from the smelly rows. Anything tagged `normal` was enumerated once
+and then never considered again by anything.
+
+**And it is not a one-off.** A council lot judged the surviving `normal` population and found a
+**12-file dead cluster** — the entire two-agent collaboration system: `.claude/AGENT_SCHOOL.md`,
+`scripts/agent-channel.mjs`, `.claude/agents/COLLEAGUE.agent.md`, `.claude/agents/RUTVIK.agent.md`,
+`.claude/context/CURRENT_OWNER.md`, `.claude/context/VISION.md`, `.claude/context/WORKFLOW.md`,
+`.claude/context/CURRENT_STATE.md`, `launch.json`, and the start-dev / restart-loop scripts.
+
+Its verdict, verbatim: *"The smell taxonomy had no tag for 'part of a system' — it classified files
+atomically, so a dead system where each file references its siblings (which all exist and look
+well-formed) appears healthy."* Each file looks fine alone; together they form a closed reference loop
+citing each other and nothing else. `agent-channel.mjs` appears in no npm script. `VISION.md` was
+superseded by `.claude/private/guiding-vision.md`. `docs/SETUP.md` still onboards new collaborators into
+this dead system.
+
+It also found **7 roster rows tagged `normal` that point at files no longer on disk** (4 channel files,
+3 `.auth` files, a lock, a `.claude/plans/` file) — the roster is stale for those.
+
+Measured false-normal rate: **12 of 1,458 = 0.8%**. The classifier was sound for isolated files and blind
+to dead *systems*.
+
+> **Correction to carry**: that lot works from a clone, and reported `.claude/channel/` as deleted. It is
+> not — it exists live with 4 files. It is **untracked**, so no clone can see it. The cluster is still
+> dead on the timestamp evidence (nothing in `channel/` touched since 2026-03-16); only that one sentence
+> of the reasoning is a clone-frame artifact.
+
+> **DECIDE — S-0a**: regenerate the denominator across all four quadrants before any lot runs, and treat
+> the 2026-07-18 roster as historical? (This plan's own staleness note already demands a re-run; this
+> additionally requires covering the two off-repo roots it has never covered at all.) **Regeneration must
+> also add `%LOCALAPPDATA%/Temp/claude/` as a FIFTH root — this plan names it in its Out-of-Repo scope
+> (614 MB), but it was not one of the four quadrants the 156,018 count covered (owner-caught, 2026-08-05).**
+> `DECIDE: ____`
+
+> **DECIDE — S-0b**: add a liveness test to the classifier — last-change date, who references it, and
+> whether it is wired in `package.json` / `settings.json` / a hook / a skill — plus a cluster pass that
+> detects closed reference loops, so "nothing loads this" becomes a tag instead of silence?
+> `DECIDE: ____`
+
+> **DECIDE — S-0c**: the 12-file dead cluster — archive it, keep it, or trim to the parts still true?
+> Note `docs/SETUP.md` and `.claude/settings.local.json` both still reference it and would need updating
+> either way.
+> `DECIDE: ____`
+
+---
+
+## S-1 · The out-of-repo half was declared in scope and never reached
+
+Commit `db1c0443` widened this plan "past the repository boundary" and named a ~1.9 GB denominator across
+three roots. A council lot checked every claim against file timestamps:
+
+- **0 of 3 ORP-A cleanup lots executed.**
+- **0 of 2 required triage tables produced** — both plans say "Produce a triage table… Stop."
+- `SUBPLAN_OFFREPO_RECONCILIATION.md` — **95 findings including 2 security-class**, filed 2026-08-03,
+  never started, still Pending.
+- Counted and untouched: `tasks/` 1,005 files · `plugins/` 728 · `plans/` 33 · `telemetry/` 31.
+- The seat's summary: *"The denominator was measured; the work never reached it."*
+- 12 IN-VISION-UNTOUCHED rows, each quoting this plan's own scope statement. Of 8 rows that looked
+  "reached", only 2 are genuine work — the rest are runtime churn from workers writing files, not from
+  anyone cleaning them.
+
+> **DECIDE — S-1**: run the out-of-repo half inside this plan (ORP-A1 through A3, both triage tables, and
+> SUBPLAN_OFFREPO_RECONCILIATION's 95 findings with the 2 security-class first), or formally drop it from
+> scope and delete the widening claim so the plan stops promising it?
+> `DECIDE: ____`
+
+---
+
+## S-2 · Root debris this plan's own verify commands structurally cannot see
+
+Still on disk at wiring time, all named by this plan as delete targets:
+
+- **22** gitignored root walk-dumps (`eq-*`, `pg-*`, `pgoverride-*`, `e2e-0*`, `TEMP*`) — Lot A1.
+- `rotation-state.json` and `.claude/skills/ultra-agents/tavily-mcp/dist/` — Lot A3.
+- (Lot A2's `.recover-scratch` and `_migration_global_claude` are genuinely gone.)
+
+**And a hole in the net**: 8 root entries appear **zero** times in this plan — `100`, `accept-denom.mjs`,
+`strip_ex3.ps1`, `test-regex.mjs`, `out-e2e/`, `out-lots/`, `out-merge/`, `_archive/`. The first four are
+untracked **and** un-ignored, so Lot A1's verify command cannot see them at all — it filters on
+`--ignored`. The command would certify a clean root with those four sitting in it.
+
+> **DECIDE — S-2a**: execute A1 and A3 as written against the 22 + 2 targets still present?
+> `DECIDE: ____`
+> **DECIDE — S-2b**: widen Category A to the untracked-and-unignored stratum and fix the verify commands
+> so they can see it?
+> `DECIDE: ____`
+
+---
+
+## S-3 · `_archive/` — 55,797 files, 1.8 GB, untracked, inside the repository
+
+Found when the audit's own staging script choked on it, not by any lot. Eight other untracked directories
+sit alongside it. It is the largest object in the working tree and no plan names it.
+
+> **DECIDE — S-3**: delete, move outside the repository, or keep with a stated reason?  `DECIDE: ____`
+
+---
+
+## S-4 · Memory drift — five operating lessons exist only on this machine
+
+`CLAUDE.md` tells a collaborator to copy `.claude/collaborator-memory/*.md` into their personal memory
+folder. That copy happened, then stopped tracking. Of the memory files changed in the audit window, 31
+have a repository counterpart: **22 byte-identical, 9 differ**. A council lot opened all nine diffs —
+**none contradicts the other side**:
+
+- **4 cosmetic** — the repository sanitized quoted language; the machine kept the original wording. Same
+  instruction either way. The repository's version is the one to keep.
+- **5 machine-only additions** (three of them delete not a single line), dated 2026-08-03 and 08-04:
+  never edit the dispatch wrapper while a job is live (bash resumes a running script by byte offset) ·
+  budget a worker by whether its job is bounded, not by whether it writes · the invisibility-as-evidence
+  test · a declined claim needs the same disk check as an applied one · a CLI-limits reference correction.
+
+Nothing here is broken. But five lessons this system learned in three days exist on exactly one machine,
+and no fresh clone or other collaborator has any of them.
+
+> **DECIDE — S-4a**: merge the 5 machine-only additions back into `.claude/collaborator-memory/`?
+> `DECIDE: ____`
+> **DECIDE — S-4b**: push the 4 sanitized versions out to the machine so both sides match?
+> `DECIDE: ____`
+> **DECIDE — S-4c**: add a sync check so this drift is visible next time instead of found by an audit?
+> `DECIDE: ____`
+
+---
+
+## S-5 · Consolidation candidates — the efficiency question
+
+Council-produced, every row carrying a "what would break" column:
+
+- **5 duplicate-content rows**: browser-tool doctrine (2 files) · navigation-first (3) · identity
+  semantics (3) · jargon ban (3).
+- `plans/pending/` — **128 files, 24,023 lines, 2.2 MB**.
+- `_TRIPLAN_RECONCILIATION.md` — **3,417 lines**; realistic as an index at 400–700.
+- `.claude/collaborator-memory/` — 140 files, **62 with zero references** — and the seat explicitly warned
+  against deleting on grep alone, because a loader may read the whole directory.
+
+> **DECIDE — S-5**: adopt the consolidation table as a lot in this plan, or defer it?  `DECIDE: ____`
+
+---
+
+## S-6 · Populations no list has ever contained
+
+Beyond the roster: **137,427 repository files** absent from it, and **17,088 off-repo files** never
+enumerated at all. Grouped, largest first: `_archive` 55,773 · `.claude` 25,794 · `node_modules` 23,654 ·
+`website` 18,444 · `.copilot` 11,599 · `clients` 11,485 · `~/.claude` 5,489. Plus **351 roster rows that
+no longer exist on disk**.
+
+A council lot grouped all of it with a verdict per group, where a "bulk, ignore it" verdict had to state
+what would make ignoring it wrong. **Result** (`plans/pending/_audit-evidence-0805/NEVER-ENUMERATED-FINDINGS.md`):
+
+| | files |
+|---|---|
+| never enumerated, total | **154,515** |
+| **bulk-dismissable, each with a named reason** (session/runtime logs, dependency trees, browser and auth caches, generated output, reports, archives) | **147,164** |
+| **genuinely needs human decisions** (off-repo agent / delegation / control-plane / config, plus in-repo framework skills, hooks, rules, memory, client source, plans, scripts) | **7,326** |
+| undetermined (malformed or stray quoted `_archive` paths, and the numeric `100` group) | 25 |
+
+**The seat's recommended first lot**: `~/.claude/delegation`, **2,047 files** — *"the personal-machine
+delegation authority surface containing tickets, grants, reviews, and control-plane material that can
+change what agents are allowed to do, while the prior roster had zero rows there."*
+
+That reduces "156,018 files, unknowable" to **7,326 files that need a human, and everything else excluded
+by a stated, counted reason.** That is what "every file accounted for" actually looks like.
+
+> **DECIDE — S-6a**: adopt the group verdicts as this plan's scope boundary, so every one of the 156,018
+> files is either inside a lot or inside a named, counted, reasoned exclusion?
+> `DECIDE: ____`
+> **DECIDE — S-6b**: send the first lot at `~/.claude/delegation` (2,047 files) as the seat recommends?
+> `DECIDE: ____`
+
+---
+
+## S-7 · Things this plan itself says to do, that were never done
+
+Found by checking the plan's own text against the working tree. Each is this plan promising something and
+the promise not landing.
+
+**Should have been removed.** `scripts/clean-root.ts` and its `npm run clean:root` entry both still exist.
+This plan's own words: *"Retire it: absorb patterns into the sweeper's rule registry and delete the
+script."*
+
+**Should have been updated — and this one is actively misleading.** This plan states that certain
+`.claude/state/` families are *"Protected by the self-cleaner's live-state registry (see Lot C1)."* **That
+registry was overturned** — the reconciliation file records the self-cleaner's "READY FOR GO" as WITHDRAWN
+on 2026-07-30. So those files have no stated protection, while this plan tells a reader they do. This plan
+also points at a design document at a path that does not exist.
+
+**Half applied.** Telemetry was added to three "dark" gates; the same day's review named more. *(Flagged by
+the seat as inference rather than a counted fact — verify before acting.)*
+
+> **DECIDE — S-7a**: retire `scripts/clean-root.ts` + `npm run clean:root` as this plan already says to,
+> or strike the retirement instruction?
+> `DECIDE: ____`
+> **DECIDE — S-7b**: fix the false protection claim — either rebuild the live-state registry or delete the
+> sentence, because right now the plan protects those files on paper only?
+> `DECIDE: ____`
+> **DECIDE — S-7c**: fix or remove the dead design-document path?  `DECIDE: ____`
+> **DECIDE — S-7d**: count the remaining dark gates properly rather than inheriting the inference?
+> `DECIDE: ____`
+
+---
+
+## S-8 · Content-level consolidation — the CUD *inside* files, which nothing above does
+
+Everything in this plan so far operates on **whole files**: find it, classify it, delete or move it. The
+owner's efficiency goal is broader and was stated plainly: *"we don't just CUD the files, we also CUD the
+data in the files."* Four files becoming one, or each of the four getting smaller.
+
+**That work is not in this plan today, and the tools built to do it have not run.**
+
+### The tools that exist and are idle
+
+| tool | what it does | last run |
+|---|---|---|
+| `.claude/skills/compile-learnings/SKILL.md` | merges duplicate memory entries, prunes superseded ones, graduates recurring patterns into permanent rules | **2026-04-27** |
+| `anthropic-skills:consolidate-memory` (plugin) | reflective pass over memory files — merge duplicates, fix stale facts, prune the index | **never referenced by any plan** |
+
+`compile-learnings` appears in this plan family **only as a file to be audited** — zero DECIDE blocks name
+it, and nothing anywhere instructs anyone to run it. It is a subject, never an action.
+
+The memory index states what actually happened instead, verbatim: *"Index compacted 2026-07-31 (20.5KB →
+15.1KB)."* That was **delete-and-archive, not consolidation.** Entries were removed and links collapsed;
+nothing was merged. The distinction matters — a smaller index over the same 178 unmerged files is a
+narrower table of contents, not less content.
+
+### The population, and the half nobody wired
+
+| population | files | bytes |
+|---|---|---|
+| repo `.claude/collaborator-memory/` | 140 | 685 KB |
+| machine `~/.claude/projects/…/memory/` | 178 | 1,001 KB |
+| of those, paired across both sides | **31** | — |
+| **machine-only, unpaired** | **147** | — |
+| machine `_archive/` | 12 | — |
+
+**§ S-4 covers only the 31 paired files** — and only their drift, not their content. **The 147 machine-only
+memory files have never been in any plan's scope.** They are the largest single body of instruction text
+this system loads, and no consolidation pass has touched them in over three months.
+
+A separate signal from the same population: the council's efficiency lot found **62 of the repo's 140
+memory files carry zero references** — while explicitly warning that a loader may read the whole directory,
+so a zero-reference count is a candidate signal, never a delete authorisation.
+
+### What this is not
+
+This is not the same question as § S-5. S-5 lists *which files* duplicate each other. S-8 is about running
+the passes that actually merge and prune — including inside files that are individually fine but say the
+same thing three ways.
+
+> **DECIDE — S-8a**: run `/compile-learnings` over both memory populations as a lot in this plan? It is
+> three months idle and it is the tool built for exactly this.
+> `DECIDE: ____`
+
+> **DECIDE — S-8b**: bring the **147 machine-only memory files** into scope — they are in no plan today,
+> and they are instruction text every session loads?
+> `DECIDE: ____`
+
+> **DECIDE — S-8c**: after merging, reconcile the two sides so the repo and the machine hold the same
+> consolidated set — otherwise consolidation on one side becomes fresh drift (see § S-4)?
+> `DECIDE: ____`
+
+> **DECIDE — S-8d**: apply the same content-level pass to the non-memory duplicates § S-5 names — the
+> browser-tool doctrine in 2 files, navigation-first in 3, identity semantics in 3, the jargon ban in 3 —
+> rather than only counting them?
+> `DECIDE: ____`
+
+> **DECIDE — S-8e**: `_TRIPLAN_RECONCILIATION.md` at **3,417 lines** against a realistic 400–700 as an
+> index — is that a content-consolidation target, and does anything break if it shrinks?
+> `DECIDE: ____`
+
+---
+
+## S-9 · Every surviving file gets the content-level pass — both halves of the system
+
+Rutvik's directive (2026-08-05, verbatim intent): *"the same file level CRUD should happen with EVERY FILE
+that survives slop sweep… such that we really really deep clean and make things efficient all around our
+system"* — and *"not just on claude only! copilot and claude are part of the same system!"*
+
+**Nothing wires that today.** The machinery exists — `PLAN_COPILOT_INTEGRATION_ULTRAAUDIT` Phase 2
+(line-level slop pass, zero unreviewed rows) and Phase 2.5 (the efficiency question: is every loaded line
+earning rent) — but its denominator predates this audit, and no plan states that the files SURVIVING this
+sweep's file-level disposition get that pass. § S-8 runs it only over memory populations and five named
+duplicate clusters.
+
+**The lot**: after file-level disposition (delete / relocate / keep decided), every KEEP within the § S-6
+human-relevant boundary (~7,326 files minus deletions — bulk-excluded groups stay excluded by their named,
+counted reasons) receives a line-level content pass: dead code, duplicated logic, redundant prose, broken
+or half-applied fixes, and compaction that saves Claude/Copilot tokens with zero meaning loss. Explicitly
+BOTH halves: repository + `~/.claude/` (hooks, delegation doctrine, memory) + `~/.copilot/` (agent
+profiles, config). Ticket doctrine for the lots: `.claude/skills/cleanup/SKILL.md` (dead code + duplicate
+consolidation) and `.claude/skills/audit/SKILL.md` `--mode=slop` (DROP/KEEP), plus COPILOT_UA Phase 2.5's
+efficiency question. Execution routes through COPILOT_UA's Phase 2/2.5 machinery with its denominator set
+to this sweep's survivors — the pass runs once, not twice.
+
+> **DECIDE — S-9**: adopt the survivor content pass as this plan's terminal lot (boundary = § S-6
+> human-relevant set, both halves of the system, executed via COPILOT_UA Phase 2/2.5 machinery)?
+> `DECIDE: ____`
