@@ -128,6 +128,8 @@
     "test:stale-live-refs": "node scripts/verify-no-stale-live-refs.test.mjs",
     "test:xlsx-camelcase-fn": "node scripts/xlsx-camelcase-fn.test.mjs",
     "test:shared-deps-gate": "node scripts/check-shared-deps.test.mjs",
+    "test:step-labels-gate": "node --test scripts/check-step-labels.test.mjs",
+    "check:step-label-parity": "node scripts/verify-step-label-parity.mjs",
     "test:todo-injection-fixtures": "node .claude/hooks/lib/test-todo-injection-fixtures.mjs",
     "selfclean": "node .claude/hooks/lib/selfclean/sweep.mjs",
     "selfclean:restore": "node .claude/hooks/lib/selfclean/sweep.mjs --restore",
