@@ -13,7 +13,7 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     return this.page.locator(selector);
   }
 
-  @step()
+  @step('Navigate to history tab')
   async navigateToHistoryTab(): Promise<void> {
     const tab = this.getElement('tabHistory');
     const isSelected = await tab.getAttribute('aria-selected').catch(() => null);
@@ -25,23 +25,23 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     await this.getElement('tblHistory').waitFor({ state: 'visible', timeout: 15_000 });
   }
 
-  @step()
+  @step('Get history column header count')
   async getHistoryColumnHeaderCount(): Promise<number> {
     return this.getElement('tblHistory').locator('th').count();
   }
 
-  @step()
+  @step('Is history table empty')
   async isHistoryTableEmpty(): Promise<boolean> {
     const text = (await this.getElement('tblHistory').textContent() || '').trim();
     return text.includes('No results.');
   }
 
-  @step()
+  @step('Get history sort button count')
   async getHistorySortButtonCount(): Promise<number> {
     return this.getElement('tblHistory').locator('th button').count();
   }
 
-  @step()
+  @step('Get history column headers')
   async getHistoryColumnHeaders(): Promise<string[]> {
     const table = this.getElement('tblHistory');
     return (await table.locator('th').allTextContents()).map(t => t.trim());
@@ -52,7 +52,7 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
  * CRITICAL (2): Local Office History uses SVG lucide-check icons for booleans.
  * textContent returns "" for both TRUE and FALSE. Must check innerHTML for lucide-check.
  */
-  @step()
+  @step('Get history column by header')
   async getHistoryColumnByHeader(rowIndex: number, headerText: string): Promise<string> {
     const headers = await this.getHistoryColumnHeaders();
     const colIndex = headers.indexOf(headerText);
@@ -68,7 +68,7 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     return text;
   }
 
-  @step()
+  @step('Get history row values')
   async getHistoryRowValues(rowIndex: number, headerTexts: string[]): Promise<Record<string, string>> {
     const result: Record<string, string> = {};
     for (const header of headerTexts) {
@@ -77,7 +77,7 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     return result;
   }
 
-  @step()
+  @step('Sort history by modified on desc')
   async sortHistoryByModifiedOnDesc(): Promise<void> {
     const headers = await this.getHistoryColumnHeaders();
     const colIndex = headers.indexOf('Modified On');
@@ -96,7 +96,7 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     await this.waitForAngularStable();
   }
 
-  @step()
+  @step('Is history tab read only')
   async isHistoryTabReadOnly(): Promise<boolean> {
     const panel = this.getElement('tabContentHistory');
     // Scope to the data table only: tblHistory IS the <table>, and the paginator "Current page number"
@@ -107,14 +107,14 @@ export class LocalOfficeHistoryPage extends LocalOfficeSettingsPage {
     return inputs === 0 && saveBtn === 0;
   }
 
-  @step()
+  @step('Get history pagination text')
   async getHistoryPaginationText(): Promise<string> {
     const panel = this.getElement('tabContentHistory');
     const text = await panel.locator('text=/\\d+ \\/ \\d+/').textContent().catch(() => '');
     return (text || '').trim();
   }
 
-  @step()
+  @step('Get history pagination button count')
   async getHistoryPaginationButtonCount(): Promise<number> {
     const panel = this.getElement('tabContentHistory');
     return panel.locator('button[aria-label*="page"], button[aria-label*="Page"]').count();

@@ -19,19 +19,19 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     Log.info('LocationLocalInfoPage initialized');
   }
 
-  @step()
+  @step('Navigate to local info tab')
   async navigateToLocalInfoTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabLocalInformation', 'btnSaveLocalInfo', officeNo);
   }
 
-  @step()
+  @step('Is on local info tab')
   async isOnLocalInfoTab(): Promise<boolean> {
     const tab = this.getElement('tabLocalInformation');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
-  @step()
+  @step('Reload and navigate to local info')
   async reloadAndNavigateToLocalInfo(officeNo: string = '1604'): Promise<void> {
     Log.info('Reloading page and navigating back to Local Information');
  // Navigate away to a different route first to force the app to destroy + recreate the
@@ -42,7 +42,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     await this.navigateToLocalInfoTab(officeNo);
   }
 
-  @step()
+  @step('Capture left panel baseline')
   async captureLeftPanelBaseline(): Promise<LeftPanelBaseline> {
     Log.info('Capturing left-panel baseline values');
     const officeVal = await this.getElement('txtOffice').inputValue().catch(() => '');
@@ -61,26 +61,26 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     return baseline;
   }
 
-  @step()
+  @step('Get billing type')
   async getBillingType(): Promise<'Master' | 'Direct'> {
     const masterChecked = (await this.getElement('rdoBillingTypeMaster').getAttribute('aria-checked').catch(() => null)) === 'true';
     return masterChecked ? 'Master' : 'Direct';
   }
 
-  @step()
+  @step('Select billing type')
   async selectBillingType(type: 'Master' | 'Direct'): Promise<void> {
     const key = type === 'Master' ? 'rdoBillingTypeMaster' : 'rdoBillingTypeDirect';
     await this.getElement(key).click();
     Log.info(`Selected Billing Type: ${type}`);
   }
 
-  @step()
+  @step('Get billing way')
   async getBillingWay(): Promise<'Event' | 'Daily'> {
     const eventChecked = (await this.getElement('rdoBillingWayEvent').getAttribute('aria-checked').catch(() => null)) === 'true';
     return eventChecked ? 'Event' : 'Daily';
   }
 
-  @step()
+  @step('Select billing way')
   async selectBillingWay(way: 'Event' | 'Daily'): Promise<void> {
     const key = way === 'Event' ? 'rdoBillingWayEvent' : 'rdoBillingWayDaily';
     await this.getElement(key).click();
@@ -88,7 +88,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     await this.page.waitForLoadState('domcontentloaded').catch(() => {});
   }
 
-  @step()
+  @step('Is save enabled')
   async isSaveEnabled(): Promise<boolean> {
     const el = this.getElement('btnSaveLocalInfo');
     const disabled = await el.isDisabled().catch(() => true);
@@ -99,34 +99,34 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
  /**
  * Dialog timeout extended to 10s — this form has slower server validation.
  */
-  @step()
+  @step('Click save')
   async clickSave(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSaveLocalInfo', 'dlgSaveChanges', 'btnSaveChangesConfirm', 10_000);
   }
 
-  @step()
+  @step('Wait for save toast')
   async waitForSaveToast(): Promise<void> {
     await this.getElement('toastLocalInfoUpdated').waitFor({ state: 'visible', timeout: 8000 });
     Log.info('Save success toast confirmed: "Local information updated"');
   }
 
-  @step()
+  @step('Is effective date disabled')
   async isEffectiveDateDisabled(): Promise<boolean> {
     return await this.getElement('btnEffectiveDate').isDisabled().catch(() => true);
   }
 
-  @step()
+  @step('Is billing cycle disabled')
   async isBillingCycleDisabled(): Promise<boolean> {
     return await this.getElement('drpBillingCycle').isDisabled().catch(() => true);
   }
 
-  @step()
+  @step('Get billing cycle value')
   async getBillingCycleValue(): Promise<string> {
     const el = this.getElement('drpBillingCycle');
     return (await el.textContent().catch(() => '') ?? '').trim();
   }
 
-  @step()
+  @step('Test boundary value')
   async testBoundaryValue(
     spinKey: keyof typeof LocationSettingsSelectors,
     value: string,
@@ -197,7 +197,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     return { passed: true, detail: `${value} -> valid [ok]` };
   }
 
-  @step()
+  @step('Test dependency')
   async testDependency(
     trigger: keyof typeof LocationSettingsSelectors,
     triggerAction: 'check' | 'uncheck',
@@ -243,7 +243,7 @@ export class LocationLocalInfoPage extends LocationFormHelpers {
     return { passed: failures.length === 0, failures };
   }
 
-  @step()
+  @step('Test max length')
   async testMaxLength(
     fieldKey: keyof typeof LocationSettingsSelectors,
     maxLength: number,

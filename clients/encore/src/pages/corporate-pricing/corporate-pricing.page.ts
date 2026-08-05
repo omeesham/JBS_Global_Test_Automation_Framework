@@ -32,19 +32,19 @@ export class CorporatePricingBasePage extends BasePage {
     return `${base}${pathSuffix}`;
   }
 
-  @step()
+  @step('Goto search')
   async gotoSearch(office: string = CORPORATE_PRICING_COMMON.office): Promise<void> {
     await this.navigateTo(this.buildUrl(CORPORATE_PRICING_ROUTES.searchPath(office)));
     await this.waitForAngularStable();
   }
 
-  @step()
+  @step('Goto details')
   async gotoDetails(office: string, pricebookId: string): Promise<void> {
     await this.navigateTo(this.buildUrl(CORPORATE_PRICING_ROUTES.detailsPath(office, pricebookId)));
     await this.waitForAngularStable();
   }
 
-  @step()
+  @step('Goto new Pricebook')
   async gotoNewPricebook(office: string, type: 'equipment' | 'labor'): Promise<void> {
     await this.navigateTo(this.buildUrl(CORPORATE_PRICING_ROUTES.newPricebookPath(office, type)));
     await this.waitForAngularStable();
@@ -55,7 +55,7 @@ export class CorporatePricingBasePage extends BasePage {
    * Tabs are plain buttons with text; aria-selected was not exposed on the live DOM, so this
    * clicks + waits for Angular stability. The Strategy/Detail pages add a stronger active-tab guard if needed.
    */
-  @step()
+  @step('Switch tab')
   async switchTab(tab: 'Pricing Strategy' | 'Pricing Detail'): Promise<void> {
     const sel = tab === 'Pricing Strategy' ? S.tabPricingStrategy : S.tabPricingDetail;
     await this.page.locator(sel).first().click();
@@ -69,7 +69,7 @@ export class CorporatePricingBasePage extends BasePage {
    * the matching rows; without `needle`, returns all currently-visible rows (content-anchored —
    * never index-based row lookup).
    */
-  @step()
+  @step('Read grid rows by content')
   async readGridRowsByContent(needle?: string, maxScrolls = 40): Promise<string[]> {
     const collect = async (): Promise<string[]> => {
       const rows = this.page.locator(S.rowGridAny);
@@ -94,7 +94,7 @@ export class CorporatePricingBasePage extends BasePage {
     return [];
   }
 
-  @step()
+  @step('Find grid row by content')
   async findGridRowByContent(needle: string, maxScrolls = 40): Promise<Locator | null> {
     for (let s = 0; s < maxScrolls; s++) {
       const row = this.page.locator(S.rowGridAny, { hasText: needle }).first();
@@ -105,7 +105,7 @@ export class CorporatePricingBasePage extends BasePage {
     return null;
   }
 
-  @step()
+  @step('Get search item count')
   async getSearchItemCount(): Promise<number | null> {
     const el = this.page.locator(S.lblItemsFound).first();
     if ((await el.count()) === 0) return null;
@@ -118,14 +118,14 @@ export class CorporatePricingBasePage extends BasePage {
    * exercised by a mutation. Clicks Save; if a "Save Changes" alertdialog appears, confirms it;
    * otherwise proceeds (direct save). The Strategy/Detail pages tighten via `saveAndConfirm`.
    */
-  @step()
+  @step('Click save')
   async clickSave(): Promise<void> {
     await this.page.locator(S.btnSaveDetails).first().click();
     await this.confirmSaveDialogIfPresent(2_000);
     await this.waitForAngularStable();
   }
 
-  @step()
+  @step('Is save enabled')
   async isSaveEnabled(): Promise<boolean> {
     return this.page.locator(S.btnSaveDetails).first().isEnabled().catch(() => false);
   }

@@ -1,0 +1,3967 @@
+{
+  "clients/encore/src/pages/base.page.ts:67": {
+    "class": "BasePage",
+    "method": "navigateTo",
+    "label": "Navigate to"
+  },
+  "clients/encore/src/pages/base.page.ts:88": {
+    "class": "BasePage",
+    "method": "clickWithRetry",
+    "label": "Click with retry"
+  },
+  "clients/encore/src/pages/base.page.ts:118": {
+    "class": "BasePage",
+    "method": "fillWithValidation",
+    "label": "Fill with validation"
+  },
+  "clients/encore/src/pages/base.page.ts:145": {
+    "class": "BasePage",
+    "method": "waitForElement",
+    "label": "Wait for element"
+  },
+  "clients/encore/src/pages/base.page.ts:158": {
+    "class": "BasePage",
+    "method": "waitForPageLoad",
+    "label": "Wait for page load"
+  },
+  "clients/encore/src/pages/base.page.ts:212": {
+    "class": "BasePage",
+    "method": "takeScreenshot",
+    "label": "Take screenshot"
+  },
+  "clients/encore/src/pages/base.page.ts:239": {
+    "class": "BasePage",
+    "method": "navigateIfNeeded",
+    "label": "Navigate if needed"
+  },
+  "clients/encore/src/pages/base.page.ts:249": {
+    "class": "BasePage",
+    "method": "getPageTitle",
+    "label": "Get page title"
+  },
+  "clients/encore/src/pages/base.page.ts:254": {
+    "class": "BasePage",
+    "method": "getTextContent",
+    "label": "Get text content"
+  },
+  "clients/encore/src/pages/base.page.ts:269": {
+    "class": "BasePage",
+    "method": "isElementVisible",
+    "label": "Is element visible"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:25": {
+    "class": "LocationFormHelpers",
+    "method": "waitForFormReady",
+    "label": "Wait for form ready"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:40": {
+    "class": "LocationFormHelpers",
+    "method": "getCheckboxState",
+    "label": "Get checkbox state"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:47": {
+    "class": "LocationFormHelpers",
+    "method": "checkCheckbox",
+    "label": "Check checkbox"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:53": {
+    "class": "LocationFormHelpers",
+    "method": "uncheckCheckbox",
+    "label": "Uncheck checkbox"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:59": {
+    "class": "LocationFormHelpers",
+    "method": "toggleCheckbox",
+    "label": "Toggle checkbox"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:80": {
+    "class": "LocationFormHelpers",
+    "method": "getCheckboxLabel",
+    "label": "Get checkbox label"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:92": {
+    "class": "LocationFormHelpers",
+    "method": "getSpinState",
+    "label": "Get spin state"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:103": {
+    "class": "LocationFormHelpers",
+    "method": "setSpinValue",
+    "label": "Set spin value"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:118": {
+    "class": "LocationFormHelpers",
+    "method": "getTextValue",
+    "label": "Get text value"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:123": {
+    "class": "LocationFormHelpers",
+    "method": "fillText",
+    "label": "Fill text"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:133": {
+    "class": "LocationFormHelpers",
+    "method": "hasValidationError",
+    "label": "Has validation error"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:146": {
+    "class": "LocationFormHelpers",
+    "method": "hasErrorDialog",
+    "label": "Has error dialog"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:151": {
+    "class": "LocationFormHelpers",
+    "method": "getErrorDialogMessage",
+    "label": "Get error dialog message"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:157": {
+    "class": "LocationFormHelpers",
+    "method": "dismissErrorDialog",
+    "label": "Dismiss error dialog"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:165": {
+    "class": "LocationFormHelpers",
+    "method": "getAttribute",
+    "label": "Get attribute"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:170": {
+    "class": "LocationFormHelpers",
+    "method": "getMaxLength",
+    "label": "Get max length"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:176": {
+    "class": "LocationFormHelpers",
+    "method": "isFieldDisabled",
+    "label": "Is field disabled"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:181": {
+    "class": "LocationFormHelpers",
+    "method": "verifyCheckboxDefaults",
+    "label": "Verify checkbox defaults"
+  },
+  "clients/encore/src/pages/components/location-form-helpers.component.ts:194": {
+    "class": "LocationFormHelpers",
+    "method": "verifyCheckboxDisabledStates",
+    "label": "Verify checkbox disabled states"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:55": {
+    "class": "CorporatePricingOverridePage",
+    "method": "gotoOverride",
+    "label": "Goto override"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:63": {
+    "class": "CorporatePricingOverridePage",
+    "method": "open",
+    "label": "Open"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:68": {
+    "class": "CorporatePricingOverridePage",
+    "method": "waitForLoaded",
+    "label": "Wait for loaded"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:74": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getActiveTab",
+    "label": "Get active tab"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:81": {
+    "class": "CorporatePricingOverridePage",
+    "method": "switchOverrideTab",
+    "label": "Switch override tab"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:94": {
+    "class": "CorporatePricingOverridePage",
+    "method": "openLocationPicker",
+    "label": "Open location picker"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:105": {
+    "class": "CorporatePricingOverridePage",
+    "method": "selectLocation",
+    "label": "Select location"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:131": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getCurrencyOptions",
+    "label": "Get currency options"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:140": {
+    "class": "CorporatePricingOverridePage",
+    "method": "selectCurrency",
+    "label": "Select currency"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:148": {
+    "class": "CorporatePricingOverridePage",
+    "method": "resetCurrencyFilter",
+    "label": "Reset currency filter"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:155": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getRowsPerPageOptions",
+    "label": "Get rows per page options"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:164": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getActiveOnlyState",
+    "label": "Get active only state"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:169": {
+    "class": "CorporatePricingOverridePage",
+    "method": "setActiveOnly",
+    "label": "Set active only"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:183": {
+    "class": "CorporatePricingOverridePage",
+    "method": "filterProductGroups",
+    "label": "Filter product groups"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:189": {
+    "class": "CorporatePricingOverridePage",
+    "method": "clearFilter",
+    "label": "Clear filter"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:195": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getColumnHeaders",
+    "label": "Get column headers"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:200": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getColumnCount",
+    "label": "Get column count"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:205": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getVisibleRowCount",
+    "label": "Get visible row count"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:210": {
+    "class": "CorporatePricingOverridePage",
+    "method": "findRowByProductGroup",
+    "label": "Find row by product group"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:216": {
+    "class": "CorporatePricingOverridePage",
+    "method": "isEmpty",
+    "label": "Is empty"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:221": {
+    "class": "CorporatePricingOverridePage",
+    "method": "readActiveState",
+    "label": "Read active state"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:239": {
+    "class": "CorporatePricingOverridePage",
+    "method": "readOverridePrice",
+    "label": "Read override price"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:244": {
+    "class": "CorporatePricingOverridePage",
+    "method": "readMaxDiscount",
+    "label": "Read max discount"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:249": {
+    "class": "CorporatePricingOverridePage",
+    "method": "waitForGridRows",
+    "label": "Wait for grid rows"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:258": {
+    "class": "CorporatePricingOverridePage",
+    "method": "reloadAndReselect",
+    "label": "Reload and reselect"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:288": {
+    "class": "CorporatePricingOverridePage",
+    "method": "setOverridePrice",
+    "label": "Set override price"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:293": {
+    "class": "CorporatePricingOverridePage",
+    "method": "setMaxDiscount",
+    "label": "Set max discount"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:303": {
+    "class": "CorporatePricingOverridePage",
+    "method": "tryMaxDiscount",
+    "label": "Try max discount"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:316": {
+    "class": "CorporatePricingOverridePage",
+    "method": "peekOverridePriceEditor",
+    "label": "Peek override price editor"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:329": {
+    "class": "CorporatePricingOverridePage",
+    "method": "probeOverridePriceInput",
+    "label": "Probe override price input"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:338": {
+    "class": "CorporatePricingOverridePage",
+    "method": "toggleActive",
+    "label": "Toggle active"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:343": {
+    "class": "CorporatePricingOverridePage",
+    "method": "setActive",
+    "label": "Set active"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:348": {
+    "class": "CorporatePricingOverridePage",
+    "method": "isOverrideSaveEnabled",
+    "label": "Is override save enabled"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:360": {
+    "class": "CorporatePricingOverridePage",
+    "method": "saveAndConfirm",
+    "label": "Save and confirm"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:386": {
+    "class": "CorporatePricingOverridePage",
+    "method": "clickSaveAndCancel",
+    "label": "Click save and cancel"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:413": {
+    "class": "CorporatePricingOverridePage",
+    "method": "ensureDefaultState",
+    "label": "Ensure default state"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:451": {
+    "class": "CorporatePricingOverridePage",
+    "method": "openViaSearchActionBar",
+    "label": "Open via search action bar"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:461": {
+    "class": "CorporatePricingOverridePage",
+    "method": "inspectLocationModal",
+    "label": "Inspect location modal"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:493": {
+    "class": "CorporatePricingOverridePage",
+    "method": "openGridOptions",
+    "label": "Open grid options"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:499": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getGridOptionColumns",
+    "label": "Get grid option columns"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:509": {
+    "class": "CorporatePricingOverridePage",
+    "method": "toggleGridColumn",
+    "label": "Toggle grid column"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:515": {
+    "class": "CorporatePricingOverridePage",
+    "method": "closeGridOptions",
+    "label": "Close grid options"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:521": {
+    "class": "CorporatePricingOverridePage",
+    "method": "isGridColumnVisible",
+    "label": "Is grid column visible"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:527": {
+    "class": "CorporatePricingOverridePage",
+    "method": "resetGridToDefault",
+    "label": "Reset grid to default"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:539": {
+    "class": "CorporatePricingOverridePage",
+    "method": "ensureAllGridColumnsVisible",
+    "label": "Ensure all grid columns visible"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:561": {
+    "class": "CorporatePricingOverridePage",
+    "method": "downloadOverrideExport",
+    "label": "Download override export"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:577": {
+    "class": "CorporatePricingOverridePage",
+    "method": "openImportDialog",
+    "label": "Open import dialog"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:583": {
+    "class": "CorporatePricingOverridePage",
+    "method": "readImportDialog",
+    "label": "Read import dialog"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:592": {
+    "class": "CorporatePricingOverridePage",
+    "method": "closeImportDialog",
+    "label": "Close import dialog"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:600": {
+    "class": "CorporatePricingOverridePage",
+    "method": "isImportDialogVisible",
+    "label": "Is import dialog visible"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:605": {
+    "class": "CorporatePricingOverridePage",
+    "method": "probeColumnSort",
+    "label": "Probe column sort"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:624": {
+    "class": "CorporatePricingOverridePage",
+    "method": "searchLocalOffice",
+    "label": "Search local office"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:636": {
+    "class": "CorporatePricingOverridePage",
+    "method": "clearPickerSearch",
+    "label": "Clear picker search"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:646": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getPickerRowCount",
+    "label": "Get picker row count"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:655": {
+    "class": "CorporatePricingOverridePage",
+    "method": "pickerHasRowContaining",
+    "label": "Picker has row containing"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:665": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getPickerRowCountContaining",
+    "label": "Get picker row count containing"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:675": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getPickerActiveCheckboxState",
+    "label": "Get picker active checkbox state"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:686": {
+    "class": "CorporatePricingOverridePage",
+    "method": "toggleLocalOfficePickerActive",
+    "label": "Toggle local office picker active"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:692": {
+    "class": "CorporatePricingOverridePage",
+    "method": "cancelLocationPicker",
+    "label": "Cancel location picker"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:707": {
+    "class": "CorporatePricingOverridePage",
+    "method": "openLocationPickerAndCapturePost",
+    "label": "Open location picker and capture post"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:730": {
+    "class": "CorporatePricingOverridePage",
+    "method": "toggleLocalOfficePickerActiveAndCapturePost",
+    "label": "Toggle local office picker active and capture post"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:747": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getCurrentPriceCells",
+    "label": "Get current price cells"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:764": {
+    "class": "CorporatePricingOverridePage",
+    "method": "sortColumnViaDropdown",
+    "label": "Sort column via dropdown"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:779": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getFirstRowCellText",
+    "label": "Get first row cell text"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:788": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getColumnCellValues",
+    "label": "Get column cell values"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:800": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getItemsFoundTotal",
+    "label": "Get items found total"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:809": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getPaginationButtonStates",
+    "label": "Get pagination button states"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:820": {
+    "class": "CorporatePricingOverridePage",
+    "method": "goToPage",
+    "label": "Go to page"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:835": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getRowsPerPageValue",
+    "label": "Get rows per page value"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:841": {
+    "class": "CorporatePricingOverridePage",
+    "method": "setRowsPerPage",
+    "label": "Set rows per page"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:856": {
+    "class": "CorporatePricingOverridePage",
+    "method": "navigateHomeExpectUnsavedDialog",
+    "label": "Navigate home expect unsaved dialog"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:865": {
+    "class": "CorporatePricingOverridePage",
+    "method": "stayOnPage",
+    "label": "Stay on page"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:876": {
+    "class": "CorporatePricingOverridePage",
+    "method": "discardAndLeave",
+    "label": "Discard and leave"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:889": {
+    "class": "CorporatePricingOverridePage",
+    "method": "openOverridePriceEditorWithKeyboard",
+    "label": "Open override price editor with keyboard"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:899": {
+    "class": "CorporatePricingOverridePage",
+    "method": "closeEditorWithKeyboard",
+    "label": "Close editor with keyboard"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:913": {
+    "class": "CorporatePricingOverridePage",
+    "method": "isProductGroupPickerVisible",
+    "label": "Is product group picker visible"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:923": {
+    "class": "CorporatePricingOverridePage",
+    "method": "getPickerDraggableRowCount",
+    "label": "Get picker draggable row count"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:935": {
+    "class": "CorporatePricingOverridePage",
+    "method": "dragFirstPickerRowToGrid",
+    "label": "Drag first picker row to grid"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:966": {
+    "class": "CorporatePricingOverridePage",
+    "method": "reloadAndReselectLabor",
+    "label": "Reload and reselect labor"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:978": {
+    "class": "CorporatePricingOverridePage",
+    "method": "setLaborOverridePrice",
+    "label": "Set labor override price"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:986": {
+    "class": "CorporatePricingOverridePage",
+    "method": "setLaborMaxDiscount",
+    "label": "Set labor max discount"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:994": {
+    "class": "CorporatePricingOverridePage",
+    "method": "toggleLaborActive",
+    "label": "Toggle labor active"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1003": {
+    "class": "CorporatePricingOverridePage",
+    "method": "ensureLaborDefaultState",
+    "label": "Ensure labor default state"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1023": {
+    "class": "CorporatePricingOverridePage",
+    "method": "revertCellToOriginal",
+    "label": "Revert cell to original"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1034": {
+    "class": "CorporatePricingOverridePage",
+    "method": "revertOverridePriceToOriginal",
+    "label": "Revert override price to original"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1040": {
+    "class": "CorporatePricingOverridePage",
+    "method": "revertMaxDiscountToOriginal",
+    "label": "Revert max discount to original"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1048": {
+    "class": "CorporatePricingOverridePage",
+    "method": "navigateToEquipmentRow",
+    "label": "Navigate to equipment row"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1061": {
+    "class": "CorporatePricingOverridePage",
+    "method": "navigateToLaborRow",
+    "label": "Navigate to labor row"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1073": {
+    "class": "CorporatePricingOverridePage",
+    "method": "reloadAndReselectTab",
+    "label": "Reload and reselect tab"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1082": {
+    "class": "CorporatePricingOverridePage",
+    "method": "editAndRevertToOriginal",
+    "label": "Edit and revert to original"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1115": {
+    "class": "CorporatePricingOverridePage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1149": {
+    "class": "CorporatePricingOverridePage",
+    "method": "probeEditOracle",
+    "label": "Probe edit oracle"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1308": {
+    "class": "CorporatePricingOverridePage",
+    "method": "probeOverridePriceOracle",
+    "label": "Probe override price oracle"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1314": {
+    "class": "CorporatePricingOverridePage",
+    "method": "probeMaxDiscountOracle",
+    "label": "Probe max discount oracle"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1325": {
+    "class": "CorporatePricingOverridePage",
+    "method": "downloadOverrideExportRaw",
+    "label": "Download override export raw"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1346": {
+    "class": "CorporatePricingOverridePage",
+    "method": "fetchExportForLocale",
+    "label": "Fetch export for locale"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1361": {
+    "class": "CorporatePricingOverridePage",
+    "method": "fetchGridStatusForOffice",
+    "label": "Fetch grid status for office"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1374": {
+    "class": "CorporatePricingOverridePage",
+    "method": "toggleSearchPanelAndMeasure",
+    "label": "Toggle search panel and measure"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1401": {
+    "class": "CorporatePricingOverridePage",
+    "method": "readImportUploadState",
+    "label": "Read import upload state"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1409": {
+    "class": "CorporatePricingOverridePage",
+    "method": "attachImportFile",
+    "label": "Attach import file"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1416": {
+    "class": "CorporatePricingOverridePage",
+    "method": "clickImportUpload",
+    "label": "Click import upload"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1431": {
+    "class": "CorporatePricingOverridePage",
+    "method": "submitImportAndCaptureResult",
+    "label": "Submit import and capture result"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1465": {
+    "class": "CorporatePricingOverridePage",
+    "method": "attachImportFileRaw",
+    "label": "Attach import file raw"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1471": {
+    "class": "CorporatePricingOverridePage",
+    "method": "readRowMeta",
+    "label": "Read row meta"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1484": {
+    "class": "CorporatePricingOverridePage",
+    "method": "readImportAlert",
+    "label": "Read import alert"
+  },
+  "clients/encore/src/pages/corporate-override/corporate-override.page.ts:1502": {
+    "class": "CorporatePricingOverridePage",
+    "method": "awaitImportedOverridePrice",
+    "label": "Await imported override price"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:16": {
+    "class": "CorporatePricingDetailPage",
+    "method": "open",
+    "label": "Open"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:22": {
+    "class": "CorporatePricingDetailPage",
+    "method": "openDetailTab",
+    "label": "Open detail tab"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:29": {
+    "class": "CorporatePricingDetailPage",
+    "method": "isDetailTabActive",
+    "label": "Is detail tab active"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:34": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getGridHeaders",
+    "label": "Get grid headers"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:39": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getProductGroupRowCount",
+    "label": "Get product group row count"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:48": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getCellText",
+    "label": "Get cell text"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:62": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getNewPrice",
+    "label": "Get new price"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:67": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getMaxDiscount",
+    "label": "Get max discount"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:72": {
+    "class": "CorporatePricingDetailPage",
+    "method": "priceIsReadOnly",
+    "label": "Price is read only"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:78": {
+    "class": "CorporatePricingDetailPage",
+    "method": "rowHasAddRemoveAffordance",
+    "label": "Row has add remove affordance"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:85": {
+    "class": "CorporatePricingDetailPage",
+    "method": "setNewPrice",
+    "label": "Set new price"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:96": {
+    "class": "CorporatePricingDetailPage",
+    "method": "setMaxDiscount",
+    "label": "Set max discount"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:107": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getSourceItemCount",
+    "label": "Get source item count"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:112": {
+    "class": "CorporatePricingDetailPage",
+    "method": "hasSourceFilter",
+    "label": "Has source filter"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:122": {
+    "class": "CorporatePricingDetailPage",
+    "method": "attemptSourceAdd",
+    "label": "Attempt source add"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:142": {
+    "class": "CorporatePricingDetailPage",
+    "method": "attemptDragAdd",
+    "label": "Attempt drag add"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:153": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getNewPriceAriaInvalid",
+    "label": "Get new price aria invalid"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:158": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getMaxDiscountAriaInvalid",
+    "label": "Get max discount aria invalid"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:163": {
+    "class": "CorporatePricingDetailPage",
+    "method": "clearNewPrice",
+    "label": "Clear new price"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:173": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getMaxDiscountAfterFocus",
+    "label": "Get max discount after focus"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:181": {
+    "class": "CorporatePricingDetailPage",
+    "method": "clearMaxDiscount",
+    "label": "Clear max discount"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:195": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getPaginationNavLabels",
+    "label": "Get pagination nav labels"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:203": {
+    "class": "CorporatePricingDetailPage",
+    "method": "hasPageSizeControl",
+    "label": "Has page size control"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:208": {
+    "class": "CorporatePricingDetailPage",
+    "method": "headerHasSortButton",
+    "label": "Header has sort button"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:214": {
+    "class": "CorporatePricingDetailPage",
+    "method": "getHeaderAriaSort",
+    "label": "Get header aria sort"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:223": {
+    "class": "CorporatePricingDetailPage",
+    "method": "clickSaveButton",
+    "label": "Click save button"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:228": {
+    "class": "CorporatePricingDetailPage",
+    "method": "confirmSaveChangesDialog",
+    "label": "Confirm save changes dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:238": {
+    "class": "CorporatePricingDetailPage",
+    "method": "saveAndConfirm",
+    "label": "Save and confirm"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-detail.page.ts:255": {
+    "class": "CorporatePricingDetailPage",
+    "method": "ensureDefaultState",
+    "label": "Ensure default state"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:32": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "open",
+    "label": "Open"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:38": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getHeading",
+    "label": "Get heading"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:43": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "setName",
+    "label": "Set name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:48": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getName",
+    "label": "Get name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:53": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "setYear",
+    "label": "Set year"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:58": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getYear",
+    "label": "Get year"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:71": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getTypeValue",
+    "label": "Get type value"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:76": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "isTypeDisabled",
+    "label": "Is type disabled"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:81": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getCurrencyValue",
+    "label": "Get currency value"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:86": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getCurrencyOptions",
+    "label": "Get currency options"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:95": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getTabs",
+    "label": "Get tabs"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:103": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "clickDetailTab",
+    "label": "Click detail tab"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:108": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getStrategyTotal",
+    "label": "Get strategy total"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:115": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "hasNoStrategiesYet",
+    "label": "Has no strategies yet"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:120": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "openAddStrategyDialog",
+    "label": "Open add strategy dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:126": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "isAddDialogOpen",
+    "label": "Is add dialog open"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:131": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getDialogFlag",
+    "label": "Get dialog flag"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:141": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "addStrategy",
+    "label": "Add strategy"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:154": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getEmptyNameAddGuard",
+    "label": "Get empty name add guard"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:166": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "cancelAddDialog",
+    "label": "Cancel add dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:175": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "removeStrategy",
+    "label": "Remove strategy"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:182": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getSourceGroupCount",
+    "label": "Get source group count"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:187": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getSourceGroupSample",
+    "label": "Get source group sample"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:196": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "addProductGroupByName",
+    "label": "Add product group by name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:208": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "dragProductGroupByName",
+    "label": "Drag product group by name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:215": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getDetailGridRows",
+    "label": "Get detail grid rows"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:229": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "clickSaveExpectDialog",
+    "label": "Click save expect dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:237": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "cancelSaveDialog",
+    "label": "Cancel save dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:246": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "fillMinimalSavable",
+    "label": "Fill minimal savable"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:263": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "fillSavableWithProductGroup",
+    "label": "Fill savable with product group"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:282": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "confirmSaveAndGetNewId",
+    "label": "Confirm save and get new"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:318": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "readSavedDetailGroups",
+    "label": "Read saved detail groups"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:332": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getYearValidationState",
+    "label": "Get year validation state"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:346": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "setNameAndReadUniqueness",
+    "label": "Set name and read uniqueness"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:366": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "getDetailEmptyStateHint",
+    "label": "Get detail empty state hint"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:377": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "filterSourceGroups",
+    "label": "Filter source groups"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:383": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "clearSourceFilter",
+    "label": "Clear source filter"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-new-pricebook.page.ts:389": {
+    "class": "CorporatePricingNewPricebookPage",
+    "method": "clickStrategyTab",
+    "label": "Click strategy tab"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:142": {
+    "class": "CorporatePricingSearchPage",
+    "method": "open",
+    "label": "Open"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:156": {
+    "class": "CorporatePricingSearchPage",
+    "method": "waitForGridLoaded",
+    "label": "Wait for grid loaded"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:162": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getColumnHeaders",
+    "label": "Get column headers"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:167": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getColumnCount",
+    "label": "Get column count"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:172": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getVisibleRowCount",
+    "label": "Get visible row count"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:177": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getItemCountText",
+    "label": "Get item count text"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:182": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getItemCountNumber",
+    "label": "Get item count number"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:188": {
+    "class": "CorporatePricingSearchPage",
+    "method": "booleanCellsValid",
+    "label": "Boolean cells valid"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:205": {
+    "class": "CorporatePricingSearchPage",
+    "method": "readBooleanCell",
+    "label": "Read boolean cell"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:212": {
+    "class": "CorporatePricingSearchPage",
+    "method": "findRowByName",
+    "label": "Find row by name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:230": {
+    "class": "CorporatePricingSearchPage",
+    "method": "fillPricebookFilter",
+    "label": "Fill Pricebook filter"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:235": {
+    "class": "CorporatePricingSearchPage",
+    "method": "clearPricebookFilter",
+    "label": "Clear Pricebook filter"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:240": {
+    "class": "CorporatePricingSearchPage",
+    "method": "fillStrategyFilter",
+    "label": "Fill strategy filter"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:245": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getPricebookFilterValue",
+    "label": "Get Pricebook filter value"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:250": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getStrategyFilterValue",
+    "label": "Get strategy filter value"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:267": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getCheckboxState",
+    "label": "Get checkbox state"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:272": {
+    "class": "CorporatePricingSearchPage",
+    "method": "setCheckbox",
+    "label": "Set checkbox"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:292": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getCurrencyOptions",
+    "label": "Get currency options"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:297": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getLocationOptions",
+    "label": "Get location options"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:302": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getCurrencyDefaultText",
+    "label": "Get currency default text"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:307": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getLocationDefaultText",
+    "label": "Get location default text"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:312": {
+    "class": "CorporatePricingSearchPage",
+    "method": "selectCurrency",
+    "label": "Select currency"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:325": {
+    "class": "CorporatePricingSearchPage",
+    "method": "selectFirstRealLocation",
+    "label": "Select first real location"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:354": {
+    "class": "CorporatePricingSearchPage",
+    "method": "probePricebookBoundary",
+    "label": "Probe Pricebook boundary"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:372": {
+    "class": "CorporatePricingSearchPage",
+    "method": "clickSearch",
+    "label": "Click search"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:377": {
+    "class": "CorporatePricingSearchPage",
+    "method": "clickReset",
+    "label": "Click reset"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:387": {
+    "class": "CorporatePricingSearchPage",
+    "method": "searchAndWaitForList",
+    "label": "Search and wait for list"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:422": {
+    "class": "CorporatePricingSearchPage",
+    "method": "clickPricebookName",
+    "label": "Click Pricebook name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:434": {
+    "class": "CorporatePricingSearchPage",
+    "method": "openNewMenu",
+    "label": "Open new menu"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:450": {
+    "class": "CorporatePricingSearchPage",
+    "method": "clickNewEquipmentPricing",
+    "label": "Click new equipment pricing"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:456": {
+    "class": "CorporatePricingSearchPage",
+    "method": "clickNewLaborPricing",
+    "label": "Click new labor pricing"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:468": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getAllButtonTexts",
+    "label": "Get all button texts"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:486": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getNewMenuItemTexts",
+    "label": "Get new menu item texts"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:495": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getGridHeaders",
+    "label": "Get grid headers"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:500": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getPricebookNameCells",
+    "label": "Get Pricebook name cells"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:514": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getRowCellText",
+    "label": "Get row cell text"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:529": {
+    "class": "CorporatePricingSearchPage",
+    "method": "waitForCurrencyColumnResolved",
+    "label": "Wait for currency column resolved"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:560": {
+    "class": "CorporatePricingSearchPage",
+    "method": "openExportMenu",
+    "label": "Open export menu"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:565": {
+    "class": "CorporatePricingSearchPage",
+    "method": "openImportMenu",
+    "label": "Open import menu"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:570": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getMenuVariants",
+    "label": "Get menu variants"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:583": {
+    "class": "CorporatePricingSearchPage",
+    "method": "dismissToolbarMenuWithOutsideClick",
+    "label": "Dismiss toolbar menu with outside click"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:607": {
+    "class": "CorporatePricingSearchPage",
+    "method": "openExportVariantDialog",
+    "label": "Open export variant dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:614": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getExportDialogInfo",
+    "label": "Get export dialog info"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:624": {
+    "class": "CorporatePricingSearchPage",
+    "method": "isExportContinueEnabled",
+    "label": "Is export continue enabled"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:643": {
+    "class": "CorporatePricingSearchPage",
+    "method": "setExportYears",
+    "label": "Set export years"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:655": {
+    "class": "CorporatePricingSearchPage",
+    "method": "attemptExtraExportYear",
+    "label": "Attempt extra export year"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:670": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getExportSelectedYears",
+    "label": "Get export selected years"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:677": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getExportCurrencyOptions",
+    "label": "Get export currency options"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:686": {
+    "class": "CorporatePricingSearchPage",
+    "method": "setExportCurrency",
+    "label": "Set export currency"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:692": {
+    "class": "CorporatePricingSearchPage",
+    "method": "cancelExportDialog",
+    "label": "Cancel export dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:698": {
+    "class": "CorporatePricingSearchPage",
+    "method": "closeExportDialog",
+    "label": "Close export dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:709": {
+    "class": "CorporatePricingSearchPage",
+    "method": "cancelExportAndCheckNoRequest",
+    "label": "Cancel export and check no request"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:732": {
+    "class": "CorporatePricingSearchPage",
+    "method": "downloadExportVariant",
+    "label": "Download export variant"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:750": {
+    "class": "CorporatePricingSearchPage",
+    "method": "continueExportAndCaptureRequest",
+    "label": "Continue export and capture request"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:783": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getImportDialogInfo",
+    "label": "Get import dialog info"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:792": {
+    "class": "CorporatePricingSearchPage",
+    "method": "closeImportDialog",
+    "label": "Close import dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:831": {
+    "class": "CorporatePricingSearchPage",
+    "method": "cancelPublishModal",
+    "label": "Cancel publish modal"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:841": {
+    "class": "CorporatePricingSearchPage",
+    "method": "openImportAllVariantDialog",
+    "label": "Open import all variant dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:848": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getImportAllDialogInfo",
+    "label": "Get import all dialog info"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:858": {
+    "class": "CorporatePricingSearchPage",
+    "method": "isImportAllContinueEnabled",
+    "label": "Is import all continue enabled"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:872": {
+    "class": "CorporatePricingSearchPage",
+    "method": "setImportAllYears",
+    "label": "Set import all years"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:885": {
+    "class": "CorporatePricingSearchPage",
+    "method": "attemptExtraImportAllYear",
+    "label": "Attempt extra import all year"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:896": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getImportAllSelectedYears",
+    "label": "Get import all selected years"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:903": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getImportAllCurrencyOptions",
+    "label": "Get import all currency options"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:912": {
+    "class": "CorporatePricingSearchPage",
+    "method": "setImportAllCurrency",
+    "label": "Set import all currency"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:918": {
+    "class": "CorporatePricingSearchPage",
+    "method": "cancelImportAllDialog",
+    "label": "Cancel import all dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:924": {
+    "class": "CorporatePricingSearchPage",
+    "method": "clickImportAllContinue",
+    "label": "Click import all continue"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:930": {
+    "class": "CorporatePricingSearchPage",
+    "method": "openImportAllUploadFor",
+    "label": "Open import all upload for"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:944": {
+    "class": "CorporatePricingSearchPage",
+    "method": "chooseImportAllFile",
+    "label": "Choose import all file"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1015": {
+    "class": "CorporatePricingSearchPage",
+    "method": "publishStagedImport",
+    "label": "Publish staged import"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1066": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getPublishModalInfo",
+    "label": "Get publish modal info"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1076": {
+    "class": "CorporatePricingSearchPage",
+    "method": "checkOneStagedRow",
+    "label": "Check one staged row"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1086": {
+    "class": "CorporatePricingSearchPage",
+    "method": "captureImportAllCellValue",
+    "label": "Capture import all cell value"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1107": {
+    "class": "CorporatePricingSearchPage",
+    "method": "captureImportAllMergeCanaries",
+    "label": "Capture import all merge canaries"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1135": {
+    "class": "CorporatePricingSearchPage",
+    "method": "buildImportAllSingleCellFixture",
+    "label": "Build import all single cell fixture"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1157": {
+    "class": "CorporatePricingSearchPage",
+    "method": "buildImportAllMultiCellFixture",
+    "label": "Build import all multi cell fixture"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1187": {
+    "class": "CorporatePricingSearchPage",
+    "method": "importDialogCount",
+    "label": "Import dialog count"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1192": {
+    "class": "CorporatePricingSearchPage",
+    "method": "clickLocPricingExportAndCaptureUrl",
+    "label": "Click Location Pricing export"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1243": {
+    "class": "CorporatePricingSearchPage",
+    "method": "downloadLocPricingExport",
+    "label": "Download Location Pricing export"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1248": {
+    "class": "CorporatePricingSearchPage",
+    "method": "openLocPricingImportDialog",
+    "label": "Open Location pricing import dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1269": {
+    "class": "CorporatePricingSearchPage",
+    "method": "uploadFileToOpenDialog",
+    "label": "Upload file to open dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1316": {
+    "class": "CorporatePricingSearchPage",
+    "method": "locPricingImport",
+    "label": "Location pricing import"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1328": {
+    "class": "CorporatePricingSearchPage",
+    "method": "captureLocPricingCsvRows",
+    "label": "Capture Location Pricing CSV rows"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1341": {
+    "class": "CorporatePricingSearchPage",
+    "method": "restoreLocPricingRows",
+    "label": "Restore Location pricing rows"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1353": {
+    "class": "CorporatePricingSearchPage",
+    "method": "openGridOptions",
+    "label": "Open grid options"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1368": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getGridOptionColumns",
+    "label": "Get grid option columns"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1383": {
+    "class": "CorporatePricingSearchPage",
+    "method": "toggleGridColumn",
+    "label": "Toggle grid column"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1388": {
+    "class": "CorporatePricingSearchPage",
+    "method": "closeGridOptions",
+    "label": "Close grid options"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1394": {
+    "class": "CorporatePricingSearchPage",
+    "method": "resetGridToDefaultView",
+    "label": "Reset grid to default view"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1399": {
+    "class": "CorporatePricingSearchPage",
+    "method": "isGridColumnVisible",
+    "label": "Is grid column visible"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1411": {
+    "class": "CorporatePricingSearchPage",
+    "method": "ensureAllGridColumnsVisible",
+    "label": "Ensure all grid columns visible"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1435": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getColumnIndexByName",
+    "label": "Get column index by name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1442": {
+    "class": "CorporatePricingSearchPage",
+    "method": "readColumnForVisibleRows",
+    "label": "Read column for visible rows"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1453": {
+    "class": "CorporatePricingSearchPage",
+    "method": "readBooleanColumnForVisibleRows",
+    "label": "Read boolean column for visible rows"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1464": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getFirstNPriceBookNames",
+    "label": "Get first n price book names"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1473": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getTbodyRowCount",
+    "label": "Get tbody row count"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1478": {
+    "class": "CorporatePricingSearchPage",
+    "method": "hasNoResultsMessage",
+    "label": "Has no results message"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1483": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getPricebookLinkCellCount",
+    "label": "Get Pricebook link cell count"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1492": {
+    "class": "CorporatePricingSearchPage",
+    "method": "hasPageSizeControl",
+    "label": "Has page size control"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1497": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getPageSizeValue",
+    "label": "Get page size value"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1502": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getPageSizeOptions",
+    "label": "Get page size options"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1511": {
+    "class": "CorporatePricingSearchPage",
+    "method": "setPageSize",
+    "label": "Set page size"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1522": {
+    "class": "CorporatePricingSearchPage",
+    "method": "hasPageNav",
+    "label": "Has page nav"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1527": {
+    "class": "CorporatePricingSearchPage",
+    "method": "isPageNavDisabled",
+    "label": "Is page nav disabled"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1534": {
+    "class": "CorporatePricingSearchPage",
+    "method": "clickPageNav",
+    "label": "Click page nav"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1544": {
+    "class": "CorporatePricingSearchPage",
+    "method": "columnHeaderHasButton",
+    "label": "Column header has button"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1549": {
+    "class": "CorporatePricingSearchPage",
+    "method": "clickColumnHeaderSort",
+    "label": "Click column header sort"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-search.page.ts:1557": {
+    "class": "CorporatePricingSearchPage",
+    "method": "getColumnAriaSort",
+    "label": "Get column aria sort"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:15": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "open",
+    "label": "Open"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:22": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "isStrategyTabActive",
+    "label": "Is strategy tab active"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:27": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "clickDetailTab",
+    "label": "Click detail tab"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:32": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "getHeaderField",
+    "label": "Get header field"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:52": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "headerFieldsAreReadOnly",
+    "label": "Header fields are read only"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:59": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "getTabs",
+    "label": "Get tabs"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:68": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "hasHistoryTab",
+    "label": "Has history tab"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:73": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "getStrategyTotal",
+    "label": "Get strategy total"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:84": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "selectStrategy",
+    "label": "Select strategy"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:90": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "selectFirstStrategy",
+    "label": "Select first strategy"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:96": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "isRemoveVisible",
+    "label": "Is remove visible"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:107": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "getStrategyName",
+    "label": "Get strategy name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:112": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "setStrategyName",
+    "label": "Set strategy name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:117": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "getFlag",
+    "label": "Get flag"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:126": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "hasLocationsTable",
+    "label": "Has locations table"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:131": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "getStrategyLocations",
+    "label": "Get strategy locations"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:148": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "openAddStrategyDialog",
+    "label": "Open add strategy dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:154": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "isAddDialogOpen",
+    "label": "Is add dialog open"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:159": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "addStrategy",
+    "label": "Add strategy"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:169": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "cancelAddDialog",
+    "label": "Cancel add dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:178": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "removeStrategy",
+    "label": "Remove strategy"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:184": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "isDirty",
+    "label": "Is dirty"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:202": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "saveAndConfirm",
+    "label": "Save and confirm"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:224": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "fillDialogName",
+    "label": "Fill dialog name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:229": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "getDialogName",
+    "label": "Get dialog name"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:234": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "isDialogAddEnabled",
+    "label": "Is dialog add enabled"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:239": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "getDialogFlag",
+    "label": "Get dialog flag"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:248": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "setDialogFlag",
+    "label": "Set dialog flag"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:255": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "clickDialogAdd",
+    "label": "Click dialog add"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:262": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "clickDialogAddExpectingRejection",
+    "label": "Click dialog add expecting rejection"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:268": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "getDialogError",
+    "label": "Get dialog error"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:274": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "closeAddDialog",
+    "label": "Close add dialog"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:283": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "addStrategyWithFlags",
+    "label": "Add strategy with flags"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:293": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "setEditorFlag",
+    "label": "Set editor flag"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:300": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "hasStrategy",
+    "label": "Has strategy"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:305": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "searchStrategies",
+    "label": "Search strategies"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:311": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "clickBackBreadcrumb",
+    "label": "Click back breadcrumb"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:316": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "isUnsavedChangesPromptVisible",
+    "label": "Is unsaved changes prompt visible"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:321": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "resolveUnsavedChangesPrompt",
+    "label": "Resolve unsaved changes prompt"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing-strategy.page.ts:345": {
+    "class": "CorporatePricingStrategyPage",
+    "method": "ensureDefaultState",
+    "label": "Ensure default state"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing.page.ts:35": {
+    "class": "CorporatePricingBasePage",
+    "method": "gotoSearch",
+    "label": "Goto search"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing.page.ts:41": {
+    "class": "CorporatePricingBasePage",
+    "method": "gotoDetails",
+    "label": "Goto details"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing.page.ts:47": {
+    "class": "CorporatePricingBasePage",
+    "method": "gotoNewPricebook",
+    "label": "Goto new Pricebook"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing.page.ts:58": {
+    "class": "CorporatePricingBasePage",
+    "method": "switchTab",
+    "label": "Switch tab"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing.page.ts:72": {
+    "class": "CorporatePricingBasePage",
+    "method": "readGridRowsByContent",
+    "label": "Read grid rows by content"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing.page.ts:97": {
+    "class": "CorporatePricingBasePage",
+    "method": "findGridRowByContent",
+    "label": "Find grid row by content"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing.page.ts:108": {
+    "class": "CorporatePricingBasePage",
+    "method": "getSearchItemCount",
+    "label": "Get search item count"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing.page.ts:121": {
+    "class": "CorporatePricingBasePage",
+    "method": "clickSave",
+    "label": "Click save"
+  },
+  "clients/encore/src/pages/corporate-pricing/corporate-pricing.page.ts:128": {
+    "class": "CorporatePricingBasePage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:25": {
+    "class": "LocalOfficeEctPage",
+    "method": "navigateToEctTab",
+    "label": "Open ECT Settings tab"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:66": {
+    "class": "LocalOfficeEctPage",
+    "method": "isEctFixedCostsSaveEnabled",
+    "label": "Is ECT Settings fixed costs save enabled"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:71": {
+    "class": "LocalOfficeEctPage",
+    "method": "isEctLaborCostsSaveEnabled",
+    "label": "Is ECT Settings labor costs save enabled"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:83": {
+    "class": "LocalOfficeEctPage",
+    "method": "clickSaveFixedCosts",
+    "label": "Click save fixed costs"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:90": {
+    "class": "LocalOfficeEctPage",
+    "method": "clickSaveLaborCosts",
+    "label": "Click save labor costs"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:110": {
+    "class": "LocalOfficeEctPage",
+    "method": "getEctFieldValue",
+    "label": "Get ECT Settings field value"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:115": {
+    "class": "LocalOfficeEctPage",
+    "method": "getEventProfitTargetRowCount",
+    "label": "Get event profit target row count"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:120": {
+    "class": "LocalOfficeEctPage",
+    "method": "isEventProfitTargetReadOnly",
+    "label": "Is event profit target read only"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:125": {
+    "class": "LocalOfficeEctPage",
+    "method": "getSubRentalMatrixRowCount",
+    "label": "Get sub rental matrix row count"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:130": {
+    "class": "LocalOfficeEctPage",
+    "method": "isSubRentalReadOnly",
+    "label": "Is sub rental read only"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:135": {
+    "class": "LocalOfficeEctPage",
+    "method": "getLaborCostRowCount",
+    "label": "Get labor cost row count"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:140": {
+    "class": "LocalOfficeEctPage",
+    "method": "getLaborCostValue",
+    "label": "Get labor cost value"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:148": {
+    "class": "LocalOfficeEctPage",
+    "method": "fillLaborCost",
+    "label": "Fill labor cost"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:165": {
+    "class": "LocalOfficeEctPage",
+    "method": "getFirstLaborClassName",
+    "label": "Get first labor class name"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:171": {
+    "class": "LocalOfficeEctPage",
+    "method": "getLastLaborClassName",
+    "label": "Get last labor class name"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:177": {
+    "class": "LocalOfficeEctPage",
+    "method": "isLaborClassReadOnly",
+    "label": "Is labor class read only"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:183": {
+    "class": "LocalOfficeEctPage",
+    "method": "isLaborCostEditable",
+    "label": "Is labor cost editable"
+  },
+  "clients/encore/src/pages/local-office/local-office-ect.page.ts:189": {
+    "class": "LocalOfficeEctPage",
+    "method": "getTableRowTexts",
+    "label": "Get table row texts"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:16": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "navigateToHistoryTab",
+    "label": "Navigate to history tab"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:28": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "getHistoryColumnHeaderCount",
+    "label": "Get history column header count"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:33": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "isHistoryTableEmpty",
+    "label": "Is history table empty"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:39": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "getHistorySortButtonCount",
+    "label": "Get history sort button count"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:44": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "getHistoryColumnHeaders",
+    "label": "Get history column headers"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:55": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "getHistoryColumnByHeader",
+    "label": "Get history column by header"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:71": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "getHistoryRowValues",
+    "label": "Get history row values"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:80": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "sortHistoryByModifiedOnDesc",
+    "label": "Sort history by modified on desc"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:99": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "isHistoryTabReadOnly",
+    "label": "Is history tab read only"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:110": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "getHistoryPaginationText",
+    "label": "Get history pagination text"
+  },
+  "clients/encore/src/pages/local-office/local-office-history.page.ts:117": {
+    "class": "LocalOfficeHistoryPage",
+    "method": "getHistoryPaginationButtonCount",
+    "label": "Get history pagination button count"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:25": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "navigateToBasicInfoTab",
+    "label": "Navigate to basic info tab"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:33": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "reloadBasicInfo",
+    "label": "Reload basic info"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:40": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:45": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "waitForSaveToEnable",
+    "label": "Wait for save to enable"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:51": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "clickSaveAndConfirm",
+    "label": "Click save and confirm"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:56": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "clickSaveAndCancel",
+    "label": "Click save and cancel"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:70": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getInputValue",
+    "label": "Get input value"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:75": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "fillAndTab",
+    "label": "Fill and tab"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:88": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "clearAndTab",
+    "label": "Clear and tab"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:97": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "isFieldInvalid",
+    "label": "Is field invalid"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:102": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "expectInvalid",
+    "label": "Expect invalid"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:107": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "expectValid",
+    "label": "Expect valid"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:112": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getCheckboxState",
+    "label": "Get checkbox state"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:117": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "checkCheckbox",
+    "label": "Check checkbox"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:122": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "uncheckCheckbox",
+    "label": "Uncheck checkbox"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:127": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getComboboxValue",
+    "label": "Get combobox value"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:132": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getComboboxOptionsList",
+    "label": "Get combobox options list"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:137": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "selectComboboxExact",
+    "label": "Select combobox exact"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:142": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "isTabSelected",
+    "label": "Is tab selected"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:147": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "clickTabDirect",
+    "label": "Click tab direct"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:159": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "clickTab",
+    "label": "Click tab"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:167": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "waitForBasicInfoForm",
+    "label": "Wait for basic info form"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:179": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getSectionRowCount",
+    "label": "Get section row count"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:184": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getSectionNameByIndex",
+    "label": "Get section name by index"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:190": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getSectionNames",
+    "label": "Get section names"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:203": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "isSectionActive",
+    "label": "Is section active"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:209": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "toggleSectionActive",
+    "label": "Toggle section active"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:215": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "editSectionName",
+    "label": "Edit section name"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:225": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "editSectionNameAndCancel",
+    "label": "Edit section name and cancel"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:235": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "addSection",
+    "label": "Add section"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:243": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "clickDefaultSection",
+    "label": "Click default section"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:255": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "isRoomTableEmpty",
+    "label": "Is room table empty"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:260": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getRoomRowCount",
+    "label": "Get room row count"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:265": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getRoomNames",
+    "label": "Get room names"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:278": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "isRoomActive",
+    "label": "Is room active"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:284": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "toggleRoomActive",
+    "label": "Toggle room active"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:290": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "editRoomName",
+    "label": "Edit room name"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:300": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "addRoom",
+    "label": "Add room"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:308": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getLogoPreviewSrc",
+    "label": "Get logo preview src"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:313": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "getExemptCount",
+    "label": "Get exempt count"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:319": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "toggleExemption",
+    "label": "Toggle exemption"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:325": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "clickUnsavedStay",
+    "label": "Click unsaved stay"
+  },
+  "clients/encore/src/pages/local-office/local-office-settings.page.ts:333": {
+    "class": "LocalOfficeSettingsPage",
+    "method": "clickUnsavedDiscard",
+    "label": "Click unsaved discard"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:14": {
+    "class": "LocationAccountAddressPage",
+    "method": "isOnAccountAndAddressTab",
+    "label": "Is on account and address tab"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:24": {
+    "class": "LocationAccountAddressPage",
+    "method": "navigateToAccountAndAddressTab",
+    "label": "Navigate to account and address tab"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:40": {
+    "class": "LocationAccountAddressPage",
+    "method": "isVenueNameDisabled",
+    "label": "Is venue name disabled"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:45": {
+    "class": "LocationAccountAddressPage",
+    "method": "getVenueNameValue",
+    "label": "Get venue name value"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:50": {
+    "class": "LocationAccountAddressPage",
+    "method": "getPhone1Value",
+    "label": "Get phone1 value"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:55": {
+    "class": "LocationAccountAddressPage",
+    "method": "getPhone2Value",
+    "label": "Get phone2 value"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:60": {
+    "class": "LocationAccountAddressPage",
+    "method": "clearPhone1AndBlur",
+    "label": "Clear phone1 and blur"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:68": {
+    "class": "LocationAccountAddressPage",
+    "method": "fillPhone1",
+    "label": "Fill phone1"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:74": {
+    "class": "LocationAccountAddressPage",
+    "method": "fillPhone2",
+    "label": "Fill phone2"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:80": {
+    "class": "LocationAccountAddressPage",
+    "method": "isPhone1Invalid",
+    "label": "Is phone1 invalid"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:86": {
+    "class": "LocationAccountAddressPage",
+    "method": "isPhone2Invalid",
+    "label": "Is phone2 invalid"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:92": {
+    "class": "LocationAccountAddressPage",
+    "method": "isPhone1ErrorIconVisible",
+    "label": "Is phone1 error icon visible"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:100": {
+    "class": "LocationAccountAddressPage",
+    "method": "getVenueAddressText",
+    "label": "Get venue address text"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:116": {
+    "class": "LocationAccountAddressPage",
+    "method": "getVenueCityText",
+    "label": "Get venue city text"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:143": {
+    "class": "LocationAccountAddressPage",
+    "method": "getMasterAddressBlock",
+    "label": "Get master address block"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:149": {
+    "class": "LocationAccountAddressPage",
+    "method": "getMasterCityText",
+    "label": "Get master city text"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:155": {
+    "class": "LocationAccountAddressPage",
+    "method": "isVenueCardVisible",
+    "label": "Is venue card visible"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:161": {
+    "class": "LocationAccountAddressPage",
+    "method": "isMasterCardVisible",
+    "label": "Is master card visible"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:171": {
+    "class": "LocationAccountAddressPage",
+    "method": "isDisplayFieldReadOnly",
+    "label": "Is display field read only"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:182": {
+    "class": "LocationAccountAddressPage",
+    "method": "openAccountListDialog",
+    "label": "Open account list dialog"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:189": {
+    "class": "LocationAccountAddressPage",
+    "method": "isAccountListDialogVisible",
+    "label": "Is account list dialog visible"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:194": {
+    "class": "LocationAccountAddressPage",
+    "method": "searchAccountByName",
+    "label": "Search account by name"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:199": {
+    "class": "LocationAccountAddressPage",
+    "method": "isAccountListSelectDisabled",
+    "label": "Is account list select disabled"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:204": {
+    "class": "LocationAccountAddressPage",
+    "method": "checkAccountListFirstRow",
+    "label": "Check account list first row"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:210": {
+    "class": "LocationAccountAddressPage",
+    "method": "cancelAccountListDialog",
+    "label": "Cancel account list dialog"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:217": {
+    "class": "LocationAccountAddressPage",
+    "method": "resetAccountListSearch",
+    "label": "Reset account list search"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:223": {
+    "class": "LocationAccountAddressPage",
+    "method": "getAccountNameFilterValue",
+    "label": "Get account name filter value"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:228": {
+    "class": "LocationAccountAddressPage",
+    "method": "isAccountListEmpty",
+    "label": "Is account list empty"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:235": {
+    "class": "LocationAccountAddressPage",
+    "method": "accountListResultsContain",
+    "label": "Account list results contain"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:246": {
+    "class": "LocationAccountAddressPage",
+    "method": "searchAccountByAddress",
+    "label": "Search account by address"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:251": {
+    "class": "LocationAccountAddressPage",
+    "method": "searchAccountByCity",
+    "label": "Search account by city"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:256": {
+    "class": "LocationAccountAddressPage",
+    "method": "searchAccountByNumber",
+    "label": "Search account by number"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:283": {
+    "class": "LocationAccountAddressPage",
+    "method": "selectAccountListFirstRow",
+    "label": "Select account list first row"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:291": {
+    "class": "LocationAccountAddressPage",
+    "method": "hasAccountListFilters",
+    "label": "Has account list filters"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:298": {
+    "class": "LocationAccountAddressPage",
+    "method": "hasAccountListActionButtons",
+    "label": "Has account list action buttons"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:305": {
+    "class": "LocationAccountAddressPage",
+    "method": "hasAccountListTable",
+    "label": "Has account list table"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:310": {
+    "class": "LocationAccountAddressPage",
+    "method": "openVenueAddressDialog",
+    "label": "Open venue address dialog"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:317": {
+    "class": "LocationAccountAddressPage",
+    "method": "openMasterAddressDialog",
+    "label": "Open master address dialog"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:324": {
+    "class": "LocationAccountAddressPage",
+    "method": "isAddressDialogVisible",
+    "label": "Is address dialog visible"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:329": {
+    "class": "LocationAccountAddressPage",
+    "method": "getAddressRowCount",
+    "label": "Get address row count"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:340": {
+    "class": "LocationAccountAddressPage",
+    "method": "isAddressSelectDisabled",
+    "label": "Is address select disabled"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:345": {
+    "class": "LocationAccountAddressPage",
+    "method": "isAddressSaveDisabled",
+    "label": "Is address save disabled"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:350": {
+    "class": "LocationAccountAddressPage",
+    "method": "checkAddressFirstRow",
+    "label": "Check address first row"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:356": {
+    "class": "LocationAccountAddressPage",
+    "method": "searchAddress",
+    "label": "Search address"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:368": {
+    "class": "LocationAccountAddressPage",
+    "method": "isAddressSearchVisible",
+    "label": "Is address search visible"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:373": {
+    "class": "LocationAccountAddressPage",
+    "method": "addressResultsContain",
+    "label": "Address results contain"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:383": {
+    "class": "LocationAccountAddressPage",
+    "method": "selectAddressRow",
+    "label": "Select address row"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:393": {
+    "class": "LocationAccountAddressPage",
+    "method": "cancelAddressDialog",
+    "label": "Cancel address dialog"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:400": {
+    "class": "LocationAccountAddressPage",
+    "method": "getAddressTotalText",
+    "label": "Get address total text"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:405": {
+    "class": "LocationAccountAddressPage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:412": {
+    "class": "LocationAccountAddressPage",
+    "method": "clickSave",
+    "label": "Click save"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:417": {
+    "class": "LocationAccountAddressPage",
+    "method": "openSaveDialog",
+    "label": "Open save dialog"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:424": {
+    "class": "LocationAccountAddressPage",
+    "method": "cancelSaveDialog",
+    "label": "Cancel save dialog"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:431": {
+    "class": "LocationAccountAddressPage",
+    "method": "getSaveChangesMessage",
+    "label": "Get save changes message"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:439": {
+    "class": "LocationAccountAddressPage",
+    "method": "saveAndConfirm",
+    "label": "Save and confirm"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:454": {
+    "class": "LocationAccountAddressPage",
+    "method": "ensureDefaultState",
+    "label": "Ensure default state"
+  },
+  "clients/encore/src/pages/locations/location-account-address.page.ts:485": {
+    "class": "LocationAccountAddressPage",
+    "method": "reloadAndNavigate",
+    "label": "Reload and navigate"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:13": {
+    "class": "LocationAutoAddonPage",
+    "method": "navigateToAutoAddonTab",
+    "label": "Navigate to auto addon tab"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:18": {
+    "class": "LocationAutoAddonPage",
+    "method": "isOnAutoAddonTab",
+    "label": "Is on auto addon tab"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:25": {
+    "class": "LocationAutoAddonPage",
+    "method": "navigateFresh",
+    "label": "Navigate fresh"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:34": {
+    "class": "LocationAutoAddonPage",
+    "method": "getCheckboxState",
+    "label": "Get checkbox state"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:39": {
+    "class": "LocationAutoAddonPage",
+    "method": "isCheckboxChecked",
+    "label": "Is checkbox checked"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:51": {
+    "class": "LocationAutoAddonPage",
+    "method": "toggleCheckbox",
+    "label": "Toggle checkbox"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:57": {
+    "class": "LocationAutoAddonPage",
+    "method": "checkCheckbox",
+    "label": "Check checkbox"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:62": {
+    "class": "LocationAutoAddonPage",
+    "method": "uncheckCheckbox",
+    "label": "Uncheck checkbox"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:67": {
+    "class": "LocationAutoAddonPage",
+    "method": "getCheckboxCount",
+    "label": "Get checkbox count"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:80": {
+    "class": "LocationAutoAddonPage",
+    "method": "ensureDefaultState",
+    "label": "Ensure default state"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:113": {
+    "class": "LocationAutoAddonPage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:124": {
+    "class": "LocationAutoAddonPage",
+    "method": "clickSave",
+    "label": "Click save"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:153": {
+    "class": "LocationAutoAddonPage",
+    "method": "isSaveDialogVisible",
+    "label": "Is save dialog visible"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:158": {
+    "class": "LocationAutoAddonPage",
+    "method": "getSaveDialogHeading",
+    "label": "Get save dialog heading"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:163": {
+    "class": "LocationAutoAddonPage",
+    "method": "getSaveDialogBody",
+    "label": "Get save dialog body"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:168": {
+    "class": "LocationAutoAddonPage",
+    "method": "clickSaveButton",
+    "label": "Click save button"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:173": {
+    "class": "LocationAutoAddonPage",
+    "method": "clickSaveCancel",
+    "label": "Click save cancel"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:179": {
+    "class": "LocationAutoAddonPage",
+    "method": "clickSaveOk",
+    "label": "Click save ok"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:189": {
+    "class": "LocationAutoAddonPage",
+    "method": "waitForToast",
+    "label": "Wait for toast"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:196": {
+    "class": "LocationAutoAddonPage",
+    "method": "clickSidebarHome",
+    "label": "Click sidebar home"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:216": {
+    "class": "LocationAutoAddonPage",
+    "method": "isUnsavedDialogVisible",
+    "label": "Is unsaved dialog visible"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:223": {
+    "class": "LocationAutoAddonPage",
+    "method": "getUnsavedDialogHeading",
+    "label": "Get unsaved dialog heading"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:228": {
+    "class": "LocationAutoAddonPage",
+    "method": "getUnsavedDialogBody",
+    "label": "Get unsaved dialog body"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:233": {
+    "class": "LocationAutoAddonPage",
+    "method": "clickUnsavedStay",
+    "label": "Click unsaved stay"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:239": {
+    "class": "LocationAutoAddonPage",
+    "method": "clickUnsavedDiscard",
+    "label": "Click unsaved discard"
+  },
+  "clients/encore/src/pages/locations/location-auto-addon.page.ts:245": {
+    "class": "LocationAutoAddonPage",
+    "method": "clickLocalInformationTab",
+    "label": "Click local information tab"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:18": {
+    "class": "LocationCurrencyPage",
+    "method": "navigateToCurrencyTab",
+    "label": "Navigate to currency tab"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:23": {
+    "class": "LocationCurrencyPage",
+    "method": "isOnCurrencyTab",
+    "label": "Is on currency tab"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:30": {
+    "class": "LocationCurrencyPage",
+    "method": "reloadAndNavigateToCurrencyTab",
+    "label": "Reload and navigate to currency tab"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:47": {
+    "class": "LocationCurrencyPage",
+    "method": "getGridRowCount",
+    "label": "Get grid row count"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:56": {
+    "class": "LocationCurrencyPage",
+    "method": "getColumnHeaders",
+    "label": "Get column headers"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:61": {
+    "class": "LocationCurrencyPage",
+    "method": "isCurrencyCodeReadOnly",
+    "label": "Is currency code read only"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:70": {
+    "class": "LocationCurrencyPage",
+    "method": "getCheckboxState",
+    "label": "Get checkbox state"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:77": {
+    "class": "LocationCurrencyPage",
+    "method": "checkCheckbox",
+    "label": "Check checkbox"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:86": {
+    "class": "LocationCurrencyPage",
+    "method": "uncheckCheckbox",
+    "label": "Uncheck checkbox"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:95": {
+    "class": "LocationCurrencyPage",
+    "method": "getMerchantValue",
+    "label": "Get merchant value"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:100": {
+    "class": "LocationCurrencyPage",
+    "method": "getMerchantOptions",
+    "label": "Get merchant options"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:111": {
+    "class": "LocationCurrencyPage",
+    "method": "isMerchantDropdownAccessible",
+    "label": "Is merchant dropdown accessible"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:127": {
+    "class": "LocationCurrencyPage",
+    "method": "isMerchantNoMatchesFound",
+    "label": "Is merchant no matches found"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:142": {
+    "class": "LocationCurrencyPage",
+    "method": "selectMerchantOption",
+    "label": "Select merchant option"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:152": {
+    "class": "LocationCurrencyPage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:160": {
+    "class": "LocationCurrencyPage",
+    "method": "clickSave",
+    "label": "Click save"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:170": {
+    "class": "LocationCurrencyPage",
+    "method": "clickSaveAndCaptureDialog",
+    "label": "Click save and capture dialog"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:197": {
+    "class": "LocationCurrencyPage",
+    "method": "cancelCurrentDialog",
+    "label": "Cancel current dialog"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:206": {
+    "class": "LocationCurrencyPage",
+    "method": "confirmSaveDialog",
+    "label": "Confirm save dialog"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:216": {
+    "class": "LocationCurrencyPage",
+    "method": "getDialogErrorText",
+    "label": "Get dialog error text"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:229": {
+    "class": "LocationCurrencyPage",
+    "method": "saveAndConfirm",
+    "label": "Save and confirm"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:241": {
+    "class": "LocationCurrencyPage",
+    "method": "ensureDefaultState",
+    "label": "Ensure default state"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:265": {
+    "class": "LocationCurrencyPage",
+    "method": "isAtDefaultState",
+    "label": "Is at default state"
+  },
+  "clients/encore/src/pages/locations/location-currency.page.ts:277": {
+    "class": "LocationCurrencyPage",
+    "method": "triggerBeforeunloadAndStay",
+    "label": "Trigger beforeunload and stay"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:14": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "navigateToBasicInformation",
+    "label": "Navigate to basic information"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:27": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "isOnBasicInformation",
+    "label": "Is on basic information"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:34": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "reloadAndNavigate",
+    "label": "Reload and navigate"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:49": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getOfficeValue",
+    "label": "Get office value"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:51": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getLocalOfficeValue",
+    "label": "Get local office value"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:53": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getLocalOfficeName",
+    "label": "Get local office name"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:55": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getPayToAddress",
+    "label": "Get pay to address"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:57": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getTaxMode",
+    "label": "Get tax mode"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:59": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getCountry",
+    "label": "Get country"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:61": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getRegion",
+    "label": "Get region"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:63": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getServicingBranch",
+    "label": "Get servicing branch"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:65": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getLineOfBusiness",
+    "label": "Get line of business"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:67": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getLiveDateText",
+    "label": "Get live date text"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:70": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "isFieldDisabled",
+    "label": "Is field disabled"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:75": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getActiveState",
+    "label": "Get active state"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:77": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getUnionState",
+    "label": "Get union state"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:79": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getECommerceState",
+    "label": "Get e commerce state"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:81": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getProductionOrdersState",
+    "label": "Get production orders state"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:84": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getLocalOfficeNameMaxLength",
+    "label": "Get local office name max length"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:90": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "setLocalOfficeName",
+    "label": "Set local office name"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:102": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "clearLocalOfficeName",
+    "label": "Clear local office name"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:113": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "setActive",
+    "label": "Set active"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:118": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "setUnion",
+    "label": "Set union"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:124": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "selectTaxMode",
+    "label": "Select tax mode"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:126": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "selectCountry",
+    "label": "Select country"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:128": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "selectRegion",
+    "label": "Select region"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:130": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "selectServicingBranch",
+    "label": "Select servicing branch"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:133": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getTaxModeOptions",
+    "label": "Get tax mode options"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:135": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getCountryOptions",
+    "label": "Get country options"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:137": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getRegionOptions",
+    "label": "Get region options"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:139": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getServicingBranchOptions",
+    "label": "Get servicing branch options"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:142": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "openLiveDatePopover",
+    "label": "Open live date popover"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:149": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "closeLiveDatePopover",
+    "label": "Close live date popover"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:157": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "clickLocalInformationTab",
+    "label": "Click local information tab"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:167": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getJobCostingState",
+    "label": "Get job costing state"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:170": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "isRemitPstVisible",
+    "label": "Is remit pst visible"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:176": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:181": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "waitForSaveButtonEnabled",
+    "label": "Wait for save button enabled"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:187": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "waitForSaveButtonDisabled",
+    "label": "Wait for save button disabled"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:204": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "clickSave",
+    "label": "Click save"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:210": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "saveAndConfirm",
+    "label": "Save and confirm"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:242": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "openPayToDialog",
+    "label": "Open pay to dialog"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:250": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "isPayToDialogVisible",
+    "label": "Is pay to dialog visible"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:255": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "isPayToSelectDisabled",
+    "label": "Is pay to select disabled"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:260": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "hasPayToFilters",
+    "label": "Has pay to filters"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:268": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "hasPayToActionButtons",
+    "label": "Has pay to action buttons"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:275": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "hasPayToTableAndCancel",
+    "label": "Has pay to table and cancel"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:304": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "searchPayToById",
+    "label": "Search Pay To"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:310": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "searchPayToByName",
+    "label": "Search pay to by name"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:316": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "resetPayToSearch",
+    "label": "Reset pay to search"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:322": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "payToResultsContain",
+    "label": "Pay to results contain"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:333": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "getPayToDialogRowCount",
+    "label": "Get pay to dialog row count"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:342": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "isPayToDialogEmpty",
+    "label": "Is pay to dialog empty"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:349": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "checkPayToFirstRow",
+    "label": "Check pay to first row"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:355": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "cancelPayToDialog",
+    "label": "Cancel pay to dialog"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:362": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "closePayToDialog",
+    "label": "Close pay to dialog"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:369": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "escPayToDialog",
+    "label": "Esc pay to dialog"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:382": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "selectPayToById",
+    "label": "Select pay to by"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:392": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "restorePayToOriginal",
+    "label": "Restore pay to original"
+  },
+  "clients/encore/src/pages/locations/location-left-panel-basic-information.page.ts:410": {
+    "class": "LocationLeftPanelBasicInformationPage",
+    "method": "ensureDefaultState",
+    "label": "Ensure default state"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:13": {
+    "class": "LocationLegalPage",
+    "method": "navigateToLegalTab",
+    "label": "Navigate to legal tab"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:18": {
+    "class": "LocationLegalPage",
+    "method": "isOnLegalTab",
+    "label": "Is on legal tab"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:28": {
+    "class": "LocationLegalPage",
+    "method": "clickLegalTab",
+    "label": "Click legal tab"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:42": {
+    "class": "LocationLegalPage",
+    "method": "reloadAndNavigateToLegalTab",
+    "label": "Reload and navigate to legal tab"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:57": {
+    "class": "LocationLegalPage",
+    "method": "getGridRowCount",
+    "label": "Get grid row count"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:66": {
+    "class": "LocationLegalPage",
+    "method": "getColumnHeaders",
+    "label": "Get column headers"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:74": {
+    "class": "LocationLegalPage",
+    "method": "getLanguageName",
+    "label": "Get language name"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:81": {
+    "class": "LocationLegalPage",
+    "method": "isLanguageNameReadOnly",
+    "label": "Is language name read only"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:89": {
+    "class": "LocationLegalPage",
+    "method": "getServiceChargeValue",
+    "label": "Get service charge value"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:94": {
+    "class": "LocationLegalPage",
+    "method": "getTermsValue",
+    "label": "Get terms value"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:99": {
+    "class": "LocationLegalPage",
+    "method": "getServiceChargeOptions",
+    "label": "Get service charge options"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:104": {
+    "class": "LocationLegalPage",
+    "method": "getTermsOptions",
+    "label": "Get terms options"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:109": {
+    "class": "LocationLegalPage",
+    "method": "selectServiceCharge",
+    "label": "Select service charge"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:114": {
+    "class": "LocationLegalPage",
+    "method": "selectTerms",
+    "label": "Select terms"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:119": {
+    "class": "LocationLegalPage",
+    "method": "hasDropdownSearch",
+    "label": "Has dropdown search"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:131": {
+    "class": "LocationLegalPage",
+    "method": "saveAndConfirm",
+    "label": "Save and confirm"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:145": {
+    "class": "LocationLegalPage",
+    "method": "ensureDefaultState",
+    "label": "Ensure default state"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:174": {
+    "class": "LocationLegalPage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:181": {
+    "class": "LocationLegalPage",
+    "method": "clickSave",
+    "label": "Click save"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:187": {
+    "class": "LocationLegalPage",
+    "method": "clickSaveAndGetDialog",
+    "label": "Click save and get dialog"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:203": {
+    "class": "LocationLegalPage",
+    "method": "cancelSaveDialog",
+    "label": "Cancel save dialog"
+  },
+  "clients/encore/src/pages/locations/location-legal.page.ts:212": {
+    "class": "LocationLegalPage",
+    "method": "triggerBeforeunloadAndStay",
+    "label": "Trigger beforeunload and stay"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:22": {
+    "class": "LocationLocalInfoPage",
+    "method": "navigateToLocalInfoTab",
+    "label": "Navigate to local info tab"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:27": {
+    "class": "LocationLocalInfoPage",
+    "method": "isOnLocalInfoTab",
+    "label": "Is on local info tab"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:34": {
+    "class": "LocationLocalInfoPage",
+    "method": "reloadAndNavigateToLocalInfo",
+    "label": "Reload and navigate to local info"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:45": {
+    "class": "LocationLocalInfoPage",
+    "method": "captureLeftPanelBaseline",
+    "label": "Capture left panel baseline"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:64": {
+    "class": "LocationLocalInfoPage",
+    "method": "getBillingType",
+    "label": "Get billing type"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:70": {
+    "class": "LocationLocalInfoPage",
+    "method": "selectBillingType",
+    "label": "Select billing type"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:77": {
+    "class": "LocationLocalInfoPage",
+    "method": "getBillingWay",
+    "label": "Get billing way"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:83": {
+    "class": "LocationLocalInfoPage",
+    "method": "selectBillingWay",
+    "label": "Select billing way"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:91": {
+    "class": "LocationLocalInfoPage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:102": {
+    "class": "LocationLocalInfoPage",
+    "method": "clickSave",
+    "label": "Click save"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:107": {
+    "class": "LocationLocalInfoPage",
+    "method": "waitForSaveToast",
+    "label": "Wait for save toast"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:113": {
+    "class": "LocationLocalInfoPage",
+    "method": "isEffectiveDateDisabled",
+    "label": "Is effective date disabled"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:118": {
+    "class": "LocationLocalInfoPage",
+    "method": "isBillingCycleDisabled",
+    "label": "Is billing cycle disabled"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:123": {
+    "class": "LocationLocalInfoPage",
+    "method": "getBillingCycleValue",
+    "label": "Get billing cycle value"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:129": {
+    "class": "LocationLocalInfoPage",
+    "method": "testBoundaryValue",
+    "label": "Test boundary value"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:200": {
+    "class": "LocationLocalInfoPage",
+    "method": "testDependency",
+    "label": "Test dependency"
+  },
+  "clients/encore/src/pages/locations/location-local-info.page.ts:246": {
+    "class": "LocationLocalInfoPage",
+    "method": "testMaxLength",
+    "label": "Test max length"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:11": {
+    "class": "LocationManagementHistoryPage",
+    "method": "navigateToHistoryTab",
+    "label": "Navigate to history tab"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:35": {
+    "class": "LocationManagementHistoryPage",
+    "method": "returnToBasicInformation",
+    "label": "Return to basic information"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:42": {
+    "class": "LocationManagementHistoryPage",
+    "method": "captureResponsesOnHistoryTabSwitch",
+    "label": "Capture responses on history tab switch"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:63": {
+    "class": "LocationManagementHistoryPage",
+    "method": "isTableVisible",
+    "label": "Is table visible"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:68": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getColumnHeaders",
+    "label": "Get column headers"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:76": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getColumnHeaderCount",
+    "label": "Get column header count"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:81": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getDataRowCount",
+    "label": "Get data row count"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:86": {
+    "class": "LocationManagementHistoryPage",
+    "method": "isTableEmpty",
+    "label": "Is table empty"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:100": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getColumnByHeader",
+    "label": "Get column by header"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:106": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getColumnByIndex",
+    "label": "Get column by index"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:112": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getRowValues",
+    "label": "Get row values"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:121": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getLatestRowValues",
+    "label": "Get latest row values"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:162": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getRowsSinceTimestamp",
+    "label": "Get rows since timestamp"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:211": {
+    "class": "LocationManagementHistoryPage",
+    "method": "clickSortColumn",
+    "label": "Click sort column"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:239": {
+    "class": "LocationManagementHistoryPage",
+    "method": "isSortButtonPresent",
+    "label": "Is sort button present"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:246": {
+    "class": "LocationManagementHistoryPage",
+    "method": "isSortButtonPresentByIndex",
+    "label": "Is sort button present by index"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:252": {
+    "class": "LocationManagementHistoryPage",
+    "method": "sortByModifiedOnDesc",
+    "label": "Sort by modified on desc"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:262": {
+    "class": "LocationManagementHistoryPage",
+    "method": "waitForRecentTopRow",
+    "label": "Wait for recent top row"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:281": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getRowsPerPageValue",
+    "label": "Get rows per page value"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:286": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getRowsPerPageOptions",
+    "label": "Get rows per page options"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:291": {
+    "class": "LocationManagementHistoryPage",
+    "method": "setRowsPerPage",
+    "label": "Set rows per page"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:300": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getPaginationText",
+    "label": "Get pagination text"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:310": {
+    "class": "LocationManagementHistoryPage",
+    "method": "isPaginationButtonDisabled",
+    "label": "Is pagination button disabled"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:321": {
+    "class": "LocationManagementHistoryPage",
+    "method": "clickPaginationButton",
+    "label": "Click pagination button"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:333": {
+    "class": "LocationManagementHistoryPage",
+    "method": "isReadOnly",
+    "label": "Is read only"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:348": {
+    "class": "LocationManagementHistoryPage",
+    "method": "areCellsNonInteractive",
+    "label": "Are cells non interactive"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:357": {
+    "class": "LocationManagementHistoryPage",
+    "method": "hasHorizontalScroll",
+    "label": "Has horizontal scroll"
+  },
+  "clients/encore/src/pages/locations/location-management-history.page.ts:366": {
+    "class": "LocationManagementHistoryPage",
+    "method": "getApproximateTotalRowCount",
+    "label": "Get approximate total row count"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:13": {
+    "class": "LocationNotesPage",
+    "method": "navigateToNotesTab",
+    "label": "Navigate to notes tab"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:18": {
+    "class": "LocationNotesPage",
+    "method": "isOnNotesTab",
+    "label": "Is on notes tab"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:28": {
+    "class": "LocationNotesPage",
+    "method": "clickNotesTab",
+    "label": "Click notes tab"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:43": {
+    "class": "LocationNotesPage",
+    "method": "reloadAndNavigateToNotesTab",
+    "label": "Reload and navigate to notes tab"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:62": {
+    "class": "LocationNotesPage",
+    "method": "clickAdd",
+    "label": "Click add"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:67": {
+    "class": "LocationNotesPage",
+    "method": "fillNote",
+    "label": "Fill note"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:90": {
+    "class": "LocationNotesPage",
+    "method": "pasteIntoNote",
+    "label": "Paste into note"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:112": {
+    "class": "LocationNotesPage",
+    "method": "appendToNote",
+    "label": "Append to note"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:125": {
+    "class": "LocationNotesPage",
+    "method": "prependToNote",
+    "label": "Prepend to note"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:138": {
+    "class": "LocationNotesPage",
+    "method": "replaceSliceInNote",
+    "label": "Replace slice in note"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:152": {
+    "class": "LocationNotesPage",
+    "method": "clearNote",
+    "label": "Clear note"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:165": {
+    "class": "LocationNotesPage",
+    "method": "prepareEmptyRow",
+    "label": "Prepare empty row"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:173": {
+    "class": "LocationNotesPage",
+    "method": "deleteRow",
+    "label": "Delete row"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:180": {
+    "class": "LocationNotesPage",
+    "method": "deleteAllRows",
+    "label": "Delete all rows"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:195": {
+    "class": "LocationNotesPage",
+    "method": "isEmptyStateVisible",
+    "label": "Is empty state visible"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:200": {
+    "class": "LocationNotesPage",
+    "method": "getNoteValue",
+    "label": "Get note value"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:207": {
+    "class": "LocationNotesPage",
+    "method": "getNoteRowCount",
+    "label": "Get note row count"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:212": {
+    "class": "LocationNotesPage",
+    "method": "getCharCounterText",
+    "label": "Get char counter text"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:217": {
+    "class": "LocationNotesPage",
+    "method": "getCharCount",
+    "label": "Get char count"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:224": {
+    "class": "LocationNotesPage",
+    "method": "getDeleteButtonCount",
+    "label": "Get delete button count"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:229": {
+    "class": "LocationNotesPage",
+    "method": "isAddButtonVisible",
+    "label": "Is add button visible"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:234": {
+    "class": "LocationNotesPage",
+    "method": "isProgressBarVisible",
+    "label": "Is progress bar visible"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:239": {
+    "class": "LocationNotesPage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:248": {
+    "class": "LocationNotesPage",
+    "method": "getTextareaMaxlength",
+    "label": "Get textarea maxlength"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:253": {
+    "class": "LocationNotesPage",
+    "method": "saveAndConfirm",
+    "label": "Save and confirm"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:308": {
+    "class": "LocationNotesPage",
+    "method": "clickSaveButton",
+    "label": "Click save button"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:313": {
+    "class": "LocationNotesPage",
+    "method": "getSaveDialogContent",
+    "label": "Get save dialog content"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:322": {
+    "class": "LocationNotesPage",
+    "method": "confirmSaveDialog",
+    "label": "Confirm save dialog"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:328": {
+    "class": "LocationNotesPage",
+    "method": "cancelSaveDialog",
+    "label": "Cancel save dialog"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:334": {
+    "class": "LocationNotesPage",
+    "method": "ensureEmptyState",
+    "label": "Ensure empty state"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:391": {
+    "class": "LocationNotesPage",
+    "method": "isDefaultEmptyState",
+    "label": "Is default empty state"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:404": {
+    "class": "LocationNotesPage",
+    "method": "discardChangesViaReload",
+    "label": "Discard changes via reload"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:409": {
+    "class": "LocationNotesPage",
+    "method": "navigateAwayWithUnsavedChanges",
+    "label": "Navigate away with unsaved changes"
+  },
+  "clients/encore/src/pages/locations/location-notes.page.ts:433": {
+    "class": "LocationNotesPage",
+    "method": "switchToTab",
+    "label": "Switch to tab"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:15": {
+    "class": "LocationPricingPage",
+    "method": "navigateToPricingTab",
+    "label": "Navigate to pricing tab"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:26": {
+    "class": "LocationPricingPage",
+    "method": "isOnPricingTab",
+    "label": "Is on pricing tab"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:33": {
+    "class": "LocationPricingPage",
+    "method": "reloadPricingTab",
+    "label": "Reload pricing tab"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:47": {
+    "class": "LocationPricingPage",
+    "method": "waitForPricingDataLoaded",
+    "label": "Wait for pricing data loaded"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:77": {
+    "class": "LocationPricingPage",
+    "method": "getCheckboxState",
+    "label": "Get checkbox state"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:82": {
+    "class": "LocationPricingPage",
+    "method": "checkCheckbox",
+    "label": "Check checkbox"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:87": {
+    "class": "LocationPricingPage",
+    "method": "uncheckCheckbox",
+    "label": "Uncheck checkbox"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:92": {
+    "class": "LocationPricingPage",
+    "method": "isDropdownEnabled",
+    "label": "Is dropdown enabled"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:100": {
+    "class": "LocationPricingPage",
+    "method": "getDropdownValue",
+    "label": "Get dropdown value"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:105": {
+    "class": "LocationPricingPage",
+    "method": "verifyPrimaryDropdownStates",
+    "label": "Verify primary dropdown states"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:123": {
+    "class": "LocationPricingPage",
+    "method": "selectPrimaryDropdownOption",
+    "label": "Select primary dropdown option"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:151": {
+    "class": "LocationPricingPage",
+    "method": "clearPrimaryDropdown",
+    "label": "Clear primary dropdown"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:169": {
+    "class": "LocationPricingPage",
+    "method": "getCurrencyFilterValue",
+    "label": "Get currency filter value"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:176": {
+    "class": "LocationPricingPage",
+    "method": "getCurrencyFilterOptions",
+    "label": "Get currency filter options"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:185": {
+    "class": "LocationPricingPage",
+    "method": "selectCurrencyFilter",
+    "label": "Select currency filter"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:195": {
+    "class": "LocationPricingPage",
+    "method": "getColumnHeaders",
+    "label": "Get column headers"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:204": {
+    "class": "LocationPricingPage",
+    "method": "isGridRowVisible",
+    "label": "Is grid row visible"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:212": {
+    "class": "LocationPricingPage",
+    "method": "isGridRowDisplayed",
+    "label": "Is grid row displayed"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:221": {
+    "class": "LocationPricingPage",
+    "method": "getGridRowCount",
+    "label": "Get grid row count"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:228": {
+    "class": "LocationPricingPage",
+    "method": "getIsAlternativeState",
+    "label": "Get is alternative state"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:240": {
+    "class": "LocationPricingPage",
+    "method": "getUseEffectiveDateState",
+    "label": "Get use effective date state"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:252": {
+    "class": "LocationPricingPage",
+    "method": "checkIsAlternative",
+    "label": "Check is alternative"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:262": {
+    "class": "LocationPricingPage",
+    "method": "uncheckIsAlternative",
+    "label": "Uncheck is alternative"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:272": {
+    "class": "LocationPricingPage",
+    "method": "checkUseEffectiveDate",
+    "label": "Check use effective date"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:282": {
+    "class": "LocationPricingPage",
+    "method": "uncheckUseEffectiveDate",
+    "label": "Uncheck use effective date"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:292": {
+    "class": "LocationPricingPage",
+    "method": "isStartDateEnabled",
+    "label": "Is start date enabled"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:301": {
+    "class": "LocationPricingPage",
+    "method": "isEndDateEnabled",
+    "label": "Is end date enabled"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:310": {
+    "class": "LocationPricingPage",
+    "method": "getStartDateValue",
+    "label": "Get start date value"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:317": {
+    "class": "LocationPricingPage",
+    "method": "getEndDateValue",
+    "label": "Get end date value"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:324": {
+    "class": "LocationPricingPage",
+    "method": "enterStartDate",
+    "label": "Enter start date"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:330": {
+    "class": "LocationPricingPage",
+    "method": "enterEndDate",
+    "label": "Enter end date"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:336": {
+    "class": "LocationPricingPage",
+    "method": "isStartDateReadOnly",
+    "label": "Is start date read only"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:343": {
+    "class": "LocationPricingPage",
+    "method": "isEndDateReadOnly",
+    "label": "Is end date read only"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:354": {
+    "class": "LocationPricingPage",
+    "method": "hasDateValidationError",
+    "label": "Has date validation error"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:360": {
+    "class": "LocationPricingPage",
+    "method": "openStartDatePopover",
+    "label": "Open start date popover"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:370": {
+    "class": "LocationPricingPage",
+    "method": "openEndDatePopover",
+    "label": "Open end date popover"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:380": {
+    "class": "LocationPricingPage",
+    "method": "closeDatePopover",
+    "label": "Close date popover"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:471": {
+    "class": "LocationPricingPage",
+    "method": "enableFullCascade",
+    "label": "Enable full cascade"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:489": {
+    "class": "LocationPricingPage",
+    "method": "getReadOnlyColumnInteractiveCount",
+    "label": "Get read only column interactive count"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:507": {
+    "class": "LocationPricingPage",
+    "method": "resetGridRow",
+    "label": "Reset grid row"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:513": {
+    "class": "LocationPricingPage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:521": {
+    "class": "LocationPricingPage",
+    "method": "waitForSaveEnabled",
+    "label": "Wait for save enabled"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:526": {
+    "class": "LocationPricingPage",
+    "method": "clickSave",
+    "label": "Click save"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:531": {
+    "class": "LocationPricingPage",
+    "method": "saveAndConfirm",
+    "label": "Save and confirm"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:551": {
+    "class": "LocationPricingPage",
+    "method": "ensureDefaultState",
+    "label": "Ensure default state"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:589": {
+    "class": "LocationPricingPage",
+    "method": "clickSaveButton",
+    "label": "Click save button"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:597": {
+    "class": "LocationPricingPage",
+    "method": "clickSaveCancel",
+    "label": "Click save cancel"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:604": {
+    "class": "LocationPricingPage",
+    "method": "isSaveDialogVisible",
+    "label": "Is save dialog visible"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:612": {
+    "class": "LocationPricingPage",
+    "method": "clickSidebarHome",
+    "label": "Click sidebar home"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:627": {
+    "class": "LocationPricingPage",
+    "method": "isUnsavedDialogVisible",
+    "label": "Is unsaved dialog visible"
+  },
+  "clients/encore/src/pages/locations/location-pricing.page.ts:633": {
+    "class": "LocationPricingPage",
+    "method": "clickUnsavedStay",
+    "label": "Click unsaved stay"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:14": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "navigateToSharedSetupTab",
+    "label": "Navigate to shared setup tab"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:19": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "isOnSharedSetupTab",
+    "label": "Is on shared setup tab"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:26": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "reloadAndNavigateToSSLTab",
+    "label": "Reload and open Shared Setup Locations tab"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:41": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "triggerBeforeunloadAndStay",
+    "label": "Trigger beforeunload and stay"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:59": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "discardAndReturn",
+    "label": "Discard and return"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:72": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "ensureCleanSSLTable",
+    "label": "Clear Shared Setup table to baseline"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:107": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getDataRowCount",
+    "label": "Get data row count"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:115": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getColumnHeaders",
+    "label": "Get column headers"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:123": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "findNonSelfRow",
+    "label": "Find non self row"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:141": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getSelfRowText",
+    "label": "Get self row text"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:151": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getSelfPrimaryOfficeState",
+    "label": "Get self primary office state"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:156": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getSelfSharesInventoryState",
+    "label": "Get self shares inventory state"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:161": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "toggleSelfSharesInventory",
+    "label": "Toggle self shares inventory"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:167": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "setSelfSharesInventory",
+    "label": "Set self shares inventory"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:172": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "isSelfDeleteDisabled",
+    "label": "Is self delete disabled"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:177": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "isSaveEnabled",
+    "label": "Is save enabled"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:182": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "openSaveDialog",
+    "label": "Open save dialog"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:189": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "cancelSaveDialog",
+    "label": "Cancel save dialog"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:196": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "clickSave",
+    "label": "Click save"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:201": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "saveAndConfirm",
+    "label": "Save and confirm"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:215": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "hasInTabSaveButton",
+    "label": "Has in tab save button"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:231": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "clickAdd",
+    "label": "Click add"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:238": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "isAddDialogVisible",
+    "label": "Is add dialog visible"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:243": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getDialogHeading",
+    "label": "Get dialog heading"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:248": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "isDialogSelectEnabled",
+    "label": "Is dialog select enabled"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:253": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getDialogRowCount",
+    "label": "Get dialog row count"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:260": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "searchInDialog",
+    "label": "Search in dialog"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:268": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getFirstDialogRowText",
+    "label": "Get first dialog row text"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:278": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "selectFirstDialogRow",
+    "label": "Select first dialog row"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:289": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "clickDialogSelect",
+    "label": "Click dialog select"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:296": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "clickDialogCancel",
+    "label": "Click dialog cancel"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:303": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getNonSelfRowState",
+    "label": "Get non self row state"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:328": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "deleteNonSelfRow",
+    "label": "Delete non self row"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:336": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getNonSelfRowText",
+    "label": "Get non self row text"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:346": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "toggleNonSelfSharesInventory",
+    "label": "Toggle non self shares inventory"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:354": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "setNonSelfSharesInventory",
+    "label": "Set non self shares inventory"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:365": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "makeFormDirty",
+    "label": "Make form dirty"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:370": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "clickTopLevelTab",
+    "label": "Click top level tab"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:397": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "getActiveTopLevelTab",
+    "label": "Get active top level tab"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:413": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "hasVisibleUnsavedDialog",
+    "label": "Has visible unsaved dialog"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:418": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "clickUnsavedDialogStay",
+    "label": "Click unsaved dialog stay"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:426": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "rapidClickAdd",
+    "label": "Rapid click add"
+  },
+  "clients/encore/src/pages/locations/location-shared-setup-locations.page.ts:444": {
+    "class": "LocationSharedSetupLocationsPage",
+    "method": "countAddDialogs",
+    "label": "Count add dialogs"
+  }
+}

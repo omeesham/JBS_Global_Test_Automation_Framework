@@ -13,30 +13,30 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     super(page, config);
   }
 
-  @step()
+  @step('Open the pricing detail page')
   async open(pricebookId: string = DETAIL.pricebookGuid, office: string = DETAIL.office): Promise<void> {
     await this.gotoDetails(office, pricebookId);
     await this.openDetailTab();
   }
 
-  @step()
+  @step('Open detail tab')
   async openDetailTab(): Promise<void> {
     await this.switchTab('Pricing Detail');
     await this.page.locator(S.colDetailProductGroupName).first().waitFor({ state: 'visible', timeout: 25_000 });
     await this.waitForAngularStable();
   }
 
-  @step()
+  @step('Is detail tab active')
   async isDetailTabActive(): Promise<boolean> {
     return this.isVisibleSafe(S.colDetailProductGroupName);
   }
 
-  @step()
+  @step('Get grid headers')
   async getGridHeaders(): Promise<string[]> {
     return this.readAllTexts(`${S.tblDetailGrid} th`);
   }
 
-  @step()
+  @step('Get product group row count')
   async getProductGroupRowCount(): Promise<number> {
     return this.page.locator(`${S.tblDetailGrid} tr:has(input)`).count();
   }
@@ -45,7 +45,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     return this.page.locator(`${S.tblDetailGrid} tr`, { hasText: name }).first();
   }
 
-  @step()
+  @step('Get cell text')
   async getCellText(name: string, col: keyof typeof DETAIL_GRID_COLS): Promise<string> {
     const cell = this.gridRow(name).locator('td').nth(DETAIL_GRID_COLS[col]);
     return (await cell.innerText()).replace(/\s+/g, ' ').trim();
@@ -59,30 +59,30 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     return this.gridRow(name).locator('td').nth(DETAIL_GRID_COLS.maxDiscount).locator('input').first();
   }
 
-  @step()
+  @step('Get new price')
   async getNewPrice(name: string): Promise<string> {
     return (await this.newPriceInput(name).inputValue()).trim();
   }
 
-  @step()
+  @step('Get max discount')
   async getMaxDiscount(name: string): Promise<string> {
     return (await this.maxDiscountInput(name).inputValue()).trim();
   }
 
-  @step()
+  @step('Price is read only')
   async priceIsReadOnly(name: string): Promise<boolean> {
     const cell = this.gridRow(name).locator('td').nth(DETAIL_GRID_COLS.price);
     return (await cell.locator('input').count()) === 0;
   }
 
-  @step()
+  @step('Row has add remove affordance')
   async rowHasAddRemoveAffordance(name: string): Promise<boolean> {
     return (await this.gridRow(name).locator('button').count()) > 0;
   }
 
   // CELL EDITS (real keystrokes — fill() is unreliable for dirty-tracking)
 
-  @step()
+  @step('Set new price')
   async setNewPrice(name: string, value: string): Promise<void> {
     const inp = this.newPriceInput(name);
     await inp.scrollIntoViewIfNeeded();
@@ -93,7 +93,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     await inp.press('Tab');
   }
 
-  @step()
+  @step('Set max discount')
   async setMaxDiscount(name: string, value: string): Promise<void> {
     const inp = this.maxDiscountInput(name);
     await inp.scrollIntoViewIfNeeded();
@@ -104,12 +104,12 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     await inp.press('Tab');
   }
 
-  @step()
+  @step('Get source item count')
   async getSourceItemCount(): Promise<number> {
     return this.page.locator(S.itemDraggableAny).count();
   }
 
-  @step()
+  @step('Has source filter')
   async hasSourceFilter(): Promise<boolean> {
     return (await this.page.locator(S.txtSourceFilter).count()) > 0;
   }
@@ -119,7 +119,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
    * `mode` 'single' = single-click (select/display, no add), 'double' = double-click (must NOT add).
    * Returns { before, after } data-row counts so the caller asserts no-add (before === after).
    */
-  @step()
+  @step('Attempt source add')
   async attemptSourceAdd(mode: 'single' | 'double', index = 0): Promise<{ before: number; after: number }> {
     const before = await this.getProductGroupRowCount();
     const item = this.page.locator(S.itemDraggableAny).nth(index);
@@ -139,7 +139,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
    * adding is allowed, so a no-grow here is genuine management-mode behavior, not a dead primitive.
    * Returns { before, after } row counts.
    */
-  @step()
+  @step('Attempt drag add')
   async attemptDragAdd(index = 0): Promise<{ before: number; after: number }> {
     const before = await this.getProductGroupRowCount();
     const item = this.page.locator(S.itemDraggableAny).nth(index);
@@ -150,17 +150,17 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     return { before, after };
   }
 
-  @step()
+  @step('Check whether New Price is flagged invalid')
   async getNewPriceAriaInvalid(name: string): Promise<string | null> {
     return this.newPriceInput(name).getAttribute('aria-invalid');
   }
 
-  @step()
+  @step('Check whether Max Discount is flagged invalid')
   async getMaxDiscountAriaInvalid(name: string): Promise<string | null> {
     return this.maxDiscountInput(name).getAttribute('aria-invalid');
   }
 
-  @step()
+  @step('Clear new price')
   async clearNewPrice(name: string): Promise<void> {
     const inp = this.newPriceInput(name);
     await inp.scrollIntoViewIfNeeded();
@@ -170,7 +170,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     await inp.press('Tab');
   }
 
-  @step()
+  @step('Get max discount after focus')
   async getMaxDiscountAfterFocus(name: string): Promise<string> {
     const inp = this.maxDiscountInput(name);
     await inp.scrollIntoViewIfNeeded();
@@ -178,7 +178,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     return (await inp.inputValue()).trim();
   }
 
-  @step()
+  @step('Clear max discount')
   async clearMaxDiscount(name: string): Promise<void> {
     const inp = this.maxDiscountInput(name);
     await inp.scrollIntoViewIfNeeded();
@@ -192,7 +192,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
   // at once; it exposes NO page-size selector, NO page-navigation buttons, and its
   // headers are not sort triggers — these probes assert that observed reality).
 
-  @step()
+  @step('Get pagination nav labels')
   async getPaginationNavLabels(): Promise<string[]> {
     const labels = await this.page.locator('button[aria-label]').evaluateAll((els) =>
       els.map((e) => e.getAttribute('aria-label') || '').filter((a) => /first page|previous page|next page|last page/i.test(a)),
@@ -200,18 +200,18 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     return labels;
   }
 
-  @step()
+  @step('Has page size control')
   async hasPageSizeControl(): Promise<boolean> {
     return (await this.page.locator('[role="combobox"]').filter({ hasText: /^\s*\d+\s*$/ }).count()) > 0;
   }
 
-  @step()
+  @step('Header has sort button')
   async headerHasSortButton(headerText: string): Promise<boolean> {
     const th = this.page.locator(`${S.tblDetailGrid} th`, { hasText: headerText }).first();
     return (await th.locator('button').count()) > 0;
   }
 
-  @step()
+  @step('Read the column\'s sort direction')
   async getHeaderAriaSort(headerText: string): Promise<string | null> {
     return this.page.locator(`${S.tblDetailGrid} th`, { hasText: headerText }).first().getAttribute('aria-sort');
   }
@@ -220,12 +220,12 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
     return this.page.getByRole('alertdialog');
   }
 
-  @step()
+  @step('Click save button')
   async clickSaveButton(): Promise<void> {
     await this.page.locator('button:text-is("Save")').first().click();
   }
 
-  @step()
+  @step('Confirm save changes dialog')
   async confirmSaveChangesDialog(): Promise<void> {
     await this.saveChangesDialog.getByRole('button', { name: /^(save|ok)$/i }).first().click();
   }
@@ -235,7 +235,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
    * Save to disable (commit signal). THROWS if Save is disabled at call time so a silent no-op
    * surfaces as a failure (save-success ≠ pristine; reload + re-read is load-bearing).
    */
-  @step()
+  @step('Save and confirm')
   async saveAndConfirm(): Promise<void> {
     await this.clickSaveButtonOrThrow('grid not dirty');
     await this.confirmSaveDialogIfPresent(3_000);
@@ -252,7 +252,7 @@ export class CorporatePricingDetailPage extends CorporatePricingBasePage {
    * SAME batch save, which also commits the New-Price reverts. Bounded retry (max 3) over the whole
    * cycle because save-success alone does not prove the restore landed.
    */
-  @step()
+  @step('Ensure default state')
   async ensureDefaultState(
     anchors: DetailAnchor[] = [DETAIL.anchorA, DETAIL.anchorB],
   ): Promise<void> {

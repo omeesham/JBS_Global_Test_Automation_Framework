@@ -55,7 +55,7 @@ export const DENY_GLOBS = [
   /\.env\.production$/,
   /\.env\.staging$/,
   /\.env\.example$/,
-  // Internal unit-test directory — framework self-tests, never client deliverables.
+  // Internal unit-test directory (tests/_unit) — framework self-tests, never client deliverables.
   /\/tests\/_unit\//,
   // Any underscore-prefixed internal test subdirectory (generalised form of the above).
   /\/tests\/_[^/]+\//,

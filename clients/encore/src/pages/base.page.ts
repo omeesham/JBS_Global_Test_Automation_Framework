@@ -64,7 +64,7 @@ export class BasePage {
     }
   }
 
-  @step()
+  @step('Go to the page')
   async navigateTo(url: string, options?: { waitUntil?: 'load' | 'domcontentloaded' | 'networkidle'; timeout?: number; maxRetries?: number }): Promise<void> {
     const { waitUntil = 'domcontentloaded', timeout = 30000, maxRetries = 2 } = options || {};
     Log.info(`Navigating to: ${url}`);
@@ -85,7 +85,7 @@ export class BasePage {
     }
   }
 
-  @step()
+  @step('Click with retry')
   async clickWithRetry(elementName: string, options?: { timeout?: number; maxRetries?: number }): Promise<boolean> {
     const { timeout = 10000, maxRetries = 3 } = options || {};
     Log.info(`Clicking element: ${elementName}`);
@@ -115,7 +115,7 @@ export class BasePage {
     throw new Error(`Click failed: ${elementName}`);
   }
 
-  @step()
+  @step('Fill with validation')
   async fillWithValidation(elementName: string, value: string, options?: { timeout?: number; verify?: boolean; clear?: boolean }): Promise<boolean> {
     const { timeout = 10000, verify = true, clear = true } = options || {};
     Log.info(`Filling element: ${elementName} with value: ${value.substring(0, 20)}...`);
@@ -142,7 +142,7 @@ export class BasePage {
     }
   }
 
-  @step()
+  @step('Wait for element')
   async waitForElement(elementName: string, timeout: number = 10000): Promise<void> {
     Log.info(`Waiting for element: ${elementName}`);
     try {
@@ -155,7 +155,7 @@ export class BasePage {
     }
   }
 
-  @step()
+  @step('Wait for page load')
   async waitForPageLoad(options?: { state?: 'load' | 'domcontentloaded' | 'networkidle'; spinnerSelectors?: string[]; timeout?: number }): Promise<void> {
     const { state = 'domcontentloaded', spinnerSelectors = ['.spinner', '.loading'], timeout = 30000 } = options || {};
     Log.info('Waiting for page load...');
@@ -209,7 +209,7 @@ export class BasePage {
     }
   }
 
-  @step()
+  @step('Take screenshot')
   async takeScreenshot(name: string, fullPage: boolean = true): Promise<string> {
     const timestamp = new Date().toISOString().replace(/:/g, '-');
     const filename = `screenshot-${name}-${timestamp}.png`;
@@ -236,7 +236,7 @@ export class BasePage {
  * @param pathCheck - Substring to check in current URL (e.g. 'locations/1604/settings')
  * @returns true if navigation occurred, false if skipped
  */
-  @step()
+  @step('Navigate if needed')
   async navigateIfNeeded(url: string, pathCheck: string): Promise<boolean> {
     if (this.page.url().includes(pathCheck)) {
       Log.info(`Already at ${pathCheck}, skipping navigation`);
@@ -246,12 +246,12 @@ export class BasePage {
     return true;
   }
 
-  @step()
+  @step('Get page title')
   async getPageTitle(): Promise<string> {
     return await this.page.title();
   }
 
-  @step()
+  @step('Get text content')
   async getTextContent(elementName: string, options?: { trim?: boolean }): Promise<string> {
     const { trim = true } = options || {};
     try {
@@ -266,7 +266,7 @@ export class BasePage {
     }
   }
 
-  @step()
+  @step('Is element visible')
   async isElementVisible(elementName: string, timeout: number = 5000): Promise<boolean> {
     try {
       const element = this.getElement(elementName);

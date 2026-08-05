@@ -22,7 +22,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     return this.page.locator(selector);
   }
 
-  @step()
+  @step('Navigate to basic info tab')
   async navigateToBasicInfoTab(officeNo = '1604'): Promise<void> {
     await this.navigateToSubTab('tabBasicInformation', 'frmBasicInfo', officeNo, 'local-office');
   }
@@ -30,30 +30,30 @@ export class LocalOfficeSettingsPage extends BasePage {
  /** Uses safeNavigateTo to handle beforeunload dialog when form has unsaved edits.
  * 30s form-visibility timeout: cold-load p95 ~9s isolated, but under 4-worker contention
  * loads regularly exceed 15s. */
-  @step()
+  @step('Reload basic info')
   async reloadBasicInfo(officeNo = '1604'): Promise<void> {
     const baseUrl = this.config?.base_url || '';
     await this.safeNavigateTo(`${baseUrl}locations/${officeNo}/settings/local-office`);
     await this.waitForAngularStable();
     await this.getElement('frmBasicInfo').waitFor({ state: 'visible', timeout: 30_000 });
   }
-  @step()
+  @step('Is save enabled')
   async isSaveEnabled(): Promise<boolean> {
     return !(await this.getElement('btnSave').isDisabled());
   }
 
-  @step()
+  @step('Wait for save to enable')
   async waitForSaveToEnable(timeout = 10_000): Promise<boolean> {
     return this.waitForSaveEnabled('btnSave', timeout);
   }
 
  /** Returns {success, networkError?} — callers that care about silent 500s can assert on .success. */
-  @step()
+  @step('Click save and confirm')
   async clickSaveAndConfirm(): Promise<{ success: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSave', 'dlgSaveChanges', 'btnSaveChangesConfirm');
   }
 
-  @step()
+  @step('Click save and cancel')
   async clickSaveAndCancel(): Promise<boolean> {
     await this.getElement('btnSave').click();
     const dlg = this.getElement('dlgSaveChanges');
@@ -67,12 +67,12 @@ export class LocalOfficeSettingsPage extends BasePage {
     return false;
   }
 
-  @step()
+  @step('Get input value')
   async getInputValue(key: string): Promise<string> {
     return this.getElement(key).inputValue();
   }
 
-  @step()
+  @step('Fill and tab')
   async fillAndTab(key: string, value: string): Promise<void> {
     const el = this.getElement(key);
     await el.click();
@@ -85,7 +85,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     await el.press('Tab');
   }
 
-  @step()
+  @step('Clear and tab')
   async clearAndTab(key: string): Promise<void> {
     const el = this.getElement(key);
     await el.click();
@@ -94,57 +94,57 @@ export class LocalOfficeSettingsPage extends BasePage {
     await el.press('Tab');
   }
 
-  @step()
+  @step('Is field invalid')
   async isFieldInvalid(key: string): Promise<boolean> {
     return (await this.getElement(key).getAttribute('aria-invalid')) === 'true';
   }
 
-  @step()
+  @step('Expect invalid')
   async expectInvalid(key: string, timeout = 5_000): Promise<boolean> {
     return this.waitForFieldInvalid(key, timeout);
   }
 
-  @step()
+  @step('Expect valid')
   async expectValid(key: string, timeout = 5_000): Promise<boolean> {
     return this.waitForFieldValid(key, timeout);
   }
 
-  @step()
+  @step('Get checkbox state')
   async getCheckboxState(key: string): Promise<CheckboxState> {
     return this.getRadixCheckboxState(key);
   }
 
-  @step()
+  @step('Check checkbox')
   async checkCheckbox(key: string): Promise<void> {
     await this.setRadixCheckbox(key, true);
   }
 
-  @step()
+  @step('Uncheck checkbox')
   async uncheckCheckbox(key: string): Promise<void> {
     await this.setRadixCheckbox(key, false);
   }
 
-  @step()
+  @step('Get combobox value')
   async getComboboxValue(key: string): Promise<string> {
     return (await this.getElement(key).textContent() || '').trim();
   }
 
-  @step()
+  @step('Get combobox options list')
   async getComboboxOptionsList(key: string): Promise<string[]> {
     return this.getComboboxOptions(key);
   }
 
-  @step()
+  @step('Select combobox exact')
   async selectComboboxExact(key: string, optionName: string): Promise<void> {
     await this.selectComboboxOption(key, optionName, { exact: true });
   }
 
-  @step()
+  @step('Is tab selected')
   async isTabSelected(tabKey: string): Promise<boolean> {
     return (await this.getElement(tabKey).getAttribute('aria-selected')) === 'true';
   }
 
-  @step()
+  @step('Click tab direct')
   async clickTabDirect(tabKey: string): Promise<void> {
     await this.getElement(tabKey).click();
   }
@@ -156,7 +156,7 @@ export class LocalOfficeSettingsPage extends BasePage {
  * persists. Clicking another tab triggers the dirty guard → "Unsaved changes" dialog.
  * Dismiss with "Discard" to complete the navigation.
  */
-  @step()
+  @step('Click tab')
   async clickTab(tabKey: string): Promise<void> {
     await this.getElement(tabKey).click();
     await this.page.waitForTimeout(300); // Allow Angular to render dialog if dirty
@@ -164,7 +164,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     if (dismissed) await this.waitForAngularStable();
   }
 
-  @step()
+  @step('Wait for basic info form')
   async waitForBasicInfoForm(timeout = 10_000): Promise<void> {
     await this.getElement('frmBasicInfo').waitFor({ state: 'visible', timeout });
   }
@@ -176,18 +176,18 @@ export class LocalOfficeSettingsPage extends BasePage {
     });
   }
 
-  @step()
+  @step('Get section row count')
   async getSectionRowCount(): Promise<number> {
     return this.getSectionDataRows().count();
   }
 
-  @step()
+  @step('Get section name by index')
   async getSectionNameByIndex(rowIndex: number): Promise<string> {
     const row = this.getSectionDataRows().nth(rowIndex);
     return (await row.locator('td:first-child input').inputValue()).trim();
   }
 
-  @step()
+  @step('Get section names')
   async getSectionNames(): Promise<string[]> {
     const rows = this.getSectionDataRows();
     const count = await rows.count();
@@ -200,19 +200,19 @@ export class LocalOfficeSettingsPage extends BasePage {
     return names;
   }
 
-  @step()
+  @step('Is section active')
   async isSectionActive(rowIndex: number): Promise<boolean> {
     const row = this.getSectionDataRows().nth(rowIndex);
     return (await row.locator('td:last-child svg').count()) > 0;
   }
 
-  @step()
+  @step('Toggle section active')
   async toggleSectionActive(rowIndex: number): Promise<void> {
     const row = this.getSectionDataRows().nth(rowIndex);
     await row.locator('td:last-child').click();
   }
 
-  @step()
+  @step('Edit section name')
   async editSectionName(rowIndex: number, newName: string): Promise<void> {
     const row = this.getSectionDataRows().nth(rowIndex);
     const input = row.locator('td:first-child input');
@@ -222,7 +222,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     await input.press('Tab');
   }
 
-  @step()
+  @step('Edit section name and cancel')
   async editSectionNameAndCancel(rowIndex: number, tempName: string): Promise<void> {
     const row = this.getSectionDataRows().nth(rowIndex);
     const input = row.locator('td:first-child input');
@@ -232,7 +232,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     await input.press('Escape');
   }
 
-  @step()
+  @step('Add section')
   async addSection(name: string): Promise<void> {
     const section = this.getElement('tblSections');
     const addInput = section.locator('input[placeholder="Add New..."]');
@@ -240,7 +240,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     await addInput.press('Tab');
   }
 
-  @step()
+  @step('Click default section')
   async clickDefaultSection(): Promise<void> {
     await this.clickWithRetry('btnDefaultSection');
   }
@@ -252,17 +252,17 @@ export class LocalOfficeSettingsPage extends BasePage {
     });
   }
 
-  @step()
+  @step('Is room table empty')
   async isRoomTableEmpty(): Promise<boolean> {
     return (await this.getRoomDataRows().count()) === 0;
   }
 
-  @step()
+  @step('Get room row count')
   async getRoomRowCount(): Promise<number> {
     return this.getRoomDataRows().count();
   }
 
-  @step()
+  @step('Get room names')
   async getRoomNames(): Promise<string[]> {
     const rows = this.getRoomDataRows();
     const count = await rows.count();
@@ -275,19 +275,19 @@ export class LocalOfficeSettingsPage extends BasePage {
     return names;
   }
 
-  @step()
+  @step('Is room active')
   async isRoomActive(rowIndex: number): Promise<boolean> {
     const row = this.getRoomDataRows().nth(rowIndex);
     return (await row.locator('td:last-child svg').count()) > 0;
   }
 
-  @step()
+  @step('Toggle room active')
   async toggleRoomActive(rowIndex: number): Promise<void> {
     const row = this.getRoomDataRows().nth(rowIndex);
     await row.locator('td:last-child').click();
   }
 
-  @step()
+  @step('Edit room name')
   async editRoomName(rowIndex: number, newName: string): Promise<void> {
     const row = this.getRoomDataRows().nth(rowIndex);
     const input = row.locator('td:first-child input');
@@ -297,7 +297,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     await input.press('Tab');
   }
 
-  @step()
+  @step('Add room')
   async addRoom(name: string): Promise<void> {
     const section = this.getElement('tblRoomConfig');
     const addInput = section.locator('input[placeholder="Add New..."]');
@@ -305,24 +305,24 @@ export class LocalOfficeSettingsPage extends BasePage {
     await addInput.press('Tab');
   }
 
-  @step()
+  @step('Get logo preview src')
   async getLogoPreviewSrc(): Promise<string> {
     return (await this.getElement('imgLogoPreview').getAttribute('src')) || '';
   }
 
-  @step()
+  @step('Get exempt count')
   async getExemptCount(): Promise<number> {
     const table = this.getElement('tblDiscountExemptions');
     return table.locator('tbody tr td:last-child svg').count();
   }
 
-  @step()
+  @step('Toggle exemption')
   async toggleExemption(rowIndex: number): Promise<void> {
     const table = this.getElement('tblDiscountExemptions');
     await table.locator('tbody tr').nth(rowIndex).locator('td:last-child').click();
   }
 
-  @step()
+  @step('Click unsaved stay')
   async clickUnsavedStay(): Promise<void> {
     const dlg = this.getElement('dlgUnsavedLocalOffice');
     await dlg.waitFor({ state: 'visible', timeout: 5_000 });
@@ -330,7 +330,7 @@ export class LocalOfficeSettingsPage extends BasePage {
     await dlg.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
   }
 
-  @step()
+  @step('Click unsaved discard')
   async clickUnsavedDiscard(): Promise<void> {
     const dlg = this.getElement('dlgUnsavedLocalOffice');
     await dlg.waitFor({ state: 'visible', timeout: 5_000 });

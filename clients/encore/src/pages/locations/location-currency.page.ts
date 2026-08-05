@@ -15,19 +15,19 @@ export class LocationCurrencyPage extends BasePage {
     Log.info('LocationCurrencyPage initialized');
   }
 
-  @step()
+  @step('Navigate to currency tab')
   async navigateToCurrencyTab(officeNo: string = '1604'): Promise<void> {
     await this.navigateToSubTab('tabCurrency', 'tblCurrencyGrid', officeNo);
   }
 
-  @step()
+  @step('Is on currency tab')
   async isOnCurrencyTab(): Promise<boolean> {
     const tab = this.getElement('tabCurrency');
     if ((await tab.count()) === 0) return false;
     return (await tab.getAttribute('aria-selected').catch(() => null)) === 'true';
   }
 
-  @step()
+  @step('Reload and navigate to currency tab')
   async reloadAndNavigateToCurrencyTab(): Promise<void> {
     const handler = async (d: import('@playwright/test').Dialog) => {
       try { await d.accept(); } catch { /* dialog may already be handled */ }
@@ -44,7 +44,7 @@ export class LocationCurrencyPage extends BasePage {
     await this.waitForAngularStable();
   }
 
-  @step()
+  @step('Get grid row count')
   async getGridRowCount(): Promise<number> {
     const grid = this.getElement('tblCurrencyGrid');
     await grid.waitFor({ state: 'visible', timeout: 5_000 });
@@ -53,12 +53,12 @@ export class LocationCurrencyPage extends BasePage {
     return rows;
   }
 
-  @step()
+  @step('Get column headers')
   async getColumnHeaders(): Promise<string[]> {
     return this.getColumnHeadersByKeys(['colHeaderCurrencyCode', 'colHeaderSelected', 'colHeaderIsDefault', 'colHeaderMerchant']);
   }
 
-  @step()
+  @step('Is currency code read only')
   async isCurrencyCodeReadOnly(currency: string): Promise<boolean> {
     const gridSel = this.getLocator('tblCurrencyGrid');
     const cell = this.page.locator(`${gridSel} tbody tr:has-text("${currency}") td:first-child`);
@@ -67,14 +67,14 @@ export class LocationCurrencyPage extends BasePage {
     return inputCount === 0;
   }
 
-  @step()
+  @step('Get checkbox state')
   async getCheckboxState(selectorKey: keyof typeof LocationSettingsSelectors): Promise<CheckboxState> {
     const state = await this.getRadixCheckboxState(selectorKey);
     Log.info(`${selectorKey}: checked=${state.checked}, disabled=${state.disabled}`);
     return state;
   }
 
-  @step()
+  @step('Check checkbox')
   async checkCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
     if (!(await this.getRadixCheckboxState(selectorKey)).checked) {
@@ -83,7 +83,7 @@ export class LocationCurrencyPage extends BasePage {
     Log.info(`Checked: ${selectorKey}`);
   }
 
-  @step()
+  @step('Uncheck checkbox')
   async uncheckCheckbox(selectorKey: keyof typeof LocationSettingsSelectors): Promise<void> {
     const el = this.getElement(selectorKey);
     if ((await this.getRadixCheckboxState(selectorKey)).checked) {
@@ -92,12 +92,12 @@ export class LocationCurrencyPage extends BasePage {
     Log.info(`Unchecked: ${selectorKey}`);
   }
 
-  @step()
+  @step('Get merchant value')
   async getMerchantValue(dropdownKey: string): Promise<string> {
     return this.getFieldDisplayValue(dropdownKey);
   }
 
-  @step()
+  @step('Get merchant options')
   async getMerchantOptions(dropdownKey: string): Promise<string[]> {
     const options = await this.getComboboxOptions(dropdownKey);
     Log.info(`Merchant options for ${dropdownKey}: ${options.join(', ')}`);
@@ -108,7 +108,7 @@ export class LocationCurrencyPage extends BasePage {
  * Retry carve-out: this is a visibility probe, not an option-select. The shared retry
  * helper is select-only; probe semantics differ.
  */
-  @step()
+  @step('Is merchant dropdown accessible')
   async isMerchantDropdownAccessible(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();
     await this.waitForAngularStable();
@@ -124,7 +124,7 @@ export class LocationCurrencyPage extends BasePage {
  * Retry carve-out: this is a text-substring probe, not an option-select. The shared retry
  * helper is select-only; probe semantics differ.
  */
-  @step()
+  @step('Is merchant no matches found')
   async isMerchantNoMatchesFound(dropdownKey: string): Promise<boolean> {
     await this.getElement(dropdownKey).click();
     await this.waitForAngularStable();
@@ -139,7 +139,7 @@ export class LocationCurrencyPage extends BasePage {
     return noMatches;
   }
 
-  @step()
+  @step('Select merchant option')
   async selectMerchantOption(dropdownKey: string, optionText: string): Promise<void> {
     await this.getElement(dropdownKey).click();
     await this.waitForAngularStable();
@@ -149,7 +149,7 @@ export class LocationCurrencyPage extends BasePage {
     Log.info(`Selected merchant option: ${optionText}`);
   }
 
-  @step()
+  @step('Is save enabled')
   async isSaveEnabled(): Promise<boolean> {
     const el = this.getElement('btnSaveCurrency');
     const disabled = await el.isDisabled().catch(() => true);
@@ -157,7 +157,7 @@ export class LocationCurrencyPage extends BasePage {
     return !disabled;
   }
 
-  @step()
+  @step('Click save')
   async clickSave(): Promise<{ success: boolean; saved?: boolean; networkError?: string }> {
     return this.clickSaveWithDialog('btnSaveCurrency');
   }
@@ -167,7 +167,7 @@ export class LocationCurrencyPage extends BasePage {
  * or neither. Caller must dismiss via cancelCurrentDialog / confirmSaveDialog.
  * Returns 'disabled' when the Save button was disabled (no save ran) -- distinct from 'none', which means a save ran but no dialog appeared.
  */
-  @step()
+  @step('Click save and capture dialog')
   async clickSaveAndCaptureDialog(): Promise<SaveDialogType> {
     const el = this.getElement('btnSaveCurrency');
     await el.waitFor({ state: 'visible', timeout: 5_000 });
@@ -194,7 +194,7 @@ export class LocationCurrencyPage extends BasePage {
     return 'none';
   }
 
-  @step()
+  @step('Cancel current dialog')
   async cancelCurrentDialog(): Promise<void> {
     const dialog = this.getElement('dlgSaveChanges');
     if (await dialog.isVisible().catch(() => false)) {
@@ -203,7 +203,7 @@ export class LocationCurrencyPage extends BasePage {
     }
   }
 
-  @step()
+  @step('Confirm save dialog')
   async confirmSaveDialog(): Promise<void> {
     const dialog = this.getElement('dlgSaveChanges');
     if (await dialog.isVisible().catch(() => false)) {
@@ -213,7 +213,7 @@ export class LocationCurrencyPage extends BasePage {
     }
   }
 
-  @step()
+  @step('Get dialog error text')
   async getDialogErrorText(): Promise<string> {
     const el = this.getElement('dlgErrorMessage');
     const visible = await el.isVisible().catch(() => false);
@@ -226,7 +226,7 @@ export class LocationCurrencyPage extends BasePage {
     return text;
   }
 
-  @step()
+  @step('Save and confirm')
   async saveAndConfirm(): Promise<void> {
     const result = await this.clickSave();
     if (!result.success) {
@@ -238,7 +238,7 @@ export class LocationCurrencyPage extends BasePage {
  * Bounded retry (max 3): the reload + re-read is required because the Save button reports
  * success even when it is disabled, so saving alone never proves the reset actually landed.
  */
-  @step()
+  @step('Ensure default state')
   async ensureDefaultState(): Promise<void> {
     const MAX_ATTEMPTS = 3;
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -262,7 +262,7 @@ export class LocationCurrencyPage extends BasePage {
     }
   }
 
-  @step()
+  @step('Is at default state')
   async isAtDefaultState(): Promise<boolean> {
     const usdSelected = await this.getCheckboxState('chkUSDSelected');
     const usdDefault = await this.getCheckboxState('chkUSDIsDefault');
@@ -274,7 +274,7 @@ export class LocationCurrencyPage extends BasePage {
       && usdMerchant.includes(MERCHANT_DATA.usd.id);
   }
 
-  @step()
+  @step('Attempt to leave the page, then stay')
   async triggerBeforeunloadAndStay(): Promise<boolean> {
     let dialogFired = false;
     const handler = async (d: import('@playwright/test').Dialog) => {
