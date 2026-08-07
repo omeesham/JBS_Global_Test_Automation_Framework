@@ -1249,3 +1249,27 @@ Append-only audit trail per LR-028. Format: `| YYYY-MM-DDThh:mm | agent | status
 | 2026-08-07T15:16 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-v7-tnc-full-run.md — claude-opus-4.6 verify ok=true |
 | 2026-08-07T15:21 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-bv-b-replicate-gpt.md — gpt-5.5 rca ok=true |
 | 2026-08-07T16:01 | OWNER | plan-authoring | (none) | /planning + /ultrathink: authored plans/pending/PLAN_60_JIRA_READONLY_HARDGATE.md (Jira/Confluence read-only hard gate, 4 layers + live-fire; LR-073 reserved). Recon flagged tracked live Jira token website/frontend/src/data/jiraconfig.txt — Rutvik decision item. No execution; awaiting GO. |
+| 2026-08-07T16:09 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-v7-tnc-full-run.md — claude-opus-4.6 verify ok=true |
+| 2026-08-07T16:21 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-r1-082-unskip-088-fix.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T16:25 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-v8b-sct-full-run.md — gpt-5.5 verify ok=true |
+| 2026-08-07T16:29 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-r3-giver-artifacts.md — gpt-5.5 build ok=true |
+| 2026-08-07T16:31 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-r1b-088-finish.md — claude-opus-4.6 rca ok=true |
+| 2026-08-07T16:38 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-r3b-giver-artifacts.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T16:48 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-r1c-088-cap.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T16:55 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-s1-sct-rca.md — gpt-5.5 rca ok=true |
+| 2026-08-07T16:58 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-r2-three-mechanical-fixes.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T17:19 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-z1-skip-to-green.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T17:37 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-z2-workbook-naming.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T17:46 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-z3-skip-parity.md — gpt-5.5 build ok=true |
+| 2026-08-07T18:11 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-f11-claims-sweep-opus.md — claude-opus-4.6 verify ok=true |
+| 2026-08-07T18:12 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-f10-claims-sweep-gpt.md — gpt-5.5 verify ok=true |
+| 2026-08-07T18:23 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-fx1-preship-fixes.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T18:36 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w1-withrun-recon.md — gpt-5.5 rca ok=true |
+| 2026-08-07T18:37 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w2-client-baseline.md — claude-opus-4.6 verify ok=true |
+| 2026-08-07T18:48 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-wdeath-census-A-0807.md — claude-opus-4.6 rca ok=true |
+| 2026-08-07T18:48 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-wdeath-priorfix-B-0807.md — gpt-5.5 rca ok=true |
+| 2026-08-07T18:55 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-wdeath-Brev-0807.md — claude-opus-4.6 rca ok=true |
+| 2026-08-07T18:56 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w3-sct-results-json.md — claude-opus-4.6 rca ok=true |
+| 2026-08-07T19:02 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w6-skip-comment-hygiene.md — gpt-5.5 build ok=true |
+| 2026-08-07T19:03 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-wdeath-Arev-0807.md — gpt-5.5 rca ok=true |
+| 2026-08-07T19:09 | OWNER | plan-author | plans/pending/PLAN_61_WORKER_DEATH_PERMAFIX.md | [wdeath] authored worker-death permafix plan from 4-worker cross-family evidence base (census 473 hard deaths / prior-fix live-fire audit); execution HELD pending Rutvik go |
