@@ -1273,3 +1273,24 @@ Append-only audit trail per LR-028. Format: `| YYYY-MM-DDThh:mm | agent | status
 | 2026-08-07T19:02 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w6-skip-comment-hygiene.md — gpt-5.5 build ok=true |
 | 2026-08-07T19:03 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-wdeath-Arev-0807.md — gpt-5.5 rca ok=true |
 | 2026-08-07T19:09 | OWNER | plan-author | plans/pending/PLAN_61_WORKER_DEATH_PERMAFIX.md | [wdeath] authored worker-death permafix plan from 4-worker cross-family evidence base (census 473 hard deaths / prior-fix live-fire audit); execution HELD pending Rutvik go |
+| 2026-08-07T19:11 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w7-ship-dryrun-rehearsal.md — gpt-5.5 verify ok=true |
+| 2026-08-07T19:14 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w5-exporter-truthful-rebuild.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T19:15 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w4-500-isolation-rca.md — claude-opus-4.6 rca ok=true |
+| 2026-08-07T19:18 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w8-fix-weak-skips.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T19:23 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w8b-confirm-three.md — claude-opus-4.6 verify ok=true |
+| 2026-08-07T19:32 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w8c-confirm-three.md — claude-opus-4.6 verify ok=true |
+| 2026-08-07T19:40 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w9-final-rebuild-parity-green.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T19:46 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w10-unmeasured-summary.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T19:59 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w11-jargon-scrub.md — gpt-5.5 build ok=true |
+| 2026-08-07T20:04 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w12-freshness-gate-realign.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T20:13 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w13-tracker-row42.md — gpt-5.5 build ok=true |
+| 2026-08-07T20:31 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w14-dead-exports.md — gpt-5.5 build ok=true |
+| 2026-08-07T20:43 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-w15-manifest-complete.md — gpt-5.5 build ok=true |
+| 2026-08-07T22:27 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-p61-preflight-0807.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T22:36 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-p61-preflight-rev-0807.md — gpt-5.5 review ok=true |
+| 2026-08-07T22:40 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-p61-preflight-bounce-0807.md — claude-opus-4.6 build ok=true |
+| 2026-08-07T22:42 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-p61-census-0807.md — gpt-5.5 build ok=true |
+| 2026-08-07T22:58 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-p61-census-bounce-0807.md — gpt-5.5 build ok=true |
+| 2026-08-07T23:07 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-p61-trip-stub-0807.md — claude-haiku-4.5 probe ok=true |
+| 2026-08-07T23:09 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-p61-trip-nested-0807.md — claude-opus-4.6 probe ok=true |
+| 2026-08-07T23:20 | OWNER | execute | .claude/skills/ultra-agents/copilot-worker.sh, scripts/dispatch-preflight.mjs, scripts/death-census.mjs | [wdeath] PLAN_61 wrapper phases 1c/2/3/4/5/7 + preflight + death-census; trip-tests fired stub/floor/death-class/SUSPECT-nested live |

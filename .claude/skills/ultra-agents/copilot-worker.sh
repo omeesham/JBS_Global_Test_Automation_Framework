@@ -184,6 +184,53 @@ fi
 RESULT="$RUN_DIR/result.md"; ERR="$RUN_DIR/err.txt"; META="$RUN_DIR/meta.json"
 LEDGER="$REPO/.claude/state/ua-worker/ledger.jsonl"
 
+# ── PLAN61 P1c: declared-output parser, hoisted so BOTH the pre-dispatch stub writer and the
+# post-run oracle (LEDGER-TRUTH A1) use ONE implementation. Parse rules unchanged: strictly
+# anchored to the canonical `OUTPUT (LITERAL ABSOLUTE):` token, Windows paths normalized to POSIX.
+_parse_declared_output() {
+  local _raw _out _drv
+  { [ "$TICKET_MODE" = true ] && [ -n "${TICKET:-}" ] && [ -f "${TICKET:-}" ]; } || return 0
+  _raw="$(grep -am1 -E '^[[:space:]]*(\*\*)?OUTPUT \(LITERAL ABSOLUTE\)(\*\*)?[[:space:]]*:' "$TICKET" 2>/dev/null \
+    | sed -E 's/^[^:]*:[[:space:]]*//; s/^`//; s/`[[:space:]]*$//; s/[[:space:]]*$//')"
+  [ -n "$_raw" ] || return 0
+  case "$_raw" in
+    /*) _out="$_raw" ;;
+    [A-Za-z]:[/\\]*)
+      command -v cygpath >/dev/null 2>&1 && _out="$(cygpath -u "$_raw" 2>/dev/null || true)"
+      if [ -z "$_out" ]; then
+        _drv="$(printf '%s' "$_raw" | cut -c1 | tr 'A-Z' 'a-z')"
+        _out="/${_drv}$(printf '%s' "$_raw" | cut -c3- | tr '\\' '/')"
+      fi
+      ;;
+    *) echo "copilot-worker: WARN — OUTPUT (LITERAL ABSOLUTE) is not an absolute path, ignoring: $_raw" >&2; return 0 ;;
+  esac
+  printf '%s' "$_out"
+}
+
+# ── PLAN61 P1c: STEP-0 stub. The largest death class (batch-write / no-deliverable — 164 corrected
+# deaths, 139 of them AFTER the 2026-07-17 write-as-you-go doctrine landed) is a worker that reasons
+# for twenty minutes and dies before its first write. Prose could not fix it, so the wrapper now
+# creates the file itself: "append as you go" needs no file creation, and the dispatcher gets a
+# launch-proof artifact within seconds of dispatch.
+# The stub marker is DELIBERATELY DISTINCT from the A4 `NO DELIVERABLE` sentinel, and the oracle
+# below treats a stub-ONLY file as missing. So Tooth 1 stays falsifiable: a wrapper-written file can
+# never read as a delivered artifact, whether the worker replaced the stub or appended beneath it.
+# PLAN61 telemetry defaults — every new ledger field has a defined value on EVERY path, so a run
+# that skips a phase still records a truthful row rather than an empty/unset one.
+MODEL_VERDICT="OK"      # P5: OK | SUSPECT-nested
+BOUNCE_READY=""         # P3: path to a queued stall-bounce ticket
+DEATH_CLASS=""          # P7: C1..C12 / UNCLASSIFIED, derived only when the run is not ok
+NETWORK_RETRY=false     # P4: true when this process was auto-retried after a network death
+[ "${_PLAN61_NET_RETRY:-0}" = "1" ] && NETWORK_RETRY=true
+_PLAN61_STUB_MARK='copilot-worker: STEP-0 stub'
+_DECLARED_EARLY="$(_parse_declared_output)"
+if [ -n "$_DECLARED_EARLY" ] && [ ! -e "$_DECLARED_EARLY" ]; then
+  mkdir -p "$(dirname "$_DECLARED_EARLY")" 2>/dev/null || true
+  printf '<!-- %s (run %s) — REPLACE this line with your report, or APPEND below it. A file left as stub-only is recorded ok=false / no-deliverable. Write your section headings NOW, before any analysis. -->\n' \
+    "$_PLAN61_STUB_MARK" "$RUN_ID" > "$_DECLARED_EARLY" 2>/dev/null \
+    && echo "copilot-worker: STEP-0 stub written → $_DECLARED_EARLY" >&2
+fi
+
 # ── UW: uplink supervisor path vars + fire helper (announce-mode — log-only) ─────────────────
 UPLINK_DIR="$HOME/.claude/delegation"
 UPLINK_LOG="$UPLINK_DIR/uplink.log"; UPLINK_LEDGER="$UPLINK_DIR/uplink-ledger.jsonl"; UPLINK_CACHE="$UPLINK_DIR/uplink-cache.jsonl"
@@ -374,6 +421,37 @@ MAX_CREDITS_ARGS=()
 if [ -z "$MAX_CREDITS" ]; then
   MAX_CREDITS="$(grep -oE '"MAX_AI_CREDITS"[[:space:]]*:[[:space:]]*[0-9]+' \
     "$HOME/.claude/delegation/config.json" 2>/dev/null | grep -oE '[0-9]+' || true)"
+fi
+# ── PLAN61 P2: per-work-type credit FLOOR ──────────────────────────────────────────────────────
+# 47 corrected deaths were budget exhaustion, 33 of them AFTER the "estimate x2, floor 250-400"
+# doctrine was written down (2026-07-17, re-sharpened 2026-07-24). Prose kept losing because the
+# cap is hand-typed at dispatch time. The floor is now mechanical. It only ever RAISES a cap and
+# always announces itself — a floor that could kill a dispatch would be a new death class, which is
+# precisely what this plan exists to prevent.
+# Floors are derived from the corrected census: every post-2026-07-24 C1 death was dispatched below
+# these numbers. Keep this block's BEGIN/END markers and one-line format — scripts/dispatch-preflight.mjs
+# parses them at runtime rather than keeping a second copy that could drift.
+# ── PLAN61-FLOORS-BEGIN ──
+#   build:250 research:250 rca:250 walk:250 orchestrate:250 review:200 verify:100 probe:100 draft:100
+# ── PLAN61-FLOORS-END ──
+_credit_floor() {
+  case "$1" in
+    build|research|rca|walk|orchestrate) echo 250 ;;
+    review)                              echo 200 ;;
+    verify|probe|draft)                  echo 100 ;;
+    *)                                   echo 100 ;;
+  esac
+}
+BUDGET_FLOORED=false
+_p61_floor="$(_credit_floor "$WORK_TYPE")"
+case "$MAX_CREDITS" in
+  ''|*[!0-9]*) _p61_given="" ;;   # unset or non-numeric — treat as absent, never arithmetic-error
+  *)           _p61_given="$MAX_CREDITS" ;;
+esac
+if [ -z "$_p61_given" ] || [ "$_p61_given" -lt "$_p61_floor" ]; then
+  echo "copilot-worker: BUDGET-FLOOR: raised ${_p61_given:-unset}→${_p61_floor} for work-type '${WORK_TYPE}' (PLAN61 P2)" >&2
+  MAX_CREDITS="$_p61_floor"
+  BUDGET_FLOORED=true
 fi
 [ -n "$MAX_CREDITS" ] && MAX_CREDITS_ARGS=(--max-ai-credits "$MAX_CREDITS")
 
@@ -626,6 +704,17 @@ while kill -0 "$DISPATCH_PID" 2>/dev/null; do
             cp "$TASK" "$_bounce_file"
             { printf '\n## STALL-CONTEXT\n'; printf 'Prior dispatch stalled at %ss. This is attempt %s.\n' "$_silent_secs" "$(( ATTEMPT + 1 ))"; printf 'If the same stall occurs, escalate +1 tier per worker-ext.md:73-85.\n'; } >> "$_bounce_file"
             echo "STALL-BOUNCE READY: ${_bounce_file} queued. Dispatch it or wait for original — DO NOT RESCUE INLINE." >&2
+            # PLAN61 P3: the bounce ticket has been pre-written since 2026-07-16 and fired 372 times,
+            # yet 74 post-2026-07-24 stall deaths still ran to terminal — because a file quietly
+            # queued in a directory nobody watches is not a handoff. Surface it as a runnable command
+            # and record the path in the ledger row, so the bounce is consumable instead of archival.
+            BOUNCE_READY="$_bounce_file"
+            {
+              printf 'STALL-BOUNCE COMMAND (copy-paste to re-dispatch this ticket):\n'
+              printf '  bash %s --ticket %s --agent %s --model %s --mode %s --work-type %s --max-credits %s --run-id %s-b%s --attempt %s --parent-run-id %s\n' \
+                "${BASH_SOURCE[0]}" "$_bounce_file" "$AGENT" "$MODEL" "$MODE" "$WORK_TYPE" \
+                "${MAX_CREDITS:-250}" "$RUN_ID" "${_bounce_count}" "$(( ATTEMPT + 1 ))" "$RUN_ID"
+            } >&2
             _bounce_fired=1
           else
             _iso_ts2="$(date -u '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date '+%Y-%m-%dT%H:%M:%SZ')"
@@ -675,8 +764,23 @@ if [ -s "$_MODEL_VERIFY_FILE" ]; then
     s/.*Using model:[[:space:]]*\([^[:space:]]*\).*/\1/p
   ' "$_MODEL_VERIFY_FILE" | tr -d '\r' | sort -u)"
   _MODEL_COUNT="$(printf '%s\n' "$_MODELS_PARSED" | grep -c . || true)"
-  if [ "$_MODEL_COUNT" -gt 1 ]; then
-    echo "copilot-worker: FATAL — debug log contains MULTIPLE DISTINCT models: $(printf '%s\n' "$_MODELS_PARSED" | tr '\n' ' '| sed 's/ $//') — refusing to record." >&2
+  # PLAN61 P5: multi-model is NOT proof of substitution. Nearly every ticket permits up to 3
+  # sub-agents, and a permitted nested spawn puts a second model id in the same debug log — so the
+  # old "count > 1 = FATAL, refuse to record" rule deleted the ledger rows of at least 4 runs whose
+  # work was complete and correct on disk (2026-07-27 x2, 2026-07-30 q123-rh-A/rh-C). A vanished row
+  # is worse than a flagged one: it makes every ledger-derived count silently under-report.
+  # The real discriminator is the PRIMARY model — the FIRST `Using model` line, emitted by the main
+  # session before any sub-agent spawns. Primary == pinned means the wrapper got what it asked for.
+  _PRIMARY_MODEL="$(sed -n '
+    s/.*Using model[[:space:]]*"\([^"]*\)".*/\1/p; t
+    s/.*Using model:[[:space:]]*\([^[:space:]]*\).*/\1/p
+  ' "$_MODEL_VERIFY_FILE" | tr -d '\r' | head -1)"
+  if [ "$_MODEL_COUNT" -gt 1 ] && [ "$_PRIMARY_MODEL" = "$MODEL" ]; then
+    echo "copilot-worker: WARN — debug log contains multiple models: $(printf '%s\n' "$_MODELS_PARSED" | tr '\n' ' '| sed 's/ $//'). Primary matches the pin ('$MODEL'), so this reads as permitted sub-agent use — RECORDING the row with model_verdict=SUSPECT-nested." >&2
+    MODEL_VERDICT="SUSPECT-nested"
+    _ACTUAL_MODEL="$_PRIMARY_MODEL"
+  elif [ "$_MODEL_COUNT" -gt 1 ]; then
+    echo "copilot-worker: FATAL — debug log contains MULTIPLE DISTINCT models: $(printf '%s\n' "$_MODELS_PARSED" | tr '\n' ' '| sed 's/ $//') and the PRIMARY model '$_PRIMARY_MODEL' is not the pinned '$MODEL' — refusing to record." >&2
     printf '{"run_id":"%s","model_intended":"%s","models_found":"%s","verdict":"MULTI_MODEL_CAUGHT"}\n' \
       "$RUN_ID" "$MODEL" "$(printf '%s\n' "$_MODELS_PARSED" | tr '\n' ',' | sed 's/,$//')" > "$META"
     [ -n "$MYLOCK" ] && rm -rf "$MYLOCK" 2>/dev/null
@@ -705,33 +809,28 @@ fi
 # spellings, and reports contain decoys like "OUTPUT: (no output) EXIT:0 -> PASS". Only the exact
 # `OUTPUT (LITERAL ABSOLUTE):` form arms this tooth; anything else leaves it dormant (no false positives).
 DECLARED_OUTPUT=""; DELIVERABLE_STATE="not-declared"
-if [ "$TICKET_MODE" = true ] && [ -n "${TICKET:-}" ] && [ -f "$TICKET" ]; then
-  _raw_out="$(grep -am1 -E '^[[:space:]]*(\*\*)?OUTPUT \(LITERAL ABSOLUTE\)(\*\*)?[[:space:]]*:' "$TICKET" 2>/dev/null \
-    | sed -E 's/^[^:]*:[[:space:]]*//; s/^`//; s/`[[:space:]]*$//; s/[[:space:]]*$//')"
-  if [ -n "$_raw_out" ]; then
-    case "$_raw_out" in
-      /*) DECLARED_OUTPUT="$_raw_out" ;;
-      [A-Za-z]:[/\\]*)
-        # Windows path: tickets carry C:\Users\... and backslashes are escapes in bash, so a raw
-        # [ -s "C:\Users\..." ] silently misreads. Normalize to POSIX before any test.
-        command -v cygpath >/dev/null 2>&1 && DECLARED_OUTPUT="$(cygpath -u "$_raw_out" 2>/dev/null || true)"
-        if [ -z "$DECLARED_OUTPUT" ]; then
-          _drv="$(printf '%s' "$_raw_out" | cut -c1 | tr 'A-Z' 'a-z')"
-          DECLARED_OUTPUT="/${_drv}$(printf '%s' "$_raw_out" | cut -c3- | tr '\\' '/')"
-        fi
-        ;;
-      *) echo "copilot-worker: WARN — OUTPUT (LITERAL ABSOLUTE) is not an absolute path, ignoring: $_raw_out" >&2 ;;
-    esac
-  fi
-fi
+# PLAN61 P1c: one parser, defined once near RUN_DIR setup and reused here. Behaviour identical to
+# the inline block it replaces — the pre-dispatch stub writer must not be able to drift from it.
+DECLARED_OUTPUT="$(_parse_declared_output)"
 if [ -n "$DECLARED_OUTPUT" ]; then
   # A file carrying the wrapper's OWN sentinel counts as missing — otherwise a stub written by a
   # previous failed run would read as a delivered artifact on the next attempt. The wrapper only
   # ever recognizes its own marker here, never a worker-authored shape.
-  if [ -s "$DECLARED_OUTPUT" ] && ! head -1 "$DECLARED_OUTPUT" 2>/dev/null | grep -qa 'copilot-worker: NO DELIVERABLE'; then
+  # PLAN61 P1c adds the second wrapper-owned shape: the STEP-0 stub. Counting NON-STUB non-blank
+  # lines (rather than testing line 1) is load-bearing — it must read as `missing` when the worker
+  # wrote nothing, yet as `present` the moment the worker APPENDS beneath the stub, which is exactly
+  # what duty 0 tells it to do. A line-1 test would mark real appended work as missing.
+  _p61_nonstub=1
+  if [ -s "$DECLARED_OUTPUT" ]; then
+    _p61_nonstub="$(grep -av "$_PLAN61_STUB_MARK" "$DECLARED_OUTPUT" 2>/dev/null | grep -c '[^[:space:]]' || true)"
+    [ -n "$_p61_nonstub" ] || _p61_nonstub=0
+  fi
+  if [ -s "$DECLARED_OUTPUT" ] && [ "$_p61_nonstub" -gt 0 ] \
+     && ! head -1 "$DECLARED_OUTPUT" 2>/dev/null | grep -qa 'copilot-worker: NO DELIVERABLE'; then
     DELIVERABLE_STATE="present"
   else
     DELIVERABLE_STATE="missing"
+    [ "${_p61_nonstub:-1}" -eq 0 ] && echo "copilot-worker: STEP-0 stub was never replaced — worker wrote nothing to $DECLARED_OUTPUT" >&2
   fi
 fi
 
@@ -812,8 +911,29 @@ if [ "$OK" = true ] && [ "$EXIT_REASON" = "success" ] && [ "$TICKET_MODE" = true
     LEDGER_OK=false; LEDGER_EXIT_REASON="budget-exhausted"
   fi
 fi
+# ── PLAN61 P4: network deaths get their own exit_reason ────────────────────────────────────────
+# 8 corrected deaths were network failures that the first census filed as batch-write deaths, because
+# the missing output was louder than the cause. Mislabelled deaths send the next RCA down the wrong
+# path, so name the proximate cause when the evidence is explicit.
+if [ "$LEDGER_OK" != true ] && [ "$LEDGER_EXIT_REASON" != "wall_ceiling" ] && [ "$LEDGER_EXIT_REASON" != "stall" ]; then
+  if grep -qaiE 'ENOTFOUND|dns error|No such host|ECONNRESET|error sending request|failed native model HTTP request' "$ERR" 2>/dev/null; then
+    LEDGER_EXIT_REASON="network"
+  fi
+fi
+
+# ── PLAN61 P7: derive the death class so every future death self-classifies in the ledger ───────
+# Single source of truth: scripts/death-census.mjs owns the taxonomy and its regexes. The wrapper
+# never keeps a second copy — a duplicated classifier is guaranteed drift. Tolerant by design: if
+# the script is absent or misbehaves, the field stays empty and nothing else changes.
+if [ "$LEDGER_OK" != true ] && [ -f "$REPO/scripts/death-census.mjs" ]; then
+  DEATH_CLASS="$(node "$REPO/scripts/death-census.mjs" --classify-one \
+    --run-dir "$RUN_DIR" --exit-reason "$LEDGER_EXIT_REASON" --exit "$EXIT" \
+    --secs "$SECS" --stall-warns "$STALL_WARNS" --deliverable "$DELIVERABLE_STATE" 2>/dev/null \
+    | tr -d '\r\n' | head -c 24)"
+fi
+
 if [ "$LEDGER_OK" != true ]; then
-  echo "copilot-worker: LEDGER-TRUTH — run $RUN_ID recorded ok=false exit_reason=$LEDGER_EXIT_REASON (report_sections=$REPORT_SECTIONS deliverable=$DELIVERABLE_STATE). Process exit code is UNCHANGED ($EXIT) by design." >&2
+  echo "copilot-worker: LEDGER-TRUTH — run $RUN_ID recorded ok=false exit_reason=$LEDGER_EXIT_REASON death_class=${DEATH_CLASS:-none} (report_sections=$REPORT_SECTIONS deliverable=$DELIVERABLE_STATE). Process exit code is UNCHANGED ($EXIT) by design." >&2
 fi
 
 # LCD07 Phase 1+3: enriched META + ledger. New fields: ts, ts_end, tokens_in, tokens_out,
@@ -853,7 +973,9 @@ V_TS="$START_TS" V_TS_END="$END_TS" \
 V_DISPATCHER="${DISPATCHER:-CEO}" V_SESSION_ID="${SESSION_ID:-}" \
 V_TICKET_ID="$(basename "${TICKET:-}")" V_PARENT_RUN_ID="${PARENT_RUN_ID:-}" \
 V_DEPTH="${DEPTH:-0}" V_MAX_WORKERS="${MAX_WORKERS:-5}" V_SUB_AGENTS="$_SUB_AGENTS_JSON" \
-node -e "var e=process.env,ask=e.V_ASK_OPEN;if(ask==='true')ask=true;else if(ask==='false')ask=false;var sa;try{sa=JSON.parse(e.V_SUB_AGENTS);}catch(x){sa=[];}var o={run_id:e.V_RUN_ID,ts:e.V_TS||null,ts_end:e.V_TS_END||null,tokens_in:null,tokens_out:null,cost_usd:null,dispatcher:e.V_DISPATCHER||'CEO',session_id:e.V_SESSION_ID||null,ticket_id:e.V_TICKET_ID||null,parent_run_id:e.V_PARENT_RUN_ID||null,depth:+e.V_DEPTH||0,effective_cap:+e.V_MAX_WORKERS||5,sub_agents:sa,mode:e.V_MODE,model:e.V_MODEL,agent:e.V_AGENT,work_type:e.V_WORK_TYPE,effort:e.V_EFFORT,exit:+e.V_EXIT,ok:e.V_OK==='true',secs:+e.V_SECS,exit_reason:e.V_EXIT_REASON,stall_warns:+e.V_STALL_WARNS,attempt:+e.V_ATTEMPT,ask_open:ask,report_sections:+e.V_REPORT_SECTIONS||0,deliverable:e.V_DELIVERABLE||null,verdict_negative:e.V_VERDICT_NEG==='true',result:e.V_RESULT};process.stdout.write(JSON.stringify(o)+'\n');" >"$META"
+V_BUDGET_FLOORED="$BUDGET_FLOORED" V_MODEL_VERDICT="$MODEL_VERDICT" V_DEATH_CLASS="$DEATH_CLASS" \
+V_BOUNCE_READY="$BOUNCE_READY" V_NETWORK_RETRY="$NETWORK_RETRY" \
+node -e "var e=process.env,ask=e.V_ASK_OPEN;if(ask==='true')ask=true;else if(ask==='false')ask=false;var sa;try{sa=JSON.parse(e.V_SUB_AGENTS);}catch(x){sa=[];}var o={run_id:e.V_RUN_ID,ts:e.V_TS||null,ts_end:e.V_TS_END||null,tokens_in:null,tokens_out:null,cost_usd:null,dispatcher:e.V_DISPATCHER||'CEO',session_id:e.V_SESSION_ID||null,ticket_id:e.V_TICKET_ID||null,parent_run_id:e.V_PARENT_RUN_ID||null,depth:+e.V_DEPTH||0,effective_cap:+e.V_MAX_WORKERS||5,sub_agents:sa,mode:e.V_MODE,model:e.V_MODEL,agent:e.V_AGENT,work_type:e.V_WORK_TYPE,effort:e.V_EFFORT,exit:+e.V_EXIT,ok:e.V_OK==='true',secs:+e.V_SECS,exit_reason:e.V_EXIT_REASON,stall_warns:+e.V_STALL_WARNS,attempt:+e.V_ATTEMPT,ask_open:ask,report_sections:+e.V_REPORT_SECTIONS||0,deliverable:e.V_DELIVERABLE||null,budget_floored:e.V_BUDGET_FLOORED==='true',model_verdict:e.V_MODEL_VERDICT||'OK',death_class:e.V_DEATH_CLASS||null,bounce_ready:e.V_BOUNCE_READY||null,network_retry:e.V_NETWORK_RETRY==='true',verdict_negative:e.V_VERDICT_NEG==='true',result:e.V_RESULT};process.stdout.write(JSON.stringify(o)+'\n');" >"$META"
 
 # LCD07 Phase 1 (lock): mkdir spin-lock for ledger append — portable: Git Bash on Windows has NO flock.
 # Availability-over-strictness: if lock times out, append without lock + stderr warning (telemetry).
@@ -873,7 +995,9 @@ V_TS="$START_TS" V_TS_END="$END_TS" \
 V_DISPATCHER="${DISPATCHER:-CEO}" V_SESSION_ID="${SESSION_ID:-}" \
 V_TICKET_ID="$(basename "${TICKET:-}")" V_PARENT_RUN_ID="${PARENT_RUN_ID:-}" \
 V_DEPTH="${DEPTH:-0}" V_MAX_WORKERS="${MAX_WORKERS:-5}" V_SUB_AGENTS="$_SUB_AGENTS_JSON" \
-node -e "var e=process.env,ask=e.V_ASK_OPEN;if(ask==='true')ask=true;else if(ask==='false')ask=false;var sa;try{sa=JSON.parse(e.V_SUB_AGENTS);}catch(x){sa=[];}var o={run_id:e.V_RUN_ID,ts:e.V_TS||null,ts_end:e.V_TS_END||null,tokens_in:null,tokens_out:null,cost_usd:null,dispatcher:e.V_DISPATCHER||'CEO',session_id:e.V_SESSION_ID||null,ticket_id:e.V_TICKET_ID||null,parent_run_id:e.V_PARENT_RUN_ID||null,depth:+e.V_DEPTH||0,effective_cap:+e.V_MAX_WORKERS||5,sub_agents:sa,mode:e.V_MODE,model:e.V_MODEL,agent:e.V_AGENT,work_type:e.V_WORK_TYPE,effort:e.V_EFFORT,exit:+e.V_EXIT,ok:e.V_OK==='true',secs:+e.V_SECS,exit_reason:e.V_EXIT_REASON,stall_warns:+e.V_STALL_WARNS,attempt:+e.V_ATTEMPT,ask_open:ask,report_sections:+e.V_REPORT_SECTIONS||0,deliverable:e.V_DELIVERABLE||null,verdict_negative:e.V_VERDICT_NEG==='true'};process.stdout.write(JSON.stringify(o)+'\n');" >>"$LEDGER"
+V_BUDGET_FLOORED="$BUDGET_FLOORED" V_MODEL_VERDICT="$MODEL_VERDICT" V_DEATH_CLASS="$DEATH_CLASS" \
+V_BOUNCE_READY="$BOUNCE_READY" V_NETWORK_RETRY="$NETWORK_RETRY" \
+node -e "var e=process.env,ask=e.V_ASK_OPEN;if(ask==='true')ask=true;else if(ask==='false')ask=false;var sa;try{sa=JSON.parse(e.V_SUB_AGENTS);}catch(x){sa=[];}var o={run_id:e.V_RUN_ID,ts:e.V_TS||null,ts_end:e.V_TS_END||null,tokens_in:null,tokens_out:null,cost_usd:null,dispatcher:e.V_DISPATCHER||'CEO',session_id:e.V_SESSION_ID||null,ticket_id:e.V_TICKET_ID||null,parent_run_id:e.V_PARENT_RUN_ID||null,depth:+e.V_DEPTH||0,effective_cap:+e.V_MAX_WORKERS||5,sub_agents:sa,mode:e.V_MODE,model:e.V_MODEL,agent:e.V_AGENT,work_type:e.V_WORK_TYPE,effort:e.V_EFFORT,exit:+e.V_EXIT,ok:e.V_OK==='true',secs:+e.V_SECS,exit_reason:e.V_EXIT_REASON,stall_warns:+e.V_STALL_WARNS,attempt:+e.V_ATTEMPT,ask_open:ask,report_sections:+e.V_REPORT_SECTIONS||0,deliverable:e.V_DELIVERABLE||null,budget_floored:e.V_BUDGET_FLOORED==='true',model_verdict:e.V_MODEL_VERDICT||'OK',death_class:e.V_DEATH_CLASS||null,bounce_ready:e.V_BOUNCE_READY||null,network_retry:e.V_NETWORK_RETRY==='true',verdict_negative:e.V_VERDICT_NEG==='true'};process.stdout.write(JSON.stringify(o)+'\n');" >>"$LEDGER"
 [ "$_lock_ok" = true ] && rmdir "$_LEDGER_LOCK" 2>/dev/null || true
 
 # LCD07 Phase 4: activity-log parity — one table row per dispatch matching the live parser format.
@@ -920,6 +1044,26 @@ if [ "$TICKET_MODE" = true ]; then
       } > "$DECLARED_OUTPUT" 2>/dev/null || true
     fi
   fi
+fi
+
+# ── PLAN61 P4: bounded auto-retry on a network death ───────────────────────────────────────────
+# Deliberately placed at the tail and implemented with exec, NOT by restructuring the dispatch +
+# watchdog loop: this file is the single most load-bearing script in the delegation system, and a
+# rewrite of its core would risk every dispatch to fix a class worth 8 deaths.
+# The failed run keeps its truthful ledger row (already written above) — the retry is a clean fresh
+# run under a derived run-id. `_PLAN61_NET_RETRY` makes a second retry impossible, so there is no
+# loop. The slot lock is released explicitly because exec replaces the process and the EXIT trap
+# would never fire.
+if [ "$OK" != true ] && [ "$LEDGER_EXIT_REASON" = "network" ] && [ "${_PLAN61_NET_RETRY:-0}" != "1" ] \
+   && [ ! -s "$RESULT" ] && [ "$SECS" -lt 120 ] && [ "$TICKET_MODE" = true ]; then
+  echo "copilot-worker: NETWORK-RETRY — run $RUN_ID died on a network error after ${SECS}s with no output. Retrying ONCE as ${RUN_ID}-nr1 after 60s backoff." >&2
+  [ -n "$MYLOCK" ] && rm -rf "$MYLOCK" 2>/dev/null
+  sleep 60
+  export _PLAN61_NET_RETRY=1
+  exec bash "${BASH_SOURCE[0]}" --ticket "$TICKET" --agent "$AGENT" --model "$MODEL" \
+    --mode "$MODE" --work-type "$WORK_TYPE" --max-credits "$MAX_CREDITS" \
+    --run-id "${RUN_ID}-nr1" --attempt "$ATTEMPT" \
+    --dispatcher "${DISPATCHER:-CEO}" --session-id "${SESSION_ID:-}" --parent-run-id "$RUN_ID"
 fi
 
 if [ "$OK" != true ]; then
