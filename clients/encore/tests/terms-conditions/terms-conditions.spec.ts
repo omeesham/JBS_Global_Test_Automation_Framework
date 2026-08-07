@@ -29,8 +29,8 @@ import {
  * Modelled on: service-charge-text/service-charge-text.spec.ts
  *
  * TC-044 and TC-045 assert CORRECT behaviour and are expected to FAIL until the
- * underlying defects (DEF-TNC-002 and DEF-TNC-005) are fixed. Their failure IS the
- * deliverable — machine-checkable evidence of the bug.
+ * underlying application issues are fixed. Their failure IS the deliverable —
+ * machine-checkable evidence of the bugs.
  *
  * TC-046 asserts the correct bold round-trip: type text, apply Bold, confirm <strong>
  * appears, save, reload, reopen, confirm <strong> survived. Persistence was NOT verified
@@ -44,7 +44,7 @@ import {
  * - TC-072: State transition clean-to-dirty (RTE) — directly exercised by TC-023.
  * - TC-081: Tab-to-tab navigation guard — navigation target does not exist; unconfirmed/N/A.
  * - TC-084: Double-click race on Save — error-guessing case; deferred until it can be prioritised.
- * - TC-085: Save-failure retry after successful retry — requires DEF-TNC-005 fix first.
+ * - TC-085: Save-failure retry after successful retry — requires the failed-save UI fix first.
  * - TC-086: Language switched mid-RTE-edit — covered by TC-041 (guard dialog fires).
  * - TC-087: Browser-back after successful save — covered by TC-037/TC-075.
  * - TC-091: Network payload shape — covered structurally by TC-044's requestBody assertion.
@@ -909,7 +909,7 @@ test.describe('Terms and Conditions', () => {
   // Skipped while an application issue is open. A valid bulk save currently returns a server
   // error (HTTP 500) when residue rows with extreme content are present, so this check cannot
   // pass. It should be re-enabled once bulk saves with the existing grid data complete successfully.
-  test.skip('TC-TNC-CORE-044: Valid save should succeed even when residue rows are present (DEF-TNC-002)', async ({ dependencyGate }) => {
+  test.skip('TC-TNC-CORE-044: Valid save should succeed even when residue rows are present', async ({ dependencyGate }) => {
     dependencyGate([]);
     const row = await tnc.ensureFixtureRow(TNC_OFFICE);
     const originalLanguage = await tnc.getRowLanguage(row);
@@ -945,7 +945,7 @@ test.describe('Terms and Conditions', () => {
 
 
   /**
-   * DEF-TNC-005: UI shows success when save returns HTTP 500 — silent data loss.
+   * Known application issue: UI shows success when save returns HTTP 500 — silent data loss.
    *
    * This spec forces an HTTP 500 via route interception and asserts CORRECT behaviour:
    * on a failed save the UI should signal an error and keep Save enabled.
@@ -955,7 +955,7 @@ test.describe('Terms and Conditions', () => {
    * Evidence: one observed HTTP 500 on the live endpoint. This assertion is scoped to
    * that exact status code and does not generalise to other non-2xx responses.
    */
-  test('TC-TNC-CORE-045: UI shows success when save returns HTTP 500 — silent data loss (DEF-TNC-005)', async ({ dependencyGate }) => {
+  test('TC-TNC-CORE-045: UI shows success when save returns HTTP 500 — silent data loss', async ({ dependencyGate }) => {
     dependencyGate([]);
     const row = await tnc.ensureFixtureRow(TNC_OFFICE);
     const originalLanguage = await tnc.getRowLanguage(row);
@@ -1569,7 +1569,7 @@ test.describe('Terms and Conditions', () => {
     expect(await tnc.isSaveEnabled()).toBe(true);
 
     const result = await tnc.saveAndCaptureResponse();
-    // Batch save MUST succeed for this test to be meaningful — a 500 is DEF-TNC-002 failure
+    // Batch save MUST succeed for this test to be meaningful — a 500 indicates the bulk-save failure still exists
     expect(result.status).toBeGreaterThanOrEqual(200);
     expect(result.status).toBeLessThan(300);
 
@@ -1625,7 +1625,7 @@ test.describe('Terms and Conditions', () => {
   });
 
 
-  test('TC-TNC-CORE-062: Save failure via route interception — form stays dirty (DEF-TNC-005 evidence)', async ({ dependencyGate, authenticatedSession }) => {
+  test('TC-TNC-CORE-062: Save failure via route interception — form stays dirty, documenting a known application issue', async ({ dependencyGate, authenticatedSession }) => {
     dependencyGate([]);
     const page = authenticatedSession.page;
 
@@ -1646,8 +1646,8 @@ test.describe('Terms and Conditions', () => {
     const result = await tnc.saveAndCaptureResponse();
     expect(result.status).toBe(500);
 
-    // DEF-TNC-005: the CORRECT expectation is Save stays enabled. Current behaviour: Save disables.
-    expect(await tnc.isSaveEnabled()).toBe(true); // Will FAIL per DEF-TNC-005
+    // Known application issue: the CORRECT expectation is Save stays enabled. Current behaviour: Save disables.
+    expect(await tnc.isSaveEnabled()).toBe(true); // Expected to fail until failed-save retry is fixed
 
     // Cleanup: remove route interception
     await page.unroute('**/terms-conditions-texts');
@@ -1817,7 +1817,7 @@ test.describe('Terms and Conditions', () => {
   });
 
 
-  test('TC-TNC-CORE-074: State transition — Dirty to Save-Failed (DEF-TNC-005)', async ({ dependencyGate, authenticatedSession }) => {
+  test('TC-TNC-CORE-074: State transition — Dirty to Save-Failed', async ({ dependencyGate, authenticatedSession }) => {
     dependencyGate([]);
     const page = authenticatedSession.page;
 
@@ -1837,7 +1837,7 @@ test.describe('Terms and Conditions', () => {
     const result = await tnc.saveAndCaptureResponse();
     expect(result.status).toBe(500);
 
-    // Correct expectation: Save remains enabled. DEF-TNC-005: will FAIL (Save disables on 500).
+    // Correct expectation: Save remains enabled. Current behaviour will fail this check because Save disables on 500.
     expect(await tnc.isSaveEnabled()).toBe(true);
 
     await page.unroute('**/terms-conditions-texts');
@@ -2109,7 +2109,7 @@ test.describe('Terms and Conditions', () => {
     const failResult = await tnc.saveAndCaptureResponse();
     expect(failResult.status).toBe(500);
 
-    // Correct expectation: Save remains enabled so user can retry (DEF-TNC-005 causes this to fail)
+    // Correct expectation: Save remains enabled so user can retry; current behaviour causes this to fail
     expect(await tnc.isSaveEnabled()).toBe(true);
 
     // Remove interception and retry
@@ -2319,7 +2319,7 @@ test.describe('Terms and Conditions', () => {
   });
 
 
-  // BUG-TNC-CORE-006: Rich text editor (Tiptap/ProseMirror) does not release focus on Escape (WCAG 2.1.2).
+  // Rich text editor (Tiptap/ProseMirror) does not release focus on Escape (WCAG 2.1.2).
   // Skipped while an application issue is open. Pressing Escape should release focus from the
   // rich text editor, but the application keeps focus trapped — after pressing Escape,
   // document.activeElement remains the contenteditable div. Re-enable once that is fixed.
@@ -2362,7 +2362,7 @@ test.describe('Terms and Conditions', () => {
   });
 
 
-  // BUG-TNC-CORE-007: Unsaved-changes dialog does not restore focus to trigger element on dismiss via Stay (WCAG 2.4.3).
+  // Unsaved-changes dialog does not restore focus to trigger element on dismiss via Stay (WCAG 2.4.3).
   // Skipped while an application issue is open. Dismissing the unsaved-changes dialog should
   // restore focus to the element that triggered it, but the application drops focus to <body>
   // instead. Re-enable once that is fixed.

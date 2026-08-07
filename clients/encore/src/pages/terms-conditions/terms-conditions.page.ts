@@ -23,7 +23,7 @@ const TNC_DESTRUCTIVE_BORDER_COLOR = 'oklch(0.577 0.245 27.325)';
  * - The editor DOM node is rebuilt on every cell switch; locators are never cached across cells.
  * - ProseMirror ignores fill(); all rich-text input uses real keyboard events.
  * - Row lookup is content-anchored (by name), never by index alone.
- * - Save is gated by dirty AND validity; button-disabled does NOT imply success (DEF-TNC-005).
+ * - Save is gated by dirty AND validity; button-disabled does NOT prove the server accepted the save.
  * - No delete affordance exists; cleanup restores values in place.
  * - No save confirmation dialog; the shared save-changes dialog does not apply on this page.
  *
@@ -594,7 +594,7 @@ export class TermsConditionsPage extends BasePage {
    * Clicks Save and waits for the PUT round-trip to complete.
    *
    * This method CANNOT confirm whether the save succeeded — the UI disables Save
-   * identically on success AND on server error (DEF-TNC-005). Use saveAndCaptureResponse
+   * identically on success AND on server error. Use saveAndCaptureResponse
    * when a test needs to distinguish success from failure.
    */
   @step('Click Save and wait for the request to complete')
@@ -612,12 +612,12 @@ export class TermsConditionsPage extends BasePage {
    * Clicks Save and returns the HTTP status, request payload, and response body.
    *
    * Use this when a test needs to verify the server actually accepted the change.
-   * Button-disabled does NOT imply success (DEF-TNC-005): the UI disables Save identically
+   * Button-disabled does NOT imply success: the UI disables Save identically
    * whether the server returns 2xx or 500. This method exposes the actual network exchange
    * so specs can assert on it.
    *
-   * - requestBody: the bulk PUT payload (proves every row was sent — DEF-TNC-002).
-   * - responseBody: the server's reply (carries the 500 message — DEF-TNC-005).
+   * - requestBody: the bulk PUT payload (proves every row was sent in the bulk PUT).
+   * - responseBody: the server's reply (carries any 500 message from a failed save).
    */
   @step('Click Save and capture the HTTP response')
   async saveAndCaptureResponse(timeout = 15_000): Promise<{ status: number; requestBody: unknown; responseBody: unknown }> {
@@ -708,7 +708,7 @@ export class TermsConditionsPage extends BasePage {
    * Lookup-or-create with cross-language recovery:
    * 1. Checks the default-language view first (fast path — the common case).
    * 2. If missing there, sweeps every per-language filter to find a re-languaged row.
-   *    Name uniqueness is enforced cross-language (DEF-TNC-001 / TC-TNC-CORE-059), so
+   *    Name uniqueness is enforced cross-language (see TC-TNC-CORE-059), so
    *    creating a duplicate would fail — the only correct recovery is to move the existing
    *    row back to the default language.
    * 3. If the row exists under a non-default language, changes its language back to the

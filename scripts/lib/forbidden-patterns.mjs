@@ -202,6 +202,26 @@ export const SOURCE_COMMENT_JARGON = [
   // Fragile cross-file line-pointers (`base.page.ts:448`, `auth.setup.ts:121`) — line
   // numbers drift; the reference rots. Bans the `<file>.ts:<line>` / `<file>.page.ts:<line>` form.
   /\b[a-z][\w-]*\.(?:page\.)?ts:\d+/,
+
+  // ── 2026-08-08 internal-tracking-ID denylist ─────────────────────────────────
+  // Internal defect / bug tracking identifiers that follow the PREFIX-MODULE-NNN
+  // shape. Graduating incident: DEF-TNC-002 and DEF-TNC-005 shipped in four
+  // client-visible test names on 2026-08-07 because `DEF-` was never on the list.
+  // This is a DENYLIST (not a true floor): it enumerates every internal-tracker
+  // prefix family judged plausible for this team's workflows. If a new family
+  // emerges, the alternation must be extended — the pattern will not catch unknown
+  // prefixes automatically. A broader floor (match any PREFIX-MODULE-NNN and
+  // exclude known-safe prefixes) was considered but rejected: the false-positive
+  // surface is too wide — product codes, equipment IDs, and Angular enum tokens
+  // all share the shape, and an exclusion list that must grow with every new
+  // legitimate token is more fragile than a denylist that grows only when a new
+  // internal tracker family is invented (rare, auditable event).
+  // DELIBERATELY EXCLUDED from the denylist:
+  //   `NM-####` — the client's own Jira tickets (LR-058 mandate: must never match).
+  //   `TC-`     — deliverable test-case naming convention, not internal tracking.
+  // Fix: reword the sentence so the meaning survives without the identifier —
+  // never delete the sentence, and never bypass the gate.
+  /\b(?:DEF|BUG|FIX|INC|ESC|ISSUE|TASK|FEAT|ENH|RFE)-[A-Z]{2,5}(?:-[A-Z]{2,5})?-?\d+\b/,
 ];
 
 // ── Shared helpers ───────────────────────────────────────────────────────────
