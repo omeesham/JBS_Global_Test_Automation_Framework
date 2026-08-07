@@ -1294,3 +1294,19 @@ Append-only audit trail per LR-028. Format: `| YYYY-MM-DDThh:mm | agent | status
 | 2026-08-07T23:07 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-p61-trip-stub-0807.md — claude-haiku-4.5 probe ok=true |
 | 2026-08-07T23:09 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-p61-trip-nested-0807.md — claude-opus-4.6 probe ok=true |
 | 2026-08-07T23:20 | OWNER | execute | .claude/skills/ultra-agents/copilot-worker.sh, scripts/dispatch-preflight.mjs, scripts/death-census.mjs | [wdeath] PLAN_61 wrapper phases 1c/2/3/4/5/7 + preflight + death-census; trip-tests fired stub/floor/death-class/SUSPECT-nested live |
+| 2026-08-07T23:18 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-n2-naming-opus.md — claude-opus-4.6 verify ok=true |
+| 2026-08-07T23:18 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-p61-trip-stall-0807.md — claude-haiku-4.5 probe ok=true |
+| 2026-08-07T23:29 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-n1-naming-gpt.md — gpt-5.5 verify ok=true |
+| 2026-08-08T00:58 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-c2-gate-floor.md — claude-opus-4.6 build ok=true |
+| 2026-08-08T01:03 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-r2-seg-opus.md — claude-opus-4.6 rca ok=true |
+| 2026-08-08T01:04 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-r1-seg-gpt.md — gpt-5.5 rca ok=true |
+| 2026-08-08T01:05 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-c1-def-scrub.md — gpt-5.5 build ok=true |
+| 2026-08-08T01:09 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-c3-bug-scrub.md — claude-opus-4.6 build ok=true |
+| 2026-08-08T01:12 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-c2r-review.md — gpt-5.5 verify ok=true |
+| 2026-08-08T01:21 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-c2b-bounce.md — claude-opus-4.6 build ok=true |
+| 2026-08-08T01:38 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-c4-md-workbook.md — gpt-5.5 build ok=true |
+| 2026-08-08T01:52 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-pre2-opus.md — claude-opus-4.6 verify ok=true |
+| 2026-08-08T02:00 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-pre1-gpt.md — gpt-5.5 verify ok=true |
+| 2026-08-08T02:11 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-post2-opus.md — claude-opus-4.6 verify ok=true |
+| 2026-08-08T02:24 | CEO/copilot-worker | dispatch | (none) | [delegation] DISPATCH-post1-gpt.md — gpt-5.5 verify ok=true |
+| 2026-08-08T02:35 | OWNER | deliver | PLAN_62 | Internal defect identifiers removed from the client-facing surface (4 test names, 16 comments, 30 workbook cells across source, markdown and both workbooks). Test-case ids untouched — 88 TNC / 83 SCT verified identical. Workbooks regenerated with measured run results; T&C 87/5 Pass:77 Skipped:10 and SCT 83/0 Pass:81 Skipped:2 unchanged. Forbidden-token list extended with an internal-tracker denylist, live-fired both directions. `CORE` id segment left as-is per owner decision after two blind seats found no derivable better segment. Pushed encore-mock/main 41a02f7→c6c7c18 and origin/main 4b542701c→10ef433ed; pre- and post-push council audits both confirm zero coverage regression and zero internal identifiers on the client remote. |

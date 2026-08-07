@@ -1,6 +1,7 @@
 # PLAN 62 — Encore delivered-spec naming: the `CORE` ID segment and the `DEF-*` token leak
 
-**Status**: Pending
+**Status**: DONE
+**Executed**: 2026-08-08
 **Priority**: Medium
 **Created**: 2026-08-07
 **Identity**: OWNER
@@ -148,7 +149,7 @@ The convicted mechanism is the token list, not the sweep. Task 2 rewires it by a
 | GIVER | workbooks | Nothing — no ID changes, so no workbook edit | `(none)` |
 | BUILDER | shipped source | Title + comment rewrites | `clients/encore/tests/terms-conditions/terms-conditions.spec.ts`<br>`clients/encore/src/pages/terms-conditions/terms-conditions.page.ts` |
 | HEALER | status | Nothing — no failing test is involved | `(none)` |
-| WATCHDOG | evidence | The two-way discrimination proof for the new pattern | `.claude/state/ua-worker/chips/naming-audit/out-def-gate/REPORT.md` |
+| WATCHDOG | evidence | The two-way discrimination proof for the new pattern | `.claude/state/ua-worker/chips/naming-audit/out-c2-gate-floor/REPORT.md`<br>`.claude/state/ua-worker/chips/naming-audit/out-c2r-review/REPORT.md`<br>`.claude/state/ua-worker/chips/naming-audit/out-c2b-bounce/REPORT.md` |
 | GARDENER | gates | The forbidden-pattern change | `scripts/lib/forbidden-patterns.mjs` |
 | OWNER | registry rationale, commit, push | The `$comment` entries; publishing | `export_test_cases/module-codes.json` |
 
@@ -172,7 +173,32 @@ npx tsx scripts/check-tc-parity.ts
 
 Expected: PASS, exit 0 — proves the title rewrites left every `TC-` ID untouched.
 
-## 8. Evidence
+## Execution Summary
+
+**Executed**: 2026-08-08. **Outcome**: delivered and pushed to both remotes; verified on the remotes after the fact.
+
+| Item | Status | Evidence |
+|---|---|---|
+| §4 Task 1 — remove `DEF-*` from the shipped spec and page object | DONE | `c1-def-scrub`; 4 test names + comments reworded, meaning preserved |
+| §4 Task 1b — remove `BUG-*` from the same spec | DONE | `c3-bug-scrub`; found by the dispatcher after the gate work exposed them |
+| §4 Task 1c — remove both from the markdown source and regenerate the workbooks | DONE | `c4-md-workbook`; **this was a scope miss in the original plan** — see below |
+| §4 Task 2 — extend the forbidden-token gate | DONE | `c2-gate-floor` → `c2r-review` (ACCEPT-WITH-FIXES) → `c2b-bounce`; `scripts/lib/forbidden-patterns.mjs` |
+| §4 Task 3 — write the `CORE` rationale into the registry | **CANCELLED** | Owner instruction 2026-08-08: leave it, do not document it |
+| §4B — rename the suite segment | **CANCELLED** | See §3; no derivable better segment exists |
+
+**The plan's own scope miss.** §4 as first written named only the spec and page object. The identifiers were also in the test-case markdown and in **both shipped workbooks** — 15 cells each. That would have shipped. It was caught not by review but by `check-tc-parity` flagging `TC-TNC-CORE-044` as title-divergent, because the spec had been corrected and the workbook had not. Root cause: the forbidden-token gate reads source files and cannot read spreadsheet cells, so a clean gate result was never evidence about the workbook. The `xlsx-lint` vocab gate does read cells and now passes on 4,141 rows, but it had no pattern for these identifiers either until Task 2 landed.
+
+**Verification performed.**
+
+- Pre-push: two blind cross-family seats. `pre2-opus` returned CLEAR-TO-PUSH; `pre1-gpt` returned BLOCK on five points, of which three were stale (its ship dry run archived `HEAD` at 02:00 while the commit landed at 01:55), one was an explained measurement difference, and one was real — two commits from a different session (`7745dc979`, `0eaba0ae2`, PLAN_61 work) were on `main` and went with the branch.
+- Post-push: `post2-opus` LANDED-CLEAN; `post1-gpt` PROBLEM on one point — a PLAN_61 commit touched `clients/encore/specs_planning/_internal/agent-activity-log.md`. That is a ticket-wording defect, not a delivery defect: the ticket said "nothing under `clients/`" where it meant "nothing that ships", and `specs_planning/` is purged by the ship. Confirmed absent from the client remote.
+- Dispatcher's own checks on the remote: tip `c6c7c186b`, 24 specs, seven held-back specs absent, **zero test-case ids lost across all 24 specs**, zero internal identifiers in source or workbook cells.
+
+**A hollow check worth recording.** The dispatcher first verified the payload at the ship's scratch path and got zero identifiers, zero leaks, clean on every count — while the directory had already been deleted. Every zero was the absence of a directory, not the absence of a defect. Re-verified against a payload built with `git archive`. This is the failure mode where a green result is an artifact of invisibility.
+
+**Pushed**: `encore-mock/main` `41a02f7` → `c6c7c18`; `origin/main` `4b542701c` → `10ef433ed`.
+
+## 9. Evidence
 
 - `.claude/state/ua-worker/chips/naming-audit/out-n1-naming-gpt/NAMING-AUDIT.md` — gpt-5.5 seat, with `parity-final.json` and `line-evidence.txt`
 - `.claude/state/ua-worker/chips/naming-audit/out-n2-naming-opus/NAMING-AUDIT.md` — opus seat
