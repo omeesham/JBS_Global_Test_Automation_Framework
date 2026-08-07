@@ -89,6 +89,19 @@ function resolveCoverageMode(cliCoverageMode) {
   return (m === 'announce' || m === 'deny') ? m : 'off';
 }
 
+// === Coverage-tier mode (PLAN_COVERAGE_TIER_CONTRACT Phase 3.4) — mirrors C6/Cx/Ct ===
+// Precedence: explicit CLI --coverage-tier-mode=<off|announce|deny> > closure-config.json coverage_tier_mode > 'off'.
+// Controls the tier-aware deferral acceptance: plan CoverageMode vs artifact Walk_Mode mismatch check.
+function resolveCoverageTierMode(cliMode) {
+  let cfgMode = 'off';
+  try {
+    const cfg = JSON.parse(readFileSync(CLOSURE_CONFIG_PATH, 'utf-8'));
+    if (cfg && typeof cfg.coverage_tier_mode === 'string') cfgMode = cfg.coverage_tier_mode;
+  } catch { /* no config → off */ }
+  const m = (cliMode || cfgMode || 'off').toLowerCase();
+  return (m === 'announce' || m === 'deny') ? m : 'off';
+}
+
 function resolveCoverageLandingDate() {
   try {
     const cfg = JSON.parse(readFileSync(CLOSURE_CONFIG_PATH, 'utf-8'));
@@ -793,8 +806,12 @@ function checkC6(body) {
 // NON-overridable like C2-C6 — remediate by completing the walk, not by a per-token escape.
 const WALK_ARTIFACT_RX = /(?:field-inventories|old-site-baseline)\/[^/\s]+\.md$/;
 
-function checkCx(body, planPath, landingDate) {
+function checkCx(body, planPath, landingDate, cliCoverageTierMode) {
   const items = [];
+  // Parse the plan's declared CoverageMode (absent = 'deep' by contract — conservative default).
+  const planCoverageModeRaw = parseField(body, 'CoverageMode').toLowerCase();
+  const planCoverageMode = (planCoverageModeRaw === 'quick') ? 'quick' : 'deep';
+  const tierMode = resolveCoverageTierMode(cliCoverageTierMode);
   // Fixture-path scoping: walk artifacts under scripts/test-fixtures/ are deliberately-shaped
   // samples (incl. intentionally-fabricated ones) for the gate's own self-tests. A REAL plan that
   // merely references a fixture path in prose (e.g. this gate's own subplan documenting its
@@ -819,6 +836,14 @@ function checkCx(body, planPath, landingDate) {
     const v = coverageVerdict(text, landingDate, { artifactPath: abs });
     if (!v.applicable) continue;      // grandfathered or no coverage manifest present
     if (!v.complete) items.push({ artifact: rel, reasons: v.reasons, severity: 'FAIL', fabrication: !!v.provenanceFail });
+    // Tier-mode cross-check: deep plan citing a quick-mode artifact = mismatch FAIL.
+    if (tierMode !== 'off') {
+      const artifactWalkMode = (v.walkMode || 'deep').toLowerCase();
+      if (planCoverageMode === 'deep' && artifactWalkMode === 'quick') {
+        const msg = `tier-mismatch: plan declares deep coverage but cites a quick-mode artifact (${rel})`;
+        items.push({ artifact: rel, reasons: [msg], severity: tierMode === 'deny' ? 'FAIL' : 'WARN', fabrication: false });
+      }
+    }
     // W-DENOM: denominator integrity (item 4) + spot audit (item 7) -- only when coverage is complete.
     if (v.applicable && v.complete && v.signals.hasCompletionRecord) {
       const jsonRel = v.signals.completionRef.replace(/\s*\(.*\)$/, '').trim();
@@ -831,7 +856,7 @@ function checkCx(body, planPath, landingDate) {
       if (denomReasons.length > 0) items.push({ artifact: rel, reasons: denomReasons, severity: 'FAIL', fabrication: false });
     }
   }
-  return { check: 'Cx', status: items.length > 0 ? 'FAIL' : 'PASS', overridable: false, items };
+  return { check: 'Cx', status: items.some(i => i.severity === 'FAIL') ? 'FAIL' : 'PASS', overridable: false, items };
 }
 
 // === Ct: no-red-close test-status deferral gate (PLAN_CORP_PRICING_REWALK_REMEDIATION M3 / LR-060) ===
@@ -1035,14 +1060,57 @@ function loadOverrides(mode) {
   }
 }
 
+// Strip a leading SESSION BOOTSTRAP blockquote block (lines starting with ">") and its
+// trailing "---" separator so validatePlan reaches the real frontmatter below it.
+// Graduating incident: 2026-08-07 PLAN_COVERAGE_TIER_CONTRACT SKIP-at-closure (LR-069 Sev S1).
+// Scans for the FIRST "---" that (a) is preceded exclusively by ">"-prefixed non-empty non-title
+// lines and (b) is followed by a non-">" first non-empty line (the real frontmatter / "#" title).
+// Bare "---" lines INSIDE the blockquote are skipped — they satisfy (a) but not (b).
+// Frontmatter-first plans are unaffected (their first non-title non-empty line is "**Status**:").
+function stripLeadingBootstrap(body) {
+  const lines = body.split('\n').map(l => l.trimEnd()); // normalize \r\n endings
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (l === '---') {
+      // Candidate terminator. Verify everything before it is blockquote-or-blank-or-title-or-sep.
+      const before = lines.slice(0, i).filter(ll => ll.trim() !== '' && !ll.startsWith('#') && ll !== '---');
+      if (before.length === 0) return body; // nothing bootstrap-like before this ---
+      if (!before.every(ll => ll.startsWith('>'))) return body; // non-blockquote content present
+      // Check what follows this ---: first non-empty line must NOT be a blockquote line.
+      const afterFirst = lines.slice(i + 1).find(ll => ll.trim() !== '');
+      if (!afterFirst || !afterFirst.startsWith('>')) {
+        return lines.slice(i + 1).join('\n');
+      }
+      // This --- is inside the blockquote; continue scanning.
+      continue;
+    }
+    if (l.trim() === '' || l.startsWith('#') || l.startsWith('>')) continue;
+    // Non-blockquote, non-blank, non-title, non-separator line: no bootstrap block.
+    return body;
+  }
+  return body;
+}
+
 // === Single plan validation ===
 function validatePlan(body, planPath, opts = {}) {
   const bn = basename(planPath);
-  const headerEnd = body.indexOf('\n---', 4);
-  const header = headerEnd > 0 ? body.slice(0, headerEnd + 4) : body.slice(0, 800);
+  // Use effectiveBody for header extraction only; full body is passed to C1-C6 checks unchanged.
+  const effectiveBody = stripLeadingBootstrap(body);
+  const headerEnd = effectiveBody.indexOf('\n---', 4);
+  const header = headerEnd > 0 ? effectiveBody.slice(0, headerEnd + 4) : effectiveBody.slice(0, 800);
   const status = parseField(header, 'Status');
 
   if (status !== 'DONE' && !opts.forceCheck) {
+    // LR-055 V5 fail-closed: a DONE token the header parser could not bind is a FAIL, not a SKIP.
+    // Graduating incident: 2026-08-07 — hidden-status-by-malformed-header defect (review-K D2).
+    if (/^\*\*Status\*\*:\s*DONE/m.test(body)) {
+      return {
+        plan: bn,
+        status: 'FAIL',
+        reason: 'status-hidden-by-malformed-header',
+        checks: [{ check: 'C2', status: 'FAIL', items: ['**Status**: DONE present in body but not parseable from header — bootstrap stripping failed or header is malformed'] }],
+      };
+    }
     return { plan: bn, status: 'SKIP', reason: 'Not Status: DONE', checks: [] };
   }
 
@@ -1080,7 +1148,7 @@ function validatePlan(body, planPath, opts = {}) {
   const coverageEnforced = !opts.dryRun && coverageMode === 'deny';
   let cx = null;
   if (coverageMeasured) {
-    cx = checkCx(body, planPath, resolveCoverageLandingDate());
+    cx = checkCx(body, planPath, resolveCoverageLandingDate(), opts.coverageTierMode);
     checks.push(cx);
   }
 
@@ -1235,7 +1303,7 @@ function runSingle(planPath, opts) {
     testStatusMode: opts.testStatusMode,
     recurrenceTrialMode: opts.recurrenceTrialMode,
     interactionCoverageMode: opts.interactionCoverageMode,
-    dryRun: opts.dryRun,
+    coverageTierMode: opts.coverageTierMode,
   });
 
   if (opts.json) {
@@ -1321,7 +1389,7 @@ function runAll(opts) {
     // `--all` actually evaluates at the requested mode instead of silently ignoring the flag.
     const result = validatePlan(body, planPath, {
       overrideMode: 'retro', forceCheck: true,
-      coverageMode: opts.coverageMode, testStatusMode: opts.testStatusMode, c6Mode: opts.c6Mode, recurrenceTrialMode: opts.recurrenceTrialMode, interactionCoverageMode: opts.interactionCoverageMode, dryRun: opts.dryRun,
+      coverageMode: opts.coverageMode, testStatusMode: opts.testStatusMode, c6Mode: opts.c6Mode, recurrenceTrialMode: opts.recurrenceTrialMode, interactionCoverageMode: opts.interactionCoverageMode, coverageTierMode: opts.coverageTierMode, dryRun: opts.dryRun,
     });
     results.push(result);
 
@@ -1427,6 +1495,22 @@ function runSelfTest() {
     const header = headerEnd > 0 ? body.slice(0, headerEnd + 4) : body.slice(0, 800);
     const expectedVerdict = parseField(header, 'expected_verdict') || '';
     const expectedChecks = parseField(header, 'expected_checks') || '';
+
+    // Defect-5 (review-K D5): for frontmatter-first fixtures, stripLeadingBootstrap must be
+    // byte-identical (no mutation). Detect frontmatter-first: first non-empty, non-title line
+    // does NOT start with ">".
+    const firstSignificantLine = body.split('\n').find(l => l.trim() !== '' && !l.startsWith('#'));
+    const isFrontmatterFirst = !!firstSignificantLine && !firstSignificantLine.startsWith('>');
+    if (isFrontmatterFirst) {
+      const stripped = stripLeadingBootstrap(body);
+      if (stripped !== body) {
+        console.log(`  [FAIL] STRIP-IDENTITY: stripLeadingBootstrap mutated frontmatter-first fixture ${f}`);
+        failed++;
+      } else {
+        console.log(`  [PASS] STRIP-IDENTITY: stripLeadingBootstrap(${f}) === body`);
+        passed++;
+      }
+    }
 
     // Generic fixtures test C1-C5 semantics; C6 is exercised by dedicated synthetic fixtures
     // (PLAN_DONE_MEANS_DONE Phase 2.2a self-tests, run via --dry-run). Force C6 off here so the
@@ -1592,9 +1676,11 @@ if (args.includes('--self-test')) {
   const recurrenceTrialMode = recurrenceTrialModeArg ? recurrenceTrialModeArg.split('=')[1] : undefined;
   const interactionCoverageModeArg = args.find(a => a.startsWith('--interaction-coverage-mode='));
   const interactionCoverageMode = interactionCoverageModeArg ? interactionCoverageModeArg.split('=')[1] : undefined;
+  const coverageTierModeArg = args.find(a => a.startsWith('--coverage-tier-mode='));
+  const coverageTierMode = coverageTierModeArg ? coverageTierModeArg.split('=')[1] : undefined;
 
   if (all) {
-    const result = runAll({ json, reportOnly: reportOnly || !enforce, rewriteManifests, coverageMode, testStatusMode, c6Mode, recurrenceTrialMode, interactionCoverageMode, dryRun });
+    const result = runAll({ json, reportOnly: reportOnly || !enforce, rewriteManifests, coverageMode, testStatusMode, c6Mode, recurrenceTrialMode, interactionCoverageMode, coverageTierMode, dryRun });
     if (enforce && !reportOnly && !rewriteManifests) {
       const anyFail = result.plans.some(p => p.status === 'FAIL');
       process.exit(anyFail ? 1 : 0);
@@ -1616,6 +1702,7 @@ if (args.includes('--self-test')) {
       testStatusMode,
       recurrenceTrialMode,
       interactionCoverageMode,
+      coverageTierMode,
       overrideMode: staged ? 'staged' : contentFromStdin ? 'stdin' : 'enforce',
       forceCheck: contentFromStdin || dryRun,
     });
