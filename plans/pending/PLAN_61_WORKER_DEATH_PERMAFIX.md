@@ -133,4 +133,34 @@ Then re-run `scripts/death-census.mjs` and record the after-baseline. Update del
 Every wrapper phase is an independent minimal diff; revert = `git checkout` the wrapper + delete the two new scripts. Tier-2 edits: DUTY_STACK/agent-profile blocks are delimited `<!-- PLAN_61 -->` … `<!-- /PLAN_61 -->` for clean removal.
 
 ## Plan-Deviations log
-(populated at execution; D-rows only for genuine scope/process surprises)
+
+| # | Deviation | Resolution |
+|---|---|---|
+| D1 | Phase 3 planned to "set `exit_reason=stall`" — the wrapper already did this (`:613`). | Scope narrowed to the half that was actually missing: making the queued bounce consumable (`bounce_ready` + runnable command). |
+| D2 | Phase 1a (`~/.claude/delegation/DUTY_STACK.md`) is denied by the G1-TP1 gate with **no SELF_GRANT bypass** — the grant only unlocks the repo-side wrapper. | Staged as an idempotent script (`.claude/state/ua-worker/chips/wdeath/duty0-patch.mjs`); Rutvik ran it, injection verified on disk. |
+| D3 | Phase 4's in-wrapper retry would have required restructuring the dispatch+watchdog loop — the highest-blast-radius edit in the plan, for the smallest class (8 deaths). | Implemented at the tail via `exec` + a loop-proof env guard: ~15 lines, zero restructuring, first run keeps its truthful ledger row. |
+| D4 | Phase 6's doctrine line in `.claude/skills/delegation-temp/SKILL.md` is outside the grant's `paths[]`. | NOT applied — listed under Remaining below. Mechanisms are live regardless; this is documentation only. |
+
+## Execution Summary — 2026-08-07
+
+**Wrapper** `.claude/skills/ultra-agents/copilot-worker.sh`: sha `5fa71a48…` → `8ac92ae0…`, 935 → 1079 lines, `bash -n` clean after every edit. All six phases landed (P1c stub + hoisted parser + stub-only oracle, P2 credit floors, P3 bounce surfacing, P4 network classify + bounded retry, P5 provenance SUSPECT-nested, P7 death_class). Five new ledger fields: `budget_floored`, `model_verdict`, `death_class`, `bounce_ready`, `network_retry`.
+
+**New scripts**: `scripts/dispatch-preflight.mjs` (8 checks, 16/16 self-test) and `scripts/death-census.mjs` (census + `--classify-one`, 16/16 self-test). Both built by Copilot workers, cross-family reviewed, bounced once each, re-verified by the dispatcher.
+
+**Phase 8 trip-test battery — what actually fired live:**
+
+| Trip | Evidence | Verdict |
+|---|---|---|
+| C3 stub + stub-only | `p61-trip-stub-0807` → `STEP-0 stub written`, `stub was never replaced`, row `deliverable:missing` | **PROVEN** |
+| C3 append-below-stub reads present | `p61-trip-nested-0807` → stub still line 1, 41 lines appended, row `deliverable:present` | **PROVEN** |
+| C1 credit floor | same run → `BUDGET-FLOOR: raised 40→100`, row `budget_floored:true` | **PROVEN** |
+| C7 death_class | same run → row `death_class:"C3"` | **PROVEN** |
+| C5 preflight | blocked a reused run-id, a bad effort tier, an invalid mode, and a below-floor budget against the real wrapper | **PROVEN** |
+| C8 SUSPECT-nested | `p61-trip-nested-0807` → haiku+opus in one debug log, `WARN … RECORDING`, row exists with `model_verdict:"SUSPECT-nested"` | **PROVEN** |
+| C4 stall bounce | `p61-trip-stall-0807` → `STALL-WARN at elapsed=335s`, `STALL-BOUNCE READY`, runnable command printed, row `bounce_ready:"…/p61-trip-stall-0807-bounce.md"`, `stall_warns:1` | **PROVEN** |
+| C9 classifier | `--classify-one` returns `C9` for both known network deaths (previously misfiled C3) | **PROVEN** |
+| C9 auto-retry | coded and syntax-clean; a real DNS outage cannot be forced safely | **NOT LIVE-FIRED — do not claim green** |
+
+**Honest residuals**: the C9 auto-retry path has never executed. C2 prevention remains advisory by design (a wall ceiling that kills is the hard backstop; ticket shape is dispatcher judgment). C6/C7 guards remain never-seen-firing — zero corpus recurrences since the 2026-07-24 wrapper fixes, so there is nothing to fire against.
+
+**Remaining (needs a grant path)**: the `.claude/skills/delegation-temp/SKILL.md` doctrine lines for preflight + the floor backstop, and its §Honest-Gaps rows that this plan flips to PROVEN-FIRING.
