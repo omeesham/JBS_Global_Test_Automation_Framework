@@ -35,3 +35,9 @@ CLAUDE.md
 Thumbs.db
 .idea/
 .vscode/
+
+# Merged/renamed report output (per-module HTML reports + their blob inputs).
+# The bare "playwright-report/" rule above misses these renamed variants.
+playwright-report-*/
+blob-report/
+blob-report-*/

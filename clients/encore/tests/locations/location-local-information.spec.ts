@@ -29,7 +29,7 @@ test.describe('Location Local Info @locations @local-info', () => {
     dependencyGate([]);
     test.setTimeout(120_000);
     await locationLocalInfoPage.navigateToLocalInfoTab(OFFICE_NO);
- // COMPREHENSIVE baseline enforcement (CI-run stabilization L3) — reset every
+ // Complete baseline enforcement — reset every
  // mutable field this spec touches so a prior crashed run cannot poison defaults.
     await locationLocalInfoPage.waitForFormReady('chkApplyLDW', 30_000);
     let dirty = false;

@@ -12,7 +12,7 @@
  *       locations_management_history, locations_notes, locations_pricing,
  *       locations_shared_setup_location  ← truncated from "..._locations" (32→31 chars; Excel limit)
  *       + corporate_pricing_* sheets (search, strategy, detail, new_pricebook, loc_export, export_all, loc_import, import_all)
- *       + corporate_override_* sheets (core, nm2268..nm2273) — group split from corporate-pricing (59C/59D)
+ *       + corporate_override_* sheets (core, loc_picker, filters, grid_sort, labor_grid, export, import) — group split from corporate-pricing (59C/59D)
  *
  * Sources (post-Phase-D + 2026-05-27 post-audit cleanup):
  *   PRIMARY (sole) — `clients/encore/specs_planning/test-cases/setup/<module>/*.md`
@@ -149,12 +149,16 @@ const SHEET_NAMES: Record<string, string> = {
   corporate_pricing_import_all: 'corporate_pricing_import_all',
   // Corporate Override sheets (group split from corporate-pricing, 59C/59D)
   corporate_override_core: 'corporate_override_core',
-  corporate_override_nm2268: 'corporate_override_nm2268',
-  corporate_override_nm2269: 'corporate_override_nm2269',
-  corporate_override_nm2270: 'corporate_override_nm2270',
-  corporate_override_nm2271: 'corporate_override_nm2271',
-  corporate_override_nm2272: 'corporate_override_nm2272',
-  corporate_override_nm2273: 'corporate_override_nm2273',
+  corporate_override_nm2268: 'corporate_override_loc_picker',
+  corporate_override_nm2269: 'corporate_override_filters',
+  corporate_override_nm2270: 'corporate_override_grid_sort',
+  corporate_override_nm2271: 'corporate_override_labor_grid',
+  corporate_override_nm2272: 'corporate_override_export',
+  corporate_override_nm2273: 'corporate_override_import',
+  // Terms and Conditions
+  terms_conditions_core: 'terms_conditions_core',
+  // Service Charge Text
+  service_charge_text_core: 'service_charge_text_core',
 };
 
 const SHEET_DISPLAY_NAMES: Record<string, string> = {
@@ -182,12 +186,16 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   corporate_pricing_import_all: 'Corporate Pricing — Import All',
   // Corporate Override
   corporate_override_core: 'Corporate Override — Core',
-  corporate_override_nm2268: 'Corporate Override — NM-2268',
-  corporate_override_nm2269: 'Corporate Override — NM-2269',
-  corporate_override_nm2270: 'Corporate Override — NM-2270',
-  corporate_override_nm2271: 'Corporate Override — NM-2271',
-  corporate_override_nm2272: 'Corporate Override — NM-2272',
-  corporate_override_nm2273: 'Corporate Override — NM-2273',
+  corporate_override_nm2268: 'Corporate Override — Location Picker',
+  corporate_override_nm2269: 'Corporate Override — Active and Currency Filters',
+  corporate_override_nm2270: 'Corporate Override — Grid Text Filter and Sort',
+  corporate_override_nm2271: 'Corporate Override — Labor Grid',
+  corporate_override_nm2272: 'Corporate Override — Export',
+  corporate_override_nm2273: 'Corporate Override — Import',
+  // Terms and Conditions
+  terms_conditions_core: 'Terms and Conditions — Core',
+  // Service Charge Text
+  service_charge_text_core: 'Service Charge Text — Core',
 };
 
 /** Sheet name → split-file group/stem for the `testcases/<group>/<stem>.xlsx` tree. */
@@ -219,12 +227,16 @@ const SPLIT_FILE_MAP: Record<string, { group: string; stem: string }> = {
   local_office_ect: { group: 'local-office', stem: 'local-office-ect' },
   // Corporate Override
   corporate_override_core: { group: 'corporate-override', stem: 'corporate-override-core' },
-  corporate_override_nm2268: { group: 'corporate-override', stem: 'corporate-override-nm2268' },
-  corporate_override_nm2269: { group: 'corporate-override', stem: 'corporate-override-nm2269' },
-  corporate_override_nm2270: { group: 'corporate-override', stem: 'corporate-override-nm2270' },
-  corporate_override_nm2271: { group: 'corporate-override', stem: 'corporate-override-nm2271' },
-  corporate_override_nm2272: { group: 'corporate-override', stem: 'corporate-override-nm2272' },
-  corporate_override_nm2273: { group: 'corporate-override', stem: 'corporate-override-nm2273' },
+  corporate_override_loc_picker: { group: 'corporate-override', stem: 'corporate-override-nm2268' },
+  corporate_override_filters: { group: 'corporate-override', stem: 'corporate-override-nm2269' },
+  corporate_override_grid_sort: { group: 'corporate-override', stem: 'corporate-override-nm2270' },
+  corporate_override_labor_grid: { group: 'corporate-override', stem: 'corporate-override-nm2271' },
+  corporate_override_export: { group: 'corporate-override', stem: 'corporate-override-nm2272' },
+  corporate_override_import: { group: 'corporate-override', stem: 'corporate-override-nm2273' },
+  // Terms and Conditions
+  terms_conditions_core: { group: 'terms-conditions', stem: 'terms-conditions-core' },
+  // Service Charge Text
+  service_charge_text_core: { group: 'service-charge-text', stem: 'service-charge-text-core' },
 };
 
 const EXCEL_SHEET_NAME_LIMIT = 31;
@@ -459,6 +471,11 @@ function fmtPct(num: number, denom: number): string {
   return `${((num / denom) * 100).toFixed(1)}%`;
 }
 
+/** A module "was measured" if at least one test received a pass or fail from execution. */
+function moduleWasMeasured(m: SheetMetrics): boolean {
+  return m.pass > 0 || m.fail > 0;
+}
+
 interface BuildOptions {
   mode: AugmentMode;
   /** When set, write the workbook here instead of the canonical XLSX_PATH. Used by the
@@ -468,6 +485,8 @@ interface BuildOptions {
   /** Run the post-write self-lint subprocess (default true). Auto-skipped when outPath is
    *  set — the subprocess re-reads the canonical XLSX_PATH from disk, not the temp file. */
   selfCheck?: boolean;
+  /** Pre-existing Playwright JSON reporter result files (passed to augmentByTcId). */
+  runJsonPaths?: string[];
 }
 
 /**
@@ -512,6 +531,7 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
     mode: opts.mode,
     clientRoot: CLIENT_ROOT,
     fixmeRegistryPath: FIXME_REGISTRY,
+    runJsonPaths: opts.runJsonPaths,
   });
   for (const [, tcs] of tcsBySheet) {
     for (const tc of tcs) {
@@ -668,7 +688,9 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
       // Module, Submodule, Test Data, Type, Priority — empty
       '', '', '', '', '',
       `Automated: ${metrics.automated} / Pending: ${metrics.pendingAutomation}`, // Coverage Status col
-      `Pass:${metrics.pass} Fail:${metrics.fail} Skipped:${metrics.skipped} Blocked:${metrics.blocked}`, // Automation Status col
+      moduleWasMeasured(metrics)
+        ? `Pass:${metrics.pass} Fail:${metrics.fail} Skipped:${metrics.skipped} Blocked:${metrics.blocked}`
+        : 'Not run in this delivery', // Automation Status col
       // Preconditions, Steps (Step), Steps (Expected Result) — empty
       '', '', '',
       `Last Updated: ${buildIsoDate}`, // Notes / Reason col (last)
@@ -691,6 +713,7 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
 
   // Fill Overview data rows AFTER module sheets so hyperlinks resolve
   for (const { sheet, metrics } of overviewRows) {
+    const measured = moduleWasMeasured(metrics);
     const executedDenom = metrics.total - metrics.skipped - metrics.blocked;
     const row = overview.addRow([
       sheet,
@@ -698,12 +721,12 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
       metrics.automated,
       metrics.pendingAutomation,
       metrics.manual,
-      metrics.pass,
-      metrics.fail,
-      metrics.skipped,
-      metrics.blocked,
-      fmtPct(metrics.pass, metrics.total),
-      fmtPct(metrics.pass, executedDenom),
+      measured ? metrics.pass : '—',
+      measured ? metrics.fail : '—',
+      measured ? metrics.skipped : '—',
+      measured ? metrics.blocked : '—',
+      measured ? fmtPct(metrics.pass, metrics.total) : '—',
+      measured ? fmtPct(metrics.pass, executedDenom) : '—',
       fmtPct(metrics.automated, metrics.total),
       buildIsoDate,
     ]);
@@ -864,6 +887,20 @@ if (require.main === module) {
   if (args.includes('--with-run')) mode = 'with-run';
   else if (args.includes('--list-only')) mode = 'list-only';
 
+  // --run-json=<path> (repeatable): supply pre-existing result files instead of running Playwright.
+  // Implies --with-run mode (stamping real outcomes).
+  const runJsonPaths: string[] = [];
+  for (const arg of args) {
+    if (arg.startsWith('--run-json=')) {
+      runJsonPaths.push(arg.slice('--run-json='.length));
+    }
+  }
+  if (runJsonPaths.length > 0) {
+    mode = 'with-run';
+  }
+
+  const selfCheck = !args.includes('--no-self-check');
+
   // Echo augment-mode caveat per plan §192
   if (mode === 'list-only') {
     console.log(
@@ -872,7 +909,7 @@ if (require.main === module) {
     );
   }
 
-  buildWorkbook({ mode })
+  buildWorkbook({ mode, runJsonPaths: runJsonPaths.length > 0 ? runJsonPaths : undefined, selfCheck })
     .then(({ outPath, sheetsBuilt, rowsPerSheet }) => {
       console.log(`[xlsx:build] OK → ${path.relative(REPO_ROOT, outPath)}`);
       console.log(`[xlsx:build] sheets: ${sheetsBuilt.length} (${sheetsBuilt.join(', ')})`);

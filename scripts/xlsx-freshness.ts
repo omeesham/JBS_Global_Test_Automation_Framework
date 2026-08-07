@@ -84,6 +84,12 @@ async function readModuleRows(file: string): Promise<Map<string, string[][]>> {
   return out;
 }
 
+// Columns that depend on run-json data (execution results) and cannot be reproduced
+// from source alone. 0-indexed: col 8 = "Automation Status" (Pass/Fail/Skipped/Blocked),
+// col 12 = "Notes / Reason" (execution-reason). These are excluded from the freshness
+// diff because a rebuild without the original --run-json inputs cannot reproduce them.
+const EXECUTION_DEPENDENT_COLS = new Set([8, 12]);
+
 /** Diff two module-row maps. Returns human-readable diff lines (empty array = identical). */
 export function diffRows(committed: Map<string, string[][]>, rebuilt: Map<string, string[][]>): string[] {
   const diffs: string[] = [];
@@ -100,6 +106,7 @@ export function diffRows(committed: Map<string, string[][]>, rebuilt: Map<string
     for (let i = 0; i < a.length; i++) {
       const ra = a[i]!, rb = b[i]!;
       for (let c = 0; c < MODULE_COL_COUNT; c++) {
+        if (EXECUTION_DEPENDENT_COLS.has(c)) continue;
         if ((ra[c] ?? '') !== (rb[c] ?? '')) {
           const tcId = ra[0] || rb[0] || `row ${i + 1}`;
           diffs.push(`sheet '${sheet}' ${tcId} col ${c + 1}: committed="${(ra[c] ?? '').slice(0, 50)}" rebuilt="${(rb[c] ?? '').slice(0, 50)}"`);
@@ -150,7 +157,7 @@ async function main(): Promise<number> {
       console.error(`[xlsx-freshness] Check A FAIL — committed workbook does not match a fresh rebuild (${diffs.length} diff${diffs.length === 1 ? '' : 's'}):`);
       for (const d of diffs.slice(0, 20)) console.error(`  ${d}`);
       if (diffs.length > 20) console.error(`  … +${diffs.length - 20} more`);
-      console.error('[xlsx-freshness] Fix: `npm run xlsx:build`, then stage the rebuilt workbook.');
+      console.error('[xlsx-freshness] Fix: `npm run xlsx:build:with-run-json` (supply --run-json=<path> for modules with results), then stage the rebuilt workbook.');
     } else {
       console.log('[xlsx-freshness] Check A OK — committed workbook matches a fresh rebuild (all module rows).');
     }

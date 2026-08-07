@@ -1128,7 +1128,7 @@
       "evidence": "7c6f08b3",
       "src": [],
       "sheets": [
-        "corporate_override_nm2268"
+        "corporate_override_loc_picker"
       ]
     },
     {
@@ -1154,7 +1154,7 @@
       "evidence": "b7ad1ff6",
       "src": [],
       "sheets": [
-        "corporate_override_nm2269"
+        "corporate_override_filters"
       ]
     },
     {
@@ -1180,7 +1180,7 @@
       "evidence": "a632c4af",
       "src": [],
       "sheets": [
-        "corporate_override_nm2270"
+        "corporate_override_grid_sort"
       ]
     },
     {
@@ -1254,7 +1254,7 @@
       "evidence": null,
       "src": [],
       "sheets": [
-        "corporate_override_nm2271"
+        "corporate_override_labor_grid"
       ]
     },
     {
@@ -1299,7 +1299,7 @@
       "evidence": null,
       "src": [],
       "sheets": [
-        "corporate_override_nm2272"
+        "corporate_override_export"
       ]
     },
     {
@@ -1343,7 +1343,45 @@
       "evidence": null,
       "src": [],
       "sheets": [
-        "corporate_override_nm2273"
+        "corporate_override_import"
+      ]
+    },
+    {
+      "code": "TNC.CORE",
+      "name": "Terms and Conditions",
+      "status": "delivered",
+      "specs": [
+        "tests/terms-conditions/terms-conditions.spec.ts"
+      ],
+      "workbooks": [
+        "testcases/terms-conditions/terms-conditions-core.xlsx"
+      ],
+      "tc_ids": [],
+      "delivered_on": null,
+      "delivered_via": null,
+      "evidence": null,
+      "src": [],
+      "sheets": [
+        "terms_conditions_core"
+      ]
+    },
+    {
+      "code": "SCT.CORE",
+      "name": "Service Charge Text",
+      "status": "delivered",
+      "specs": [
+        "tests/service-charge-text/service-charge-text.spec.ts"
+      ],
+      "workbooks": [
+        "testcases/service-charge-text/service-charge-text-core.xlsx"
+      ],
+      "tc_ids": [],
+      "delivered_on": null,
+      "delivered_via": null,
+      "evidence": null,
+      "src": [],
+      "sheets": [
+        "service_charge_text_core"
       ]
     },
     {

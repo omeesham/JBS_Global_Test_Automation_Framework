@@ -70,7 +70,8 @@ if git diff --cached --name-only --diff-filter=ACMR \
   echo "[pre-commit] workbook input staged → running xlsx freshness gate (rebuild + diff)..." >&2
   if ! npm run --silent xlsx:freshness; then
     echo "[pre-commit] HALT: the deliverable workbook is stale or was built from uncommitted generators." >&2
-    echo "         Fix: npm run xlsx:build, then stage the rebuilt workbook AND its generator change(s)." >&2
+    echo "         Fix: npm run xlsx:build:with-run-json (with --run-json=<path> for modules with results)," >&2
+    echo "         then stage the rebuilt workbook AND its generator change(s)." >&2
     exit 1
   fi
 fi

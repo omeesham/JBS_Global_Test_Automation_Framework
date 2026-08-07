@@ -348,7 +348,7 @@ test.describe('Location Management HIST — Notes col 69 @locations @management-
           notesHead: notes.slice(0, 80),
         };
       });
-      console.log(`[col69-no-match] sinceMs=${sinceMs} validForms=${JSON.stringify([formA, formB])} rows=${JSON.stringify(notesPreview)}`);
+      void notesPreview; // diagnostic context preserved for future debugging
       // Rich-diff failure path: assert against formA so report shows actual vs expected.
       // Picks the newest row's Notes value (rows are desc-sorted) for the diff.
       const firstRow = rows[0];
@@ -484,8 +484,7 @@ test.describe('Location Management HIST — Notes col 69 @locations @management-
         notesLen: (r.Notes ?? '').length,
         notesHead: (r.Notes ?? '').slice(0, 80),
       }));
-      // eslint-disable-next-line no-console
-      console.log(`[seq-no-match] sinceMs=${sinceMs} expectedA=${JSON.stringify([formA1, formA2])} expectedB=${JSON.stringify([formB1, formB2])} rows=${JSON.stringify(preview)}`);
+      void preview; // diagnostic context preserved for future debugging
       // Rich-diff failure: assert against the preferred (single-row) form so the
       // report shows actual vs expected for whichever side is missing.
       if (!rowA) expect(rows[0]?.Notes ?? '<no rows since sinceMs>').toBe(formA1);

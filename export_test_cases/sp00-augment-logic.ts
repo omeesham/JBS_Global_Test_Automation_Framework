@@ -54,6 +54,14 @@ export interface AugmentOptions {
   clientRoot: string;
   /** Path to reports/fixme-registry.json (optional fallback reason source). */
   fixmeRegistryPath?: string;
+  /**
+   * Pre-existing Playwright JSON reporter result files. When supplied (mode must be
+   * 'with-run'), the exporter reads and merges these files INSTEAD of shelling out to
+   * Playwright. Each file must be a valid json-reporter shape (top-level config/suites/
+   * errors/stats). A missing or malformed path is a hard error — never falls back to
+   * the assuming mode silently.
+   */
+  runJsonPaths?: string[];
 }
 
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -71,8 +79,12 @@ export function augmentByTcId(
   // Run playwright (sole augment source post-2026-05-27 audit cleanup).
   try {
     const tests = listPlaywrightTests(opts.clientRoot);
-    // with-run: ALSO execute the suite once and read the ACTUAL outcome per TC.
-    const runOutcomes = opts.mode === 'with-run' ? runAndMapOutcomes(opts.clientRoot) : null;
+    // with-run: read ACTUAL outcomes — either from supplied JSON files or by executing the suite.
+    const runOutcomes = opts.mode === 'with-run'
+      ? (opts.runJsonPaths && opts.runJsonPaths.length > 0
+          ? mergeRunJsonFiles(opts.runJsonPaths)
+          : runAndMapOutcomes(opts.clientRoot))
+      : null;
     for (const t of tests) {
       const data = result.get(t.tcId);
       if (!data) continue;
@@ -88,10 +100,12 @@ export function augmentByTcId(
       } else {
         // with-run: stamp the REAL outcome from the run. A declared fixme keeps the
         // stronger 'Blocked' signal (a runtime fixme surfaces only as 'skipped' in the
-        // report). Fall back to the --list kind if the run report lacks this TC.
+        // report). A declared skip OVERRIDES the run outcome — the workbook describes
+        // the deliverable as shipped, and a skipped test will not execute in the
+        // client's copy. Fall back to the --list kind if the run report lacks this TC.
         if (t.kind === 'fixme') data.automationExecution = 'Blocked';
-        else if (runOutcomes && runOutcomes.has(t.tcId)) data.automationExecution = runOutcomes.get(t.tcId)!;
         else if (t.kind === 'skip') data.automationExecution = 'Skipped';
+        else if (runOutcomes && runOutcomes.has(t.tcId)) data.automationExecution = runOutcomes.get(t.tcId)!;
         // else leave '' — listed but absent from the run report (surfaced via stderr below)
       }
     }
@@ -275,6 +289,51 @@ export function mapRunOutcomes(parsed: any): Map<string, RunOutcome> {
   const out = new Map<string, RunOutcome>();
   walkRunSuite(parsed, out);
   return out;
+}
+
+/**
+ * Read and merge pre-existing Playwright JSON reporter files. Each file must exist and
+ * parse as valid JSON with a top-level `suites` array. When a TC ID appears in multiple
+ * files, the later-listed file wins (a re-run supersedes an older result). Each override
+ * is logged to stderr for auditability. A missing or malformed path fails loudly.
+ */
+function mergeRunJsonFiles(paths: string[]): Map<string, RunOutcome> {
+  const merged = new Map<string, RunOutcome>();
+  for (const p of paths) {
+    if (!fs.existsSync(p)) {
+      throw new Error(
+        `[sp00-augment] --run-json path does not exist: ${p}\n` +
+        `Cannot fall back to assumed mode — supply a valid results file or remove the flag.`
+      );
+    }
+    let raw: string;
+    try {
+      raw = fs.readFileSync(p, 'utf-8');
+    } catch (err) {
+      throw new Error(`[sp00-augment] --run-json cannot read file: ${p} — ${(err as Error).message}`);
+    }
+    let parsed: any;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (err) {
+      throw new Error(`[sp00-augment] --run-json file is not valid JSON: ${p} — ${(err as Error).message}`);
+    }
+    if (!parsed || !Array.isArray(parsed.suites)) {
+      throw new Error(`[sp00-augment] --run-json file lacks top-level "suites" array: ${p}`);
+    }
+    const fileOutcomes = mapRunOutcomes(parsed);
+    for (const [tcId, outcome] of fileOutcomes) {
+      if (merged.has(tcId)) {
+        const prev = merged.get(tcId)!;
+        process.stderr.write(
+          `[sp00-augment] override: ${tcId}: ${prev} → ${outcome} (later file wins: ${path.basename(p)})\n`
+        );
+      }
+      merged.set(tcId, outcome);
+    }
+  }
+  process.stderr.write(`[sp00-augment] merged ${merged.size} outcome(s) from ${paths.length} --run-json file(s)\n`);
+  return merged;
 }
 
 function walkRunSuite(node: any, out: Map<string, RunOutcome>): void {

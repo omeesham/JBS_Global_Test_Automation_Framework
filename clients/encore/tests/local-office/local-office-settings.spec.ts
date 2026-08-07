@@ -41,7 +41,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.navigateToBasicInfoTab(OFFICE_NO);
  // COMPREHENSIVE baseline enforcement — reset every field this spec mutates so a prior
  // failed run that skipped its inline cleanup can't poison the next run.
- // Layered fix per CI-run stabilization (L3): checkbox states were missing here.
+ // Checkbox states are included here because failed runs can leave them dirty.
     let dirty = false;
     for (const { key, value } of DATE_OFFSET_DEFAULTS) {
       const current = await localOfficeSettingsPage.getInputValue(key);
@@ -816,7 +816,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     await localOfficeSettingsPage.clickSaveAndConfirm();
   });
 
- // SP-03: Null Offset Testing
+ // Null Offset Testing
 
   test('TC-LOS-BAS-064: Clear Prep offset → save → reload → verify empty (not "0")', async ({ localOfficeSettingsPage, dependencyGate }) => {
     dependencyGate(['TC-LOS-BAS-001']);
