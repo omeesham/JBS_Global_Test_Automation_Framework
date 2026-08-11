@@ -103,6 +103,14 @@ const ENFORCED = [
       { title: 'Corporate Pricing — Product Group Override: Labor save-cycle (mutation, fixture-restored)', mechanism: 'fcc' },
     ],
   },
+  {
+    specPath: 'clients/encore/tests/service-charge/service-charge-basic-information.spec.ts',
+    describes: [{ title: 'Service Charge Basic Information', mechanism: 'fresh-open' }],
+  },
+  {
+    specPath: 'clients/encore/tests/service-charge/service-charge-history.spec.ts',
+    describes: [{ title: 'Service Charge History', mechanism: 'fresh-open' }],
+  },
 ];
 
 // Helpers that drive a REAL Save — used by the glob WARN pass to spot save-capable describes.
@@ -119,7 +127,11 @@ const REAL_SAVE_HELPERS = [
 // like navigateToXTab / isOnXTab does NOT reset state and must not be credited).
 const RESET_HELPER_RE = /\b(ensureDefaultState|ensureEmptyState|ensureClean\w*|ensureAllGridColumnsVisible|reloadAndReselect)\s*\(/;
 const FCC_RE = /\bsaveAndVerifyCase\s*\(/;
-const FRESH_OPEN_RE = /\bopen\s*\(/;
+// Matches open() or goto() in a beforeEach body. Like open(), goto() is credited as a structural
+// text-pattern: a multiline call chain, an aliased page object, or a goto() wrapped in a helper
+// would not be detected. Page-object reset correctness (does goto() actually navigate?) is enforced
+// separately by check-weak-reset.mjs, mirroring the same limitation already accepted for open().
+const FRESH_OPEN_RE = /\b(?:open|goto)\s*\(/;
 const SAVE_CAPABLE_RE = new RegExp('\\b(' + REAL_SAVE_HELPERS.join('|') + ')\\s*\\(');
 
 /** Slice the Nth (1-based, default 1) describe block whose title begins with `title` (titles carry
@@ -147,7 +159,7 @@ function allDescribeBlocks(src) {
 /** The `test.beforeEach(...)` body within a describe block (up to its first real test), or '' if none.
  * The boundary is a real test declaration — `test(` / `test.skip|only|fixme|fail|slow(` — NOT
  * `test.setTimeout(` (which legitimately appears INSIDE a beforeEach, before the reset call). */
-function beforeEachSlice(block) {
+export function beforeEachSlice(block) {
   const be = /test\.beforeEach\(/.exec(block);
   if (!be) return '';
   const from = be.index;
@@ -156,7 +168,7 @@ function beforeEachSlice(block) {
   return firstTest ? after.slice(0, firstTest.index) : after;
 }
 
-function hasMechanism(block, mechanism) {
+export function hasMechanism(block, mechanism) {
   if (mechanism === 'fcc') return FCC_RE.test(block);
   const be = beforeEachSlice(block);
   if (mechanism === 'beforeEach-reset') return RESET_HELPER_RE.test(be);
@@ -165,7 +177,7 @@ function hasMechanism(block, mechanism) {
 }
 
 /** Does a describe block carry ANY recognised per-test mechanism? (for the glob WARN pass) */
-function hasAnyMechanism(block) {
+export function hasAnyMechanism(block) {
   return FCC_RE.test(block) || RESET_HELPER_RE.test(beforeEachSlice(block)) || FRESH_OPEN_RE.test(beforeEachSlice(block));
 }
 
