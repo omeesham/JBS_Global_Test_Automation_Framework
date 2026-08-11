@@ -62,8 +62,8 @@ export const termsConditions = {
 
   /**
    * Bold toolbar button in the rich text editor.
-   * Measured live in run tnc-walk-r3-2026-08-06; the field inventory's ⚠ KNOWN INCOMPLETENESS
-   * block notes the toolbar was not enumerated there — this selector was captured separately.
+   * Captured live in August 2026; the terms and conditions toolbar was not covered in the
+   * original selector pass — this selector was added separately when the toolbar was observed.
    */
   rteBold: '[data-testid="rte-bold"]',
 } as const;

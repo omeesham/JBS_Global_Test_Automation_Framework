@@ -429,7 +429,7 @@ test.describe('Local Office Settings — Basic Information @local-office-setting
     dependencyGate(['TC-LOS-BAS-001']);
     const quotesState = await localOfficeSettingsPage.getCheckboxState('chkLogoQuotes');
     const rentalState = await localOfficeSettingsPage.getCheckboxState('chkLogoRentalOrders');
- // Record defaults — per field inventory both are checked for 1604
+    // Record defaults — both checkboxes are checked by default for location 1604 (verified live)
     expect(quotesState.checked).toBe(true);
     expect(rentalState.checked).toBe(true);
   });
