@@ -6,7 +6,8 @@
     "CPR": { "name": "corporate-pricing", "display": "Corporate Pricing", "dir": "corporate-pricing" },
     "COR": { "name": "corporate-pricing", "display": "Corporate Override", "dir": "corporate-override" },
     "TNC": { "name": "terms-conditions", "display": "Terms and Conditions", "dir": "terms-conditions" },
-    "SCT": { "name": "service-charge-text", "display": "Service Charge Text", "dir": "service-charge-text" }
+    "SCT": { "name": "service-charge-text", "display": "Service Charge Text", "dir": "service-charge-text" },
+    "SVC": { "name": "service-charge", "display": "Service Charge", "dir": "service-charge" }
   },
   "submodules": {
     "LOC": {
@@ -44,6 +45,10 @@
     "SCT": {
       "CORE": { "name": "core", "display": "Core", "sheet": "service_charge_text_core", "mdBasename": "service_charge_text_core_test_cases" }
     },
+    "SVC": {
+      "BAS": { "name": "basic_information", "display": "Basic Information", "sheet": "service_charge_basic_info", "mdBasename": "service_charge_basic_information_test_cases" },
+      "HIS": { "name": "history", "display": "Service Charge History", "sheet": "service_charge_history", "mdBasename": "service_charge_history_test_cases" }
+    },
     "COR": {
       "CORE": { "name": "override", "display": "Core", "sheet": "corporate_override_core", "mdBasename": "corporate_override_core_test_cases", "idModule": "CPR", "idSubmodule": "OVR", "$comment": "No idRenames entries added — TC-CPR-OVR-* IDs are not renumbered (D7). idModule+idSubmodule fields tell C8 that these sheets own TC-CPR-OVR-* IDs even though the sheet group is now COR (D10)." },
       "N268": { "name": "override", "display": "Location Picker", "sheet": "corporate_override_loc_picker", "mdBasename": "corporate_override_nm2268_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
@@ -57,7 +62,8 @@
   "sheetNameNotes": {
     "locations_shared_setup_location": "31-char Excel cap truncation of locations_shared_setup_locations (trailing 's' lost) — by-design, approved 2026-06-11",
     "locations_left_panel_basic_info": "31-char Excel cap truncation of locations_left_panel_basic_information — by-design, approved 2026-06-11",
-    "corporate_pricing_new_pricebook": "exactly 31 chars — at the Excel sheet-name limit"
+    "corporate_pricing_new_pricebook": "exactly 31 chars — at the Excel sheet-name limit",
+    "service_charge_basic_info": "shortened from service_charge_basic_information (32 chars) to fit the 31-char Excel sheet-name cap — by-design, approved 2026-08-10"
   },
   "idRenames": {
     "$comment": "Old → new TC ID map summary (full map: clients/encore/specs_planning/_internal/id-audit-2026-06-10/id-rename-map.json). Historical artifacts (plans/done, dated _internal evidence) intentionally keep old IDs.",

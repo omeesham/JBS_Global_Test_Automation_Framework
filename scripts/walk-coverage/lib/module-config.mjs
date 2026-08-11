@@ -9,6 +9,13 @@
 // is not evidence — the evidence field must reference a dated walk artifact or run ID.
 
 export const MODULE_CONFIG = {
+  // Service Charge — resting state (Basic Information tab default) + History tab state.
+  'service-charge': {
+    requiredStates: [
+      { label: 'resting' },
+      { label: 'tab:history' },
+    ],
+  },
   pricing: {
     requiredStates: [{ label: 'resting' }, { label: 'cascade:alt-on' }],
     dependencyPairs: [
