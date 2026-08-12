@@ -1,0 +1,33 @@
+COMMAND: playwright-cli run-code <A11 detail repro, clean no screenshot>
+### Result
+{"url":"https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/details/91acb5ca-20e2-ce8e-a9ab-8c370925fd65","title":"Pricebook Details | Navigator","before":{"value":"","ariaInvalid":"false","validationMessage":"","className":"file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 min-w-0 rounded-md border px-3 py-1 shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive ml-auto w-28 text-right font-mono text-sm tabular-nums bg-background","active":false},"after5646464":{"value":"5646464","ariaInvalid":"true","validationMessage":"","className":"file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 flex h-9 min-w-0 rounded-md border px-3 py-1 shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive ml-auto w-28 text-right font-mono text-sm tabular-nums bg-background border-destructive focus:ring-destructive","active":true},"saveEnabled":false,"invalidInputs":[{"value":"5646464","message":"","ariaInvalid":"true"}]}
+### Ran Playwright code
+```js
+await (async (page) => {
+  const base = 'https://cloudapps-e2e.encoreglobal.com/navigator';
+  const detailUrl = `${base}/locations/1604/settings/corporate-pricing/details/91acb5ca-20e2-ce8e-a9ab-8c370925fd65`;
+  await page.goto(detailUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.getByRole('button', { name: 'Pricing Detail' }).click({ timeout: 30000 }).catch(async () => { await page.getByText('Pricing Detail').click({ timeout: 30000 }); });
+  await page.locator('th:has-text("Product Group Name")').first().waitFor({ state: 'visible', timeout: 45000 });
+  await page.waitForTimeout(1500);
+  const grid = page.locator('table:has(th:has-text("Product Group Name"))').first();
+  const row = grid.locator('tbody tr', { hasText: 'Analog Mixer 12 - 23 Ch' }).first();
+  const input = row.locator('td').nth(3).locator('input').first();
+  const snap = async () => await input.evaluate((el) => ({ value: el.value, ariaInvalid: el.getAttribute('aria-invalid'), validationMessage: el.validationMessage, className: el.className, active: document.activeElement === el }));
+  const before = await snap();
+  await input.scrollIntoViewIfNeeded();
+  await input.click();
+  await input.press('Control+A');
+  await input.press('Backspace');
+  await input.pressSequentially('5646464', { delay: 20 });
+  await input.press('Tab');
+  await page.waitForTimeout(800);
+  const after = await snap();
+  const saveEnabled = await page.locator('button:text-is("Save")').first().isEnabled().catch(() => false);
+  const invalidInputs = await page.evaluate(() => Array.from(document.querySelectorAll('input[aria-invalid="true"]')).slice(0, 10).map((el) => ({ value: el.value, message: el.validationMessage, ariaInvalid: el.getAttribute('aria-invalid') })));
+  return { url: page.url(), title: await page.title(), before, after5646464: after, saveEnabled, invalidInputs };
+})(page);
+```
+### Page
+- Page URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/details/91acb5ca-20e2-ce8e-a9ab-8c370925fd65
+- Page Title: Pricebook Details | Navigator

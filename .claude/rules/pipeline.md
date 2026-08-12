@@ -115,7 +115,7 @@ Every NEW subplan MUST declare in frontmatter:
 
 **Allowed combinations** (forbidden → promote):
 
-- **Sonnet** (3 effective tiers): `mid` (mechanical only — file moves, INDEX regen, tag rollouts; requires `**Justification**:` frontmatter line) or `hi` (general default). FORBIDDEN: `lo` (under-thinks), `max` (silently clamps to `high` — authoring as `max` is wishful thinking).
+- **Sonnet** (4 effective tiers): `mid` (mechanical only — file moves, INDEX regen, tag rollouts; requires `**Justification**:` frontmatter line), `hi` (general default), or `max` (freely usable — Sonnet is the workhorse and `max` is simply its ceiling). FORBIDDEN: `lo` (under-thinks). Sonnet `max` was listed as forbidden until 2026-08-06 on the belief that it silently clamped to `high`; a capability probe disproves that — `~/.claude/state/ua-worker/probe-claude-sonnet-4.6-auto/process-1783714828378-29560.log:286` shows `"reasoning_effort":["low","medium","high","max"]`. The dispatch wrapper validates against that same probed enum, so authoring `hi` while the wrapper resolved `max` is what made dispatches hard-fail with exit 2.
 - **Opus** (5 tiers): `hi` (low-complexity Opus), `xhi` (default for most Opus work), or `max` (RCA / closure gates / multi-rule judgment; requires `**Justification**:` frontmatter line). FORBIDDEN: `lo`/`mid` (if `mid` is enough, the task is Sonnet `hi`).
 
 **Tier vocabulary**: accept both authoring form (`lo`/`mid`/`hi`/`xhi`/`max`) and CLI form (`low`/`medium`/`high`/`xhigh`/`max`) — same tier, both parseable.
@@ -124,7 +124,7 @@ Every NEW subplan MUST declare in frontmatter:
 
 **How to apply** — at every `/planning` Step 3 validation AND at every `/chain` queue-build (dual gate; authored + runtime):
 
-1. Grep each new subplan for `**Model**:` / `**Thinking**:` / `**PermissionMode**:`. All three required.
+1. Grep each new subplan for `**Model**:` / `**Thinking**:` / `**PermissionMode**:`. All three required. Coverage-bearing subplans (phases author TCs, run walks, or cite walk artifacts) additionally require `**CoverageMode**: quick | deep` (LR-072); absent field = `deep` semantics enforced by the Cx gate.
 2. Reject Sonnet `lo`/`low`/`max` and Opus `lo`/`low`/`mid`/`medium` — forbidden combos are HARD-rejected. `/planning` HALTs before Step 4; `/chain` pauses queue-build.
 3. Sonnet `mid`/`medium` and Opus `max` require a structural `**Justification**:` frontmatter line (not prose elsewhere — greppable, unambiguous). Missing = HALT.
 4. `bypassPermissions` requires `**RiskAcknowledged**: true` frontmatter line. Missing = orchestrator refuses to spawn (D26).

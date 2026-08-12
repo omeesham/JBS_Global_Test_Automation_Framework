@@ -60,13 +60,13 @@ Complete this checklist in a single pass. Fix any issues found before proceeding
 
   **Tier vocabulary** — accept both authoring form and CLI form as the same tier:
   - Opus 4.7 (5 tiers): `lo`/`low`, `mid`/`medium`, `hi`/`high`, `xhi`/`xhigh`, `max`
-  - Sonnet 4.6 (3 effective tiers): `lo`/`low`, `mid`/`medium`, `hi`/`high` (`max` clamps silently to `hi` per D17 — FORBIDDEN)
+  - Sonnet 4.6 (4 effective tiers): `lo`/`low`, `mid`/`medium`, `hi`/`high`, `max` (probe-confirmed supported; freely usable, no `**Justification**:` line required)
 
   **Validator** — run in order, HALT on first failure:
   1. grep `^\*\*Model\*\*:\s*(\S+)` in the subplan → capture `MODEL`. If absent → HALT: "LR-041: missing `**Model**:` field in <file>."
   2. grep `^\*\*Thinking\*\*:\s*(\S+)` → capture `THINKING`. If absent → HALT: "LR-041: missing `**Thinking**:` field in <file>."
   3. grep `^\*\*PermissionMode\*\*:\s*(\S+)` → capture `PERM`. If absent → HALT: "LR-041: missing `**PermissionMode**:` field in <file>."
-  4. If `MODEL` matches `sonnet` AND `THINKING` ∈ {`lo`, `low`, `max`} → HALT: "LR-041 forbidden combo: Sonnet + `$THINKING` (under-thinks or clamps). Promote to Sonnet `hi`."
+  4. If `MODEL` matches `sonnet` AND `THINKING` ∈ {`lo`, `low`} → HALT: "LR-041 forbidden combo: Sonnet + `$THINKING` (under-thinks). Promote to Sonnet `hi`."
   5. If `MODEL` matches `opus` AND `THINKING` ∈ {`lo`, `low`, `mid`, `medium`} → HALT: "LR-041 forbidden combo: Opus + `$THINKING`. If `mid` is enough, task is Sonnet `hi`."
   6. If `MODEL` matches `opus` AND `THINKING` == `max` → require `^\*\*Justification\*\*:` line in the subplan frontmatter. If absent → HALT: "LR-041: Opus `max` requires `**Justification**:` frontmatter line explaining why (e.g. RCA / closure gate / multi-rule judgment)."
   7. If `MODEL` matches `sonnet` AND `THINKING` ∈ {`mid`, `medium`} → require `^\*\*Justification\*\*:` line in the subplan frontmatter. If absent → HALT: "LR-041: Sonnet `mid` requires `**Justification**:` frontmatter line explaining why the task is purely mechanical."
@@ -76,8 +76,9 @@ Complete this checklist in a single pass. Fix any issues found before proceeding
      - If absent AND (`**Created**:` < 2026-04-24 OR Created missing) → WARN ("LR-038 v2: <file> grandfathered — no BrowserTool, Created pre-2026-04-24"); do not HALT.
   10. If `BTOOL` is present AND ∉ {`cli`, `chrome`, `both`, `none`} → HALT: "LR-038 v2: invalid BrowserTool=`$BTOOL` in <file>. Allowed: `cli` | `chrome` | `both` | `none`."
   11. If `BTOOL` == `both` → require `^\*\*BrowserToolJustification\*\*:` line in the subplan frontmatter. If absent → HALT: "LR-038 v2: BrowserTool=both requires `**BrowserToolJustification**:` frontmatter line (one-sentence reason — same posture as Opus `max` requiring `**Justification**:`)."
+  12. **[LR-072 CoverageMode gate]** — if the subplan is coverage-bearing (its phases author TCs, run walks, or cite walk artifacts): grep `^\*\*CoverageMode\*\*:\s*(\S+)` → capture `CMODE`. If absent → HALT: "LR-072: coverage-bearing subplan missing `**CoverageMode**:` field in <file>. Declare `quick` (authored by /coverage) or `deep` (authored by /ultracoverage or hand-authored exhaustive)." If present AND value ∉ {`quick`, `deep`} → HALT: "LR-072: invalid CoverageMode=`$CMODE` in <file>. Allowed: `quick` | `deep`."
 
-  **Do not tick this step as "done" on vibes.** Run the greps. Report the captured values to the user. If all 11 steps pass, explicitly state: "LR-041 + LR-038 v2 gates passed: MODEL=<x> / THINKING=<y> / PERM=<z> / TOOL=<b>."
+  **Do not tick this step as "done" on vibes.** Run the greps. Report the captured values to the user. If all 12 steps pass, explicitly state: "LR-041 + LR-038 v2 gates passed: MODEL=<x> / THINKING=<y> / PERM=<z> / TOOL=<b> / CMODE=<x|n/a>."
 
 - **[GATE] Duty-coverage — each phase-identity's HARD STOPs are reflected in the plan body** (Layer 0, PLAN_IDENTITY_ENFORCEMENT) — **advisory HALT, same posture as the LR-041 gate above**. The framework already enforces *what each role delivers* (LR-048 Per-Identity Matrix + closure-check C6 → file exists) but never *that each role's HARD STOPs governed the work*. Close it at authoring time:
 

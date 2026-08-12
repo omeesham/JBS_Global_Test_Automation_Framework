@@ -16,7 +16,7 @@ Three downstream consumers depend on this contract being stable:
 
 1. **SP-AAE-02 hook** — pre-commit check that rejects test-case markdown edits lacking a same-module, ≤14-day-old field-inventory artifact. The hook reads frontmatter and section presence via the grep rules in §6 below.
 2. **SP-AAE-04 generator + auditor refactor** — both agents stop walking the live DOM in their own Phase 0.5 and instead consume the dated artifact (with a 2-3 field spot-check). Cuts DOM traversal 3x → 1x per module per cycle.
-3. **SP-AAE-05 staleness signal** — emits warning at planner/generator load when the artifact is past its 14-day fresh window; HALT past 30 days.
+3. **SP-AAE-05 staleness signal** — emits warning at planner/generator load when the artifact is past its 14-day fresh window; HALT past 30 days. **Quick-path exception (LR-072)**: when the governing subplan's `CoverageMode` is `quick`, the 0.5a spot-check (3-row log) is legal for artifacts 15–30 days old instead of a forced full re-walk; the >30-day HALT is unchanged in both tiers.
 
 If this format churns after the consumers ship, every consumer breaks. SP-AAE-01 freezes the format **before** SP-AAE-02 turns the hook on, exactly to prevent that.
 
@@ -59,6 +59,7 @@ Missing any of the 8 = HALT at hook level. Hook error message names the missing 
 | # | Key | Type / Allowed Values | Purpose | Greppable presence rule |
 |---|---|---|---|---|
 | 9 | `Baseline_Artifact` | relative path from repo root to an `old-site-baseline/<module>-<YYYY-MM-DD>.md` artifact | Links the new-site field inventory to its same-module old-site baseline (per PLN-049 + REQ-014 + LR-ENC-001). Symmetry with Requirements agent's Phase 1a baseline artifact — Planner's walkthrough references the baseline when one exists | `^\*\*Baseline_Artifact\*\*: clients/[a-z][a-z0-9-]*/specs_planning/_internal/old-site-baseline/[a-z0-9-]+-\d{4}-\d{2}-\d{2}\.md$` |
+| 10 | `Walk_Mode` | `quick` \| `deep` | Tier at which this walk was executed (LR-072). Absent = `deep`. Must match the governing plan's `**CoverageMode**:` value; mismatch causes Cx closure FAIL. Stamped at walk time; never hand-edited after the walk closes. | `^\*\*Walk_Mode\*\*: (quick\|deep)$` |
 
 **When to include** (MANDATORY condition per PLN-049):
 - A same-module `old-site-baseline/<module>-*.md` artifact exists AND the upstream queue entry has `baselineScope: full` or `baseline-partial` → `Baseline_Artifact` key is MANDATORY; omission = HALT at Planner→Generator handoff.
@@ -166,6 +167,7 @@ Every row's **disposition** is exactly one of (NO blanks — mirrors the C6 hone
 - `affordance-probed: <LR-057 token>`
 - `read-only-verified`
 - `out-of-scope: <reason ≥20 chars>`
+- `deferred-to-DEEP: <element/launcher id> (<reason ≥20 chars>)` — legal only when the governing plan's `**CoverageMode**` is `quick` (LR-072 G1: no classification token may co-appear on the same row; G2: claimed rows keep full LR-062 provenance rigor)
 
 Denominator = manifest rows (the union A∪B of the two enumerator lenses, PLAN M4). The machine JSON provenance lives at `reports/walk-coverage/<state>.json` (emitted by `scripts/walk-coverage/enumerate-page.mjs`); this markdown block is the **artifact-of-record** the cross-check (`scripts/walk-coverage/cross-check.mjs`) and the closure gate (Cx) read. The `coverageScope: PARTIAL` self-label is superseded by the computed `Coverage_Ratio`.
 

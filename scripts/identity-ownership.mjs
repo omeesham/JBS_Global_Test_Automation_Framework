@@ -116,6 +116,10 @@ export const OWNERSHIP_ROWS = [
     grants: { HUNTER: "CREATE", GIVER: "CREATE", BUILDER: "READ", HEALER: "UPDATE", WATCHDOG: "UPDATE", GARDENER: "READ", OWNER: "RW" },
   },
   {
+    pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/jira-defect-crossref-*.md",
+    grants: { HUNTER: "CREATE", GIVER: "READ", BUILDER: "READ", HEALER: "READ", WATCHDOG: "UPDATE", GARDENER: "READ", OWNER: "RW" },
+  },
+  {
     pattern: "clients/${ACTIVE_CLIENT}/specs_planning/_internal/bug-archetypes.md",
     grants: { HUNTER: "APPEND", GIVER: "APPEND", BUILDER: "READ", HEALER: "APPEND", WATCHDOG: "APPEND", GARDENER: "READ", OWNER: "RW" },
   },

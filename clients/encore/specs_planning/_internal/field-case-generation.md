@@ -108,6 +108,8 @@ If neither (a) nor (b) holds → that is a defect (silent focus-trap / silent re
 
 **Deferred families (no Encore templates yet — promote on first real need per §5):** `rbac` (Revenue-Management role gate, e.g. NM-2126 read-only vs edit), `concurrency` (rapid double-click / save-race), `platform` (cross-browser / responsive / viewport).
 
+> **Deferred elements and launchers from §3:** when the walk artifact omits a surface family or element from the quick-coverage scope, record it using the `deferred-to-DEEP: <element/launcher id> (<reason ≥20 chars>)` token in the walk artifact Coverage Manifest (LR-072). The token marks the item as deep-only — it counts toward the LR-062 denominator but is excluded from the QUICK gate.
+
 **State-transition save-flow model (method — applies to any page with Save, not a family):** `Clean → Dirty → Saving → Save-OK | Save-Failed`; `Dirty → Navigate-Away-Prompt → Stay | Leave`; `Dirty → Tab-Switch → (state preserved?)`; `Validation-Error → Fix → Dirty`; `Edit-to-original-value → Save-disabled`. Each transition = ≥1 case or a documented skip. (Closes the 2026-06-19 coverage-audit Part-2 state-transition gap; cases come from this model, not ad hoc.)
 
 ## §4 — Cross-refs (probe / rule companions)

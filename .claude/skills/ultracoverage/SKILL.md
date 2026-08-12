@@ -20,6 +20,18 @@ Authors the **DEEP** coverage subplan(s) for one module — the L2/L3 exhaustive
 ## Identity Gate
 Runs `/identity` Step 1.5 with caller=`/ultracoverage`. No-op if compatible identity active.
 
+## Step 0.5: Seed DEEP worklist from prior quick walk
+
+If a QUICK subplan for this module has already been executed (walk artifact exists in `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/`), grep it for `deferred-to-DEEP` rows:
+
+```bash
+grep -n "deferred-to-DEEP" clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/<module>-*.md
+```
+
+Each matching row names a specific launcher/element the quick run explicitly deferred. Use these rows as the **DEEP worklist seed** for Step 1 scope resolution — they are already machine-enumerated and denominator-counted, so the DEEP subplan picks up exactly where the quick run left off with zero overlap and zero silent skipping.
+
+**CoverageMode stamp (LR-072)**: Every subplan authored by `/ultracoverage` MUST include `**CoverageMode**: deep` in its frontmatter.
+
 ## Step 0: Auto-call `/coverage` (QUICK first)
 
 Invoke `/coverage <module>` first. It authors `SUBPLAN_<MODULE>_COVERAGE_QUICK.md` (field FCC + L1 surface must-asserts). A grid-bearing module request therefore yields **two** subplans: QUICK (run now) + DEEP (staged behind it). If a QUICK subplan for the module already exists in `plans/pending/`, skip re-authoring it and depend on it.

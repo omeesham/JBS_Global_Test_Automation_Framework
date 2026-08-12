@@ -49,6 +49,18 @@ The last check catches knowledge artifacts (field inventories, walk evidence, ba
 git is silently ignoring because their parent directory is gitignored but already held tracked files.
 This is exactly the defect that stranded a colleague waiting for artifacts that never reached remote.
 
+Then the gate-drift tripwire — the gates you push must be the gates you validated with:
+
+```bash
+git status --porcelain -- scripts/ .githooks/ .claude/rules/ export_test_cases/ package.json
+```
+
+Empty, or every line explicitly dispositioned in the push report (shipped, or why it stays local).
+A gate script dirty here means you validated against rules the repo does not have — that drift let
+a locally-fixed lint pass on this machine while the committed rules flagged our own pushed content
+on a colleague's, twice in one day (2026-08-12). Pre-push also runs the gate-input closure check,
+which fails when a file the disk-read gates consume exists locally but is untracked.
+
 If the workbook is stale, run `npm run xlsx:build` and stage the result — never push a workbook that
 disagrees with its markdown source; the pre-push freshness gate will reject it anyway.
 

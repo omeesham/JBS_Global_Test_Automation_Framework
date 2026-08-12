@@ -89,7 +89,7 @@ A non-editable display input is NOT proof the field is non-interactive — the i
 
 A "walk" — field-inventory walk (HUNTER/GIVER), old-site baseline walk, or WATCHDOG audit re-walk of a live page — is complete ONLY when ALL of:
 1. A **machine-enumerated denominator** exists, produced by `scripts/walk-coverage/enumerate-page.mjs` (the live page enumerates every interactive element itself; the agent does NOT define what counts). Heuristic-A v2 net + Pass-B focusable + CDP `getEventListeners` G1-recovery, shadow-piercing, self-expanding to a fixpoint.
-2. **Every** element in the union (A∪B) denominator is dispositioned — `covered-by-TC: <TC-ID>` / `affordance-probed: <LR-057 token>` / `read-only-verified` / `out-of-scope: <reason ≥20 chars>`. No blanks.
+2. **Every** element in the union (A∪B) denominator is dispositioned — `covered-by-TC: <TC-ID>` / `affordance-probed: <LR-057 token>` / `read-only-verified` / `out-of-scope: <reason ≥20 chars>` / `deferred-to-DEEP: <element/launcher id> (<reason ≥20 chars>)` (quick-tier plans only — see LR-072; **G1**: a deferral row carries NO classification claim alongside it — validator FAIL if any other disposition token co-appears). No blanks.
 3. `CrossCheck: clean` — every symmetric-difference (A△B) review-set element is classified.
 4. `Coverage_Ratio` = 100%.
 5. **Provenance is machine-bound (SUBPLAN_CGS_B_WALK_INTEGRITY, 2026-06-24)** — completeness alone never asked *whether* an observation-claiming disposition was actually OBSERVED live or merely classified-from-spec (the corp-pricing rewalk flipped DONE with controls classified from the Jira spec instead of live-clicked, and the gate passed). So every disposition that *claims observation* — `affordance-probed`, `read-only-verified`, or a live `covered-by-TC` — MUST carry `provenance: live` AND a cited machine-emitted `evidence:` artifact (a `playwright-cli` network-row endpoint+200+server-timestamp / snapshot / screenshot). `provenance: oracle` = classified-from-spec and is **FORBIDDEN on an observation-claiming row** — if it was never live-observed, move it to `out-of-scope: <reason ≥20 chars>` (honest inference, never provenance-gated) rather than mis-claiming a probe. The cited evidence must (a) exist, (b) not be stale/reused (its embedded date ≥ the walk's `MCP_Session_Date`), and (c) name that control/endpoint. A `covered-by-TC` row carries its TC-ID as inherent evidence (the runnable spec) and is not evidence-gated, but a `covered-by-TC` that *also* declares `provenance: oracle` is self-contradictory and is rejected. The per-row `evidence:` pointer + Opus verdict live in the existing `walk-evidence-<module>-<DATE>.md` (LR-064) — and the evidence file itself is **emitted by `playwright-cli`, never hand-authored**: a PreToolUse gate (`.claude/hooks/lib/check-todo-injection.mjs` `isEvidenceDirTarget`) denies agent `Edit`/`Write` into `.playwright-cli/`. **This sub-gate is itself date-gated**: artifacts whose `MCP_Session_Date` precedes **2026-06-24** are provenance-grandfathered (conditions 1–4 still apply when they post-date 2026-06-19), so it never retroactively fails the pre-existing manifests (e.g. `pricing-2026-06-19`).
@@ -100,7 +100,7 @@ A self-labeled `coverageScope: PARTIAL` is NOT a valid stopping point — it is 
 
 **Grandfather**: artifacts whose `MCP_Session_Date` precedes the coverage landing date (2026-06-19) are exempt from conditions 1–4 until their next refresh; the provenance condition (5) is separately grandfathered before its own landing date (2026-06-24).
 
-**Trigger**: every field-inventory walk, old-site baseline walk, WATCHDOG completeness audit, and any closure of a plan citing such an artifact.
+**Trigger**: every field-inventory walk, old-site baseline walk, WATCHDOG completeness audit, and any closure of a plan citing such an artifact; every coverage-bearing subplan authoring session (CoverageMode declaration — LR-072).
 **Graduated from**: 2026-06-18 Pricing FCC partial-walk-taken-as-done incident; PLAN_EXHAUSTIVE_WALK_GUARANTEE (2026-06-19). Condition 5 (machine-bound provenance) + the integrity strike added 2026-06-24 by SUBPLAN_CGS_B_WALK_INTEGRITY (the corp-pricing rewalk flipped DONE with controls classified-from-spec, not live-clicked; completeness passed but provenance was never checked). Cross-refs LR-013, LR-057, LR-029, LR-055, LR-060, LR-064.
 
 ## LR-064: Tiered Delegated Walk (TDW) — the DEFAULT walk procedure; Opus judges, Haiku/Sonnet do the clicking
@@ -133,6 +133,15 @@ The default execution procedure for any field-gathering walk (HUNTER baseline/in
 
 **Worker model-class ladder:** Haiku → Sonnet → Opus-self, escalating by field complexity OR on a failed Stage-3 verdict (cross-ref CLAUDE.md Model-Aware Guardrails). Honest caveat: if Haiku fails often the re-do overhead eats the savings — start Haiku on trivial fields only, measure, tune.
 
+**TDW-Q profile — quick-mode walk deltas (CoverageMode: quick, LR-072):**
+
+| Mechanism | Deep (today, unchanged) | Quick profile |
+|---|---|---|
+| Stage 1 — recon + machine enumeration | full | **UNCHANGED** — denominator is always machine-owned; tier never touches enumeration |
+| Stage 2 — per-field probes | every element | only elements needed for L1 §2 cases + applicable §3 QUICK families + anything the owner names; remaining elements → `deferred-to-DEEP: <id> (<reason ≥20 chars>)` |
+| Stage 3 — blind re-drive | random sample of live rows | retained (anti-fabrication is tier-independent) at reduced floor: **min(3, live-row count)** instead of the deep sample |
+| Stage 4 — disposition | every element | unchanged; `deferred-to-DEEP` counts as dispositioned (Coverage_Ratio stays 100%) |
+
 **Trigger**: every field-inventory walk (HUNTER / GIVER per PLN-049), old-site baseline walk, and WATCHDOG audit re-walk — the default execution model for all three. [AGENT-DISCIPLINE] Enforced by REQUIREMENTS HARD STOP #11 + PLANNER HARD STOP #19 + AUDIT HARD STOP #11 (the no-disposition-from-unverified-report clause) + the CLAUDE.md guardrail delegation clause — these are prose instructions agents follow; no automated hook fires independently.
 **Graduated from**: PLAN_TIERED_DELEGATED_WALK (2026-06-22) — make the walk efficient by delegating the labor, never the judgment; parity-proven against Pricing before becoming default. Cross-refs LR-062 (completeness denominator), LR-057 (affordance probe), LR-007 / LR-013 (spot-check verification), LR-032 / LR-059 (real-verification, no theorizing), `/rca` mama rule (no rubber-stamp), AUD-017 (synthesis ≠ oracle).
 
@@ -151,4 +160,28 @@ LR-062 makes a walk complete only when every machine-enumerated element is dispo
 **Depth is delivered by the skills, not this rule**: `/coverage` authors the QUICK L1 surface must-asserts; `/ultracoverage` authors the DEEP L2/L3 exhaustive surface coverage. The framework methodology lives in the [Case-Generation Standard](../../docs/read_only_docs/CASE_GENERATION_STANDARD.md) (7 active families + deferred `rbac`/`concurrency`/`platform`); the Encore templates live in `field-case-generation.md` §3.
 
 **Trigger**: every field-inventory walk / catalog / WATCHDOG re-walk that enumerates a grid / list / table / result surface; every closure of a plan citing such an artifact (rides the LR-062 Cx gate); every `/coverage` + `/ultracoverage` subplan authoring.
+**Depth is tier-independent at the floor**: the ≥1-QUICK-TC-per-applicable-family requirement is the L1 must-assert floor for ALL tiers — `/coverage` (quick) and `/ultracoverage` (deep) both satisfy it. Quick narrows scope via `deferred-to-DEEP` (LR-072) on non-L1 families; it never drops the L1 floor.
 **Graduated from**: SUBPLAN_CGS_A_STANDARD_AND_SKILLS (2026-06-24, parent PLAN_CASE_GENERATION_STANDARD) — codifies the surface axis that `field-case-generation.md` §2 (field-input only) structurally couldn't generate. Cross-refs LR-062 (completeness denominator), LR-064 (TDW Stage-1 grid→§3 classification), LR-057 (affordance + no-taxonomy brain-first probe), the Case-Generation Standard, and skills `/coverage` + `/ultracoverage`.
+
+## LR-072: CoverageMode contract — plan-level declared tier governs walk/verify/closure cost
+
+**Paths**: `.claude/rules/inventory.md` (governing LR-062 disposition vocabulary, LR-064 TDW walk execution, LR-065 surface-axis floor, LR-013/SP-AAE-05 staleness, Cx closure gate).
+
+Every **coverage-bearing subplan** (one whose phases author TCs, run walks, or cite walk artifacts) MUST declare `**CoverageMode**: quick | deep` in frontmatter alongside `Model` / `Thinking` / `PermissionMode` (LR-041 pattern). `/coverage` stamps `quick`; `/ultracoverage` stamps `deep`. Hand-authored plans declare explicitly.
+
+**Absent field = `deep` semantics** (conservative default — legacy plans and forgetful authors get today's full rigor; the contract can only ever be *invoked*, never *fallen into*).
+
+**Token grammar**: `deferred-to-DEEP: <element/launcher id> (<reason ≥20 chars>)`
+- Legal **only** on plans whose `CoverageMode` is `quick`.
+- Counts as **dispositioned** for LR-062 `Coverage_Ratio` (ratio stays 100% — nothing silently skipped).
+- **G1 — no classification claim**: a deferral row carries NO other disposition token alongside it. Any `deferred-to-DEEP` row co-appearing with `covered-by-TC` / `affordance-probed` / `read-only-verified` = validator FAIL (the Pay-To-Address miss recreated otherwise).
+- **G2 — claimed rows keep FULL rigor**: any row the quick run DOES claim (`covered-by-TC` / `read-only-verified` / `affordance-probed`) keeps unchanged LR-062 condition-5 provenance + LR-057 probe requirements. Quick narrows the claimed set; it never cheapens a claim.
+- **G3 — vocabulary containment**: the token lives only in internal walk artifacts (gitignored `specs_planning/`) and plan bodies. It is in the `scripts/xlsx-lint-rules.mjs` deny-list so it can never leak into a client deliverable.
+- **G4 — per-launcher granularity**: a deferral names the specific launcher/element, never a shared dialog (LR-057 dedup clause). This is a doctrine-layer discipline (walk-time judgment, reviewer-checked); the machine layer enforces the token FORMAT — non-empty element/launcher id and reason ≥20 chars (validated by coverage-manifest.mjs at Cx time).
+
+**Walk_Mode dual-home**: the walk manifest gains a `Walk_Mode: quick | deep` frontmatter field stamped at walk time (absent = deep). The Cx closure path reads BOTH the plan's `**CoverageMode**:` AND the artifact's `Walk_Mode:` and **FAILS on mismatch** — a deep plan citing a quick-walked artifact must not close green off deferral rows.
+
+**Gate discipline**: a gate that flags a `CoverageMode: quick` plan for performing quick-scope work (i.e., for having `deferred-to-DEEP` rows) is, from this rule forward, a **gate bug** — the owner's tier declaration IS the demand signal.
+
+**Trigger**: every coverage-bearing subplan authoring session; every walk artifact consumption session; every Cx closure of a plan citing a walk artifact.
+**Graduated from**: PLAN_COVERAGE_TIER_CONTRACT (2026-08-07). Cross-refs LR-062 (disposition vocabulary + Cx gate), LR-064 (TDW-Q profile), LR-065 (tier-independence floor), LR-013/SP-AAE-05 (staleness quick-path), §20 (quick walk doctrine).

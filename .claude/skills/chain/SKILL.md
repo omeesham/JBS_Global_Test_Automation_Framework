@@ -75,8 +75,7 @@ Env override ceilings (power users):
 4. **Build queue**:
    - Read `plans/INDEX.md` Execution Queue.
    - For each row: read the subplan file, extract `**Depends on**`, `**Model**`, `**Thinking**`, `**PermissionMode**`, `**RiskAcknowledged**` (bypassPermissions only), `**BrowserTool**`, `**BrowserToolJustification**` (both only), `**Created**` (LR-038 v2 grandfather check).
-   - **[LR-041 PRESENT-value validator]** — for each subplan where BOTH `**Model**` and `**Thinking**` are present (not missing), validate the combo BEFORE applying any defaults:
-     - If `Model` matches `sonnet` AND `Thinking` ∈ {`lo`, `low`, `max`} → HALT queue build; emit `PAUSE_NOTICE: "LR-041 violation in <subplan>: Sonnet + <thinking> is forbidden (under-thinks / clamps silently). Fix the subplan frontmatter and /chain resume."` Do not write `chain.json`. Do not spawn.
+   - **[LR-041 PRESENT-value validator]** — for each subplan where BOTH `**Model**` and `**Thinking**` are present (not missing), validate the combo BEFORE applying any defaults:     - If `Model` matches `sonnet` AND `Thinking` ∈ {`lo`, `low`} → HALT queue build; emit `PAUSE_NOTICE: "LR-041 violation in <subplan>: Sonnet + <thinking> is forbidden (under-thinks). Fix the subplan frontmatter and /chain resume."` Do not write `chain.json`. Do not spawn.
      - If `Model` matches `opus` AND `Thinking` ∈ {`lo`, `low`, `mid`, `medium`} → HALT queue build; emit `PAUSE_NOTICE: "LR-041 violation in <subplan>: Opus + <thinking> is forbidden. If <thinking> is enough, task is Sonnet hi."` Do not spawn.
      - If `Model` matches `opus` AND `Thinking` == `max` AND no `**Justification**:` frontmatter line → HALT: `"LR-041: Opus max requires **Justification**: frontmatter line in <subplan>."`
      - If `Model` matches `sonnet` AND `Thinking` ∈ {`mid`, `medium`} AND no `**Justification**:` frontmatter line → HALT: `"LR-041: Sonnet mid requires **Justification**: frontmatter line in <subplan>."`
@@ -87,6 +86,10 @@ Env override ceilings (power users):
      - If `BrowserTool` is missing AND `**Created**` ≥ 2026-04-24 → HALT: `"LR-038 v2: missing **BrowserTool**: in <subplan> (Created post-2026-04-24). Allowed: cli | chrome | both | none. Fix and /chain resume."`
      - If `BrowserTool` is missing AND (`**Created**` < 2026-04-24 OR Created missing) → grandfather; do not HALT (warning only, included in startup status line as `<n> grandfathered subplans (no BrowserTool, pre-2026-04-24)`).
    - **[LR-038 v2 `both`-quota guard]** — count subplans in the *built* queue (post-filter, post-batchCap) where `BrowserTool` == `both`. If `bothCount / queueLength > 0.30` → HALT queue build; emit `PAUSE_NOTICE: "LR-038 v2: >30% of queued subplans flag BrowserTool=both (<n>/<N>). 'both' is an escape hatch, not a default — re-classify as cli/chrome or split subplans, then /chain resume."` Do not write `chain.json`.
+   - **[LR-072 CoverageMode PRESENT-value validator]** — for each subplan that is coverage-bearing (phases author TCs, run walks, or cite walk artifacts), read `**CoverageMode**:` field:
+     - If `CoverageMode` is present AND value ∉ {`quick`, `deep`} → HALT queue build; emit `PAUSE_NOTICE: "LR-072 violation in <subplan>: invalid CoverageMode=<value>. Allowed: quick | deep. Fix and /chain resume."` Do not write `chain.json`.
+     - If `CoverageMode` is missing AND the subplan is coverage-bearing → HALT queue build; emit `PAUSE_NOTICE: "LR-072 violation in <subplan>: coverage-bearing subplan missing **CoverageMode**: field. Declare quick or deep. Fix and /chain resume."` Do not write `chain.json`.
+     - Non-coverage-bearing subplans (no TC authoring, no walk, no walk-artifact citation): skip this check.
    - Default-apply per LR-041 if MISSING (not present-but-invalid): Sonnet → `hi`; Opus → `xhi`; PermissionMode `auto`. Grandfather-safe — pre-LR-041 subplans with no frontmatter fields still queue with conservative defaults.
    - Topologically sort into waves.
    - Filter to subplans whose dependencies are all DONE or themselves queue-ahead.

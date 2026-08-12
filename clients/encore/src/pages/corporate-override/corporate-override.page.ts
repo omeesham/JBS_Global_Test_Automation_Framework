@@ -97,9 +97,25 @@ export class CorporatePricingOverridePage extends CorporatePricingBasePage {
     // no location selected and location already loaded.
     await this.page.locator(OS.ovrChangeLocationTrigger).first().click();
     await this.page.locator(OS.ovrLocationPickerSearch).first().waitFor({ state: 'visible', timeout: 10_000 });
-    // Wait for the initial location list to load from the API before returning — callers read rows
-    // and search immediately; proceeding before the first row renders produces false-empty counts.
-    await this.page.locator('[role="dialog"] tbody tr').first().waitFor({ state: 'visible', timeout: 15_000 });
+    // Wait for the location list to be populated with real data before returning.
+    // The picker renders skeleton placeholder rows immediately (visible, but with empty text
+    // content) while the API call is in flight. Waiting for row visibility alone is satisfied
+    // by a skeleton row in milliseconds, while the actual data can take ~23 seconds to arrive.
+    // We poll until at least one row's trimmed text is non-empty, confirming real data has
+    // loaded. The 60 000 ms budget matches the timeout used for other slow surfaces in this
+    // environment.
+    await expect
+      .poll(
+        async () => {
+          const rows = this.page.locator('[role="dialog"] tbody tr');
+          const count = await rows.count();
+          if (count === 0) return false;
+          const firstText = await rows.first().innerText();
+          return firstText.trim().length > 0;
+        },
+        { timeout: 60_000, intervals: [500, 500, 1_000, 1_000, 2_000] },
+      )
+      .toBe(true);
   }
 
   @step('Select location')

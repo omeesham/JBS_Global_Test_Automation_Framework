@@ -36,7 +36,19 @@ Runs `/identity` Step 1.5 with caller=`/coverage`. No-op if compatible identity 
 
 ## Step 3: Author `SUBPLAN_<MODULE>_COVERAGE_QUICK.md`
 
-Write to `plans/pending/SUBPLAN_<MODULE>_COVERAGE_QUICK.md`, copying the structure from `plans/pending/_TEMPLATE_SUBPLAN.md` and satisfying **LR-048** (structural minimum) + **LR-041** (Model/Thinking/PermissionMode) + the **SESSION BOOTSTRAP** block (per `/planning` Step 6):
+Write to `plans/pending/SUBPLAN_<MODULE>_COVERAGE_QUICK.md`, copying the structure from `plans/pending/_TEMPLATE_SUBPLAN.md` and satisfying **LR-048** (structural minimum) + **LR-041** (Model/Thinking/PermissionMode) + the **SESSION BOOTSTRAP** block (per `/planning` Step 6).
+
+**CoverageMode stamp (LR-072)**: Every subplan authored by `/coverage` MUST include `**CoverageMode**: quick` in its frontmatter alongside Model/Thinking/PermissionMode.
+
+**Quick-walk profile** (full contract in `.claude/rules/inventory.md` LR-072 — summarized here):
+- **TDW-Q (LR-064)**: Stage 1 machine enumeration unchanged; Stage 2 probes only elements needed for L1 §2 cases + applicable §3 QUICK families — remainder → `deferred-to-DEEP: <element> (<reason ≥20 chars>)`; Stage 3 reduced floor min(3, live-row count); Stage 4 unchanged.
+- **§20-Q**: Openers hosting in-scope fields walked fully; other openers enumerated + `deferred-to-DEEP`. `## Observations` (ALL-045) stays mandatory; full-SFDPOT sweep NOT forced; pattern sweep fires on CRITICAL/HIGH finds only (see `/find-bugs` step 5).
+- **Staleness quick-path (LR-013)**: a 15–30-day artifact may be consumed via the 0.5a spot-check path (3-row log) instead of a forced full re-walk; >30d HALT unchanged.
+- **find-bugs decoupling**: full SFDPOT bug-harvest coupling is NOT required in quick mode — record observations, escalate CRITICAL/HIGH patterns only.
+- **G2 — claimed rows keep full rigor**: any row the quick run classifies (`covered-by-TC` / `read-only-verified` / `affordance-probed`) retains unchanged LR-062 provenance + LR-057 probe requirements. Quick narrows the claimed set; it never cheapens a claim.
+- **Absent `deferred-to-DEEP` classification rule (G1)**: a deferral row carries NO classification claim — never `read-only`, never `affordance-probed`. A deferral with any classification token = LR-072 violation.
+
+**Delivery intent**: a quick run targeting an SCT-class module aims for same-day 0→100, not multi-day. **Residual-cost honesty**: walk time still scales with field count because Axis 1 FCC (every field × §2 templates) is this skill's promised floor — quick removes BFS-fixpoint, full-SFDPOT, and re-walk overhead, NOT the per-field L1 floor. Sub-FCC tier selection (field-subset) is out of scope for this skill.
 
 - **Frontmatter**: Status PENDING · Priority · Created · Identity (OWNER shell; GIVER→BUILDER→AUDIT by phase) · Parent (the module's master plan if any, else `none`) · Depends on · Model `claude-opus-4-8` (or `claude-sonnet-4-6` for mechanical) · Thinking · PermissionMode · BrowserTool (`cli` if a walk/save-cycle is needed, else `none`).
 - **Phases**: Phase 0 (dep + browser-tool gate) · Phase 0.5b (baseline-first walk / consume-or-emit field-inventory per LR-062/LR-064) · Phase 1 GIVER (FCC + SBC-QUICK catalog + TC-MD + test-plan + XLSX rebuild; `check:tc-parity` exit 0) · Phase 2 BUILDER (FCC describe + `SBC — <module>` describe at TOP, reusing existing page-object grid helpers — **NO new runner**) · Phase 3 AUDIT (FCC-Completeness + **surface-completeness**) · Phase 4 closure.

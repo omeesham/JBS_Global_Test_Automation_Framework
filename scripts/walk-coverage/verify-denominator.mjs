@@ -241,6 +241,22 @@ export function verifyDenominator(artifactText, jsonPath) {
     }
   }
 
+  // ── G1 enforcement (PLAN_COVERAGE_TIER_CONTRACT Phase 3.3):
+  // A deferred-to-DEEP row may not also carry any classification claim.
+  // Deferral + any classification token on the same row = FAIL.
+  const CLASSIFICATION_TOKENS = ['read-only-verified', 'affordance-probed', 'covered-by-TC', 'provenance:'];
+  const deferralRows = manifestRows.filter(r => r.disposition === 'deferred-to-DEEP');
+  for (const row of deferralRows) {
+    const raw = (row.raw || '').toLowerCase();
+    const clash = CLASSIFICATION_TOKENS.find(t => raw.includes(t.toLowerCase()));
+    if (clash) {
+      reasons.push(
+        `G1 VIOLATION: row "${row.controlRef}" carries deferred-to-DEEP AND classification token "${clash}" — ` +
+        `a deferral is "not walked", never "read-only" / "affordance-probed" / "covered"`
+      );
+    }
+  }
+
   if (reasons.length === 0) return { ok: true };
   return { ok: false, reason: reasons.join('; '), reasons };
 }

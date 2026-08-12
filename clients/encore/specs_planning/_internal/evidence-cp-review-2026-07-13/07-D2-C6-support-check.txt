@@ -1,0 +1,50 @@
+COMMAND: playwright-cli state-load clients/encore/.auth/encore-state.json
+### Result
+Storage state restored from clients\encore\.auth\encore-state.json
+### Ran Playwright code
+```js
+await page.context().setStorageState('clients\encore\.auth\encore-state.json');
+```
+### Page
+- Page URL: https://navigator2.training.psav.com/#/
+- Page Title: Navigator Order Entry 2026.03.12.978.1
+- Console: 1 errors, 0 warnings
+### Events
+- New console entries: clients\encore\.playwright-cli\console-2026-07-13T14-40-13-540Z.log#L68
+COMMAND: playwright-cli run-code <D2 testid inventory + C6 affordance scan>
+### Ran Playwright code
+```js
+await (async (page) => {
+  const base = 'https://cloudapps-e2e.encoreglobal.com/navigator';
+  async function gotoAndWait(path, marker) {
+    await page.goto(`${base}${path}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    if (marker) await page.locator(marker).first().waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
+    await page.waitForTimeout(2000);
+  }
+  async function testidSummary(label, path, marker) {
+    await gotoAndWait(path, marker);
+    return await page.evaluate((label) => {
+      const values = Array.from(document.querySelectorAll('[data-testid]')).map((el) => el.getAttribute('data-testid'));
+      return { label, url: location.href, count: values.length, unique: Array.from(new Set(values)), raw: values };
+    }, label);
+  }
+  const d2 = [];
+  d2.push(await testidSummary('Search', '/locations/1604/settings/corporate-pricing', 'text=Corporate Pricing'));
+  d2.push(await testidSummary('New Pricebook Equipment', '/locations/1604/settings/corporate-pricing/add?type=equipment', 'input[placeholder="Pricebook..."]'));
+  d2.push(await testidSummary('New Pricebook Labor', '/locations/1604/settings/corporate-pricing/add?type=labor', 'input[placeholder="Pricebook..."]'));
+  d2.push(await testidSummary('Details', '/locations/1604/settings/corporate-pricing/details/91acb5ca-20e2-ce8e-a9ab-8c370925fd65', 'text=Pricing Strategy'));
+  await page.getByRole('button', { name: 'Pricing Detail' }).click().catch(() => {});
+  await page.waitForTimeout(2000);
+  d2.push(await page.evaluate(() => { const values = Array.from(document.querySelectorAll('[data-testid]')).map((el) => el.getAttribute('data-testid')); return { label: 'Details Pricing Detail tab', url: location.href, count: values.length, unique: Array.from(new Set(values)), raw: values }; }));
+  d2.push(await testidSummary('Override', '/locations/1604/settings/corporate-pricing/pg-override', 'text=Product Group Override'));
+  await gotoAndWait('/locations/1604/settings/corporate-pricing/details/a3cd2012-c289-43ee-9932-bdf1de901a39', 'text=Pricing Strategy');
+  const c6Details = await page.evaluate(() => Array.from(document.querySelectorAll('button,[role="button"],a')).map((el) => (el.textContent || el.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim()).filter(Boolean).filter((t) => /delete|deactivate|remove|archive|inactivate/i.test(t)));
+  await gotoAndWait('/locations/1604/settings/corporate-pricing', 'text=Corporate Pricing');
+  const c6Search = await page.evaluate(() => Array.from(document.querySelectorAll('button,[role="button"],a')).map((el) => (el.textContent || el.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim()).filter(Boolean).filter((t) => /delete|deactivate|remove|archive|inactivate/i.test(t)));
+  return { d2, c6AffordanceScan: { detailsUrl: `${base}/locations/1604/settings/corporate-pricing/details/a3cd2012-c289-43ee-9932-bdf1de901a39`, detailsMatches: c6Details, searchMatches: c6Search } };
+})(page);
+```
+### Page
+- Page URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/details/a3cd2012-c289-43ee-9932-bdf1de901a39
+### Modal state
+- ["beforeunload" dialog with message ""]: can be handled by dialog-accept or dialog-dismiss

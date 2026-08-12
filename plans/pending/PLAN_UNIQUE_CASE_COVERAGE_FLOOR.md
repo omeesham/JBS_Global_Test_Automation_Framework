@@ -162,6 +162,10 @@ then left disarmed; the fix is arming it and making disarmament visible.
    un-promoted *and unexamined* is not.
 4. **Demote the element Coverage_Ratio** from proof-of-completion to a reported supporting signal. Rewire
    the verdict line rather than leaving a computed number nobody blocks on.
+   **[SUPERSEDED 2026-08-07 — PLAN_COVERAGE_TIER_CONTRACT re-promoted Coverage_Ratio to blocking:
+   deferred-to-DEEP dispositions (LR-072, Walk_Mode: quick) make the ratio consumable, so the "nobody
+   blocks on it" premise no longer holds. This item's landed demotion (commit 367363ff2) was reverted;
+   the type-binding check it motivated stays blocking and untouched.]**
 5. **Silent-pass guard**: a case-class check evaluating **zero case rows** on a subject surface FAILS,
    regardless of ramp mode. Absent (`undefined`) and empty (`[]`) are distinct and both fail, with
    distinct messages — they have different causes.
@@ -448,7 +452,7 @@ per LR-069 §3.5 (a convicted fix is never left idling as sediment):
 |---|---|
 | `depth_gate_mode: off` state + the **six** `rampMode === 'off'` early-return branches in `coverage-manifest.mjs` (`:376, :563, :610, :694, :998` + type-binding) | **Removed** — Phase 1.2. A knob that disables the primary gate is the hole. The branches go with it; unreachable code that documents a removed escape hatch is how the hatch comes back |
 | `check:ramp-expiry` — a working gate with zero callers | **Wired into `pipeline:validate`** — Phase 1.3. The logic is sound and stays; only its absence from every chain is the defect |
-| Element `Coverage_Ratio` as verdict input | **Rewired** — Phase 1.2, demoted to reported signal; the verdict line is changed, not left computing a dead number |
+| Element `Coverage_Ratio` as verdict input | **Rewired** — Phase 1.2, demoted to reported signal; the verdict line is changed, not left computing a dead number **[SUPERSEDED 2026-08-07 — re-promoted to blocking by PLAN_COVERAGE_TIER_CONTRACT; type-binding unaffected]** |
 | Any check passing on zero rows | **Swept** — two were fixed during depth-gate work (`check-reject-oracle.mjs`, `validate-plan-closure.mjs`); Phase 1.3 sweeps the rest and the silent-pass guard becomes the standing rule |
 | `ENFORCED BY CODE: no` markers superseded by depth-gate receipts | **Corrected** — Phase 4.3, to `ENFORCED BY: <file>:<line>` with a verified call site |
 | `clients/encore/CLAUDE.md:55-57` `.env.local` statement | **Corrected** — Phase 4.5, contradicts `:130` |

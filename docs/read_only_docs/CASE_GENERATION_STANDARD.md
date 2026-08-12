@@ -82,6 +82,8 @@ dark-mode). These are real SFDPOT/ISTQB concerns but carry no case templates yet
 
 A grid-bearing module request yields **two** subplans: QUICK (run now) and DEEP (staged behind it).
 
+> **CoverageMode pointer:** `quick` maps to the L1 band above; `deep` maps to the L2/L3 band. The canonical CoverageMode contract (token grammar, guards G1–G4, absent-field default, Walk_Mode manifest field) lives in LR-072 (`.claude/rules/inventory.md`) and the field-inventory-spec (`clients/encore/specs_planning/_internal/field-inventory-spec.md`).
+
 ---
 
 ## TC namespaces

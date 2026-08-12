@@ -80,6 +80,7 @@
     "check:tc-parity": "ts-node scripts/check-tc-parity.ts",
     "xlsx:build": "ts-node export_test_cases/to-xlsx.ts --list-only",
     "xlsx:build:with-run": "ts-node export_test_cases/to-xlsx.ts --with-run",
+    "xlsx:build:with-run-json": "ts-node export_test_cases/to-xlsx.ts",
     "xlsx:build:list-only": "ts-node export_test_cases/to-xlsx.ts --list-only",
     "xlsx:freshness": "ts-node scripts/xlsx-freshness.ts",
     "xlsx:dump": "ts-node scripts/xlsx-dump.ts",

@@ -51,4 +51,22 @@ if [ "$RUN_FRESHNESS" -eq 1 ]; then
   fi
 fi
 
+# 5. Gate-input closure (PLAN_TEAM_REPO_GATE_INPUT_CLOSURE P3, Sev S1).
+# The parity and field-inventory gates read test-case md / test-plan md / field-inventory md
+# from the WORKING TREE — a file that exists here but is untracked satisfies them locally
+# while every clone fails them (2026-08-12 incident: 170 orphan TCs, five days blocked).
+# Ramp per LR-069: announce (warn + telemetry) until untracked_gate_inputs_mode=deny.
+GATE_INPUTS_MODE="$(node -e "try{process.stdout.write(JSON.parse(require('fs').readFileSync('.claude/guardrail-config.json','utf8')).untracked_gate_inputs_mode||'announce')}catch{process.stdout.write('announce')}")"
+if [ "$GATE_INPUTS_MODE" != "off" ]; then
+  if ! node scripts/check-untracked-knowledge.mjs --enforce-gate-inputs >&2; then
+    mkdir -p .claude/state
+    echo "gate-input-closure, $(date -u +%Y-%m-%dT%H:%M:%SZ), $GATE_INPUTS_MODE, pre-push" >> .claude/state/gate-fires.log
+    if [ "$GATE_INPUTS_MODE" = "deny" ]; then
+      echo "[pre-push] HALT: untracked gate-input files (see list above) — track them or the clone-side gates fail." >&2
+      exit 1
+    fi
+    echo "[pre-push] ANNOUNCE: untracked gate-input files detected (push proceeds; deny after ramp)." >&2
+  fi
+fi
+
 exit 0

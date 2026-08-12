@@ -89,6 +89,7 @@ Client-scoped paths use `${ACTIVE_CLIENT}` placeholder.
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/intake/<module>-<agent>-*.md` | CREATE | CREATE | CREATE | CREATE | CREATE | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/old-site-baseline/<module>-*.md` | CREATE | READ | READ | UPDATE | UPDATE | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/walk-evidence-*.md` | CREATE | CREATE | READ | UPDATE | UPDATE | READ | RW |
+| `clients/${ACTIVE_CLIENT}/specs_planning/_internal/jira-defect-crossref-*.md` | CREATE | READ | READ | READ | UPDATE | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/bug-archetypes.md` | APPEND | APPEND | READ | APPEND | APPEND | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/_TEMPLATE.md` | READ | READ | READ | READ | READ | READ | RW |
 | `clients/${ACTIVE_CLIENT}/specs_planning/_internal/field-inventories/<module>-*.md` | READ | CREATE | READ | UPDATE | UPDATE | READ | RW |
@@ -862,3 +863,18 @@ ALL-045 (Observations). Implementation army: `plans/pending/PLAN_FORCED_DISCOVER
    office that already has the state. Only then escalate LOUDLY (named `/encore-questions` candidate
    + PARTIAL flag in the same breath). A skip without rungs 1-2 evidenced = bounce (the NM-1932
    precedent: the "missing" data was one awk over an export already on disk).
+
+### §20-Q — Quick-profile walk doctrine (CoverageMode: quick, LR-072)
+
+Applies when the governing subplan declares `**CoverageMode**: quick`. All four §20 items above
+remain; only their scope changes as follows:
+
+- **Openers (§20 item 1)**: openers hosting in-scope fields (needed for L1 §2 cases + applicable §3
+  QUICK families) are walked fully, BFS to fixpoint. Other openers: enumerated and recorded as
+  `deferred-to-DEEP: <opener id> (<reason ≥20 chars>)` — never silent.
+- **`## Observations` (ALL-045, §20 item 3)**: MANDATORY in both tiers. `none` allowed; absent =
+  incomplete walk. Full SFDPOT category sweep is NOT forced; pattern sweep fires only on CRITICAL/HIGH
+  finds (find-bugs/SKILL.md step 5 scope).
+- **Claimed rows keep full rigor (G2)**: any row the quick run DOES classify (`covered-by-TC` /
+  `read-only-verified` / `affordance-probed`) keeps unchanged LR-062 condition-5 provenance + LR-057
+  probe requirements. Quick narrows the claimed set; it never cheapens a claim.
