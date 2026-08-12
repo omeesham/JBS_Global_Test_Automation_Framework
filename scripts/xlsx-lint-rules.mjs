@@ -23,16 +23,17 @@
  *             blank-execution commentary). See lintWorkbook + §2.7 of the declutter plan.
  *        C6  per-sheet TC IDs duplicated OR out of canonical order     → FAIL (LR-ENC-004 V3 — rows must read in ascending TC-ID order; renumbering is forbidden because IDs are spec keys, so the EMITTER sorts and C6 re-asserts it)
  *        C7  garbled output — empty/dangling parens, a separator stranded before
- *            ')', "(->)", an ATTRIBUTED HTML tag (`<span class="…">`; bare `<div>`
- *            test-input is allowed), or a cell truncated to a trailing backtick
- *            → FAIL (LR-ENC-004 V3 closure — the leftovers humanize.ts strips at
- *            source; this is the fail-green backstop. See the CORRUPTION array.)
+ *            ')', "(->)", an ATTRIBUTED HTML tag in prose (`<span class="…">`; code
+ *            literals are stripped from scan text before vocab/C7 runs), or a cell
+ *            truncated to a trailing backtick → FAIL (LR-ENC-004 V3 closure — the
+ *            leftovers humanize.ts strips at source; this is the fail-green backstop.
+ *            See the CORRUPTION array.)
  *
  * The SUMMARY footer row of every sheet is exempt (it carries roll-up metrics, not TC data).
  * The Overview banner (title rows 1-2) is scanned for vocab; its metric rows are exempt.
  */
 import XLSX from 'xlsx';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
@@ -84,6 +85,10 @@ export const HEADER_ALIASES = {
   'Steps (Step)': 'Steps',
   'Steps (Expected Result)': 'Expected Result',
 };
+
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(SCRIPT_DIR, '..');
+const MD_ROOT = path.join(REPO_ROOT, 'clients', 'encore', 'specs_planning', 'test-cases', 'setup');
 
 /**
  * Allowed enum values per status column (SUMMARY row exempt). '' = legitimately blank.
@@ -201,6 +206,7 @@ export const BANNED = [
   { name: 'role= attribute', re: /\brole\s*=\s*"/i },
   { name: 'internal [FIXME] tag', re: /\[FIXME\b[^\]]*\]/i },
   { name: 'internal (FCC) tag', re: /\(FCC\)/ },
+  { name: 'deferred-to-DEEP', re: /\bdeferred-to-DEEP\b/ },
   // Leading internal status tag ("DROPPED — …", "WIP: …") at the START of a cell.
   // Anchored to cell-start + a separator so a legit mid-sentence word ("dropped
   // frames", "deferred to NTS-038") is never flagged (LR-ENC-004 V3, 2026-06-05).
@@ -337,9 +343,9 @@ export const BANNED = [
  * They arise when humanize.ts strips an internal token and leaves debris, or when a
  * checkmark is misread as the action↔expected separator (which truncated a step).
  * humanize.ts now prevents each at source; this is the fail-green backstop
- * (LR-ENC-004 V3, 2026-06-05). NOTE: a BARE `<div>` (no attributes) is legitimate
- * test-input content (e.g. "type <div> to verify HTML handling"), so the HTML rule
- * fires only on ATTRIBUTED tags (`<span class="…">`).
+ * (LR-ENC-004 V3, 2026-06-05). Code spans/fenced blocks in the source markdown are
+ * quoted literals (test input), not prose, and are stripped from the scanned copy
+ * below. Ordinary prose still fires on attributed tags (`<span class="…">`).
  */
 export const CORRUPTION = [
   { name: 'empty/dangling paren', re: /\(\s*[-–—;,:/+]*\s*\)/ },
@@ -348,6 +354,85 @@ export const CORRUPTION = [
   { name: 'attributed HTML tag', re: /<[a-z][a-z0-9]*\s+[a-z][a-z-]*\s*=\s*["']/i },
   { name: 'truncated trailing backtick', re: /`[ \t]*$/m },
 ];
+
+let sourceCodeLiteralCache = null;
+
+function normalizeMarkdownLiteral(text) {
+  return String(text ?? '')
+    .replace(/→/g, '->')
+    .replace(/[✓✔]/g, '->')
+    .replace(/×/g, 'x')
+    .replace(/[—–]/g, '-')
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/\r\n/g, '\n')
+    .trim();
+}
+
+function addLiteralVariant(set, literal) {
+  const normalized = normalizeMarkdownLiteral(literal);
+  if (!normalized) return;
+  set.add(normalized);
+  const singleLine = normalized.replace(/[ \t]*\n[ \t]*/g, ' ').replace(/[ \t]{2,}/g, ' ').trim();
+  if (singleLine) set.add(singleLine);
+}
+
+function collectCodeLiterals(markdownSection) {
+  const literals = new Set();
+  const withoutFences = String(markdownSection ?? '').replace(/```[^\n]*\n([\s\S]*?)```/g, (_m, code) => {
+    addLiteralVariant(literals, code);
+    return '\n';
+  });
+  for (const m of withoutFences.matchAll(/`([^`\n]+)`/g)) {
+    addLiteralVariant(literals, m[1]);
+  }
+  return literals;
+}
+
+function walkMarkdownFiles(dir, out = []) {
+  if (!existsSync(dir)) return out;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name !== '_internal') walkMarkdownFiles(full, out);
+    } else if (entry.isFile() && entry.name.endsWith('.md') && !entry.name.startsWith('_')) {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
+function getSourceCodeLiteralsByTc() {
+  if (sourceCodeLiteralCache) return sourceCodeLiteralCache;
+  sourceCodeLiteralCache = new Map();
+  for (const filePath of walkMarkdownFiles(MD_ROOT)) {
+    const content = readFileSync(filePath, 'utf8').replace(/^﻿/, '');
+    const sections = content.split(/^## (TC-[A-Z]+(?:-[A-Z]+)*(?:-\d+[A-Z]?)?):/m);
+    for (let i = 1; i < sections.length; i += 2) {
+      const tcId = String(sections[i] || '').trim();
+      const body = sections[i + 1] || '';
+      if (!tcId || !body) continue;
+      const literals = collectCodeLiterals(body);
+      if (literals.size) sourceCodeLiteralCache.set(tcId, literals);
+    }
+  }
+  return sourceCodeLiteralCache;
+}
+
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function stripSourceCodeLiterals(cellValue, tcId) {
+  const value = String(cellValue ?? '');
+  const literals = getSourceCodeLiteralsByTc().get(tcId);
+  if (!literals?.size) return value;
+  let stripped = value;
+  for (const literal of [...literals].sort((a, b) => b.length - a.length)) {
+    stripped = stripped.replace(new RegExp(escapeRegExp(literal), 'g'), 'quoted literal');
+  }
+  return stripped;
+}
 
 /**
  * Read every data row from the workbook, tagged with its sheet.
@@ -448,7 +533,7 @@ export function lintWorkbook(xlsxPath) {
     // ── vocab scan (runs on ALL rows incl. continuation step-rows — step text is
     //    client-visible and MUST stay scanned) ──
     for (const col of CHECKED_COLS) {
-      const v = String(r[col] ?? '');
+      const v = stripSourceCodeLiterals(r[col], hitTcId);
       if (!v) continue;
       for (const b of BANNED) {
         const m = v.match(b.re);
@@ -466,7 +551,7 @@ export function lintWorkbook(xlsxPath) {
     //    to a trailing backtick. humanize.ts prevents each at source (LR-ENC-004 V3,
     //    2026-06-05); this is the fail-green backstop. Runs on continuation rows too. ──
     for (const col of CHECKED_COLS) {
-      const v = String(r[col] ?? '');
+      const v = stripSourceCodeLiterals(r[col], hitTcId);
       if (!v) continue;
       for (const c of CORRUPTION) {
         const m = v.match(c.re);
@@ -483,7 +568,7 @@ export function lintWorkbook(xlsxPath) {
     //    two numbered steps onto one cell (LI-003/004/078); (2) testrail-format.ts split
     //    a `; ` INSIDE a balanced parenthetical, leaving a dangling "(" / ")" half
     //    (SRC-008 / ECT-013 / LI-111). Both fail the build if they ever regress. ──
-    const stepV = String(r['Steps'] ?? '');
+    const stepV = stripSourceCodeLiterals(r['Steps'], hitTcId);
     const lead = stepV.match(/^\s*(\d+)\.\s/);
     if (lead) {
       const next = parseInt(lead[1], 10) + 1;
@@ -498,7 +583,7 @@ export function lintWorkbook(xlsxPath) {
       }
     }
     for (const pcol of ['Title', 'Steps', 'Expected Result', 'Preconditions']) {
-      const v = String(r[pcol] ?? '');
+      const v = stripSourceCodeLiterals(r[pcol], hitTcId);
       if (!v) continue;
       let depth = 0, unbalanced = false;
       for (let k = 0; k < v.length; k++) {
