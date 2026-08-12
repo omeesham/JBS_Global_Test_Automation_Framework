@@ -194,6 +194,9 @@ export const KNOWN_SUB_CODES = [
   'N271', // NM-2271
   'N272', // NM-2272
   'N273', // NM-2273
+  // discount-optimization (DOP)
+  'OPT',  // discount_optimization (tab 1 — locations grid)
+  'EXM',  // special_rate_exemptions (tab 2 — by service type)
 ] as const;
 
 export type SubCode = typeof KNOWN_SUB_CODES[number];

@@ -1553,6 +1553,99 @@
       ]
     },
     {
+      "code": "SVC.BAS",
+      "name": "Service Charge — Basic Information",
+      "status": "approved-next",
+      "specs": [
+        "tests/service-charge/service-charge-basic-information.spec.ts"
+      ],
+      "workbooks": [
+        "testcases/service-charge/service-charge-basic-information.xlsx"
+      ],
+      "tc_ids": [
+        "TC-SVC-BAS-001",
+        "TC-SVC-BAS-002",
+        "TC-SVC-BAS-003",
+        "TC-SVC-BAS-004",
+        "TC-SVC-BAS-005",
+        "TC-SVC-BAS-006",
+        "TC-SVC-BAS-007",
+        "TC-SVC-BAS-008",
+        "TC-SVC-BAS-009",
+        "TC-SVC-BAS-010",
+        "TC-SVC-BAS-011",
+        "TC-SVC-BAS-012",
+        "TC-SVC-BAS-013",
+        "TC-SVC-BAS-014",
+        "TC-SVC-BAS-015",
+        "TC-SVC-BAS-016",
+        "TC-SVC-BAS-017",
+        "TC-SVC-BAS-018",
+        "TC-SVC-BAS-019",
+        "TC-SVC-BAS-020",
+        "TC-SVC-BAS-021",
+        "TC-SVC-BAS-022",
+        "TC-SVC-BAS-023",
+        "TC-SVC-BAS-024",
+        "TC-SVC-BAS-025",
+        "TC-SVC-BAS-026",
+        "TC-SVC-BAS-027",
+        "TC-SVC-BAS-028",
+        "TC-SVC-BAS-029",
+        "TC-SVC-BAS-030"
+      ],
+      "delivered_on": null,
+      "delivered_via": null,
+      "evidence": null,
+      "src": [
+        "src/data/service-charge/service-charge.ts",
+        "src/pages/service-charge/service-charge.page.ts",
+        "src/selectors/service-charge/service-charge.ts"
+      ],
+      "sheets": [
+        "service_charge_basic_info"
+      ]
+    },
+    {
+      "code": "SVC.HIS",
+      "name": "Service Charge — History",
+      "status": "approved-next",
+      "specs": [
+        "tests/service-charge/service-charge-history.spec.ts"
+      ],
+      "workbooks": [
+        "testcases/service-charge/service-charge-history.xlsx"
+      ],
+      "tc_ids": [
+        "TC-SVC-HIS-001",
+        "TC-SVC-HIS-002",
+        "TC-SVC-HIS-003",
+        "TC-SVC-HIS-004",
+        "TC-SVC-HIS-005",
+        "TC-SVC-HIS-006",
+        "TC-SVC-HIS-007",
+        "TC-SVC-HIS-008",
+        "TC-SVC-HIS-009",
+        "TC-SVC-HIS-010",
+        "TC-SVC-HIS-011",
+        "TC-SVC-HIS-012",
+        "TC-SVC-HIS-013",
+        "TC-SVC-HIS-014",
+        "TC-SVC-HIS-015"
+      ],
+      "delivered_on": null,
+      "delivered_via": null,
+      "evidence": null,
+      "src": [
+        "src/data/service-charge/service-charge.ts",
+        "src/pages/service-charge/service-charge.page.ts",
+        "src/selectors/service-charge/service-charge.ts"
+      ],
+      "sheets": [
+        "service_charge_history"
+      ]
+    },
+    {
       "code": "INTERNAL.UNIT",
       "name": "Internal Unit Tests",
       "status": "internal-only",

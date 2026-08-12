@@ -62,6 +62,75 @@ add("deny doctrine-item-N into shippable (gap pattern)", async () => {
   return v.allow === false;
 });
 
+// ── 2026-08-11: spaced-form additions (field inventor* / walk evidence) ─────
+add("deny 'field inventory' spaced form into shippable", async () => {
+  const v = await evaluate({
+    tool_name: "Edit",
+    tool_input: { file_path: abs("clients/encore/tests/foo.spec.ts"),
+                  old_string: "x", new_string: "// per field inventory both are checked" },
+  });
+  return v.allow === false;
+});
+add("deny 'field inventory' short phrase into shippable", async () => {
+  const v = await evaluate({
+    tool_name: "Edit",
+    tool_input: { file_path: abs("clients/encore/tests/foo.spec.ts"),
+                  old_string: "x", new_string: "// ~51 per field inventory" },
+  });
+  return v.allow === false;
+});
+// Pin: trailing 'y' in 'inventory' must still match (no trailing \b in pattern).
+// This case would FAIL (wrongly allow) if someone adds a trailing \b to /\bfield[ -]inventor/i.
+add("deny 'field inventory' — pins no trailing word-boundary (FAIL if trailing \\b added)", async () => {
+  const v = await evaluate({
+    tool_name: "Edit",
+    tool_input: { file_path: abs("clients/encore/src/pages/foo.page.ts"),
+                  old_string: "x", new_string: "// see field inventory for the full list" },
+  });
+  return v.allow === false;
+});
+add("deny 'Field Inventory' title-case (covered by /i flag) into shippable", async () => {
+  const v = await evaluate({
+    tool_name: "Edit",
+    tool_input: { file_path: abs("clients/encore/tests/foo.spec.ts"),
+                  old_string: "x", new_string: "// Per Field Inventory the toolbar was not enumerated" },
+  });
+  return v.allow === false;
+});
+add("deny 'walk evidence' spaced form into shippable", async () => {
+  const v = await evaluate({
+    tool_name: "Edit",
+    tool_input: { file_path: abs("clients/encore/src/pages/foo.page.ts"),
+                  old_string: "x", new_string: "// walk evidence confirms selector" },
+  });
+  return v.allow === false;
+});
+add("deny 'Walk Evidence' title-case into shippable", async () => {
+  const v = await evaluate({
+    tool_name: "Edit",
+    tool_input: { file_path: abs("clients/encore/src/pages/foo.page.ts"),
+                  old_string: "x", new_string: "// Walk Evidence file confirms this" },
+  });
+  return v.allow === false;
+});
+// ALLOW — legitimate English that must not regress
+add("allow 'inventory of available fields' (word order differs — not the banned unit)", async () => {
+  const v = await evaluate({
+    tool_name: "Edit",
+    tool_input: { file_path: abs("clients/encore/src/pages/foo.page.ts"),
+                  old_string: "x", new_string: "// inventory of available fields on this panel" },
+  });
+  return v.allow === true;
+});
+add("allow 'evidence of a walk-through' (not the banned unit)", async () => {
+  const v = await evaluate({
+    tool_name: "Edit",
+    tool_input: { file_path: abs("clients/encore/src/pages/foo.page.ts"),
+                  old_string: "x", new_string: "// evidence of a walk-through was recorded" },
+  });
+  return v.allow === true;
+});
+
 // ── ALLOW: clean shippable edits ─────────────────────────────────────────────
 add("allow clean plain-English shippable edit", async () => {
   const v = await evaluate({

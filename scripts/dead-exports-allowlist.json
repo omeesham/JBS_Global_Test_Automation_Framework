@@ -3,6 +3,13 @@
   "note": "Baseline freeze for the dead-export gate (scripts/check-dead-exports.mjs). Each entry is a pre-existing export ts-prune flags as unused, categorized honestly: 'config-referenced' = a real false positive (Playwright registers it by config-string path, which ts-prune cannot resolve); 'public-api-surface' / 'public-api-barrel' = an intentional exported type/utility surface; 'test-data-surface' = an authored spec-data constant with no current consumer. Standing up the gate does not delete shipped client exports or authored test-data; a separate code-quality pass (under a spec/data owner identity) may remove the truly-orphaned ones later. The gate's forward value is catching a NEW dead export in a staged client file.",
   "entries": [
     {
+      "file": "clients/encore/playwright.config.ts",
+      "export": "default",
+      "reason": "Playwright config object exported as default and consumed by the Playwright runner via the config file path; ts-prune cannot resolve the path-based reference, so this is a false positive.",
+      "category": "config-referenced",
+      "added": "2026-08-11"
+    },
+    {
       "file": "clients/encore/src/reporter/agent-reporter.ts",
       "export": "default",
       "reason": "Playwright custom reporter registered by path string in playwright.config.ts reporter[]; ts-prune cannot resolve config-string references, so this is a false positive.",
@@ -120,34 +127,6 @@
       "reason": "Authored multi-currency test-bed data seed retained from the source branch for future override coverage; no current spec consumer.",
       "category": "test-data-surface",
       "added": "2026-07-24"
-    },
-    {
-      "file": "clients/encore/src/selectors/discount-optimization/discount-optimization.ts",
-      "export": "BTN_RESIZE_ID",
-      "reason": "Column-resize button selector for Discount Optimization grid; no spec consumer yet — specs are pending the parity-gate fix on this branch.",
-      "category": "test-data-surface",
-      "added": "2026-08-12"
-    },
-    {
-      "file": "clients/encore/src/selectors/discount-optimization/discount-optimization.ts",
-      "export": "BTN_RESIZE_NAME",
-      "reason": "Column-resize button selector for Discount Optimization grid; no spec consumer yet — specs are pending the parity-gate fix on this branch.",
-      "category": "test-data-surface",
-      "added": "2026-08-12"
-    },
-    {
-      "file": "clients/encore/src/selectors/discount-optimization/discount-optimization.ts",
-      "export": "BTN_RESIZE_DISCOUNT",
-      "reason": "Column-resize button selector for Discount Optimization grid; no spec consumer yet — specs are pending the parity-gate fix on this branch.",
-      "category": "test-data-surface",
-      "added": "2026-08-12"
-    },
-    {
-      "file": "clients/encore/src/selectors/discount-optimization/discount-optimization.ts",
-      "export": "BTN_RESIZE_START",
-      "reason": "Column-resize button selector for Discount Optimization grid; no spec consumer yet — specs are pending the parity-gate fix on this branch.",
-      "category": "test-data-surface",
-      "added": "2026-08-12"
     }
   ]
 }

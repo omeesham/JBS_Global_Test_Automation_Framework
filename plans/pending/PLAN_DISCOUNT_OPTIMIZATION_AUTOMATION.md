@@ -1224,7 +1224,7 @@ Change-Local-Office component. Three of those five were not built:
 
 **Resolved**: delivered as one selector file, one page object, and two spec files (one per tab). The
 matrix rows now record each omission with its reason rather than naming a file that does not exist.
-This is a simplification, not a coverage reduction — all 33 cases are implemented and passing.
+This is a simplification, not a coverage reduction — all 37 cases are implemented (36 automated, 1 not automated).
 
 ### C5 — the interaction map was missing at closure (Phase 3, acceptance criteria)
 
@@ -1253,26 +1253,86 @@ documents an unresolved multi-worker conflict. The residual flake is recorded ra
 
 **Executed**: 2026-08-11 · **Branch**: NM-3342 · **Target**: `cloudapps-e2e.encoreglobal.com`, office 1604
 
-#### Test cases implemented — 33 of 33
+#### Test cases implemented — 37 of 37 (36 automated, 1 not automated)
 
-- **27 × `TC-DOP-OPT-*`** (Discount Optimization locations grid) — `discount-optimization-locations.spec.ts`
-- **6 × `TC-DOP-EXM-*`** (Special Rate Exemptions by service type) — `discount-optimization-exemptions.spec.ts`
+- **30 × `TC-DOP-OPT-*`** (Discount Optimization locations grid, 29 automated + TC-DOP-OPT-051 not automated) — `discount-optimization-locations.spec.ts`
+- **6 × `TC-DOP-EXM-*`** (Special Rate Exemptions by service type, all automated) — `discount-optimization-exemptions.spec.ts`
+- **1 × `TC-DOP-OPT-091`** (Add flow cancel — automated) — counted in the 30 OPT automated above
 
-Every case is Automated; none is Manual, skipped, or deferred. Identifier bands leave deliberate gaps
-(recorded in the export registry's gap ledger); nothing was renumbered.
+Thirty-six of the thirty-seven cases are automated. **`TC-DOP-OPT-051` is deliberately Not Automated**:
+completing an Add requires a location that is not already in the optimization list, and offices 1604,
+1605 and 1101 were each checked — all three return "No results." in the location picker, so the add path
+cannot be driven in this environment. The case is retained with that data blocker recorded rather than
+deleted or silently marked covered. Nothing is skipped or deferred; identifier bands leave deliberate
+gaps (recorded in the export registry's gap ledger) and nothing was renumbered.
 
 #### Verification
 
 | Check | Result |
 |---|---|
-| Full suite, repository default worker count, run 1 | **34 passed** — `reports/test-runs/dop-default-run1.txt` |
-| Full suite, repository default worker count, run 2 | **34 passed** — `reports/test-runs/dop-default-run2.txt` |
-| Full suite at 4 workers, run 3 | 34 passed — `reports/test-runs/dop-w4-run3.txt` |
-| Full suite at 4 workers, run 4 | 33 passed, 1 failed (`TC-DOP-OPT-005`) — `reports/test-runs/dop-w4-run4.txt` |
-| `TC-DOP-OPT-050` isolated | 5 of 5 passed |
-| Deliverable parity | zero module rows outstanding; workbook carries both sheets |
-| Field inventory | 148 of 148 dispositioned, cross-check clean |
-| Interaction map | gate `VERDICT: PASS`, 148 elements, 0 violations |
+| Full suite, repository default worker count, run 1 | **34 passed** — `reports/test-runs/dop-default-run1.txt` (pre-T51; 34 automated at that point) |
+| Full suite, repository default worker count, run 2 | **34 passed** — `reports/test-runs/dop-default-run2.txt` (pre-T51; 34 automated at that point) |
+| Full suite at 4 workers, run 3 | 34 passed — `reports/test-runs/dop-w4-run3.txt` (pre-T51) |
+| Full suite at 4 workers, run 4 | 33 passed, 1 failed (`TC-DOP-OPT-005`) — `reports/test-runs/dop-w4-run4.txt` (pre-T51) |
+| Full suite, default workers, run 1 | **37 passed** — `reports/test-runs/dop-t51-run1.txt` (36 automated + auth setup) |
+| Full suite, default workers, run 2 | **37 passed** — `reports/test-runs/dop-t51-run2.txt` |
+| Full suite after assertion hardening, run 1 | **35 passed, 3 failed** — `reports/test-runs/dop-t55-run1.txt` |
+| Full suite after assertion hardening, run 2 | **35 passed, 3 failed** — `reports/test-runs/dop-t55-run2.txt` (same three, reproducible) |
+| Full suite after oracle fixes, run 1 | **38 passed** — `reports/test-runs/dop-t56-run1.txt` (37 cases + auth setup) |
+| Full suite after oracle fixes, run 2 | **38 passed** — `reports/test-runs/dop-t56-run2.txt` |
+| `TC-DOP-OPT-050` isolated | 3 isolated runs on disk — `reports/test-runs/dop-t50-isolated-r1..r3.verify.txt` |
+| Suite against the renamed columns, run 1 | **38 passed** — `reports/test-runs/dop-t61-run1.txt` |
+| Suite against the renamed columns, run 2 | **38 passed** — `reports/test-runs/dop-t61-run2.txt` |
+| Deliverable parity | **zero Discount Optimization rows** outstanding — confirmed by a first-hand run on 2026-08-12: zero occurrences of `DOP` across all 372 lines of output. Repository-wide `check:tc-parity` still exits 1 on 170 pre-existing cases in two unrelated delivered modules (Terms and Conditions, Service Charge Text). Root cause established: those modules' case markdown is excluded from version control, was never committed, and does not exist in this working copy, so the check compares committed specs against documents it cannot reach. Out of scope and untouched by this work |
+| Field inventory | 148 of 148 dispositioned, cross-check clean — `field-inventories/discount-optimization-2026-08-11.md` |
+| Interaction map | recorded in `scripts/walk-coverage/interaction-maps/`; **no gate-run artifact was retained under `reports/test-runs/`**, so the PASS verdict is not independently re-checkable from the run record |
+
+#### Static gate status, stated without rounding up
+
+Verified first-hand on 2026-08-12 rather than taken from a worker's summary. Clean and exiting 0:
+`tsc --noEmit`, `check:step-labels`, `xlsx-vocab-lint`, and the five `check:spec-quality` detectors
+(`check-unfailable-assertions`, `check-swallowed-failures`, `check-spec-sleeps`, `check-reload-wait`,
+`check-vacuous-grid-assertions`), each run individually rather than through the chained aggregate.
+
+Two gates do not exit clean, and neither is claimed as passing:
+
+- **`check-reject-oracle`** reports 227 findings against this module — one per case, for a missing
+  machine-evidence receipt. This was initially reported back as belonging to an unrelated module; that
+  was wrong, and re-running the gate directly showed this module is in fact its largest single block of
+  findings. The gate is nonetheless not a regression introduced here: the receipts directory is **empty
+  repository-wide**, no module has ever produced one, and the gate ships in announce mode for exactly
+  that reason (it prints and exits 0). Adopting its `assertRejectionOracle` floor would be a
+  repository-first and is outside this ticket's scope. Recorded as a known, shared, unmet floor.
+- **`check-doctrine-ledger`** exits 1 on doctrine-rule coverage in `guardrail-policy.md`. Zero mentions
+  of this module in its output, and no file it names was touched here.
+
+#### The application renamed two columns mid-delivery
+
+On 2026-08-12, between 12:18 and 12:30, the Encore application re-labelled two columns on the
+Discount Optimization grid: *No Implied Discount* became **Allow Special Rate**, and *No Implied Start*
+became **Special Rate Start Date**. The suite had run 38 green twice at 12:18 and went to 15 and 16
+failures immediately afterwards, reproducibly, on header assertions.
+
+This was investigated before anything was changed, because the two labels carry opposite polarity — a
+negative phrasing replaced by a positive one — and a careless rename would have produced a fully green
+suite asserting the reverse of correct behaviour. Three independent lines of evidence establish that the
+meaning did not change: the grid's internal column identifier was already `allowSpecialRate` before the
+re-labelling and is unchanged after it; a long-standing row (InterContinental Chicago) still shows its
+original start date of 03/22/2019 under the new heading, confirming the same underlying field; and the
+per-row control still displays the same `Yes` / `No` values.
+
+A fourth finding makes the point structural rather than evidential: **no test in this suite asserts an
+absolute `Yes` or `No` value.** Every toggle assertion is expressed relative to the state observed at the
+start of the test. A polarity inversion could therefore not have been absorbed silently — but it also
+would not have been *caught*. That is a deliberate consequence of testing a toggle whose correct value
+varies per location, and it is recorded here rather than left implicit.
+
+The change was absorbed as a re-labelling only: display strings and accessible names were updated across
+the selectors, page object, specs, test cases, test plan and workbook; no assertion was weakened and no
+identifier was renamed, since the module is still called Discount Optimization and only two of its columns
+changed name. The dated walk, baseline, and evidence artifacts deliberately keep the original column names
+and carry a note recording the supersession — a record of what was observed on its date stops being
+evidence the moment it is quietly edited to match today's screen.
 
 **Multi-worker caveat, stated plainly**: this suite is verified at the repository's configured worker
 count (one), which is what `npm test` uses. It is **not** certified for `--workers=4` — one search test
@@ -1293,6 +1353,16 @@ cause recorded:
 
 Every "product defect" on this module traced back to the automation. Both bug records are closed as
 not-a-defect with their evidence retained.
+
+**What that claim does and does not mean.** It means no product defect was confirmed by the coverage
+that exists. It does **not** mean the module is defect-free, and the distinction matters because an
+independent cross-vendor audit of this delivery found several cases that were passing while asserting
+less than their titles claimed — two of them asserting the opposite of the documented behaviour. Those
+were corrected and the suite re-run, but the episode is the honest caveat on this line: green was not
+the same as covered. Areas where we still cannot claim verification are recorded explicitly — the
+Active/Inactive filter behind NM-3210, the add-a-location path behind NM-3063, and requirement text in
+NM-1672 that was never extracted — each carried in the Jira crossref with its own reason rather than
+folded into this count.
 
 #### Deviations from plan
 

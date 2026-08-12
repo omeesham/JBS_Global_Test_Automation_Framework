@@ -154,8 +154,8 @@ export const SOURCE_COMMENT_JARGON = [
   // 2026-06-11 — the reintroduction referenced `rca-launcher-dialog-misses-2026-06-11.md`
   // and `_internal/...` paths, neither of which the original (walk-evidence / field-inventor)
   // patterns covered, so a comment carrying ONLY those tokens would have shipped.
-  /\bwalk-evidence\b/,
-  /\bfield-inventor/,
+  /\bwalk[ -]evidence\b/i,
+  /\bfield[ -]inventor/i,
   /\bneutral-eye\b/,
   /\bencore-questions\b/,
   /\brejection-affordance\b/,

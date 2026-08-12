@@ -159,6 +159,15 @@ const SHEET_NAMES: Record<string, string> = {
   terms_conditions_core: 'terms_conditions_core',
   // Service Charge Text
   service_charge_text_core: 'service_charge_text_core',
+  // Added 2026-08-10 (NM-3344 Service Charge): slug
+  // 'service_charge_basic_information' = 32 chars > Excel's 31-char limit → shortened
+  // 'information' → 'info' (25 chars). Mirrors the `sheet` value registered for
+  // SVC/BAS in export_test_cases/module-codes.json.
+  service_charge_basic_information: 'service_charge_basic_info',
+  service_charge_history: 'service_charge_history',
+  // Discount Optimization (both slugs are exactly 31 chars — at the Excel limit)
+  discount_optimization_locations: 'discount_optimization_locations',
+  discount_optimization_exemption: 'discount_optimization_exemption',
 };
 
 const SHEET_DISPLAY_NAMES: Record<string, string> = {
@@ -196,6 +205,12 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   terms_conditions_core: 'Terms and Conditions — Core',
   // Service Charge Text
   service_charge_text_core: 'Service Charge Text — Core',
+  // Service Charge
+  service_charge_basic_info: 'Service Charge — Basic Information',
+  service_charge_history: 'Service Charge — History',
+  // Discount Optimization
+  discount_optimization_locations: 'Discount Optimization — Locations',
+  discount_optimization_exemption: 'Discount Optimization — Special Rate Exemptions',
 };
 
 /** Sheet name → split-file group/stem for the `testcases/<group>/<stem>.xlsx` tree. */
@@ -237,6 +252,12 @@ const SPLIT_FILE_MAP: Record<string, { group: string; stem: string }> = {
   terms_conditions_core: { group: 'terms-conditions', stem: 'terms-conditions-core' },
   // Service Charge Text
   service_charge_text_core: { group: 'service-charge-text', stem: 'service-charge-text-core' },
+  // Service Charge
+  service_charge_basic_info: { group: 'service-charge', stem: 'service-charge-basic-information' },
+  service_charge_history: { group: 'service-charge', stem: 'service-charge-history' },
+  // Discount Optimization
+  discount_optimization_locations: { group: 'discount-optimization', stem: 'discount-optimization-locations' },
+  discount_optimization_exemption: { group: 'discount-optimization', stem: 'discount-optimization-exemption' },
 };
 
 const EXCEL_SHEET_NAME_LIMIT = 31;

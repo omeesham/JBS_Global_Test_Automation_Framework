@@ -100,7 +100,8 @@ Each is a moment you are *about* to labor. Name it out loud when it fires:
 
 ## §Dispatch discipline
 
-- **Cap every dispatch** (rank 11: GOVERNOR A1). `--max-credits` is MANDATORY. An uncapped dispatch is a structural defect.
+- **Preflight every dispatch** (PLAN_61 Phase 6, landed 2026-08-07). Run `node scripts/dispatch-preflight.mjs --ticket <t> --run-id <id> --model <m> --work-type <wt> [--mode] [--effort] [--max-credits]` before firing. It checks the ticket's OUTPUT anchor, run-id uniqueness (ledger AND disk), the work-type enum, the model×effort matrix, the credit floor and `--mode`, warns on suite-shaped VERIFY blocks, then prints the canonical dispatch command. Exit 1 = do not dispatch. This is the only guard for the arg-rejection class, whose deaths are INVISIBLE in the ledger — the wrapper exits before writing a row, and a backgrounded dispatch reports "exit code 0" regardless.
+- **Cap every dispatch** (rank 11: GOVERNOR A1). `--max-credits` is MANDATORY. An uncapped dispatch is a structural defect. Since PLAN_61 P2 the wrapper also enforces a per-work-type FLOOR (build/research/rca/walk/orchestrate 250, review 200, verify/probe/draft 100): it only ever RAISES a cap, announces `BUDGET-FLOOR`, and records `budget_floored` in the ledger. The floor is a backstop against a typo, not a licence to under-size — 2× your estimate remains the rule.
 - **2× credit sizing** (OWNER-LAW-4) — estimate the credits the job needs (reads + writes + model tier), then dispatch with **2× that estimate**. Never shave. The `--max-credits` floor (30) stays; ceiling thinking is dead. (Evidence: 7-death cluster — 40-credit reviews died mid-read twice.)
 - **`--work-type` always** — the wrapper hard-exits without it; it feeds ledger + routing.
 - **DOCTRINE is not optional** (ranks 8 + 13):
@@ -190,7 +191,12 @@ Prose cannot fake these; each needs infra. Status verified against lot-D disk ev
 | The 10+ confirmed bugs in the delegation stack (PBUG-01..12) | PARITY_BUGFIXES | DONE, UNPROVEN-FIRING |
 | Rival-debate machinery, keep-alive sessions | ASSISTANT_LAYER | PENDING |
 | PROTECTED array extension + verify-run self-integrity sha256 pin | DELEGATION_CHEATPROOF Phase 6 | DONE, UNPROVEN — off-repo (`~/.claude/delegation/private/`) |
-| Auto death-detection from ledger + auto-RCA dispatch | GOVERNOR / LEDGER_TRUTH | PENDING |
+| Auto death-detection from ledger + auto-RCA dispatch | GOVERNOR / LEDGER_TRUTH | PARTIAL — PLAN_61 P7 lands the *detection* half: every failed run now records `death_class` (C1–C12) via `scripts/death-census.mjs --classify-one`, PROVEN-FIRING (`p61-trip-stub-0807` → `death_class:"C3"`). The auto-RCA *dispatch* half is still PENDING. |
+| Batch-write / no-deliverable deaths (164 corrected, 139 post-07-24) | PLAN_61 P1c | **DONE, PROVEN-FIRING** — wrapper writes a STEP-0 stub at dispatch; stub-only reads as no-deliverable. Duty 0 in DUTY_STACK + council-worker profile. Evidence: `p61-trip-stub-0807` (missing) and `p61-trip-nested-0807` (appended-below-stub → present). |
+| Budget-exhaustion deaths (47 corrected) | PLAN_61 P2 | **DONE, PROVEN-FIRING** — per-work-type credit floor, auto-raise + `budget_floored`. Evidence: `BUDGET-FLOOR: raised 40→100`. |
+| Stall bounce never consumed (81 stall deaths ran to terminal) | PLAN_61 P3 | **DONE, PROVEN-FIRING** — bounce now prints a runnable re-dispatch command and records `bounce_ready`. Evidence: `p61-trip-stall-0807`, STALL-WARN at 335s. |
+| Provenance guard erasing successful runs' ledger rows | PLAN_61 P5 | **DONE, PROVEN-FIRING** — a permitted nested sub-agent records `model_verdict:"SUSPECT-nested"` instead of FATAL-no-row; true substitution still refuses. Evidence: `p61-trip-nested-0807` (haiku+opus, row recorded). |
+| Network deaths (8 corrected) | PLAN_61 P4 | PARTIAL — `exit_reason=network` + classifier PROVEN (both known rows → C9). The bounded auto-retry is coded but **NOT LIVE-FIRED** (a DNS outage cannot be forced safely) — do not claim it green. |
 
 **Two limits worth saying out loud to Rutvik:**
 1. **This dies at `/compact`** — Re-invoke after every compact. `SUBPLAN_LCD_03` is the real fix.

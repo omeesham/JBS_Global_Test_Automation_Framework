@@ -170,6 +170,20 @@ export const MODULE_CONFIG = {
     ...MC_DATA['discount-optimization'],
   },
 
+  // Service Charge — History tab. The tab has no data-testid (Radix-generated id only, not stable).
+  // Reached via role=tab, name="Service Charge History" (confirmed live DOM 2026-08-11).
+  // contentMarker anchors on "Modified By" column header — unique to the History panel, last-to-render.
+  'service-charge': {
+    path: (office) => `${BASE}/locations/${office}/settings/service-charge`,
+    contentMarker: 'text=Modified By',
+    openerTestidPatterns: [],
+    openerRoleTextPatterns: [
+      { role: 'tab', text: 'Service Charge History', branch: 'tab:history' },
+    ],
+    excludeOptionRoles: true,
+    ...MC_DATA['service-charge'],
+  },
+
   'corporate-pricing-override': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/pg-override`,
     contentMarker: 'h1:text-is("Product Group Override")',
@@ -216,8 +230,31 @@ async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300
   return last;
 }
 
+// Broadened 2026-08-10: the original regex matched only external IdP URLs.
+// The app's own /auth/sign-in route also signals an expired session and produced
+// a silent false-green (element_count=0, status="complete") before this fix.
+// Anchored alternatives prevent matching unrelated paths like /logintheme.
 function isLoginRedirect(url) {
-  return /login\.microsoftonline\.com|login\.microsoft\.com|\/oauth2\/|\/saml2\/|sts\./i.test(url || '');
+  return /login\.microsoftonline\.com|login\.microsoft\.com|\/oauth2\/|\/saml2\/|sts\.|\/auth\/sign-in(?:[/?#]|$)|\/auth\/login(?:[/?#]|$)|\/login(?:[/?#]|$)/i.test(url || '');
+}
+
+// Write a halted completion record to the output JSON and return the path written.
+// Called at any abort site so a stale successful JSON from a prior run never survives.
+function writeHaltedRecord(args, state, elementCount, rawCount, reason) {
+  const outDir = join(REPO_ROOT, 'reports', 'walk-coverage');
+  if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
+  const jsonPath = args.out ? resolve(REPO_ROOT, args.out) : join(outDir, `${state}.json`);
+  const record = {
+    version: 1,
+    status: 'halted',
+    surfaces_attempted: [state],
+    surfaces_enumerated: [],
+    element_count: elementCount,
+    raw_before_collapse: rawCount,
+    halt_reasons: [reason],
+  };
+  writeFileSync(jsonPath, JSON.stringify({ completion_record: record }, null, 2) + '\n', 'utf-8');
+  return jsonPath;
 }
 
 // Activate a tab by accessible role + visible text when no stable data-testid is available.
@@ -559,7 +596,9 @@ async function main() {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await waitReady(page);
     if (isLoginRedirect(page.url())) {
-      console.error(`[ABORT-S1] redirected to login (${page.url()}). The saved session is stale — refresh ${authPath} via 'playwright-cli open --persistent' then 'state-save', and re-run. NOT enumerating the login page.`);
+      const msg = `[ABORT-S1] redirected to login (${page.url()}). The saved session is stale — refresh ${authPath} via 'playwright-cli open --persistent' then 'state-save', and re-run. NOT enumerating the login page.`;
+      console.error(msg);
+      writeHaltedRecord(args, state, 0, 0, msg);
       await browser.close();
       process.exit(3);
     }
@@ -877,6 +916,16 @@ async function main() {
     report.symDiffReview = algebra.symDiff;
     report.g1Recovered = g1hits;
     report.entries = entries;
+
+    // Zero-denominator backstop: any redirect shape, error page, or blank render
+    // that slips past isLoginRedirect() still produces no elements — catch it here.
+    if (entries.length === 0) {
+      const msg = `[ABORT-S1] zero elements enumerated on ${page.url()} — likely a redirect, error page, or blank render. Refusing to write a false-complete record.`;
+      console.error(msg);
+      writeHaltedRecord(args, state, 0, rawEntries.length, msg);
+      await browser.close();
+      process.exit(3);
+    }
 
     // --- Phase 2.2: derive field types from DOM observation ---
     const taxonomy = loadFieldCaseTaxonomy();

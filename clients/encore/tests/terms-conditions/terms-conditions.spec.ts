@@ -2514,7 +2514,7 @@ test.describe('Terms and Conditions', () => {
     await lastRowLocator.scrollIntoViewIfNeeded();
     await expect(lastRowLocator).toBeVisible({ timeout: 10_000 });
 
-    // Assert the rendered row count matches expected (~51 per field inventory)
+    // Assert the rendered row count matches expected (~51 rows, verified live against the terms table)
     expect(totalRows).toBeGreaterThanOrEqual(40);
 
     // Verify no duplicate name+language combinations using bulk reads (avoids per-row timeouts)

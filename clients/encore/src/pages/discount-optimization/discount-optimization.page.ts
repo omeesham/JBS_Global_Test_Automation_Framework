@@ -224,7 +224,7 @@ export class DiscountOptimizationPage extends BasePage {
   // ---------------------------------------------------------------- tab 1 — reading row state
 
   /**
-   * Reads the No Implied Discount toggle state for a named row.
+   * Reads the Allow Special Rate toggle state for a named row.
    *
    * The control has two render modes:
    * - Display mode (not yet interacted with): a plain `<button>` showing "Yes" or "No" text,
@@ -232,9 +232,9 @@ export class DiscountOptimizationPage extends BasePage {
    * - Edit mode (after first click activates the field): a Radix checkbox with
    *   `role="checkbox"` and `aria-checked="true"|"false"`.
    *
-   * "Yes" / `aria-checked="true"` both mean the No Implied Discount setting is enabled.
+   * "Yes" / `aria-checked="true"` both mean the Allow Special Rate setting is enabled.
    */
-  @step('Read the No Implied Discount toggle state for a row')
+  @step('Read the Allow Special Rate toggle state for a row')
   async getToggleState(locationName: string): Promise<boolean> {
     const btn = this.page.locator(btnToggleDiscount(locationName)).first();
     const ariaChecked = await btn.getAttribute('aria-checked');
@@ -244,10 +244,10 @@ export class DiscountOptimizationPage extends BasePage {
   }
 
   /**
-   * Reads the No Implied Start date value for a named row.
+   * Reads the Special Rate Start Date value for a named row.
    * Returns the input's current value string (e.g. `"09/09/2019"`) or empty string.
    */
-  @step('Read the No Implied Start date for a row')
+  @step('Read the Special Rate Start Date for a row')
   async getRowDate(locationName: string): Promise<string> {
     const row = await this.findRowByLocationName(locationName);
     return row.locator(INP_DATE).first().inputValue();
@@ -256,14 +256,14 @@ export class DiscountOptimizationPage extends BasePage {
   // ---------------------------------------------------------------- tab 1 — actions
 
   /**
-   * Clicks the No Implied Discount toggle for the named row and waits for the value to change.
+   * Clicks the Allow Special Rate toggle for the named row and waits for the value to change.
    *
    * The control has two render modes:
    * - Display mode (plain button "Yes"/"No", no `aria-checked`): first click activates the
    *   cell into Radix-checkbox edit mode (same logical value), second click actually toggles.
    * - Checkbox mode (already interacted; has `aria-checked`): one click toggles directly.
    */
-  @step('Toggle No Implied Discount for a row')
+  @step('Toggle Allow Special Rate for a row')
   async toggleDiscount(locationName: string): Promise<void> {
     const btn = this.page.locator(btnToggleDiscount(locationName)).first();
     const initialAriaChecked = await btn.getAttribute('aria-checked');
@@ -307,7 +307,7 @@ export class DiscountOptimizationPage extends BasePage {
   }
 
   /**
-   * Sets the No Implied Start date on the named row using real keystrokes.
+   * Sets the Special Rate Start Date on the named row using real keystrokes.
    *
    * Before typing, checks for a Radix alert-dialog overlay (`[data-radix-alert-dialog-overlay]`
    * / `[role="alertdialog"]`) that can appear after row interaction and intercept pointer events.
@@ -317,7 +317,7 @@ export class DiscountOptimizationPage extends BasePage {
    * populated field. Uses `pressSequentially` so Angular's reactive form binding receives the
    * full keydown/input/keyup event chain.
    */
-  @step('Set the No Implied Start date for a row')
+  @step('Set the Special Rate Start Date for a row')
   async setRowDate(locationName: string, dateValue: string): Promise<void> {
     await this._dismissAlertDialogIfPresent();
     const row = await this.findRowByLocationName(locationName);
@@ -361,19 +361,19 @@ export class DiscountOptimizationPage extends BasePage {
    * two-item menu: "Sort ascending" and "Sort descending". This is the only sort affordance
    * on this surface — clicking the `th` itself or the resize handle does NOT sort.
    *
-   * Live DOM confirmed 2026-08-11 (T25): menu opens on button click with `aria-expanded`
+   * Live DOM confirmed 2026-08-11: menu opens on button click with `aria-expanded`
    * flipping to `"true"`, and menu items have role="menuitem".
    */
   @step('Sort the locations grid by a column')
   async sortByColumn(
-    column: 'ID' | 'Location Name' | 'No Implied Discount' | 'No Implied Start',
+    column: 'ID' | 'Location Name' | 'Allow Special Rate' | 'Special Rate Start Date',
     direction: 'ascending' | 'descending' = 'ascending',
   ): Promise<void> {
     const selectorMap: Record<string, string> = {
       'ID': TH_SORT_ID,
       'Location Name': TH_SORT_NAME,
-      'No Implied Discount': TH_SORT_DISCOUNT,
-      'No Implied Start': TH_SORT_START,
+      'Allow Special Rate': TH_SORT_DISCOUNT,
+      'Special Rate Start Date': TH_SORT_START,
     };
     const th = this.page.locator(selectorMap[column] as string).first();
     const menuBtn = th.locator('button[aria-haspopup="menu"]').first();

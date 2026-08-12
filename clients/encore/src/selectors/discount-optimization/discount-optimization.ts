@@ -78,32 +78,6 @@ export const BTN_ADD = `${PANEL_LOCATIONS} button:text-is("Add")`;
 /** Tab 1 search input. Anchored by placeholder — the only input on this panel. */
 export const TXT_SEARCH_TAB1 = `input[placeholder="Search by location number or location name"]`;
 
-// ---------------------------------------------------------------- tab 1 — resize handles (column-width drag; do NOT use to sort)
-
-/**
- * Column-width resize handle for the ID column.
- * Clicking this begins a width drag — it does NOT sort. Use `TH_SORT_ID` to attempt sorting.
- */
-export const BTN_RESIZE_ID = `button[aria-label="Resize column locationNo"]`;
-
-/**
- * Column-width resize handle for the Location Name column.
- * Clicking this begins a width drag — it does NOT sort. Use `TH_SORT_NAME` to attempt sorting.
- */
-export const BTN_RESIZE_NAME = `button[aria-label="Resize column locationName"]`;
-
-/**
- * Column-width resize handle for the No Implied Discount column.
- * Clicking this begins a width drag — it does NOT sort. Use `TH_SORT_DISCOUNT` to attempt sorting.
- */
-export const BTN_RESIZE_DISCOUNT = `button[aria-label="Resize column allowSpecialRate"]`;
-
-/**
- * Column-width resize handle for the No Implied Start column.
- * Clicking this begins a width drag — it does NOT sort. Use `TH_SORT_START` to attempt sorting.
- */
-export const BTN_RESIZE_START = `button[aria-label="Resize column startAllowSpecialRate"]`;
-
 // ---------------------------------------------------------------- tab 1 — sort triggers (header cells)
 //
 // The live DOM exposes no dedicated sort button or data-testid for sorting — the only sort
@@ -118,11 +92,11 @@ export const TH_SORT_ID = `${TBL_CONTAINER} thead th:has-text("ID")`;
 /** Header cell for the Location Name column. Clicking may trigger a sort; confirm row-order change in specs. */
 export const TH_SORT_NAME = `${TBL_CONTAINER} thead th:has-text("Location Name")`;
 
-/** Header cell for the No Implied Discount column. Clicking may trigger a sort; confirm row-order change in specs. */
-export const TH_SORT_DISCOUNT = `${TBL_CONTAINER} thead th:has-text("No Implied Discount")`;
+/** Header cell for the Allow Special Rate column. Clicking may trigger a sort; confirm row-order change in specs. */
+export const TH_SORT_DISCOUNT = `${TBL_CONTAINER} thead th:has-text("Allow Special Rate")`;
 
-/** Header cell for the No Implied Start column. Clicking may trigger a sort; confirm row-order change in specs. */
-export const TH_SORT_START = `${TBL_CONTAINER} thead th:has-text("No Implied Start")`;
+/** Header cell for the Special Rate Start Date column. Clicking may trigger a sort; confirm row-order change in specs. */
+export const TH_SORT_START = `${TBL_CONTAINER} thead th:has-text("Special Rate Start Date")`;
 
 // ---------------------------------------------------------------- tab 1 — per-row controls (content-anchored)
 
@@ -134,14 +108,14 @@ export const btnRemove = (locationName: string): string =>
   `button[aria-label="Remove ${locationName}"]`;
 
 /**
- * Per-row No Implied Discount toggle. Anchored by `aria-label`.
- * Carries `aria-pressed` — read that attribute for current state.
+ * Per-row Allow Special Rate toggle. Anchored by `aria-label`.
+ * Read state via `aria-checked` when present; fall back to the button's `Yes`/`No` text content.
  */
 export const btnToggleDiscount = (locationName: string): string =>
-  `button[aria-label="No implied discount for ${locationName}"]`;
+  `button[aria-label="Allow Special Rate for ${locationName}"]`;
 
 /**
- * Per-row No Implied Start date input, scoped to a `tr`.
+ * Per-row Special Rate Start Date input, scoped to a `tr`.
  * Call `.locator(inpDate())` on the row locator, not on the page.
  */
 export const INP_DATE = `input[aria-label="Select date"]`;
