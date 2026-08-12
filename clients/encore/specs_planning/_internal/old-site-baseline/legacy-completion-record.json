@@ -1,0 +1,28 @@
+{
+  "derived_types": {
+    "button::Add": {
+      "resolved": true,
+      "type": "button"
+    },
+    "button::Save": {
+      "resolved": false,
+      "type": "button"
+    }
+  },
+  "completion_record": {
+    "status": "complete",
+    "surfaces_attempted": [
+      "legacy-discount-optimization-settings"
+    ],
+    "script": "scripts/nav2-auth-enumerate.mjs",
+    "run_date": "2026-08-11",
+    "url": "https://navigator2.training.psav.com/#/setup/DiscountPricing/settings",
+    "row_count_confirmed": 0,
+    "raw_elements": 2,
+    "session_hash": "cf85cc71217fbdd8",
+    "headed": true,
+    "auth_state_file": "clients/encore/.auth/nav2-state.json",
+    "e2e_state_unchanged": true,
+    "content_sha256": "2748613b3be34dea793ea810702d2916ba9d059921d17bacc235b731ad352913"
+  }
+}
