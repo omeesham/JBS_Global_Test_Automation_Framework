@@ -1107,10 +1107,19 @@ self-grade work from the same session (AUD-017).
 **The three location axes**
 - [ ] Phase 3b emitted a `## Axis decisions` section with a **measured** verdict for 3b.1 (sort/search),
       3b.2 (office sensitivity per tab), and 3b.3 (which of the 9 offices render).
-      **NOT MET (2026-08-12).** The string "Axis decisions" appears in exactly one file in the repo —
-      this plan, where it is the requirement. No produced artifact carries the section, and the
-      walk-evidence file has no 3b.1 / 3b.2 / 3b.3 verdicts. Phase 3b's decisions were acted on but
-      never written down in the mandated form, so they are not independently re-checkable.
+      **PARTIALLY MET — section written 2026-08-12, one axis still open.**
+      The section was missing entirely ("Axis decisions" appeared in exactly one file in the repo — this
+      plan, where it is the requirement). It now exists in
+      `walk-evidence-discount-optimization-2026-08-11.md`, compiled from measurements already recorded in
+      that file and the bug records, every row citing its source — no fresh claims.
+      · **3b.1 sort/search — MEASURED.** Search present, client-side (2154 → 1 → 0 → 2154, zero network
+        calls while typing); sort present (per-column options-menu). Both supersede earlier false
+        negatives that were tooling artefacts, not absent features.
+      · **3b.2 office sensitivity — MEASURED.** Both tabs render on 1604 and 1101; row counts differ, so
+        no office-invariance claim is made.
+      · **3b.3 which of the 9 offices render — STILL INCOMPLETE, 2 of 9.** Only 1604 and 1101 were ever
+        driven. The other seven are recorded as an open gap rather than closed by inference, and need the
+        e2e environment, which is unreachable from this machine today.
 - [ ] **Axis A** — every office in the 3b.3 list is covered or carries an LR-040(c) c.1/c.2/c.3 record;
       no office-invariance claim rests on fewer than 2 offices; tab 2's row set verified against the
       NM-1183 derivation rule on ≥2 offices with **different lines of business**.
@@ -1139,13 +1148,19 @@ self-grade work from the same session (AUD-017).
 - [ ] **Every confirmed bug logged** as a `BUG-DOP-<SUB>-NNN` record under `clients/encore/reports/bugs/`,
       each with a valid `baselineComparison` enum value and numbered `stepsToReproduce`. **No persistence
       defect filed without a captured save request AND its response.**
-      **NOT MET (2026-08-12), two defects in our own filing:**
-      (a) both records use the sub-code `LOC` (`BUG-DOP-LOC-001`, `-002`), but the registered DOP
-      sub-codes are `OPT` and `EXM` — `LOC` belongs to the locations *module* family, so the bug IDs do
-      not match the module they were filed against;
-      (b) `BUG-DOP-LOC-001-search-no-filter.md` carries **no steps-to-reproduce section at all** — zero
-      `stepsToReproduce` and no Steps heading — which by LR-044's filer obligation is a filing defect a
-      verifier is entitled to refuse. `-002` does carry both fields.
+      **MET, vacuously — and the first reading of this was wrong (corrected 2026-08-12).**
+      An earlier pass on this line called two filing defects. Reading the records rather than their
+      field-presence disproved both: **there are zero confirmed bugs on this surface.**
+      `BUG-DOP-LOC-001` is `status: RETRACTED` — the "search does not filter" finding was a false
+      positive caused by `fill()` assigning `.value` directly and never dispatching the `input`/`keydown`
+      events Angular's reactive binding listens for; T17 re-drove it with `pressSequentially` and the
+      grid filtered correctly (2154 → 1 → 0 → 2154). `BUG-DOP-LOC-002` is `CLOSED — NOT A PRODUCT
+      DEFECT`: the save fires a `PUT` 200 and survives reload; the original failure was our own
+      test-isolation defect (a row seventeen sibling tests also mutate).
+      So the "no numbered `stepsToReproduce`" call was wrong — a retracted false positive owes none —
+      and the `LOC`-vs-`OPT`/`EXM` sub-code mismatch is a cosmetic naming inconsistency on two
+      **non-defect** records, not a failure of a criterion that governs *confirmed* bugs.
+      Both records are correctly retained as the audit trail of how a wrong verdict was reached.
 - [ ] **Every confirmed bug has a failing bug-evidence TC** in the spec owning its tab, and every skip
       names the bug it waits on. The loop is closed: a bug with no TC, or a skip with no bug ID, is a
       finding.

@@ -96,3 +96,41 @@ Screenshot: `phase5-q3-1101.png`.
 Note on row counts: the grid virtualizes. A DOM query returns roughly 37 rendered rows on both offices
 while the footer reports the true total (2154 on 1604). A row count read from the DOM is therefore a
 viewport measurement, not a record count — the footer is the count oracle.
+
+---
+
+## Axis decisions
+
+Consolidated 2026-08-12. The plan mandates this section; it was never written, so the verdicts below are
+compiled **from measurements already recorded in this file and in the bug records** — each row cites its
+source. Nothing here is a fresh claim, and where a measurement was never taken it says so.
+
+### 3b.1 — Sort and search: are they present?
+
+| Control | Verdict | Evidence |
+|---|---|---|
+| **Search** | **Present and working.** Client-side filter over the loaded set. | `BUG-DOP-LOC-001` retraction (T17): `pressSequentially('abbey', {delay:80})` → footer `2154 → 1`; `zzznomatch999` → `0`; clear → `2154`. **0 network requests fired while typing** — the filter is in-memory. The earlier "search does not filter" finding was a `fill()` artefact: it assigns `.value` without dispatching the `input`/`keydown` events Angular's binding listens for. |
+| **Sort** | **Present.** | This file, "Regression re-check resolutions": *"The grid does sort. Each column header carries an options-menu button whose menu contains sort options."* This supersedes the earlier `could-not-test` row, which was a selector problem (`.ag-header-cell` 30s timeout), not an absent feature. |
+
+**Consequence for cases:** tests must not wait on a network response after typing — they must wait for the
+footer count to change. Nothing may hardcode the *absence* of sort or search (NM-3327).
+
+### 3b.2 — Office sensitivity per tab
+
+| Tab | 1604 | 1101 | Verdict |
+|---|---|---|---|
+| Tab 1 — Locations | renders, footer `2154 locations found` | renders, full tab chrome, no `0 locations found` | **Not office-invariant in data, but present on both.** |
+| Tab 2 — Service Type Exemptions | renders (`phase5-q1-tab2-office1604.png`) | renders (`phase5-q3-1101.png`) | Present on both offices measured. |
+
+Row counts differ per office, so **no office-invariance claim is made** — consistent with the plan's
+LR-061-A gate that one office is never a conclusion.
+
+### 3b.3 — Which of the 9 offices render
+
+**INCOMPLETE — 2 of 9 measured.** Offices **1604** and **1101** were both confirmed rendering, with
+screenshots. The remaining seven were never driven, so this axis carries no verdict for them.
+
+This is recorded as a gap rather than closed by inference: the plan's Axis-A criterion requires every
+office in the 3b.3 list to be either covered or carrying an LR-040(c) c.1/c.2/c.3 record, and seven
+offices currently have neither. Re-measuring needs the e2e environment, which is unreachable from this
+machine as of 2026-08-12 (see `old-site-baseline/nav2-poll-2026-08-12.txt`).
