@@ -1,4 +1,4 @@
-﻿# Local Office Settings — Basic Information Test Cases — **Module**: local-office | **Total**: 60 | **Status**: Automated
+# Local Office Settings — Basic Information Test Cases — **Module**: local-office | **Total**: 60 | **Status**: Automated
 
 **Module**: local-office
 
@@ -108,6 +108,43 @@
 
 ---
 
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| Prep Date Offset must be ≤ 0 | A positive value triggers aria-invalid=true synchronously |
+| Set Date Offset must be ≤ 0 | A positive value triggers aria-invalid=true synchronously |
+| Delivery Date Offset must be ≤ 0 | A positive value triggers aria-invalid=true synchronously |
+| Delivery Date Offset must be ≥ Prep Date Offset | Cross-field rule (NM-1264); violating it triggers aria-invalid=true on Delivery |
+| Return Date Offset must be ≥ 0 | A negative value triggers aria-invalid=true synchronously |
+| Strike Date Offset must be ≥ 0 | A negative value triggers aria-invalid=true synchronously |
+| Pickup Date Offset must be ≥ 0 | A negative value triggers aria-invalid=true synchronously |
+| Non-numeric input in any date-offset field | Triggers aria-invalid=true synchronously |
+| Phone 1 is required | Field accepts any non-empty string; no phone-format validation enforced |
+| Use Equipments QC is disabled when Use Fulfillment is unchecked | Control becomes non-interactive until Use Fulfillment is checked |
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observed on office 1604 in the sessions recorded in the field inventory
+`local-office-settings-2026-04-27.md` (source session 2026-04-23, promoted 2026-04-27). Each row
+is an observation, not an expectation. Rows marked "Not settled" are recorded because they were
+reached for and not resolved; no test case asserts them as fact.
+
+| # | Verified | Result |
+|---|---|---|
+| 1 | Page loads at `/navigator/locations/{officeId}/settings/local-office` | Three tabs: "Basic Information" (active by default), "Location Settings History", "ECT Settings" |
+| 2 | Date offset sign constraints | Prep/Set/Delivery must be ≤ 0; Return/Strike/Pickup must be ≥ 0; Delivery must also be ≥ Prep (NM-1264). Violations trigger `aria-invalid=true` |
+| 3 | Use Equipments QC conditional state | Disabled when Use Fulfillment is unchecked; enabled when Use Fulfillment is checked |
+| 4 | Phone 1 validation | Required; any non-empty string accepted; no format validation (XSS payload accepted — BUG-LOS-BAS-016) |
+| 5 | Strike Date Offset live value on office 1604 | 555 at walk time (documented default is 1 — prior test pollution) |
+| 6 | Section configuration rows | 14 rows observed live; per-row edit-name input and active toggle (SVG `lucide-check`) |
+| 7 | Room configuration rows on office 1604 | 4 orphan rows (REQUIREMENTS.md documents 0 rows — prior test pollution) |
+| 8 | Logo dropdown option count | 12 options; default "Encore New Logo" |
+| 9 | Save button | Disabled at baseline; enables on valid edit; gated by "Save Changes" dialog |
+
+---
 ## TC-LOS-BAS-001: Page Load — Title, URL, Tab Structure
 
 | Priority | Status | Type | Automatable |

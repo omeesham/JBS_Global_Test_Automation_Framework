@@ -8,6 +8,42 @@
 
 ---
 
+## FIELD INVENTORY
+
+| Field | Control Type | Default | Required |
+|---|---|---|---|
+| Loc Pricing Import | Button (direct action) | Enabled | Not applicable |
+| Import ▾ trigger | Dropdown trigger button | Closed | Not applicable |
+| Import ▾ › All Equipment Pricing | Menu item | Not applicable | Not applicable |
+| Import ▾ › All Labor Pricing | Menu item | Not applicable | Not applicable |
+| Import ▾ › All Equipment Max Discount | Menu item | Not applicable | Not applicable |
+| Import ▾ › All Labor Max Discount | Menu item | Not applicable | Not applicable |
+
+---
+
+## Validation Rules
+
+N/A — the "Import All Location Pricing" dialog internals were not enumerated in the field inventory (corporate-pricing-loc-import-2026-07-09.md); no client-side validation rules were documented for this surface.
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observed on office 1604 in the sessions recorded in the field inventory
+`corporate-pricing-loc-import-2026-07-09.md` (field detail carried forward from
+`corporate-pricing-toolbar-io-2026-06-08.md`; re-verified live 2026-07-09 via TC-CPR-LIM-012). Each
+row is an observation, not an expectation. Rows marked "Not settled" are recorded because they were
+reached for and not resolved; no test case asserts them as fact.
+
+| # | Verified | Result |
+|---|---|---|
+| 1 | "Loc Pricing Import" button present in action bar, office 1604 | Always enabled; no data-testid (use `button:text-is("Loc Pricing Import")`) |
+| 2 | Click opens "Import All Location Pricing" dialog | Confirmed live 2026-07-09 (TC-CPR-LIM-012 passed) |
+| 3 | Import ▾ trigger and 4 variants also present on the same toolbar | Same 4 variant labels as Export ▾ confirmed present |
+| 4 | File format for Loc Pricing Import | **Not settled** — undocumented; Q-WV15-2 open |
+| 5 | Dialog sub-controls (Browse, Upload, file input) | Observed presence carried forward from 2026-06-08 walk; not exhaustively enumerated on the 2026-07-09 re-verification |
+
+---
 ## TC-CPR-LIM-001: Loc Pricing Import — a real upload flips a pricebook Primary↔Alternate and the change reflects in a fresh export
 | Priority | Status | Type |
 |----------|--------|------|

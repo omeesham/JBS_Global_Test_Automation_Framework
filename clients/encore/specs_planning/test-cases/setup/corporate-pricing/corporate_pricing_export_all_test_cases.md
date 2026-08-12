@@ -1,4 +1,4 @@
-﻿# Corporate Pricing — Export ▾ All: dialog contract + real download round-trip — Test Cases (NM-2264)
+# Corporate Pricing — Export ▾ All: dialog contract + real download round-trip — Test Cases (NM-2264)
 
 **Module**: corporate-pricing | **Submodule**: export_all | **Total**: 17 | **Updated**: 2026-07-09
 
@@ -8,6 +8,48 @@
 
 ---
 
+## FIELD INVENTORY
+
+| Field | Control Type | Default | Required |
+|---|---|---|---|
+| Export ▾ trigger | Dropdown trigger button | Closed | Not applicable |
+| Export ▾ › All Equipment Pricing | Menu item | Not applicable | Not applicable |
+| Export ▾ › All Labor Pricing | Menu item | Not applicable | Not applicable |
+| Export ▾ › All Equipment Max Discount | Menu item | Not applicable | Not applicable |
+| Export ▾ › All Labor Max Discount | Menu item | Not applicable | Not applicable |
+
+The precondition dialog reached by a variant click has not been enumerated on the export path; the 2026-07-09 walk opened the menu only. See corporate-pricing-import-all-2026-07-21.md for the shared dialog as observed on the import path.
+
+---
+
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| Year(s) selection is required | Continue stays disabled while no year is selected |
+| Currency selection is required | Continue stays disabled while no currency is selected |
+| Year(s) maximum is 3 | Selecting a fourth year is refused; the selection stays at 3 |
+| Continue is gated on both Year(s) and Currency | Continue enables only when at least one year and a currency are both set |
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observed on office 1604 in the sessions recorded in the field inventory
+`corporate-pricing-export-all-2026-07-09.md` (field detail carried forward from
+`corporate-pricing-toolbar-io-2026-06-08.md`; re-verified live 2026-07-09 via TC-CPR-EXA-017). Each
+row is an observation, not an expectation. Rows marked "Not settled" are recorded because they were
+reached for and not resolved; no test case asserts them as fact.
+
+| # | Verified | Result |
+|---|---|---|
+| 1 | Export ▾ trigger present on corporate-pricing page, office 1604 | Button present in action bar; no data-testid (use `button:text-is("Export")`) |
+| 2 | Export ▾ variant count and labels | 4 variants: "All Equipment Pricing", "All Labor Pricing", "All Equipment Max Discount", "All Labor Max Discount" |
+| 3 | Outside-click dismisses the open Export ▾ menu | Confirmed: clicking outside closes the dropdown without triggering any export action (re-verified live 2026-07-09 via TC-CPR-EXA-017) |
+| 4 | Action bar at headless viewport | Buttons present but not visible — assert presence, not visibility |
+| 5 | Per-variant file format and behavior | **Not settled** — only variant labels were enumerated; what each variant exports and the file format are undocumented (Q-WV15-2 open) |
+
+---
 ## TC-CPR-EXA-001: Each Export variant opens the shared "Export" Year(s)+Currency dialog
 | Priority | Status | Type |
 |----------|--------|------|

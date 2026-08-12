@@ -1,6 +1,6 @@
 # PLAN_TEAM_REPO_GATE_INPUT_CLOSURE
 
-**Status**: PENDING
+**Status**: PENDING (P1–P5 executed 2026-08-12; open items listed in the Execution Log below)
 **Created**: 2026-08-12
 **Owner intent (verbatim ask)**: "these problems their claude is getting, should never occur ever again in future pushes … find more things their claude would get stuck on in future! things we should have pushed to main repo but havent"
 **Model**: Opus (P1/P2/P5 judgment + guardrail edits) / Sonnet allowed on P3/P4 mechanical rows
@@ -114,6 +114,70 @@ of a class, not a one-off.
 - No blanket force-add: P2's sweep commit is enumerated and secret-swept, not `git add -f -A`.
 - Retirement: once P2+P3 land and fire clean twice, the `/push-repo` prose warning about
   force-adds is obsolete — delete it in the same commit that flips P3 to blocking (never keep both).
+
+## Execution Log — 2026-08-12
+
+Executed the same day it was authored. Pushed across origin/main `79bfe976d..293128e2c`.
+
+**P1 — backlog shipped.** All 21 dirty tracked files dispositioned (every one SHIP; nothing
+reverted) plus the 10 untracked guard scripts. Landed as: the LR-072 CoverageMode wave (19 files),
+three gate-satisfiability fixes, the corporate-override skeleton-row race fix, and the guard-script
+batch. B1 closed — the doctrine ledger now adjudicates the two LR-071 reason-string rules as an
+honest UNENFORCED S1 (their emitters exist at `check-interaction-coverage.mjs:264/:815` but the
+script is wired to no entrypoint; recipient named) and anchors LR-072 to
+`validate-plan-closure.mjs:811`; `check-doctrine-ledger` exits 0 on a clean clone. B2 closed —
+`xlsx:build:with-run-json` shipped, so the freshness gate's printed fix works for a colleague.
+B5 closed — every untracked script tracked; none needed archiving.
+
+**P2 — ignore-trap killed.** Ship-exclusion proved FIRST (run `gic-ship-proof-0812`): deny-glob at
+`forbidden-patterns.mjs:23`, the staging-delete loop in `ship-client.sh:71-74`, and two post-ship
+verification gates, all independent of git state. Raw archive carries 316 `specs_planning` entries;
+283 are files and all 283 are on the exclusion list — the delta is exactly 33 directory entries,
+reconciled by the dispatcher from the worker's own artifacts. `.gitignore:197` replaced with a
+comment recording why it died; 49 hidden knowledge artifacts swept in; one personal account
+identifier redacted where the commit deny-list caught it.
+
+**P3 — closure gate live.** `--enforce-gate-inputs` added to the existing checker (no new scanner),
+wired into pre-push behind `untracked_gate_inputs_mode` (announce; telemetry to `gate-fires.log`;
+deny after 5 clean pushes). Live-fired both directions before commit. The `/push-repo` gate-drift
+tripwire landed under a Rutvik-approved, path-scoped, 15-minute grant — and caught real drift on
+its first run (two test files whose subjects were tracked without them).
+
+**P4 — grandfather debt retired, and it was bigger than scoped.** All 12 documents now carry a
+verification log; 10 transcribed from dated walk artifacts, 2 (locations legal, locations local
+information) carrying an honest no-artifact header because none exists. Staging them exposed that
+all 12 also lacked `## Validation Rules` and 4 lacked `## FIELD INVENTORY` — pre-existing in every
+HEAD version, invisible because the lint reads staged files only. Both backfilled; `N/A — <specific
+reason>` used where sources documented nothing. Test-case lint: 0 errors on the staged set;
+workbook byte-identical, freshness green without a rebuild.
+
+**P5 — clone rehearsal green.** Fresh clone at `52862bc69`, `npm ci`, all 12 battery commands exit
+0 with zero local edits; the dispatcher independently re-ran three of them inside the clone. Commit
+path rehearsed (gates fired in order, then reset) and the untracked-plant trip reproduced exit 1.
+
+**Two worker defects caught and bounced, neither shipped:**
+1. `gic-log-backfill-0812` marked two modules no-artifact for "ambiguous scope";
+   `walk-evidence-hist-ssl-acc-2026-06-02.md` names both in its section headings. Bounced, fixed.
+2. `gic-struct-sections-0812` gave the export module a Year/Currency/Continue precondition dialog
+   appearing in **zero** of the two artifacts that file cites — borrowed from the import module,
+   whose own walk says the export variants were never exercised. Bounced; rows removed and replaced
+   with a line recording that the export path's dialog is un-enumerated.
+
+**Dispatcher error, disclosed:** a `git stash -u` run to test whether some lint errors predated the
+work did not fully re-apply and briefly reverted a worker's 12 files. Restored each from the stash
+blob, verified, dropped the stash; nothing lost. Do not use stash on this tree.
+
+### Open — why this plan stays PENDING
+
+- `untracked_gate_inputs_mode` is at `announce`; flip to `deny` after 5 clean pushes (ramp target
+  2026-09-11). Until then P3 warns rather than blocks.
+- 19 pre-existing `STRUCT-001` / `STRUCT-002` lint errors remain in files outside the 12 (notably
+  `local_office_ect`), same grandfather class, found during P4. Not scoped here; whoever stages one
+  next will hit it.
+- `locations_legal` and `locations_local_information` still need a real walk to populate their
+  verification tables — visible debt, recorded in the documents themselves.
+- `scripts/worker-report.md` deliberately left untracked: stray worker narration misfiled into
+  `scripts/`, not repo material.
 
 ## HALT lines
 - P2 ship-exclusion proof fails → HALT (client-leak risk outranks colleague convenience).

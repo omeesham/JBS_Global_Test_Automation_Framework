@@ -1,4 +1,4 @@
-﻿# Local Office Settings — Location Settings History Test Cases — **Module**: local-office | **Total**: 7 | **Status**: Automated
+# Local Office Settings — Location Settings History Test Cases — **Module**: local-office | **Total**: 7 | **Status**: Automated
 
 **Module**: local-office
 
@@ -31,6 +31,29 @@
 
 -----
 
+## Validation Rules
+
+N/A — this tab is read-only; the walk recorded no editable control and no Save button.
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observed on office 1604 (Parker Palm Springs) during the live DOM walk recorded in
+`walk-evidence-hist-ssl-acc-2026-06-02.md` (2026-06-02, Playwright CLI, session `-s=e2e`). Section
+0.5c (read-only structure) is the source. Each row is an observation, not an expectation. Rows
+marked "Not settled" were reached for and not resolved.
+
+| # | Verified | Result |
+|---|---|---|
+| 1 | `[data-testid="local-office-settings-history-table"]` element tag | `TABLE` — the table itself, not a wrapper div (differs from MGH which uses a wrapper div) |
+| 2 | Inputs inside `tblHistory` (the `<table>` element directly) | **0** — no interactive inputs inside the table |
+| 3 | Panel-wide input count (what `isHistoryTabReadOnly()` measured at walk time) | 1 — the `aria-label="Current page number"` paginator input |
+| 4 | Paginator input location relative to `tblHistory` | **Outside** the `<table>` (sibling element, not a descendant) |
+| 5 | Save button present in the tab panel | **0** — no Save button anywhere in the panel |
+| 6 | Data rows visible on page 1 | 20 |
+
+---
 ## TC-LOS-HIS-001: History Tab — Navigation and Default View
 
 | Priority | Status | Type | Automatable |

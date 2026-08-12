@@ -1,4 +1,4 @@
-﻿# Location - Local Information Test Cases
+# Location - Local Information Test Cases
 
 **Module**: locations
 
@@ -59,6 +59,28 @@ Validation Rules Discovered:
 - API validations: Billing Way change, Billing Cycle change
 - Save endpoint: page-level Save POSTs to the page URL itself (Next.js + React Hook Form Server Action pattern — `POST /navigator/locations/{id}/settings/location`), NOT a separate `/api/save` the application endpoint. On server failure (e.g. 503) the new-site UI renders no error toast or dialog (silent failure mode). Tests asserting Save behavior MUST also assert that an error feedback surface (toast / dialog / inline message) is rendered on save failure — see primary symptom. (---
 
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| Percentage spin fields: min 0, max 100, step 0.01 (Threshold: step 0.1) | Values outside range are rejected |
+| Oracle Product is required when Skip Billing is unchecked | maxLength=25; field is required when SkipBilling=false |
+| Oracle Department is required when Skip Billing is unchecked | maxLength=25; field is required when SkipBilling=false |
+| Oracle Organization is required when Skip Billing is unchecked | Required when SkipBilling=false; shows billing requirement error |
+| Billing Cycle ID is required | Cannot be 0; shows an exclamation icon when unset |
+| Billing Way Effective Date must be today or future | Past dates are rejected via BillingWay date validation |
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observations for this module were recorded before the verification-log convention existed; the paired
+field inventory is absent (a neutral-eye audit exists at
+`_internal/neutral-eye-audits/local-information-2026-04-27.md` but predates the field-inventory
+convention and was performed under degraded backend conditions). A fresh walk must populate this
+table before the next behavioural edit to this file.
+
+---
 ## TC-LOC-LI-001: Verify Navigate to Office 1604 Local Information Tab
 | Priority | Status | Type |
 |----------|--------|------|

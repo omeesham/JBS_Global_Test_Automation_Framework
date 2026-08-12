@@ -102,6 +102,38 @@
 
 ---
 
+## Validation Rules
+
+N/A — this tab is read-only; the walk recorded no editable control and no Save button.
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observed on office 1604 (Parker Palm Springs) during the live DOM walk recorded in
+`walk-evidence-hist-ssl-acc-2026-06-02.md` (2026-06-02, Playwright CLI, session `-s=e2e`). Sections
+0.5a (read-only structure) and 0.5b (pagination DOM + navigation walk) are the source. Each row is an
+observation, not an expectation. Rows marked "Not settled" were reached for and not resolved.
+
+| # | Verified | Result |
+|---|---|---|
+| 1 | `[data-testid="location-settings-table-management-history"]` element tag | `DIV` — a wrapper div, not the `<table>` itself |
+| 2 | Nested `<table>` inside the wrapper div | Present (`hasInnerTable: true`) |
+| 3 | Inputs inside the nested `<table>` | **0** — the data region has no interactive inputs |
+| 4 | Panel-wide input count (what `isReadOnly()` measured at walk time) | 1 — the `aria-label="Current page number"` paginator input |
+| 5 | Paginator input location relative to nested table | Inside the wrapper div but **outside** the nested `<table>` |
+| 6 | Data rows visible in nested table (page 1) | 20 |
+| 7 | Current-page indicator element type | `<input aria-label="Current page number" value="1">` — NOT a `<span>` |
+| 8 | Total-pages indicator element | Single `<span>` with text `/522`; exactly one span matching `/^\/\s*\d+$/` in the tab |
+| 9 | Navigation buttons present | Four: Go to first page, Go to previous page, Go to next page, Go to last page |
+| 10 | Button states on page 1 (start) | first=disabled, prev=disabled, next=enabled, last=enabled |
+| 11 | Button states after clicking Next (page 2) | first=enabled, prev=enabled, next=enabled, last=enabled |
+| 12 | Button states after clicking Previous (back to page 1) | first=disabled, prev=disabled, next=enabled, last=enabled |
+| 13 | Button states after clicking Last (page 522) | first=enabled, prev=enabled, next=disabled, last=disabled |
+| 14 | Button states after clicking First (back to page 1) | first=disabled, prev=disabled, next=enabled, last=enabled |
+| 15 | All four buttons remaining in DOM throughout the navigation walk | **true** — no button was removed from the DOM at any step |
+
+---
 ## TC-LOC-MGH-001: Tab Renders and the history table loads
 | Priority | Status | Type |
 |----------|--------|------|

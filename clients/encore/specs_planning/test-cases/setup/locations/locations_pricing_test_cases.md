@@ -1,4 +1,4 @@
-﻿# Location Pricing Test Cases
+# Location Pricing Test Cases
 **Module**: locations | **Total**: 37 | **Status**: Automated | **Updated**: 2026-06-19
 
 > Reconciled 2026-06-19 against the live app and the dated field inventory
@@ -48,6 +48,40 @@ popover is open.
 
 ---
 
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| All five primary pricing dropdowns are disabled when Corporate Pricing is unchecked | Unchecking Corporate Pricing disables all primary dropdowns; the grid fields are unaffected |
+| Use Effective Dates is disabled until Is Alternate is checked | Checking Is Alternate enables the Use Effective Dates checkbox for that row |
+| Start Date and End Date are disabled until Use Effective Dates is checked | Both date inputs enable only after Use Effective Dates is checked for that row |
+| Start Date must be before End Date | A Start date equal to or after End date blocks Save |
+| Missing Start or End Date blocks Save | A row with Use Effective Dates checked but a date field empty blocks Save |
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observed on office 1604 in the sessions recorded in the field inventory
+`pricing-2026-06-19.md` (machine-enumerated walk 2026-06-19, denominator 79/79). Each row is an
+observation, not an expectation. Rows marked "Not settled" are recorded because they were reached
+for and not resolved; no test case asserts them as fact.
+
+| # | Verified | Result |
+|---|---|---|
+| 1 | Corporate Pricing checkbox default | Checked (true) |
+| 2 | Include Service Fee in Price Guides default | Checked (true); old-site label is "Include Service Charge" — wording divergence, not a defect |
+| 3 | Currency filter options on office 1604 | "All" and "USD" (2 options; office 1604 is USD-only) |
+| 4 | Primary pricing dropdowns on office 1604 | Exactly 5, all USD; all default to "--Select--" (unset on 1604) |
+| 5 | Unchecking Corporate Pricing | Disables all 5 primary dropdowns; does NOT disable grid fields |
+| 6 | BUG-LOC-PRI-001 | Unchecking Corporate Pricing and saving returns HTTP 200 but the value reverts on reload |
+| 7 | Location Secondary Pricing grid | 32 rows on office 1604; 7 columns: Pricing Strategy, Pricebook, Currency, Is Alternate, Use Effective Dates, Start Date, End Date |
+| 8 | Grid cascade | Is Alternate checked → Use Effective Dates becomes enabled → Start and End date inputs become enabled |
+| 9 | Save button default | Disabled on clean load; enables when form is dirty |
+| 10 | Save dialog | "Are you sure you want to save the changes?" with Cancel and Ok |
+| 11 | Save endpoints (live) | `POST .../upsert-location-pricebook` and `PUT .../update-properties` (both HTTP 200); the spec-comment endpoint name "POST update-location-pricing" is stale |
+
+---
 ## TC-LOC-PRI-001: Verify Pricing tab default state
 | Priority | Status | Type |
 |----------|--------|------|
