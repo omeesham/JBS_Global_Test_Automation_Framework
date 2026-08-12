@@ -12,6 +12,17 @@
  * Usage:
  *   node scripts/check-untracked-knowledge.mjs          # advisory — always exits 0
  *   node scripts/check-untracked-knowledge.mjs --strict # exits 1 when findings exist
+ *   node scripts/check-untracked-knowledge.mjs --enforce-gate-inputs
+ *       # gate-input closure (PLAN_TEAM_REPO_GATE_INPUT_CLOSURE P3, Sev S1):
+ *       # scans ONLY the file classes that commit gates READ FROM DISK
+ *       # (test-cases md, test-plans md, field-inventories md) and exits 1 if any
+ *       # such file exists on disk but is not tracked. A disk-read gate passes on
+ *       # the authoring machine and fails on every clone when its input was never
+ *       # committed — the 2026-08-12 incident (170 orphan TCs, ALL-071 gate
+ *       # unsatisfiable repo-wide for five days). Graduating incident recorded in
+ *       # plans/pending/PLAN_TEAM_REPO_GATE_INPUT_CLOSURE.md. Ramp per LR-069:
+ *       # the pre-push hook consults untracked_gate_inputs_mode in
+ *       # .claude/guardrail-config.json (announce → deny).
  *
  * Does NOT modify git state. Does NOT create hooks. Does NOT touch .gitignore.
  */
@@ -21,6 +32,41 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const STRICT = process.argv.includes('--strict');
+const ENFORCE_GATE_INPUTS = process.argv.includes('--enforce-gate-inputs');
+
+// --- Gate-input closure mode (--enforce-gate-inputs) ---
+// The file classes that check:tc-parity and check-tc-has-fieldinventory read from
+// the working tree. Anything here that exists on disk but is untracked is invisible
+// to every clone while satisfying the gates locally.
+const GATE_INPUT_RES = [
+  /^clients\/[^/]+\/specs_planning\/test-cases\/.+\.md$/,
+  /^clients\/[^/]+\/specs_planning\/test-plans\/.+\.md$/,
+  /^clients\/[^/]+\/specs_planning\/_internal\/field-inventories\/[^/]+\.md$/,
+];
+
+function runGateInputClosure() {
+  // --others lists untracked files; --exclude-standard respects current ignores, and a
+  // second pass WITHOUT exclusions catches gate inputs hidden by a future ignore rule.
+  const visible = gitOutput('git ls-files --others --exclude-standard -- clients/')
+    .split('\n').filter(Boolean).map(stripGitQuotes);
+  const ignored = gitOutput('git ls-files --others --ignored --exclude-standard -- clients/')
+    .split('\n').filter(Boolean).map(stripGitQuotes);
+  const candidates = [...new Set([...visible, ...ignored])];
+  const hits = candidates.filter(f => {
+    const n = f.replace(/\\/g, '/');
+    return GATE_INPUT_RES.some(re => re.test(n)) && !/_TEMPLATE\.md$/.test(n);
+  }).sort();
+
+  if (hits.length === 0) {
+    console.log('check:untracked-knowledge --enforce-gate-inputs — CLEAN (every gate-read file on disk is tracked)');
+    process.exit(0);
+  }
+  console.error('GATE-INPUT CLOSURE FAIL: the commit gates read these files from disk, but they are');
+  console.error('not tracked — every gate that passes here will fail on a fresh clone:');
+  for (const f of hits) console.error(`  ${f}\n    → git add ${f}`);
+  console.error(`\ncheck:untracked-knowledge --enforce-gate-inputs — ${hits.length} untracked gate-input file(s)`);
+  process.exit(1);
+}
 
 // --- Classification rules ---
 
@@ -124,6 +170,8 @@ if (allTracked.length === 0) {
 function stripGitQuotes(p) {
   return (p.startsWith('"') && p.endsWith('"')) ? p.slice(1, -1) : p;
 }
+
+if (ENFORCE_GATE_INPUTS) runGateInputClosure();
 
 // Find which tracked files live inside gitignored paths (batch check — single git call)
 // --no-index: check pure .gitignore rules regardless of tracking status (tracked files are
