@@ -493,6 +493,20 @@
       "file": ".claude/rules/no-wrappers.md",
       "line": 15,
       "enforced_by": "scripts/lib/forbidden-patterns.mjs:115"
+    },
+    {
+      "id": "LR-071",
+      "file": ".claude/rules/guardrail-policy.md",
+      "line": 140,
+      "unenforced": "reason-string emitters exist verbatim (scripts/check-interaction-coverage.mjs:264 and :815) but the script is not reachable from any entrypoint — not wired into package.json scripts, .githooks, or settings hooks, so the contracts fire only on manual invocation",
+      "severity": "S1",
+      "recipient": "plans/pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md"
+    },
+    {
+      "id": "LR-072",
+      "file": ".claude/rules/inventory.md",
+      "line": 170,
+      "enforced_by": "scripts/validate-plan-closure.mjs:811"
     }
   ]
 }
