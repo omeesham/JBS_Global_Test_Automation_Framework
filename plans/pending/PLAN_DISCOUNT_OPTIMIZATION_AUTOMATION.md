@@ -1280,11 +1280,11 @@ gaps (recorded in the export registry's gap ledger) and nothing was renumbered.
 | Full suite after assertion hardening, run 2 | **35 passed, 3 failed** — `reports/test-runs/dop-t55-run2.txt` (same three, reproducible) |
 | Full suite after oracle fixes, run 1 | **38 passed** — `reports/test-runs/dop-t56-run1.txt` (37 cases + auth setup) |
 | Full suite after oracle fixes, run 2 | **38 passed** — `reports/test-runs/dop-t56-run2.txt` |
-| `TC-DOP-OPT-050` isolated | 3 isolated runs on disk — `reports/test-runs/dop-t50-isolated-r1..r3.verify.txt` |
+| `TC-DOP-OPT-050` isolated | 3 isolated runs on disk — `reports/test-runs/dop-t50-isolated-r1.verify.txt`, `reports/test-runs/dop-t50-isolated-r2.verify.txt`, `reports/test-runs/dop-t50-isolated-r3.verify.txt` |
 | Suite against the renamed columns, run 1 | **38 passed** — `reports/test-runs/dop-t61-run1.txt` |
 | Suite against the renamed columns, run 2 | **38 passed** — `reports/test-runs/dop-t61-run2.txt` |
 | Deliverable parity | **zero Discount Optimization rows** outstanding — confirmed by a first-hand run on 2026-08-12: zero occurrences of `DOP` across all 372 lines of output. Repository-wide `check:tc-parity` still exits 1 on 170 pre-existing cases in two unrelated delivered modules (Terms and Conditions, Service Charge Text). Root cause established: those modules' case markdown is excluded from version control, was never committed, and does not exist in this working copy, so the check compares committed specs against documents it cannot reach. Out of scope and untouched by this work |
-| Field inventory | 148 of 148 dispositioned, cross-check clean — `field-inventories/discount-optimization-2026-08-11.md` |
+| Field inventory | 148 of 148 dispositioned, cross-check clean. Split into one artifact per case document, because the pairing gate derives each artifact's expected filename from its case document's name: `clients/encore/specs_planning/_internal/field-inventories/discount-optimization-locations-2026-08-11.md` (108 of 108) and `clients/encore/specs_planning/_internal/field-inventories/discount-optimization-exemption-2026-08-11.md` (61 of 61). The 21 rows shared by both surfaces are counted once against the 148, so 87 + 40 + 21 reconciles. The undivided parent walk is retained at `clients/encore/specs_planning/_internal/field-inventories/discount-optimization-2026-08-11.md` |
 | Interaction map | recorded in `scripts/walk-coverage/interaction-maps/`; **no gate-run artifact was retained under `reports/test-runs/`**, so the PASS verdict is not independently re-checkable from the run record |
 
 #### Static gate status, stated without rounding up
