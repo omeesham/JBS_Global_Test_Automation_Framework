@@ -120,6 +120,34 @@
       "reason": "Authored multi-currency test-bed data seed retained from the source branch for future override coverage; no current spec consumer.",
       "category": "test-data-surface",
       "added": "2026-07-24"
+    },
+    {
+      "file": "clients/encore/src/selectors/discount-optimization/discount-optimization.ts",
+      "export": "BTN_RESIZE_ID",
+      "reason": "Column-resize button selector for Discount Optimization grid; no spec consumer yet — specs are pending the parity-gate fix on this branch.",
+      "category": "test-data-surface",
+      "added": "2026-08-12"
+    },
+    {
+      "file": "clients/encore/src/selectors/discount-optimization/discount-optimization.ts",
+      "export": "BTN_RESIZE_NAME",
+      "reason": "Column-resize button selector for Discount Optimization grid; no spec consumer yet — specs are pending the parity-gate fix on this branch.",
+      "category": "test-data-surface",
+      "added": "2026-08-12"
+    },
+    {
+      "file": "clients/encore/src/selectors/discount-optimization/discount-optimization.ts",
+      "export": "BTN_RESIZE_DISCOUNT",
+      "reason": "Column-resize button selector for Discount Optimization grid; no spec consumer yet — specs are pending the parity-gate fix on this branch.",
+      "category": "test-data-surface",
+      "added": "2026-08-12"
+    },
+    {
+      "file": "clients/encore/src/selectors/discount-optimization/discount-optimization.ts",
+      "export": "BTN_RESIZE_START",
+      "reason": "Column-resize button selector for Discount Optimization grid; no spec consumer yet — specs are pending the parity-gate fix on this branch.",
+      "category": "test-data-surface",
+      "added": "2026-08-12"
     }
   ]
 }
