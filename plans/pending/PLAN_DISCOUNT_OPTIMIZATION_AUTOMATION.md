@@ -373,19 +373,30 @@ this inside `/execute` — adopt the role, do not merely announce it.
 **Anti-Assumption Gates** — carried from `PLAN_TERMS_CONDITIONS_AUTOMATION` / `PLAN_DISCOUNT_MATRIX_AUTOMATION`,
 which both ship this block. Each is a standing condition on the whole plan, not a one-time step:
 
-- [ ] **Gate 1** — Baseline walk EXECUTED before any behaviour classification or bug filing. Tab 1's
+- [x] **Gate 1** — Baseline walk EXECUTED before any behaviour classification or bug filing. Tab 1's
       legacy baseline is required; tab 2's documented `baseline-absent` (§Phase 2) satisfies this for
       tab 2 **only because it is evidenced by Padmaja's NM-3394 comment** — not because it was skipped.
-- [ ] **Gate 2** — No "corrupt / atypical / app-wide / regression" claim on fewer than 2 evidence
+      *Verified 2026-08-12: `old-site-baseline/discount-optimization-2026-08-10.md` exists and carries a
+      `## Baseline diff` section; the crossref carries 5 NM-3394/Padmaja references.*
+- [x] **Gate 2** — No "corrupt / atypical / app-wide / regression" claim on fewer than 2 evidence
       sources (LR-061-A). Binds hardest on Axis A: one office is never a conclusion.
-- [ ] **Gate 3** — No control marked inert / un-drivable without a positive control on a known-good
-      case first (LR-061-C).
-- [ ] **Gate 4** — No env-rationalized deferral of env-independent work (LR-060). Omeesha's
+      *Verified 2026-08-12 by the five-seat cross-vendor audit, which specifically hunted unsupported
+      claims and found three — all in the Execution Summary, all corrected; none of this class.*
+- [x] **Gate 3** — No control marked inert / un-drivable without a positive control on a known-good
+      case first (LR-061-C). *Verified: `check-interaction-coverage.mjs --file` returns
+      `zero-effect-disposition: PASS` and `differential-data-ladder: PASS` over all 148 elements.*
+- [x] **Gate 4** — No env-rationalized deferral of env-independent work (LR-060). Omeesha's
       "code not available in E2E" is a Phase-0 fact to establish, **never** a reason to defer the
-      Jira crossref, the baseline walk, or case authoring.
-- [ ] **Gate 5** — Un-skip + LR-019 harden applied atomically.
+      Jira crossref, the baseline walk, or case authoring. *All three were executed. The only deferral
+      on this plan is the legacy re-walk, which is env-BLOCKED with measured proof (both Encore hosts
+      unreachable from this machine, `nav2-poll-2026-08-12.txt`) — not env-rationalised.*
+- [x] **Gate 5** — Un-skip + LR-019 harden applied atomically. *Verified: zero `test.skip` and zero
+      `test.fixme` across both Discount Optimization specs.*
 - [ ] **Gate 6** — All phases complete OR a user-signed `## Deferral Authorization` block recorded.
       The agent may not self-author it.
+      **NOT MET (2026-08-12).** The legacy re-walk is outstanding (env-blocked), so phases are not all
+      complete, and no user-signed Deferral Authorization block exists. Per LR-060 obligation 1 the agent
+      may not author one. This gate is the reason the plan stays PENDING.
 
 ---
 
@@ -1030,43 +1041,64 @@ self-grade work from the same session (AUD-017).
 ## Acceptance criteria (LR-040 closure gate)
 
 **Intake + evidence**
-- [ ] Phase 0 step 5 executed: the surface **renders on e2e/1604** (Omeesha's "code not available in E2E"
-      disproved), or the plan HALTed to the user.
-- [ ] Jira crossref exists; **every** listed ticket carries a post-walk verdict, including
+- [x] Phase 0 step 5 executed: the surface **renders on e2e/1604** (Omeesha's "code not available in E2E"
+      disproved), or the plan HALTed to the user. *Disproved: 38 tests ran green twice against 1604.*
+- [x] Jira crossref exists; **every** listed ticket carries a post-walk verdict, including
       `OUT-OF-SCOPE` rows for NM-3394 / NM-1221 / the Special Rate Tax family. Zero blanks.
-- [ ] ~~NM-3342's two description images transcribed~~ — **STRUCK by user waiver 2026-08-10**; the waiver
-      is recorded in the crossref rather than silently passed.
+- [x] ~~NM-3342's two description images transcribed~~ — **STRUCK by user waiver 2026-08-10**; the waiver
+      is recorded in the crossref rather than silently passed. *Waiver present in the crossref.*
 - [ ] NM-1672's attachments read; NM-3340's Equipment-rollup rule recorded verbatim; NM-3341's Done
       status re-verified on 1604 **and** 1101; NM-1183's derivation rule recorded verbatim.
-- [ ] Old-site baseline artifact exists with a `## Baseline diff` section. **Tab 1 baselined against
+      **NOT MET (2026-08-12).** The crossref records NM-1672 as `PARTIAL` — metadata and attachment
+      *inventory* captured, but the requirement text inside the two Word attachments was never
+      extracted. The cross-vendor audit reached the same finding independently.
+- [x] Old-site baseline artifact exists with a `## Baseline diff` section. **Tab 1 baselined against
       legacy; tab 2 recorded `baseline-absent` with Padmaja's NM-3394 comment quoted as the evidence.**
 
 **Denominator**
 - [ ] Three Phase-3 enumerations exist (tab 1, tab 2, Change Local Office dialog); `Coverage_Ratio` 100%;
       `CrossCheck: clean`; every element dispositioned; every blocked row names its unlock.
-- [ ] `scripts/walk-coverage/interaction-maps/` created and the map PASSES
+      **NOT MET (2026-08-12).** Three enumeration runs exist and are genuinely distinct (`dop-tab1.json`,
+      `dop-tab2.json`, `1604-discount-optimization.json` — three different checksums, 148 elements each),
+      and the field inventory reaches 148/148 with `CrossCheck: clean`. But **none of them is the Change
+      Local Office dialog**: the inventory's own `Walk_State` reads
+      `walked=[resting, tab:service-type-exemptions]`, and the strings "Change Local Office" and "dialog"
+      appear zero times in the enumerations *and* zero times in the field inventory. Two surfaces were
+      walked, not three. The dialog is an un-walked surface, not a dispositioned one.
+- [x] `scripts/walk-coverage/interaction-maps/` created and the map PASSES
       `check-interaction-coverage.mjs` — no `unclassified-element`, no `claim-census` residual.
+      *Verified 2026-08-12: `VERDICT: PASS`, 14/14 sub-checks, 148 elements, 0 violations —
+      `unclassified-element: PASS`, `claim-census: PASS`.*
       **Neither delivered module (T&C, Service Charge Text) ever produced an interaction map — T&C's
       absence is a live closure blocker on that plan. This plan does not repeat that.**
-- [ ] Walk-evidence artifact carries a `## Observations` section with **both** buckets — `Bugs/Defects`
+- [x] Walk-evidence artifact carries a `## Observations` section with **both** buckets — `Bugs/Defects`
       and `Suggestions` — filled or carrying the literal `none` (ALL-045). **An absent section fails this
-      plan**; it is an incomplete walk, not a clean one.
-- [ ] **Dated screenshots** exist under
+      plan**; it is an incomplete walk, not a clean one. *Verified: `## Observations` (L17),
+      `### Bugs / Defects` (L19), `### Suggestions / Improvements` (L27).*
+- [x] **Dated screenshots** exist under
       `clients/encore/specs_planning/_internal/walk-evidence-discount-optimization-<DATE>/`, one per
       confirmed bug and per render-state finding, each named for what it shows. Every render-state
-      defect was SEEN, never inferred from an attribute.
-- [ ] **Zero directory paths in the Per-Identity matrix** — every Concrete-deliverable line is a real
+      defect was SEEN, never inferred from an attribute. *Verified: 5 dated screenshots present.*
+- [x] **Zero directory paths in the Per-Identity matrix** — every Concrete-deliverable line is a real
       file path, `(skipped: <reason ≥20 chars>)`, or `(none)`. A trailing-slash directory is rejected by
       closure-check C6 as vague prose. (Both reference plans carry this latent defect; this one does not.)
+      *Verified 2026-08-12: zero trailing-slash paths in the matrix.*
 - [ ] Boolean render format proven **independently** for `No Implied Discount` and `Exempt`; the date
       field probed on **both** typed and picker paths.
-- [ ] Every zero-delta probe on a mandatory-effect class carries `DIFFERENTIAL-DATA-REQUIRED` with rung-1
+      **UNVERIFIED (2026-08-12)** — not re-measured this session, and e2e is unreachable from this
+      machine, so it cannot be re-proven now. Left unticked rather than assumed.
+- [x] Every zero-delta probe on a mandatory-effect class carries `DIFFERENTIAL-DATA-REQUIRED` with rung-1
       and rung-2 evidence (LR-040-D); no case asserts a zero-effect as expected behaviour.
+      *Verified: `zero-effect-disposition: PASS` and `differential-data-ladder: PASS`.*
 - [ ] All six **Anti-Assumption Gates** recorded with a verdict; Gate 6 either "all phases complete" or a
       **user-signed** `## Deferral Authorization` block (agent-authored = automatic fail).
-- [ ] **Provenance clean**: every field-inventory row carries an `evidence:` pointer to a machine-emitted
+      **PARTIALLY MET (2026-08-12).** All six now carry a recorded verdict — Gates 1–5 pass with cited
+      evidence. Gate 6 does not, and no user-signed Deferral Authorization exists.
+- [x] **Provenance clean**: every field-inventory row carries an `evidence:` pointer to a machine-emitted
       artifact dated ≥ the session date. Zero `provenance: oracle`, zero missing-provenance, zero
       stale-evidence rows — any one is FABRICATION-class and fails this plan.
+      *Verified 2026-08-12: zero `provenance: oracle` across all three inventories; the interaction map's
+      `basis-artifact-provenance` reports all 148 citations resolve to existing artifacts.*
 - [ ] **BeforeUnload discipline honoured** in Phases 3–4: dialog-accept before `goto`, `about:blank →
       target` navigation, zero same-URL reloads after an edit. No "did not persist" finding was recorded
       from a reloaded dirty page.
@@ -1084,10 +1116,13 @@ self-grade work from the same session (AUD-017).
       out-of-scope follow-up with a named owner, not silently dropped.
 
 **Cases + specs**
-- [ ] `DOP` + **both** submodule codes (`OPT`, `EXM`) registered in `module-codes.json` **and**
+- [x] `DOP` + **both** submodule codes (`OPT`, `EXM`) registered in `module-codes.json` **and**
       `KNOWN_SUB_CODES`, with a `sheetNameNotes` entry for the truncated exemptions sheet name.
-- [ ] **Two** test-case MD files, **two** test-plan files, **two** XLSX sheets, **two** `.spec.ts` files.
-      Zero TC-ID crossover.
+      *Verified 2026-08-12: `DOP`/`OPT`/`EXM` all present in `module-codes.json`; `OPT` + `EXM` at
+      `export_test_cases/types.ts:198-199`; one `sheetNameNotes` entry present.*
+- [x] **Two** test-case MD files, **two** test-plan files, **two** XLSX sheets, **two** `.spec.ts` files.
+      Zero TC-ID crossover. *Verified: 2 case docs, 2 test plans, 2 specs; the locations spec carries 59
+      `TC-DOP-OPT-*` references and zero `EXM`, the exemptions spec 13 `TC-DOP-EXM-*` and zero `OPT`.*
 - [ ] The four cross-tab seam cases exist, owned by the tab-1 spec, not duplicated in tab 2.
 - [ ] No literal service-type name hardcoded in the tab-2 spec (NM-3340 forward-compatibility); no case
       hardcodes the absence of sort/search either (NM-3327).
@@ -1107,7 +1142,8 @@ self-grade work from the same session (AUD-017).
       existing NM ticket if already known, or routed to `/encore-questions` where intent is unclear. A
       bug discovered and then left sitting in an artifact nobody actions is not a closed loop.
 - [ ] Zero DOM/markup accessibility findings filed as bugs, TCs, or observations.
-- [ ] No `(QUICK)`/`(DEEP)` marker on any `## TC-…:` heading (ALL-091).
+- [x] No `(QUICK)`/`(DEEP)` marker on any `## TC-…:` heading (ALL-091). *Verified 2026-08-12: zero
+      matches in both case documents.*
 
 **Green**
 - [ ] Both specs run **twice consecutively** on office **1604** and meet the Phase-8 criterion: all
@@ -1117,8 +1153,18 @@ self-grade work from the same session (AUD-017).
 - [ ] The intended-failing tests are listed **by full TC ID** in the Execution Summary, each with its
       documented failure signature and the bug/ticket it evidences. A count is not a list.
 - [ ] Every mutating case restores state — including Axis-A cases that touched non-primary offices.
-- [ ] `npm run check:spec-quality` passes **on the working tree** before any done/green/verified claim.
+- [x] `npm run check:spec-quality` passes **on the working tree** before any done/green/verified claim.
+      *Verified 2026-08-12 on the working tree: exit 0.*
 - [ ] `check:tc-parity`, `lint:testcases`, `xlsx:lint`, `typecheck`, `check:step-labels` all exit 0.
+      **NOT MET (2026-08-12), measured individually:** `check:tc-parity` **0** · `xlsx:lint` **0** ·
+      `check:step-labels` **0** · `check:spec-quality` **0** · `typecheck` **2** · `lint:testcases` **1**.
+      Both failures are inherited, not ours, and that was proven rather than assumed: the failing files
+      are `scripts/walk-coverage/fixtures/replay/mutants/m3-dead-oracle-branch/specs/dead-oracle.spec.ts`
+      (TS2307) and `clients/encore/specs_planning/test-cases/setup/local-office/`
+      `local_office_settings_test_cases.md` (123 × AUT-001) — both exist on `origin/main` and
+      `git diff --name-only origin/main...HEAD` shows **neither is touched by this branch**.
+      The criterion says *all exit 0*, which is a strict line (LR-046), so it stays unticked and goes to
+      the user rather than being rescoped to "our module is clean".
 - [ ] `/regression-guard` before/after = no silent breakage.
 - [ ] Missing-testid report emitted with live-DOM evidence (LR-029).
 - [ ] navigation.md, MODULE_REGISTRY.md, REQUIREMENTS.md updated; LR-028 activity-log row with an LR-037
