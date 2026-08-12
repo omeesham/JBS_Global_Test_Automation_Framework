@@ -1,0 +1,66 @@
+COMMAND: playwright-cli run-code <A10/A11/C4 detail repro, no save, clean run>
+### Result
+{"c4":{"url":"https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/details/91acb5ca-20e2-ce8e-a9ab-8c370925fd65","title":"Pricebook Details | Navigator","headers":["ID","Product Group Name","Price","New Price","Max Discount"],"sourceDraggableCount":3707,"gridInputRowCount":2430,"pageSizeControlCount":0,"sampleRows":["271Lift 0'-40' Boom - Daily0.00","272Lift 0'-40' Boom - Weekly0.00","273Lift 41'-79' Boom - Daily0.00"]},"a10":{"before":{"value":"0.00 %","ariaInvalid":"false","validationMessage":"","className":"file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 min-w-0 rounded-md border px-3 py-1 shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive ml-auto w-28 text-right font-mono text-sm tabular-nums bg-background","active":false},"after333":{"value":"333","ariaInvalid":"true","validationMessage":"","className":"file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 flex h-9 min-w-0 rounded-md border px-3 py-1 shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive ml-auto w-28 text-right font-mono text-sm tabular-nums bg-background border-destructive focus:ring-destructive","active":true},"saveEnabled":false,"afterClickOtherInput":{"value":"333","ariaInvalid":"true","validationMessage":"","className":"file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 flex h-9 min-w-0 rounded-md border px-3 py-1 shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive ml-auto w-28 text-right font-mono text-sm tabular-nums bg-background border-destructive focus:ring-destructive","active":true},"validationSummary":[{"value":"333","message":"","ariaInvalid":"true"}]}}
+### Ran Playwright code
+```js
+await (async (page) => {
+  const base = 'https://cloudapps-e2e.encoreglobal.com/navigator';
+  const detailUrl = `${base}/locations/1604/settings/corporate-pricing/details/91acb5ca-20e2-ce8e-a9ab-8c370925fd65`;
+  page.on('dialog', async (dialog) => { await dialog.accept().catch(() => {}); });
+  async function openDetail() {
+    await page.goto(detailUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.getByRole('button', { name: 'Pricing Detail' }).click({ timeout: 30000 }).catch(async () => {
+      await page.getByText('Pricing Detail').click({ timeout: 30000 });
+    });
+    await page.locator('th:has-text("Product Group Name")').first().waitFor({ state: 'visible', timeout: 45000 });
+    await page.waitForTimeout(1500);
+  }
+  async function inputSnapshot(input) {
+    return await input.evaluate((el) => ({ value: el.value, ariaInvalid: el.getAttribute('aria-invalid'), validationMessage: el.validationMessage, className: el.className, active: document.activeElement === el }));
+  }
+  async function typeAndBlur(input, value) {
+    await input.scrollIntoViewIfNeeded();
+    await input.click();
+    await input.press('Control+A');
+    await input.press('Backspace');
+    await input.pressSequentially(value, { delay: 20 });
+    await input.press('Tab');
+    await page.waitForTimeout(800);
+  }
+  async function saveEnabled() { return await page.locator('button:text-is("Save")').first().isEnabled().catch(() => false); }
+  async function validationSummary() {
+    return await page.evaluate(() => Array.from(document.querySelectorAll('input[aria-invalid="true"]')).slice(0, 10).map((el) => ({ value: el.value, message: el.validationMessage, ariaInvalid: el.getAttribute('aria-invalid') })));
+  }
+
+  await openDetail();
+  const grid = page.locator('table:has(th:has-text("Product Group Name"))').first();
+  const c4 = {
+    url: page.url(),
+    title: await page.title(),
+    headers: (await grid.locator('th').allInnerTexts()).map(t => t.replace(/\s+/g, ' ').trim()),
+    sourceDraggableCount: await page.locator('[draggable="true"][role="button"]').count(),
+    gridInputRowCount: await grid.locator('tbody tr:has(input)').count(),
+    pageSizeControlCount: await page.locator('[role="combobox"]').filter({ hasText: /^\s*\d+\s*$/ }).count(),
+    sampleRows: await grid.locator('tbody tr').evaluateAll((rows) => rows.slice(0, 3).map((r) => r.textContent.replace(/\s+/g, ' ').trim())),
+  };
+
+  const rowA = grid.locator('tbody tr', { hasText: 'Balloon Light Decor' }).first();
+  const maxA = rowA.locator('td').nth(4).locator('input').first();
+  const a10Before = await inputSnapshot(maxA);
+  await typeAndBlur(maxA, '333');
+  const a10After = await inputSnapshot(maxA);
+  const a10SaveEnabled = await saveEnabled();
+  const rowB = grid.locator('tbody tr', { hasText: 'Analog Mixer 12 - 23 Ch' }).first();
+  const newPriceB = rowB.locator('td').nth(3).locator('input').first();
+  await newPriceB.click({ timeout: 5000 }).catch(() => {});
+  const a10AfterOtherClick = await inputSnapshot(maxA);
+  const a10ValidationSummary = await validationSummary();
+  await page.screenshot({ path: 'clients/encore/specs_planning/_internal/evidence-cp-review-2026-07-13/02-detail-after-A10.png', fullPage: false }).catch(() => {});
+
+  // Return A10/C4 only in this run to avoid beforeunload interference hiding output.
+  return { c4, a10: { before: a10Before, after333: a10After, saveEnabled: a10SaveEnabled, afterClickOtherInput: a10AfterOtherClick, validationSummary: a10ValidationSummary } };
+})(page);
+```
+### Page
+- Page URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/details/91acb5ca-20e2-ce8e-a9ab-8c370925fd65
+- Page Title: Pricebook Details | Navigator

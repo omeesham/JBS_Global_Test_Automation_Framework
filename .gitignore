@@ -194,7 +194,14 @@ clients/*/.env.server
 # These patterns live HERE (not in clients/<id>/.gitignore) so the per-client
 # .gitignore stays customer-neutral (no internal terminology in shipped output).
 clients/*/CLAUDE.md
-clients/*/specs_planning/
+# specs_planning/ is TRACKED as of 2026-08-12 (PLAN_TEAM_REPO_GATE_INPUT_CLOSURE P2).
+# The blanket ignore made every knowledge artifact a manual force-add; two missed
+# force-adds (Terms & Conditions / Service Charge Text case documents) left the
+# ALL-071 parity gate unsatisfiable on every clone for five days. Client-ship
+# safety is independent of this: scripts/lib/forbidden-patterns.mjs denies
+# /specs_planning/ structurally and ship-client.sh deletes matches from staging
+# behind two post-ship verification gates. Runtime state stays ignored via the
+# targeted rules below.
 clients/*/readable_externals/
 clients/*/docs/
 clients/*/api-testing/REQUIREMENTS_API.md

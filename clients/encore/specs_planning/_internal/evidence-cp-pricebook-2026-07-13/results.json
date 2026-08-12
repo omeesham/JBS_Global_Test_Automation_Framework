@@ -1,0 +1,49 @@
+{
+  "c5": {
+    "blocked": "year input not visible",
+    "heading": "New Pricebook"
+  },
+  "c6": {
+    "saved": false,
+    "saveEnabled": false,
+    "formState": {
+      "name": "ZZZ-QA-DELETE-CHECK-0713",
+      "year": "2026"
+    }
+  },
+  "d2": {
+    "search": {
+      "count": 5,
+      "values": [
+        "e2e-card-header",
+        "e2e-card-title",
+        "e2e-checkbox",
+        "e2e-checkbox",
+        "e2e-checkbox"
+      ],
+      "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing"
+    },
+    "newPricebook": {
+      "count": 0,
+      "values": [],
+      "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/add?type=equipment"
+    },
+    "pricebookDetails": {
+      "count": 0,
+      "values": [],
+      "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/details/91acb5ca-20e2-ce8e-a9ab-8c370925fd65"
+    },
+    "strategyTab": {
+      "count": 0,
+      "values": []
+    },
+    "pricingDetailTab": {
+      "count": 0,
+      "values": []
+    },
+    "override": {
+      "count": 0,
+      "values": []
+    }
+  }
+}

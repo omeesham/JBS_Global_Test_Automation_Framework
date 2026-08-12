@@ -1,0 +1,35 @@
+COMMAND: playwright-cli state-load clients/encore/.auth/encore-state.json
+### Result
+Storage state restored from clients\encore\.auth\encore-state.json
+### Ran Playwright code
+```js
+await page.context().setStorageState('clients\encore\.auth\encore-state.json');
+```
+COMMAND: playwright-cli goto "https://navigator2.training.psav.com/#/"
+### Ran Playwright code
+```js
+await page.goto('https://navigator2.training.psav.com/#/');
+```
+### Page
+- Page URL: https://navigator2.training.psav.com/#/
+- Page Title: Navigator Order Entry 2026.03.12.978.1
+### Snapshot
+- [Snapshot](clients\encore\.playwright-cli\page-2026-07-13T14-40-51-298Z.yml)
+COMMAND: playwright-cli eval nav2 page summary
+### Result
+{
+  "href": "https://navigator2.training.psav.com/#/",
+  "title": "Navigator Order Entry 2026.03.12.978.1",
+  "body": "",
+  "hasCorporatePricing": false,
+  "hasPricebook": false
+}
+### Ran Playwright code
+```js
+await page.evaluate('() => ({href: location.href, title: document.title, body: document.body.innerText.slice(0,1000), hasCorporatePricing: /corporate pricing/i.test(document.body.innerText), hasPricebook: /pricebook|price book/i.test(document.body.innerText)})');
+```
+### Page
+- Page URL: https://navigator2.training.psav.com/#/login/exp/
+- Page Title: Navigator Order Entry 2026.03.12.978.1
+### Events
+- New console entries: clients\encore\.playwright-cli\console-2026-07-13T14-40-13-540Z.log#L1

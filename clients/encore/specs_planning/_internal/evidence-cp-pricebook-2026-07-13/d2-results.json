@@ -1,0 +1,52 @@
+{
+  "search": {
+    "label": "Search",
+    "count": 5,
+    "unique": [
+      "e2e-card-header",
+      "e2e-card-title",
+      "e2e-checkbox"
+    ],
+    "raw": [
+      "e2e-card-header",
+      "e2e-card-title",
+      "e2e-checkbox",
+      "e2e-checkbox",
+      "e2e-checkbox"
+    ]
+  },
+  "new-pricebook": {
+    "label": "New Pricebook (Equipment)",
+    "count": 0,
+    "unique": [],
+    "raw": []
+  },
+  "new-pricebook-labor": {
+    "label": "New Pricebook (Labor)",
+    "count": 0,
+    "unique": [],
+    "raw": []
+  },
+  "details": {
+    "label": "Pricebook Details",
+    "count": 0,
+    "unique": [],
+    "raw": []
+  },
+  "override": {
+    "label": "Override",
+    "count": 0,
+    "unique": [],
+    "raw": []
+  },
+  "pricing-strategy": {
+    "label": "Pricing Strategy",
+    "count": 0,
+    "unique": []
+  },
+  "pricing-detail": {
+    "label": "Pricing Detail",
+    "count": 0,
+    "unique": []
+  }
+}

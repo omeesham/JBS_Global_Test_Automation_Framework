@@ -1,0 +1,59 @@
+COMMAND: playwright-cli run-code <C5 New Pricebook Price Year spot-check, no commit>
+### Result
+{"url":"https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/add?type=equipment","title":"New Pricebook | Navigator","attrs":{"type":null,"min":null,"max":null,"maxLength":-1,"pattern":null,"inputMode":null,"ariaInvalid":"true"},"values":{"decimal205":"20.5","twoDigit12":"12","alphaAfter12":"12","decimalForSave":"20.5"},"saveEnabledBeforeClick":true,"beforeClickUrl":"https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/add?type=equipment","afterClickUrl":"https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/add?type=equipment","dialogVisible":false,"dialogText":"","apiCallsAfterClick":[],"fieldState":{"value":"20.5","ariaInvalid":"true","validationMessage":"","className":"file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 flex h-9 min-w-0 rounded-md border bg-transparent px-3 py-1 shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-[120px] font-mono text-sm border-red-500"},"bodyExcerpt":"1604 Parker Palm Springs Home Inbox Actions Commissions Tax Setup Studio Search Order Search Job Search Asset Search Customer Search DRO Search Payment Search Item Search ECT Search Event Agendas Navigator Assistant PC prd click auto Corporate Pricing New Pricebook Pricing Strategy Pricing Detail Save LABOR / EQUIPMENT Equipment PRICE YEAR CURRENCY USD Price Strategies C5-REVIEW-STRAT Total: 1 Pricing Strategy Is Productions Is Internal Is GSO Is Active Locations Using Pricing As Default LOCAL OFFICE LOCAL OFFICE NAME"}
+### Ran Playwright code
+```js
+await (async (page) => {
+  const base = 'https://cloudapps-e2e.encoreglobal.com/navigator';
+  const url = `${base}/locations/1604/settings/corporate-pricing/add?type=equipment`;
+  page.on('dialog', async (dialog) => { await dialog.accept().catch(() => {}); });
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.locator('input[placeholder="Pricebook..."]').first().waitFor({ state: 'visible', timeout: 30000 });
+  const setInput = async (selector, value) => {
+    const loc = page.locator(selector).first();
+    await loc.evaluate((el, val) => {
+      const input = el;
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+      setter.call(input, val);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      input.dispatchEvent(new Event('blur', { bubbles: true }));
+    }, value);
+    await page.waitForTimeout(500);
+    return await loc.inputValue();
+  };
+  const year = page.locator('input[placeholder="e.g. 2026"]').first();
+  const attrs = await year.evaluate((el) => ({ type: el.getAttribute('type'), min: el.getAttribute('min'), max: el.getAttribute('max'), maxLength: el.maxLength, pattern: el.getAttribute('pattern'), inputMode: el.getAttribute('inputmode'), ariaInvalid: el.getAttribute('aria-invalid') }));
+  const values = {};
+  values.decimal205 = await setInput('input[placeholder="e.g. 2026"]', '20.5');
+  values.twoDigit12 = await setInput('input[placeholder="e.g. 2026"]', '12');
+  values.alphaAfter12 = await setInput('input[placeholder="e.g. 2026"]', 'abcd');
+  await setInput('input[placeholder="Pricebook..."]', 'C5-DECIMAL-YEAR-REVIEW');
+  values.decimalForSave = await setInput('input[placeholder="e.g. 2026"]', '20.5');
+  await page.getByRole('button', { name: 'New Pricing Strategy' }).click({ timeout: 10000 });
+  await page.locator('#new-strategy-name').waitFor({ state: 'visible', timeout: 10000 });
+  await setInput('#new-strategy-name', 'C5-REVIEW-STRAT');
+  await page.locator('[role="dialog"]:has-text("New Pricing Strategy")').getByRole('button', { name: 'Add', exact: true }).click();
+  await page.waitForTimeout(1000);
+  const save = page.locator('button:text-is("Save")').first();
+  const saveEnabledBeforeClick = await save.isEnabled().catch(() => false);
+  const beforeClickUrl = page.url();
+  const calls = [];
+  page.on('request', (req) => { if (req.url().includes('/navigator/api/')) calls.push(`${req.method()} ${req.url()}`); });
+  if (saveEnabledBeforeClick) await save.click();
+  await page.waitForTimeout(3500);
+  const dialogVisible = await page.locator('[role="alertdialog"]').first().isVisible().catch(() => false);
+  const dialogText = dialogVisible ? await page.locator('[role="alertdialog"]').first().innerText().catch(() => '') : '';
+  if (dialogVisible) await page.locator('[role="alertdialog"]').first().getByRole('button', { name: 'Cancel', exact: true }).click().catch(() => {});
+  const afterClickUrl = page.url();
+  const bodyExcerpt = (await page.locator('body').innerText().catch(() => '')).replace(/\s+/g, ' ').slice(0, 800);
+  const fieldState = await year.evaluate((el) => ({ value: el.value, ariaInvalid: el.getAttribute('aria-invalid'), validationMessage: el.validationMessage, className: el.className }));
+  return { url: page.url(), title: await page.title(), attrs, values, saveEnabledBeforeClick, beforeClickUrl, afterClickUrl, dialogVisible, dialogText: dialogText.replace(/\s+/g, ' ').trim(), apiCallsAfterClick: calls, fieldState, bodyExcerpt };
+})(page);
+```
+### Page
+- Page URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/corporate-pricing/add?type=equipment
+- Page Title: New Pricebook | Navigator
+- Console: 0 errors, 1 warnings
+### Events
+- New console entries: clients\encore\.playwright-cli\console-2026-07-13T14-38-59-866Z.log#L1

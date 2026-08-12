@@ -1,0 +1,246 @@
+COMMAND: playwright-cli eval nav2 login form summary
+### Result
+{
+  "href": "https://navigator2.training.psav.com/#/login/exp/",
+  "title": "Navigator Order Entry 2026.03.12.978.1",
+  "body": "Accessing Navigator...\n\n",
+  "inputs": [],
+  "buttons": []
+}
+### Ran Playwright code
+```js
+await page.evaluate('() => ({href: location.href, title: document.title, body: document.body.innerText.slice(0,1500), inputs: Array.from(document.querySelectorAll("input")).map(i => ({type:i.type, name:i.name, id:i.id, placeholder:i.placeholder})), buttons: Array.from(document.querySelectorAll("button,input[type=submit]")).map(b => (b.innerText || b.value || b.getAttribute("aria-label") || "").trim()).filter(Boolean).slice(0,20)})');
+```
+COMMAND: wait 20s then eval nav2 state + network
+### Result
+{
+  "href": "https://navigator2.training.psav.com/#/",
+  "title": "Navigator Order Entry 2026.03.12.978.1",
+  "body": "",
+  "inputs": 0,
+  "hasCorporatePricing": false,
+  "hasPricebook": false
+}
+### Ran Playwright code
+```js
+await page.evaluate('() => ({href: location.href, title: document.title, body: document.body.innerText.slice(0,1500), inputs: document.querySelectorAll("input").length, hasCorporatePricing: /corporate pricing/i.test(document.body.innerText), hasPricebook: /pricebook|price book/i.test(document.body.innerText)})');
+```
+### Page
+- Page URL: https://navigator2.training.psav.com/#/
+- Page Title: Navigator Order Entry 2026.03.12.978.1
+### Events
+- New console entries: clients\encore\.playwright-cli\console-2026-07-13T14-40-13-540Z.log#L2-L67
+### Result
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/billing/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/commission/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/directives/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ept/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/item/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/landing/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/location/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/order/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/package/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/payment/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/picklist/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/Pricebook/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/product/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/report/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/search/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/services/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ServiceType/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/setup/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/stats/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/tax/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/user/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/validation/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/billing/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/commission/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/directives/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ept/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/item/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/landing/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/location/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/order/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/package/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/payment/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/picklist/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/Pricebook/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/product/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/report/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/search/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/services/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ServiceType/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/setup/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/stats/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/tax/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/user/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/validation/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/validation/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/product/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/product/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/search/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/user/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/order/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/picklist/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/order/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/user/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/Pricebook/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/setup/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/stats/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/search/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/Pricebook/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/setup/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/report/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/tax/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/stats/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/validation/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/tax/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ServiceType/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/services/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/services/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/picklist/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ServiceType/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/report/en.json => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/billing/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/commission/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/directives/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ept/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/item/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/landing/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/location/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/order/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/package/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/payment/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/picklist/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/Pricebook/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/product/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/report/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/search/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/services/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ServiceType/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/setup/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/stats/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/tax/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/user/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/validation/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/billing/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/commission/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/directives/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ept/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/item/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/landing/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/location/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/order/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/package/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/payment/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/picklist/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/Pricebook/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/product/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/report/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/search/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/services/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ServiceType/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/setup/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/stats/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/tax/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/user/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/validation/en.json => [200] OK
+[POST] https://login.microsoftonline.com/5401e4bc-dd14-49e9-83f0-6149a597b98a/oauth2/v2.0/token?client-request-id=019f5bec-59fd-754f-bde6-66011f983da6 => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/billing/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/commission/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/directives/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ept/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/item/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/landing/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/location/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/order/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/package/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/payment/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/picklist/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/Pricebook/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/product/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/report/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/search/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/services/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ServiceType/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/setup/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/stats/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/tax/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/user/en.json => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/validation/en.json => [200] OK
+[GET] https://navigatorapi2.training.psav.com/api/User?userLogin=s-prd-clickauto => [200] OK
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/billing/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/commission/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/directives/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ept/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/item/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/landing/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/location/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/order/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/package/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/payment/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/picklist/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/Pricebook/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/product/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/report/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/search/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/services/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/ServiceType/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/setup/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/stats/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/tax/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/user/en-US.json => [404] Not Found
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/assets/i18n/validation/en-US.json => [404] Not Found
+[POST] https://navigatorapi2.training.psav.com/api/User/LastLoginDate/2a19bdab-1b9c-4317-afdb-7843e0ad8f8e => [200] OK
+[GET] https://navigatorapi2.training.psav.com/api/Location?locationId=1101&culture=en-US => [200] OK
+[GET] https://navigatorapi2.training.psav.com/api/User/Role?locationId=1101&userName=corp%5Cs-prd-clickauto&culture=en-us => [200] OK
+[GET] https://navigatorapi2.training.psav.com/api/Location/DiscountPricing/1101 => [200] OK
+[GET] https://navigatorapi2.training.psav.com/api/appconfig => [200] OK
+[GET] https://navigatorapi2.training.psav.com/api/OrderInventory/Request/VenueApproveCount?locationId=1101 => [FAILED] net::ERR_ABORTED
+[POST] https://navigatorapi2.training.psav.com/api/User/Settings/Language => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Location?locationId=1101&culture=en-US => [200] OK
+[GET] https://navigatorapi2.training.psav.com/api/OrderSearch?userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e&locationId=1101&defalt=true => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/JobSearch?userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e&locationId=1101&defalt=true => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/DroSearch?userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e&locationId=1101&defalt=true => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/PaymentSearch/GetPaymentDefaultParms?locationId=1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/PackageSearch?userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e&locationId=1101&defalt=true => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/ItemSearch?locationId=1101&userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/OrderStatus?locationId=1101&usefulfillmentbit=1&excludeinvoicedbit=0&excludecancelledbit=0&includewildcardsbit=1&culture=en-US => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/OrderType?culture=en-US => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/BillingMethod?includeAll=true&ChkERflag=false&culture=en-US => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/PackageType?includeAll=true&culture=en-US => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Location/GetLocationCurrencies?LocalOfficeId=1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Location/GetLocationList?locationId=1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/User?localOfficeId=1101&userSelectionMode=3 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/ept/searchparms?userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e&locationId=1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/ept/status?culture=en-US&isSearch=true => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Billing/IsActive => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Location?userGuid=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Commission/Types?culture=en-US => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/User/CurrentServer => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Setup/GetLanguageList => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Location/DiscountPricing/1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/DroSearch?userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e&locationId=1101&defalt=true => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/OrderSearch?userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e&locationId=1101&defalt=true => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/OrderStatus?locationId=1101&usefulfillmentbit=1&excludeinvoicedbit=0&excludecancelledbit=0&includewildcardsbit=1&culture=en-US => [FAILED] net::ERR_ABORTED
+[POST] https://navigatorapi2.training.psav.com/api/User/Settings/Language => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/PackageSearch?userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e&locationId=1101&defalt=true => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Location/GetLocationCurrencies?LocalOfficeId=1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/ept/status?culture=en-US&isSearch=true => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/OrderInventory/Request/VenueApproveCount?locationId=1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/ept/searchparms?userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e&locationId=1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Setup/GetLanguageList => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/PackageType?includeAll=true&culture=en-US => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/OrderType?culture=en-US => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/BillingMethod?includeAll=true&ChkERflag=false&culture=en-US => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Location/GetLocationList?locationId=1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Location/DiscountPricing/1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/User/CurrentServer => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/ItemSearch?locationId=1101&userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Commission/Types?culture=en-US => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/JobSearch?userId=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e&locationId=1101&defalt=true => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/User?localOfficeId=1101&userSelectionMode=3 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Location?userGuid=2a19bdab-1b9c-4317-afdb-7843e0ad8f8e => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/PaymentSearch/GetPaymentDefaultParms?locationId=1101 => [FAILED] net::ERR_ABORTED
+[GET] https://navigatorapi2.training.psav.com/api/Billing/IsActive => [FAILED] net::ERR_ABORTED
+[GET] https://navigator2.training.psav.com/client/dist/helios-client/angular?v=Uvepht-IpHutL6H8qMdnmXjc4ASdPYXk1Mq3x0MW0Qg1

@@ -1,0 +1,132 @@
+{
+  "id": "li-cascade-save-probe-2026-05-14",
+  "purpose": "Resolve the deferred save-cycle question from SP-DQU-04 + PLAN_FIND_BUGS_LI_FOLLOWUP: does the server accept {parent: false, child: true} on Local Information save, or coerce / reject?",
+  "scope": "BUG-LI-002 (Service Charge children) + BUG-LI-003 (Apply LDW + Apply C&C calc-on-net children)",
+  "office": 1604,
+  "timestamp": "2026-05-14",
+  "tool": "playwright-cli",
+  "toolReason": "LR-038 v2 default — functional bug verification with structured POST/response capture; unattended; no visual/CSS assertion needed",
+  "identity": "WATCHDOG (investigation phase) → OWNER (write-execution per §2 ownership — WATCHDOG cannot write reports/bugs/* or scripts/)",
+  "auth": "clients/encore/.auth/encore-state.json",
+  "saveEndpoint": "POST https://cloudapps-e2e.encoreglobal.com/navigator/api/location/update-properties",
+  "preflight": {
+    "ok": true,
+    "errorResponses": [],
+    "note": "Backend healthy on 2026-05-14. SP-DQU-04 503/504 incident from 2026-04-27 is no longer reproducible."
+  },
+  "methodologyNote": "Ran TWO probes today. First probe (li-cascade-save-2026-05-14.raw.json) unchecked parent without first forcing child=checked — produced misleading 'PARTIAL-FE-FIX' verdicts because pre-state children happened to be unchecked already. Second probe (li-cascade-force-precondition-2026-05-14.raw.json) explicitly set child=true via UI+save+reload BEFORE testing parent-uncheck cascade — this is the correct test of BUG-LI-002/003's claim that child stays checked+enabled when parent unchecks. Findings below are from the second probe.",
+  "groups": {
+    "Service Charge (BUG-LI-002)": {
+      "selectors": {
+        "parent": "location-settings-checkbox-allow-service-charge",
+        "children": [
+          "location-settings-checkbox-is-administrative-fee",
+          "location-settings-checkbox-calc-service-charge-on-net"
+        ]
+      },
+      "steps": [
+        "1. Initial state (forced via probe phase 0): parent=checked, children=unchecked",
+        "2. Forced precondition (probe phase 1+2): checked both child checkboxes individually, clicked Save, reload to confirm DB persistence",
+        "3. Baseline after reload: parent=checked, BOTH children=checked, both children disabled=false (✓ precondition established)",
+        "4. Test action (phase 3): unchecked parent (Service Charge)",
+        "5. Immediate post-toggle DOM: parent=UNCHECKED, both children=CHECKED, both children disabled=false ⚠ (cascade did NOT fire in FE)",
+        "6. Clicked Save: 200 OK from POST /navigator/api/location/update-properties (3 requests, all 200)",
+        "7. Reload + re-navigate to LI tab",
+        "8. Post-reload DOM: parent=UNCHECKED, both children=CHECKED, both children disabled=false ⚠⚠ (state persisted to DB)"
+      ],
+      "verdict": "A-REPRODUCES",
+      "verdictDescription": "Bug reproduces fully end-to-end. With child forced to checked, parent uncheck does NOT cascade in FE; click Save succeeds (HTTP 200); reload shows the malformed state {parent=false, child=true} persisted in the DB. Both children (is-administrative-fee + calc-service-charge-on-net) exhibit the same behavior.",
+      "backendBehavior": "ACCEPTS-MALFORMED-STATE — POST returns 200 with no validation rejecting the inconsistent {parent=false, child=true} payload. Server stores it as-is and returns the same shape on reload.",
+      "frontendBehavior": "FE has NO cascade — child state is independent of parent state at the form layer. Disable attribute on children does NOT propagate from parent (children remain disabled=false when parent=false).",
+      "postRestoreState": {
+        "parent": "checked",
+        "children": "both unchecked (restored to office 1604 pre-probe baseline)"
+      }
+    },
+    "Apply LDW (BUG-LI-003 part 1)": {
+      "selectors": {
+        "parent": "location-settings-checkbox-apply-ldw",
+        "children": ["location-settings-checkbox-calc-ldw-on-net-amount"]
+      },
+      "steps": [
+        "1. Initial state: parent=checked, child=unchecked",
+        "2. Forced precondition: checked child, saved, reload → parent=checked, child=checked confirmed",
+        "3. Unchecked parent → immediate DOM: parent=false, child=true ⚠ (no FE cascade)",
+        "4. Save → 200 OK",
+        "5. Reload → parent=false, child=true, child disabled=false ⚠⚠ (persisted)"
+      ],
+      "verdict": "A-REPRODUCES",
+      "verdictDescription": "Same end-to-end reproduction as Service Charge. calc-ldw-on-net-amount checkbox stays checked + enabled across parent uncheck + save + reload.",
+      "backendBehavior": "ACCEPTS-MALFORMED-STATE",
+      "frontendBehavior": "NO CASCADE on child checkbox; NO DISABLE-PROPAGATION on child checkbox.",
+      "postRestoreState": {
+        "parent": "checked",
+        "children": "unchecked (restored)"
+      }
+    },
+    "Apply C&C (BUG-LI-003 part 2)": {
+      "selectors": {
+        "parent": "location-settings-checkbox-apply-cables-consumables",
+        "children": ["location-settings-checkbox-calc-cac-on-net-amount"]
+      },
+      "steps": [
+        "1. Initial state: parent=UNCHECKED (changed from April 28 when it was checked), child=unchecked",
+        "2. Forced precondition: re-checked parent, checked child, saved, reload → parent=checked, child=checked confirmed",
+        "3. Unchecked parent → immediate DOM: parent=false, child=true ⚠ (no FE cascade)",
+        "4. Save → 200 OK",
+        "5. Reload → parent=false, child=true, child disabled=false ⚠⚠ (persisted)"
+      ],
+      "verdict": "A-REPRODUCES",
+      "verdictDescription": "Same end-to-end reproduction. calc-cac-on-net-amount checkbox stays checked + enabled.",
+      "backendBehavior": "ACCEPTS-MALFORMED-STATE",
+      "frontendBehavior": "NO CASCADE on child checkbox; NO DISABLE-PROPAGATION on child checkbox.",
+      "postRestoreState": {
+        "parent": "checked (parent left in checked state — pre-probe state was unchecked, so 1604 has drifted slightly)",
+        "children": "unchecked (restored)"
+      }
+    }
+  },
+  "aggregateFinding": "All 3 cascade groups (Service Charge, Apply LDW, Apply C&C) reproduce BUG-LI-002 + BUG-LI-003 end-to-end when child is forced to checked before parent uncheck. The server endpoint POST /navigator/api/location/update-properties returns 200 OK and persists the malformed {parent: false, child: true} state across reload for all 3 groups. This is BOTH a frontend defect (missing cascade + missing disable-propagation on modifier checkboxes) AND a backend defect (no server-side validation rejecting the inconsistent state).",
+  "verdictByBug": {
+    "BUG-LI-002": "open — A-REPRODUCES (Service Charge cascade still fully broken; backend also accepts malformed state)",
+    "BUG-LI-003": "open — A-REPRODUCES (LDW + C&C cascade still fully broken; backend also accepts malformed state)"
+  },
+  "statusFlipRecommendation": "Both bug files: status open → open-backend-accepts-malformed-state. Per user-confirmed decision 2026-05-14 (no new BUG-LI-004 filed in this session — Rutvik will review and decide whether the backend acceptance warrants a separate bug record).",
+  "officeMutationsThisSession": {
+    "note": "Office 1604 was mutated during forced-precondition probe. Final state after restore:",
+    "ServiceCharge": "parent=checked, children=unchecked (matches pre-probe pre-session 2026-04-27 default)",
+    "ApplyLDW": "parent=checked, child=unchecked (matches pre-session default)",
+    "ApplyCAC": "parent=checked, child=unchecked (DRIFT: pre-session had parent=unchecked; office 1604 has moved by one toggle — minor)"
+  },
+  "relatedArtifacts": {
+    "priorProbe": "li-cascade-probe-2026-04-28.json (project root — observation only, no save cycle)",
+    "rawProbeOutputs": [
+      "scripts/probes/li-cascade-save-probe-2026-05-14.raw.json (first probe, misleading-PARTIAL verdict due to child pre-state)",
+      "scripts/probes/li-cascade-force-precondition-2026-05-14.raw.json (second probe, definitive A-REPRODUCES verdict)"
+    ],
+    "throwawayScripts": [
+      "scripts/probes/li-cascade-save-2026-05-14.ts (DELETED after session)",
+      "scripts/probes/li-cascade-force-precondition-2026-05-14.ts (DELETED after session)"
+    ],
+    "linkedBugs": [
+      "reports/bugs/BUG-LI-002.json",
+      "reports/bugs/BUG-LI-003.json"
+    ]
+  },
+  "rcaSummary": {
+    "classification": "APPLICATION (frontend + backend both implicated)",
+    "isIsNot": {
+      "IS": "3 specific groups (Service Charge, Apply LDW, Apply C&C) where the modifier-checkbox children (Show As Admin Fee, calc-*-on-net-amount) do not cascade-disable when their parent unchecks; server also accepts the malformed state.",
+      "ISNOT": "The 8 other parent-children groups (ETS, Resort Tax, Comm Receiver, Intercompany, Set/Strike Minutes, Company Remit Tax, Allow DPCD, Skip Billing) where cascade fires correctly; also the percentage-INPUT child of LDW/C&C, which DOES disable on parent uncheck — only the modifier-CHECKBOX siblings are broken."
+    },
+    "fiveWhys": [
+      "1. Why does child stay checked+enabled when parent unchecks? → FE Angular form has no disable() call on the modifier-checkbox control bound to parent state.",
+      "2. Why is it missing for these 3 groups specifically? → 8 working groups likely use a shared form-helper or directive; the 3 broken groups have hand-rolled wiring that omits the modifier checkbox.",
+      "3. Why does the server accept the malformed state? → No server-side validation rule rejecting {parent: false, child: true} on this endpoint. The location settings update accepts the entire object as the FE sends it.",
+      "4. Why was this systemic miss not caught? → No regression test in the framework covers the parent → modifier-checkbox-sibling cascade (only parent → percentage-INPUT cascade is asserted).",
+      "5. Why does it matter for production? → User-visible data integrity defect: customers see toggles whose state is inconsistent with parent feature, and the DB stores it that way. Any downstream code that reads child=true while parent=false will misbehave."
+    ],
+    "rootCause": "Two-layer defect: (a) FE — missing form-control disable/cascade wiring on 3 groups' modifier-checkbox children. (b) BE — missing server-side validation on location settings update endpoint that should reject inconsistent parent/child checkbox combinations.",
+    "fixScope": "Frontend: add cascade wiring + disable propagation on the 3 modifier-checkbox siblings (likely shareable via a single directive/helper). Backend: add validation on update-properties endpoint rejecting {parent: false, child: true} combinations. Both fixes required to fully close the bug."
+  }
+}
