@@ -235,6 +235,10 @@ clients/*/scripts/_*.ts
 .playwright-cli/*.xlsx
 
 # Playwright CLI scratch probe scripts + session yaml/json dumps (debug-only, never tracked)
+# 2026-08-12: hand-named sign-in snapshots (signin.yml, mslogin.yml, after-*.yml) fell through
+# the page-*.yml pattern above — they carry automation account name + MS login-context blobs.
+# Closing the gap: ignore all .yml files in this directory.
+.playwright-cli/*.yml
 .playwright-cli/*.js
 .playwright-cli/eq-*.json
 .playwright-cli/regguard/
