@@ -66,12 +66,14 @@ const OOS_CITATION_RX = [
 // rejected. The fabrication this gate prevents is exactly the corp-pricing miss: a control dispositioned
 // affordance-probed / read-only-verified by reading the spec instead of live-clicking it.
 const OBSERVATION_DISPOSITIONS = ['affordance-probed', 'read-only-verified'];
-const ALL_DISPOSITIONS = ['covered-by-TC', 'affordance-probed', 'read-only-verified', 'out-of-scope', 'DIFFERENTIAL-DATA-REQUIRED'];
+const ALL_DISPOSITIONS = ['covered-by-TC', 'affordance-probed', 'read-only-verified', 'out-of-scope', 'DIFFERENTIAL-DATA-REQUIRED', 'deferred-to-DEEP'];
 
 export function parseCoverageSignals(text) {
   const t = text || '';
   // Tolerate optional **bold** wrappers on frontmatter keys (real artifacts use both forms — SA-2).
   const mcpDate = (t.match(/(?:\*\*)?MCP_Session_Date(?:\*\*)?\s*:\s*(\d{4}-\d{2}-\d{2})/i) || [])[1] || '';
+  const walkModeM = t.match(/(?:\*\*)?Walk_Mode(?:\*\*)?\s*:\s*(quick|deep)\b/i);
+  const walkMode = walkModeM ? walkModeM[1].toLowerCase() : 'deep';
   const hasManifest = /^#{2,3}\s+Coverage Manifest/im.test(t) || /(?:\*\*)?Coverage_Ratio(?:\*\*)?\s*:/i.test(t);
 
   const ratioM = t.match(/(?:\*\*)?Coverage_Ratio(?:\*\*)?\s*:\s*(\d+)\s*\/\s*(\d+)/i);
@@ -94,7 +96,7 @@ export function parseCoverageSignals(text) {
 
   const completionRef = (t.match(/(?:\*\*)?Completion_Record(?:\*\*)?\s*:\s*([^\n]+)/i) || [])[1]?.trim() || '';
   const hasCompletionRecord = !!completionRef;
-  return { mcpDate, hasManifest, ratio, ratioComplete, crossCheck, crossCheckClean, partial, undispositioned, manifestRows, completionRef, hasCompletionRecord };
+  return { mcpDate, hasManifest, ratio, ratioComplete, crossCheck, crossCheckClean, partial, undispositioned, manifestRows, completionRef, hasCompletionRecord, walkMode };
 }
 
 // Parse the Coverage Manifest table rows. Each row is a markdown table line whose cells carry a
@@ -306,6 +308,10 @@ export function isSubjectToMandate(artifactPath, signals, mandatoryDate = MANIFE
 // but it exposed a real hole, because nothing here ever checked that a derived type agrees with the
 // DOM the enumerator actually observed.
 //
+// 2026-08-07 (PLAN_COVERAGE_TIER_CONTRACT): Coverage_Ratio is RE-PROMOTED to blocking — deferred-to-DEEP
+// rows (LR-072, Walk_Mode: quick) now count as dispositioned, so the ratio measures honest scope instead
+// of a number nobody consumes. Type-binding (below) remains blocking in its own right.
+//
 // Deliberately conservative: a contradiction is reported only when BOTH sides resolve to a definite
 // control family. Unrecognized evidence or an unmapped type is skipped and counted, never guessed —
 // a false FAIL here would block every walk, which is a worse outcome than the hole it closes.
@@ -394,15 +400,33 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
   }
   const reasons = [];
   const warnings = [];
-  // Coverage_Ratio — demoted to non-blocking warning (Phase 1 item 6). The type-binding check
-  // is the real structural gate; ratio is supporting evidence only.
   const coverageRatioSignal = !s.ratioComplete
     ? `Coverage_Ratio not 100% (${s.ratio ? (s.ratio.n + '/' + s.ratio.m) : 'missing/unparseable'})`
     : null;
-  if (!s.ratioComplete) warnings.push(coverageRatioSignal);
+  if (!s.ratioComplete) reasons.push(coverageRatioSignal);
   if (!s.crossCheckClean) reasons.push(`CrossCheck != clean ("${s.crossCheck || 'missing'}")`);
   if (s.partial) reasons.push('coverageScope: PARTIAL present');
   if (s.undispositioned > 0) reasons.push(`${s.undispositioned} undispositioned manifest row(s)`);
+
+  // Tier-aware deferral check (PLAN_COVERAGE_TIER_CONTRACT Phase 3.1):
+  // deferred-to-DEEP is a valid disposition ONLY when Walk_Mode: quick.
+  // In deep or absent mode, deferral rows are not accepted — they are not a valid terminal disposition.
+  const deferredRows = (s.manifestRows || []).filter(r => r.disposition === 'deferred-to-DEEP');
+  if (deferredRows.length > 0 && s.walkMode !== 'quick') {
+    for (const row of deferredRows) {
+      reasons.push(`row "${row.controlRef || '(unlabeled)'}": deferred-to-DEEP is only valid when Walk_Mode: quick (artifact Walk_Mode: ${s.walkMode})`);
+    }
+  }
+  // G4 format check: deferred-to-DEEP token must carry non-empty launcher/element id AND reason ≥20 chars.
+  // Grammar: deferred-to-DEEP: <id> (<reason ≥20 chars>)
+  for (const row of deferredRows) {
+    const m = row.raw.match(/deferred-to-DEEP\s*:\s*(\S+)\s+\(([^)]*)\)/i);
+    if (!m || !m[1] || m[1].trim().length === 0) {
+      reasons.push(`row "${row.controlRef || '(unlabeled)'}": deferred-to-DEEP missing launcher/element id (grammar: deferred-to-DEEP: <id> (<reason ≥20 chars>))`);
+    } else if (!m[2] || m[2].trim().length < 20) {
+      reasons.push(`row "${row.controlRef || '(unlabeled)'}": deferred-to-DEEP reason <20 chars (grammar: deferred-to-DEEP: <id> (<reason ≥20 chars>))`);
+    }
+  }
 
   // === Provenance sub-gate (SUBPLAN_CGS_B) — only for artifacts on/after PROVENANCE_GATE_LANDING_DATE ===
   let provenanceFail = false;
@@ -461,8 +485,10 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
   }
 
   // Type binding — blocking, and deliberately NOT ramp-gated. This is not a new policy gate whose
-  // false-positive rate is unknown; it restores an enforcement property the tree had until
-  // Coverage_Ratio was demoted. A machine that contradicts its own observation is never acceptable.
+  // false-positive rate is unknown; it restored an enforcement property the tree lost while
+  // Coverage_Ratio was demoted (2026-07-23 → 2026-08-07; PLAN_COVERAGE_TIER_CONTRACT has since
+  // re-promoted the ratio to blocking — both checks now block independently). A machine that
+  // contradicts its own observation is never acceptable.
   const derivedTypes = opts.derivedTypes !== undefined ? opts.derivedTypes : loadDerivedTypes(s.completionRef);
   const typeBinding = derivedTypes ? checkTypeBinding(derivedTypes) : { reasons: [], checked: 0, skipped: [] };
   reasons.push(...typeBinding.reasons);
@@ -499,7 +525,7 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
     if (!r.pass) reasons.push(...r.reasons);
   }
 
-  return { applicable: true, complete: reasons.length === 0, reasons, warnings, provenanceFail, signals: s, depthGate: depthGateResults, depthGateReasons, coverageRatioSignal, typeBinding };
+  return { applicable: true, complete: reasons.length === 0, reasons, warnings, provenanceFail, signals: s, walkMode: s.walkMode, depthGate: depthGateResults, depthGateReasons, coverageRatioSignal, typeBinding };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -247,7 +247,7 @@ export function findLatestArtifact({ repoRoot, client, module: moduleName, today
 
     const ageDays = daysBetween(sessionDate, today);
     const fresh = ageDays >= 0 && ageDays <= freshnessDays;
-    const candidate = { file: f, filenameDate, sessionDate, ageDays, fresh };
+    const candidate = { file: f, filenameDate, sessionDate, ageDays, fresh, walkMode: (content.match(/^\*\*Walk_Mode\*\*:\s*(\S+)/m) || [])[1] || 'deep' };
     if (!best || sessionDate > best.sessionDate) best = candidate;
   }
   return best;
@@ -317,19 +317,24 @@ export function evaluate({ repoRoot, files, today, freshnessDays = FRESHNESS_DAY
       continue;
     }
     if (!artifact.fresh) {
-      violations.push({
-        path: f.path,
-        reason: 'stale-artifact',
-        detail: {
-          client,
-          module: moduleName,
-          artifact: artifact.file,
-          sessionDate: artifact.sessionDate,
-          ageDays: artifact.ageDays,
-          freshnessDays,
-        },
-      });
-      continue;
+      // Extend freshness window to 30 days for quick-mode artifacts (Walk_Mode: quick).
+      const effectiveDays = (artifact.walkMode === 'quick') ? 30 : freshnessDays;
+      const effectivelyFresh = artifact.ageDays >= 0 && artifact.ageDays <= effectiveDays;
+      if (!effectivelyFresh) {
+        violations.push({
+          path: f.path,
+          reason: 'stale-artifact',
+          detail: {
+            client,
+            module: moduleName,
+            artifact: artifact.file,
+            sessionDate: artifact.sessionDate,
+            ageDays: artifact.ageDays,
+            freshnessDays: effectiveDays,
+          },
+        });
+        continue;
+      }
     }
   }
   return { ok: violations.length === 0, violations };

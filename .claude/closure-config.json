@@ -22,5 +22,12 @@
   "_test_status_provenance": "Lands in 'announce' (per the subplan's all-guards-announce mandate) so the re-walk + remediation run under the oracle without retroactively blocking in-flight work. Ramp to 'deny' is Subplan D's job — only AFTER the guard is negative-tested against its original miss (the 10 red TC-CPR-TIO toolbar tests deferred to a task chip).",
   "test_status_ramp_started": "2026-06-23",
   "test_status_ramp_target": "deny",
-  "test_status_ramp_complete": false
+  "test_status_ramp_complete": false,
+
+  "coverage_tier_mode": "announce",
+  "_coverage_tier_comment": "Rollout knob for the tier-aware deferral acceptance check inside Cx (PLAN_COVERAGE_TIER_CONTRACT Phase 3). Controls whether a deep plan citing a quick-mode artifact, or deferral rows in a deep-plan artifact, are treated as blocking failures. off = not computed; announce = computed + reported but verdict-neutral (warn-only); deny = folded into the verdict (blocks Status: DONE). Read by scripts/validate-plan-closure.mjs resolveCoverageTierMode(); --coverage-tier-mode=<x> CLI flag overrides per-invocation.",
+  "coverage_tier_ramp_started": "2026-08-07",
+  "coverage_tier_ramp_target": "deny",
+  "coverage_tier_ramp_complete": false,
+  "coverage_tier_ramp_note": "Promote coverage_tier_mode to 'deny' after >= 5 clean plan closures with zero false positives in announce mode. Record ramp_flipped date and set coverage_tier_ramp_complete to true on flip."
 }

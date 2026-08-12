@@ -137,6 +137,16 @@ Every bug you find is a **pattern**, not just an instance. This step is the diff
 
 5. **Store new patterns** — add significant new patterns to `clients/${ACTIVE_CLIENT}/specs_planning/_internal/agent-mistakes.md` so future agents learn from them too.
 
+## CoverageMode:quick Walk Phase Behavior
+
+When `/find-bugs` is invoked inside a `CoverageMode: quick` walk phase (i.e., the calling subplan declares `**CoverageMode**: quick`), the following scoped posture applies — per §20-Q (`.claude/rules/inventory.md` LR-072) and §20 of `docs/read_only_docs/AGENT_SHARED_RULES.md`:
+
+- **`## Observations` (ALL-045) stays mandatory** — record everything seen during the walk; an explicit `none` is allowed but must be honest.
+- **Full SFDPOT category sweep is NOT forced** — the six categories (S/F/D/P/O/T) are available heuristics, not a required exhaustive checklist.
+- **Pattern sweep (Step 5) fires on CRITICAL/HIGH severity finds only** — a CRITICAL or HIGH bug triggers a codebase-wide sweep for the same pattern; LOW/MEDIUM bugs get the pattern logged but skip the sweep.
+
+This posture does NOT reduce rigor on claimed rows — any bug you confirm and report carries the same evidence standard regardless of tier. The quick mode narrows the mandatory sweep scope; it never cheapens a confirmed finding.
+
 ## Auto-Calls
 
 None — this is a standalone skill. It finds bugs. Other skills fix them.

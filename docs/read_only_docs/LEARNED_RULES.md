@@ -270,3 +270,5 @@ Before any agent or skill declares **"unknown / UNCERTAIN / REQUIREMENT-GAP / BA
 
 **Trigger**: every REQUIREMENT-GAP / BASELINE-ABSENT / UNCERTAIN classification; every new-module intake; every `/encore-questions` batch; LR-034 Step 1 "no documented requirement"; any point an agent is about to escalate to the user.
 **Graduated from**: 2026-06-22 — Rovo connected but unreferenced (caught during Products planning); landed as PLAN_SELF_HELP_RESEARCH_MANDATE. Cross-refs LR-ENC-004, LR-034, LR-045, ALL-024, `feedback_self_first_research.md`, AGENT_SHARED_RULES §14.
+
+## LR-072: CoverageMode contract — coverage-bearing subplans declare `quick | deep`; deferral token `deferred-to-DEEP` accepted only under `quick`; absent field = `deep` default. Full body: `.claude/rules/inventory.md`.
