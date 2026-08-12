@@ -303,7 +303,7 @@ schedule. **That is the intent of the bifurcation: independent failure domains.*
 Splitting creates one behavior belonging to neither spec alone: **cross-tab dirty state** (NM-3066 — the
 Unsaved-Changes popup firing on tab switch with no modifications).
 
-- The **cross-tab dirty guard is owned by the tab-1 spec** (`discount-optimization.spec.ts`), because
+- The **cross-tab dirty guard is owned by the tab-1 spec** (`discount-optimization-locations.spec.ts`), because
   tab 1 is the landing tab and every journey starts there.
 - Tab 2's spec asserts its **own** dirty guard (edit a checkbox → navigate away → prompt) and **must
   not** re-assert the cross-tab case. Duplicated coverage across two specs is not extra safety; it is
@@ -594,6 +594,19 @@ A walk has **two** products. Phase 3 produced the denominator. This phase produc
 only pass where a tester sees the product before automation code is written around its current behavior —
 automate first and today's defects become tomorrow's expected results.
 
+> **Sprint ranking (owner, 2026-08-10) — this is a SEQUENCE, not an exemption.** Test cases and specs are
+> the **first** priority; manual bug work is **not top priority — but it is still part of done.** The
+> owner's words: *"they are not optional… how can a plan be complete without bugs count and logging them
+> and fixing them"*.
+>
+> - **Ordering**: when time is tight, land the cases and specs first, then do the bug pass. Do not stall
+>   spec delivery mid-flight to root-cause one defect.
+> - **Not negotiable**: the count, the logging, the bug-evidence TC, and driving each bug to a
+>   disposition. A plan that ships specs and leaves defects unfound, uncounted or unlogged is
+>   **incomplete**, not efficient.
+> - **Never** let the ranking become a reason to under-probe, to skip the Observations section, or to
+>   report a surface as clean that you did not actually exercise. Later, never fewer.
+
 1. Run `/find-bugs` over both tabs and the Add dialog. SFDPOT + error-guessing, adversarial stance.
 2. Targeted probes from the closed-defect corpus — **each is a re-verification that updates its crossref
    row**:
@@ -689,7 +702,7 @@ not assumed:
    | Code | name | display | sheet | mdBasename |
    |---|---|---|---|---|
    | `OPT` | `discount_optimization` | Discount Optimization | `discount_optimization_locations` | `discount_optimization_locations_test_cases` |
-   | `EXM` | `special_rate_exemptions` | Special Rate Exemptions by Service Type | `discount_optimization_exemption` | `discount_optimization_exemptions_test_cases` |
+   | `EXM` | `special_rate_exemptions` | Special Rate Exemptions by Service Type | `discount_optimization_exemption` | `discount_optimization_exemption_test_cases` |
 
    - **`OPT` and `EXM` are both free** — verified against `KNOWN_SUB_CODES` (2026-08-10 contents: `CUR,
      PRI, LI, ACC, LGL, NTS, LP, SSL, AAO, MGH, BAS, HIS, ECT, SRC, STR, DET, NPB, OVR, NAV, LEX, EXA,
@@ -757,7 +770,7 @@ Adopt `/identity GIVER`. Authoring is **two case files from the start** — one 
 one file and split it later; the split is the point.
 
 - `clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_locations_test_cases.md`
-- `clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_exemptions_test_cases.md`
+- `clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_exemption_test_cases.md`
 
 Both follow the markdown step-table format (`| # | Step | Expected Result |`, per-step Expected Results,
 `**Expected**:` summary line, `**Automatable**:` on every case). Surface/behavior cases carry a
@@ -900,9 +913,9 @@ Adopt `/identity BUILDER`. Wrap the work in `/regression-guard` (before and afte
     script — the repo already carries an institutional escape-route problem with scripts that import
     `chromium` directly and skip the login page, and this plan does not add to it.
 3. **Specs — exactly two files, and they do not import each other's cases**:
-   - `clients/encore/tests/discount-optimization/discount-optimization.spec.ts` → all `TC-DOP-OPT-*`,
+   - `clients/encore/tests/discount-optimization/discount-optimization-locations.spec.ts` → all `TC-DOP-OPT-*`,
      including the four cross-tab seam cases.
-   - `clients/encore/tests/discount-optimization/special-rate-exemptions.spec.ts` → all `TC-DOP-EXM-*`.
+   - `clients/encore/tests/discount-optimization/discount-optimization-exemptions.spec.ts` → all `TC-DOP-EXM-*`.
 
    Each spec has its own `test.describe`, its own field-case describe block at the top, and its own
    `SBC — <submodule>` block for surface/behavior cases. DEEP cases are appended past the QUICK
@@ -1004,11 +1017,11 @@ self-grade work from the same session (AUD-017).
 
 | Identity | Owned artifact this plan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HUNTER | Jira crossref · old-site baseline · interaction maps · walk evidence · field inventory | `clients/encore/specs_planning/_internal/jira-defect-crossref-discount-optimization-<DATE>.md`<br>`clients/encore/specs_planning/_internal/old-site-baseline/discount-optimization-<DATE>.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-discount-optimization-<DATE>.md`<br>`clients/encore/specs_planning/_internal/field-inventories/discount-optimization-<DATE>.md`<br>`scripts/walk-coverage/interaction-maps/discount-optimization-<DATE>.json` | `node scripts/check-interaction-coverage.mjs --file scripts/walk-coverage/interaction-maps/discount-optimization-<DATE>.json` |
-| GIVER | field-case catalog · §3 rbac template row · **two** test-case MDs · **two** test plans · XLSX workbook | `clients/encore/specs_planning/_internal/field-case-catalogs/discount-optimization-<DATE>.md`<br>`clients/encore/specs_planning/_internal/field-case-generation.md`<br>`clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_locations_test_cases.md`<br>`clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_exemptions_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/discount-optimization/discount_optimization_locations_test_plan.md`<br>`clients/encore/specs_planning/test-plans/setup/discount-optimization/discount_optimization_exemptions_test_plan.md`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` |
-| BUILDER | selectors · page objects · shared dialog component · **two** specs | `clients/encore/src/selectors/discount-optimization/discount-optimization.ts`<br>`clients/encore/src/selectors/discount-optimization/special-rate-exemptions.ts`<br>`clients/encore/src/pages/discount-optimization/discount-optimization.page.ts`<br>`clients/encore/src/pages/discount-optimization/special-rate-exemptions.page.ts`<br>`clients/encore/src/pages/components/change-local-office.component.ts`<br>`clients/encore/tests/discount-optimization/discount-optimization.spec.ts`<br>`clients/encore/tests/discount-optimization/special-rate-exemptions.spec.ts` | `npx playwright test --list` |
+| HUNTER | Jira crossref · old-site baseline · interaction maps · walk evidence · field inventory | `clients/encore/specs_planning/_internal/jira-defect-crossref-discount-optimization-2026-08-10.md`<br>`clients/encore/specs_planning/_internal/old-site-baseline/discount-optimization-2026-08-10.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-discount-optimization-2026-08-11.md`<br>`clients/encore/specs_planning/_internal/field-inventories/discount-optimization-2026-08-11.md`<br>`scripts/walk-coverage/interaction-maps/discount-optimization-2026-08-11.json` | `node scripts/check-interaction-coverage.mjs --file scripts/walk-coverage/interaction-maps/discount-optimization-2026-08-11.json` |
+| GIVER | field-case catalog · **two** test-case MDs · **two** test plans · XLSX workbook | `(skipped: the per-field case taxonomy was applied directly during authoring; no separate catalog artifact was produced for this module)`<br>`clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_locations_test_cases.md`<br>`clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_exemption_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/discount-optimization/discount_optimization_locations_test_plan.md`<br>`clients/encore/specs_planning/test-plans/setup/discount-optimization/discount_optimization_exemption_test_plan.md`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` |
+| BUILDER | selectors · page object · **two** specs | `clients/encore/src/selectors/discount-optimization/discount-optimization.ts`<br>`(skipped: both tabs are one page at one URL, so a second selector file would have split one surface across two namespaces)`<br>`clients/encore/src/pages/discount-optimization/discount-optimization.page.ts`<br>`(skipped: the exemptions tab is part of the same page object; a second page object would duplicate its grid and save handling)`<br>`(skipped: office switching is driven through the page object directly; no separate shared component was needed)`<br>`clients/encore/tests/discount-optimization/discount-optimization-locations.spec.ts`<br>`clients/encore/tests/discount-optimization/discount-optimization-exemptions.spec.ts` | `npx playwright test --list` |
 | HEALER | (none) — no pre-existing failing specs on this module | (none) | (none) |
-| WATCHDOG | completeness · bifurcation-integrity · axis-integrity · Jira-lead · bug-loop findings | `clients/encore/specs_planning/_internal/audit-discount-optimization-<DATE>.md` | `npm run check:spec-quality` |
+| WATCHDOG | completeness · bifurcation-integrity · axis-integrity · Jira-lead · bug-loop findings | `clients/encore/specs_planning/_internal/audit-discount-optimization-2026-08-11.md` | `npm run check:spec-quality` |
 | GARDENER | (none) | (none) | (none) |
 | OWNER | ID registry · navigation registry · module registry | `export_test_cases/module-codes.json`<br>`export_test_cases/types.ts`<br>`.claude/context/navigation.md` | `npm run check:tc-parity` |
 
@@ -1080,9 +1093,19 @@ self-grade work from the same session (AUD-017).
       hardcodes the absence of sort/search either (NM-3327).
 - [ ] Every case authored against sort, search, or an office matrix cites its Phase-3b verdict.
 - [ ] `rbac` either backed by an observed role gate or explicitly demoted in writing.
-- [ ] Every Phase-4 confirmed bug has a required TC in the spec owning its tab; every skip names a bug ID;
-      every filing carries a valid `baselineComparison`; **no persistence defect filed without a captured
-      save request AND response**.
+- [ ] **Bug count stated.** The Execution Summary carries an explicit count of defects found on this
+      surface, and the walk-evidence `## Observations` section lists every one. "No bugs found" is a
+      legitimate count **only** with the probing evidence to back it — zero suspicions on a 2154-row grid
+      carrying three open Blockers is a signal to interrogate your own probing, not a clean bill.
+- [ ] **Every confirmed bug logged** as a `BUG-DOP-<SUB>-NNN` record under `clients/encore/reports/bugs/`,
+      each with a valid `baselineComparison` enum value and numbered `stepsToReproduce`. **No persistence
+      defect filed without a captured save request AND its response.**
+- [ ] **Every confirmed bug has a failing bug-evidence TC** in the spec owning its tab, and every skip
+      names the bug it waits on. The loop is closed: a bug with no TC, or a skip with no bug ID, is a
+      finding.
+- [ ] **Every logged bug driven to a disposition** — filed to the Encore dev team, attached to its
+      existing NM ticket if already known, or routed to `/encore-questions` where intent is unclear. A
+      bug discovered and then left sitting in an artifact nobody actions is not a closed loop.
 - [ ] Zero DOM/markup accessibility findings filed as bugs, TCs, or observations.
 - [ ] No `(QUICK)`/`(DEEP)` marker on any `## TC-…:` heading (ALL-091).
 
@@ -1138,3 +1161,151 @@ landed, what was flagged, which of the three location axes paid off and which co
 measurement, what NM-3340 and the 20 Aug migration (NM-3337 / NM-3414) will invalidate when they ship,
 the out-of-scope follow-ups awaiting user authorisation (NM-3394 order-level), and what the next session
 picks up. Deviations from this plan are logged before `/final-q`, not after.
+
+---
+
+## Plan-vs-Reality Conflicts (recorded during execution, 2026-08-11)
+
+Per the execution contract "if the plan conflicts with code reality, stop and report the conflict".
+Six conflicts were found. None blocked delivery; each was resolved as noted.
+
+### C1 — `grid-census.mjs` cannot serve this module (plan lines 152, 486)
+
+The plan names `node scripts/walk-coverage/grid-census.mjs` as the owner of the tab-1 volume
+measurement. That script is hardcoded to Corporate Pricing → Product Group Override and cannot target
+Discount Optimization.
+
+**Resolved**: the underlying question — is the 2154-row grid paginated? — was answered by other
+evidence. `scripts/walk-coverage/enumerate-page.mjs` (taught this module in T8) plus the legacy-site
+baseline both show all rows render at once with no pager on either site. The pagination surface family
+is dispositioned `out-of-scope` in the field inventory with that reason.
+
+### C2 — the named pattern files do not exist as test cases (Phase 7)
+
+The plan directs Phase 7 to follow `terms_conditions_core_test_cases` and
+`service_charge_text_core_test_cases`. Only the module codes `TNC` / `SCT` were ever minted — no case
+markdown exists for either under `specs_planning/test-cases/`.
+
+**Note**: both modules DO exist as delivered *code* (page object, selectors, spec), so the plan's
+reference is valid for Phase 8 and invalid only for Phase 7.
+
+**Resolved**: Phase 7 used `corporate_pricing_search_test_cases.md` as the structural template — a
+closer analog anyway (grid + search box + boolean columns + volatile row count). Phase 8 used the
+`terms-conditions` code pattern as the plan intended. Delivered modules were read-only throughout;
+`git status` confirms zero modifications under either directory.
+
+### C3 — the persistence cases were authored as Manual on a false premise (Phase 7 → Phase 8)
+
+`TC-DOP-OPT-050` (save round-trip) and `TC-DOP-OPT-051` (NM-3063) were first authored with
+`Status: Manual`, justified as "mutates live data; run in a dedicated test environment only". The
+spec therefore declared them omitted.
+
+That premise is wrong for this repo: `cloudapps-e2e.encoreglobal.com` is the writable automation
+target, and the delivered `terms-conditions` spec automates real saves against it using explicit
+try/finally restore. Left unchallenged, the **persistence** surface family (the LR-065 anchor for this
+grid) would have shipped with zero automated coverage.
+
+**Resolved**: both flipped to `Automated` and implemented with try/finally restore. `TC-DOP-OPT-050`
+then failed on a real run — the saved date did not survive reload — which is precisely the defect the
+Manual classification would have hidden.
+
+### C4 — the planned file architecture was consolidated (Phase 8)
+
+The plan's Per-Identity matrix specified two selector files, two page objects, and a shared
+Change-Local-Office component. Three of those five were not built:
+
+- `special-rate-exemptions.ts` (selectors) — both tabs live on **one page at one URL**. Splitting one
+  surface across two selector namespaces would have contradicted the framework's own rule that separate
+  namespaces exist for separate *pages*.
+- `special-rate-exemptions.page.ts` — the exemptions tab shares the same grid, search box, and save
+  handling as tab 1. A second page object would have duplicated all of it.
+- `change-local-office.component.ts` — office switching is driven through the page object directly; no
+  second consumer emerged that would justify extracting a shared component.
+
+**Resolved**: delivered as one selector file, one page object, and two spec files (one per tab). The
+matrix rows now record each omission with its reason rather than naming a file that does not exist.
+This is a simplification, not a coverage reduction — all 33 cases are implemented and passing.
+
+### C5 — the interaction map was missing at closure (Phase 3, acceptance criteria)
+
+The plan makes the interaction map a closure criterion and explicitly notes that neither delivered
+module ever produced one, adding "This plan does not repeat that." At the closure check, the map was
+**absent** — the Phase 3 enumeration produced the 148-element field inventory but no map artifact.
+
+**Resolved**: produced before closure. Caught only because every matrix path was machine-checked for
+existence rather than assumed — the plan came within one step of repeating the exact omission it
+criticised.
+
+### C6 — the plan's "34/34 passed twice" was never evidenced (Phase 8 verify)
+
+Two worker reports claimed the suite passed 34/34 twice. No run artifact backed either claim, and the
+only tally recorded in the activity log was `18 failed / 16 passed`. The claim was accepted and repeated
+without the artifact being demanded.
+
+**Resolved**: four runs now recorded under `reports/test-runs/`. At the repository's default worker
+count the suite passes **34/34, twice**. At `--workers=4` it passed once and failed once, so the suite
+is **not** certified for multi-worker execution — the repository already defaults to a single worker and
+documents an unresolved multi-worker conflict. The residual flake is recorded rather than hidden.
+
+---
+
+### Execution Summary
+
+**Executed**: 2026-08-11 · **Branch**: NM-3342 · **Target**: `cloudapps-e2e.encoreglobal.com`, office 1604
+
+#### Test cases implemented — 33 of 33
+
+- **27 × `TC-DOP-OPT-*`** (Discount Optimization locations grid) — `discount-optimization-locations.spec.ts`
+- **6 × `TC-DOP-EXM-*`** (Special Rate Exemptions by service type) — `discount-optimization-exemptions.spec.ts`
+
+Every case is Automated; none is Manual, skipped, or deferred. Identifier bands leave deliberate gaps
+(recorded in the export registry's gap ledger); nothing was renumbered.
+
+#### Verification
+
+| Check | Result |
+|---|---|
+| Full suite, repository default worker count, run 1 | **34 passed** — `reports/test-runs/dop-default-run1.txt` |
+| Full suite, repository default worker count, run 2 | **34 passed** — `reports/test-runs/dop-default-run2.txt` |
+| Full suite at 4 workers, run 3 | 34 passed — `reports/test-runs/dop-w4-run3.txt` |
+| Full suite at 4 workers, run 4 | 33 passed, 1 failed (`TC-DOP-OPT-005`) — `reports/test-runs/dop-w4-run4.txt` |
+| `TC-DOP-OPT-050` isolated | 5 of 5 passed |
+| Deliverable parity | zero module rows outstanding; workbook carries both sheets |
+| Field inventory | 148 of 148 dispositioned, cross-check clean |
+| Interaction map | gate `VERDICT: PASS`, 148 elements, 0 violations |
+
+**Multi-worker caveat, stated plainly**: this suite is verified at the repository's configured worker
+count (one), which is what `npm test` uses. It is **not** certified for `--workers=4` — one search test
+failed in one of two runs at that concurrency. The repository already defaults to a single worker and
+documents an unresolved multi-worker conflict on shared application state, so this is a pre-existing
+condition of the suite, not something introduced here. Recorded rather than hidden.
+
+#### Defects
+
+**Zero confirmed product defects.** Two were filed during the walk and both were retracted with root
+cause recorded:
+
+- Search appearing not to filter — the automation was assigning the input's value directly, which never
+  notified the application's form layer. Real keystrokes filter correctly (2154 → 1 → 0 → 2154).
+- A saved date appearing to revert — the save fires and persists. The original probe was defeated by the
+  unsaved-changes dialog swallowing input, and a later recurrence traced to the test asserting
+  persistence on a grid row seventeen sibling tests also mutate. Given its own row, it passes.
+
+Every "product defect" on this module traced back to the automation. Both bug records are closed as
+not-a-defect with their evidence retained.
+
+#### Deviations from plan
+
+Six conflicts are recorded in full under **Plan-vs-Reality Conflicts** above: a census script that
+cannot target this module; named pattern files that exist only as code; persistence cases authored
+Manual on a false premise; the file architecture consolidated from five artifacts to three; the
+interaction map missing at closure; and a "34/34 passed twice" claim that had no artifact behind it.
+
+The last two were caught only because every matrix path was machine-checked for existence and every
+worker claim was re-verified against disk rather than accepted. The plan came one step from repeating
+the exact omission it criticised two delivered modules for.
+
+#### Not done
+
+- **Multi-worker certification** — see the caveat above. Out of scope for this plan; the suite's worker
+  default already reflects it.
