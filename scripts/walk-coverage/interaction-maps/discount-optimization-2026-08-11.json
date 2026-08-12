@@ -1,0 +1,2157 @@
+{
+  "version": "1.0.0",
+  "surface": "discount-optimization",
+  "declaredScope": "1604",
+  "enumerationDate": "2026-08-11",
+  "walkedStates": [
+    "resting",
+    "tab:service-type-exemptions"
+  ],
+  "enumeratorArtifact": "reports/walk-coverage/1604-discount-optimization.json",
+  "elements": [
+    {
+      "elementId": "id:radix-_r_#_ [archetype×7]",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:a|Home|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:a|Inbox|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "id:radix-_r_a_",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "id:radix-_r_d_",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "id:radix-_r_g_",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Order Search|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:a|Job Search|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:a|Asset Search|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:a|Customer Search|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|DRO Search|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Payment Search|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:a|Item Search|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|ECT Search|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Event Agendas|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Navigator Assistant|div/div/div/div/ul/li",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "id:radix-_r_t_",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Click to restore sidebar|body/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|trigger-button|skip/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:section|Notifications alt+T|html/body",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:tablist|Discount OptimizationSpecial Rate Exempt|div/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: non-interactive structural container; coverage flows from child element probes",
+      "dataBlockedReason": "Non-interactive structural container grouping child controls; not directly clickable or data-bearing",
+      "dataBlockedUnlock": "No unlock path; coverage attributed to child controls within this container",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "id:radix-_r_v_-trigger-locations",
+      "class": "menu-disclosure",
+      "emissionStatus": "PROBED",
+      "disposition": "COVERED",
+      "probes": [
+        {
+          "action": "click-activate-tab",
+          "before": {
+            "ariaSelected": false
+          },
+          "after": {
+            "ariaSelected": true,
+            "panelContent": "locations-grid-visible-with-tbody-rows"
+          }
+        }
+      ],
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "id:radix-_r_v_-trigger-serviceTypeExemptions",
+      "class": "menu-disclosure",
+      "emissionStatus": "PROBED",
+      "disposition": "COVERED",
+      "probes": [
+        {
+          "action": "click-activate-tab",
+          "before": {
+            "ariaSelected": false
+          },
+          "after": {
+            "ariaSelected": true,
+            "panelContent": "service-type-exemptions-grid-visible"
+          }
+        }
+      ],
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "id:radix-_r_v_-content-locations",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: non-interactive structural container; coverage flows from child element probes",
+      "dataBlockedReason": "Non-interactive structural container grouping child controls; not directly clickable or data-bearing",
+      "dataBlockedUnlock": "No unlock path; coverage attributed to child controls within this container",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "id:radix-_r_v_-content-serviceTypeExemptions",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: non-interactive structural container; coverage flows from child element probes",
+      "dataBlockedReason": "Non-interactive structural container grouping child controls; not directly clickable or data-bearing",
+      "dataBlockedUnlock": "No unlock path; coverage attributed to child controls within this container",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "testid:discount-optimization-settings-table-container",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: non-interactive structural container; coverage flows from child element probes",
+      "dataBlockedReason": "Non-interactive structural container grouping child controls; not directly clickable or data-bearing",
+      "dataBlockedUnlock": "No unlock path; coverage attributed to child controls within this container",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:input|Search by location number or location na|div/div/discount-optimization-settings-table-container/div/div/div",
+      "class": "filter",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-005",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-005 (spec line 84): types known filter, verifies row reduction, clears, types no-match, verifies empty state",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-005 and TC-DOP-OPT-006; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-020",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-020 (spec line 201): isSaveDisabled true at pristine; toggleDiscount enables Save; isSaveEnabled asserted true. TC-DOP-OPT-050 exercises full save round-trip.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-020 and TC-DOP-OPT-050; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Add|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div",
+      "class": "add-picker",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-060",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-060 (spec line 318): clickAdd() opens Add Location panel, Cancel discards, row count unchanged, Save remains disabled. TC-DOP-OPT-061 asserts Add button visible and enabled.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-060 and TC-DOP-OPT-061; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:th||div/div/div/table/thead/tr",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: structural column header with no accessible name and no sort role on this surface",
+      "dataBlockedReason": "Empty-label column header; structural placeholder for the action-button column, no sort or click handler",
+      "dataBlockedUnlock": "No unlock path; non-interactive structural element",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:th|ID|div/div/div/table/thead/tr",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-010",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-010 (spec line 122): opens ID sort menu, clicks Sort descending, asserts first-row value changes",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-010; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Resize column locationNo|div/div/table/thead/tr/th",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: cosmetic column-width drag handle; no functional test coverage required",
+      "dataBlockedReason": "Column resize handle is a cosmetic UI preference control, not a data-bearing functional interaction",
+      "dataBlockedUnlock": "Exclude from functional coverage; include only in visual-regression suites",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:th|Location Name|div/div/div/table/thead/tr",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-011",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-011 (spec line 142): opens Location Name sort menu, clicks Sort descending, polls until first row changes",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-011; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Resize column locationName|div/div/table/thead/tr/th",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: cosmetic column-width drag handle; no functional test coverage required",
+      "dataBlockedReason": "Column resize handle is a cosmetic UI preference control, not a data-bearing functional interaction",
+      "dataBlockedUnlock": "Exclude from functional coverage; include only in visual-regression suites",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:th|No Implied Discount|div/div/div/table/thead/tr",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-012",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-012 (spec line 167): opens No Implied Discount sort menu, verifies ascending/descending items, closes with Escape",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-012; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Resize column allowSpecialRate|div/div/table/thead/tr/th",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: cosmetic column-width drag handle; no functional test coverage required",
+      "dataBlockedReason": "Column resize handle is a cosmetic UI preference control, not a data-bearing functional interaction",
+      "dataBlockedUnlock": "Exclude from functional coverage; include only in visual-regression suites",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:th|No Implied Start|div/div/div/table/thead/tr",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-013",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-013 (spec line 183): opens No Implied Start sort menu, verifies ascending/descending items, closes with Escape",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-013; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Resize column startAllowSpecialRate|div/div/table/thead/tr/th",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: cosmetic column-width drag handle; no functional test coverage required",
+      "dataBlockedReason": "Column resize handle is a cosmetic UI preference control, not a data-bearing functional interaction",
+      "dataBlockedUnlock": "Exclude from functional coverage; include only in visual-regression suites",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Remove The Abbey Resort|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-040",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-040 (spec line 293): clickRemove(The Abbey Resort) opens confirmation dialog, Cancel clicked, row count unchanged. TC-DOP-OPT-041 also exercises this button.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-040 and TC-DOP-OPT-041; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Abbey Resort|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-020",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-020 (spec line 201): toggleDiscount(The Abbey Resort) flips No-Implied-Discount, Save enables. TC-DOP-OPT-021 toggles and reverts verifying Save re-disables.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-020 and TC-DOP-OPT-021; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:input|Select date|tr/td/div/div/div/div",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-030",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-030 (spec line 228): setRowDate(The Abbey Resort) with valid date, Save enables. TC-DOP-OPT-031 invalid entry shows red border. TC-DOP-OPT-032 calendar picker. TC-DOP-OPT-033 digit-shift regression.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-030/031/032/033 and TC-DOP-OPT-050; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Open calendar|td/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-032",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-032 (spec line 256): openCalendar(The Abbey Resort) opens date-picker [role=dialog], navigates month, clicks cell, popover closes. Also exercised by TC-DOP-OPT-050.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-032 and TC-DOP-OPT-050; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Remove InterContinental Chicago|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for InterContinental|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Dagny|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Dagny|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Boston Marriott Copley Place|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Boston Marriott |div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Hotel del Coronado|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Hotel del Corona|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Hitlon Arlington National Landing|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Hitlon Arlington|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Sheraton Stamford Hotel deactivat|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Sheraton Stamfor|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Renaissance Baton Rouge Hotel|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Renaissance Bato|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Hilton Dallas/Park Cities|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Hilton Dallas/Pa|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The St. Regis Bal Harbour Resort|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The St. Regis Ba|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Sheraton Pentagon City Hotel|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Sheraton Pentago|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Westin New York Grand Central|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Westin New Y|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Westin Kansas City at Crown C|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Westin Kansa|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Sheraton Kansas City Hotel at Cro|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Sheraton Kansas |div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Fairmont Olympic Hotel, Seattle|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Fairmont Olympic|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Kahala Hotel & Resort|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Kahala Hotel|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Hyatt Regency Valencia|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Hyatt Regency Va|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Hilton Columbus Downtown|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Hilton Columbus |div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Seaview, A Dolce Hotel|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Seaview, A Dolce|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Westin St. Francis on Union S|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Westin St. F|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Viewline Snowmass|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Viewline Snowmas|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Salt Palace Convention Center|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Salt Palace Conv|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Westin Bonaventure Hotel & Su|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Westin Bonav|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove DoubleTree by Hilton Hotel Philad|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for DoubleTree by Hi|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Bellevue Hotel|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Bellevue Hot|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Westin Cincinnati Fountain Sq|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Westin Cinci|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove InterContinental Los Angeles Cent|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Maxwell NYC Hotel - Deactivat|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Maxwell NYC |div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Hilton DFW Lakes Executive Confer|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Hilton DFW Lakes|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Hilton Anatole|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Hilton Anatole|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Hyatt Regency Coconut Point Resor|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Hyatt Regency Co|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Condado Vanderbilt Hotel|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Condado Vanderbi|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Ocean Place Resort & Spa- DEACTIV|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Ocean Place Reso|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Hyatt Regency Columbus|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Sheraton Columbus onCapitol S|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for The Sheraton Col|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove Hyatt Regency Princeton|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|No implied discount for Hyatt Regency Pr|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Per-row No-Implied-Discount toggle not directly exercised for this location. Rung 1: toggle is clickable in write-enabled session using same Radix switch confirmed by TC-DOP-OPT-020/021 on The Abbey Resort. Rung 2: TC-DOP-OPT-022 confirms pristine-save-disabled; TC-DOP-OPT-021 confirms both on/off paths work. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a TC toggling this location guard on then off, asserting Save enables then re-disables, without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched for any pre-toggled location in the discount-optimization list and checked TC coverage across both tab1 specs; no TC drives this specific row guard",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:input|Search by service type|div/radix-_r_v_-content-serviceTypeExemptions/div/div/div/div",
+      "class": "filter",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-EXM-010",
+      "dataBlockedReason": "Covered by TC-DOP-EXM-010 (exemptions spec line 72): types HSIA, verifies filtered count, clears, no-match empty state",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-EXM-010 and TC-DOP-EXM-011; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Cancel|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-EXM-020",
+      "dataBlockedReason": "Covered by TC-DOP-EXM-020 (exemptions spec line 143): clickTab2Cancel() after toggling Equipment Rental; state reverts, Save returns disabled.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-EXM-020 and TC-DOP-EXM-021; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:button|Save|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-EXM-020",
+      "dataBlockedReason": "Covered by TC-DOP-EXM-020 (exemptions spec line 152): clickTab2Save() after toggle, waitUntilTab2SaveDisabled() asserts disabled, reload confirms persisted state.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-EXM-020; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:th|Service Type|div/div/div/table/thead/tr",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Tab 2 sort not covered by any TC. Rung 1: same Radix sort-menu pattern as Tab 1, clickable in write-enabled session. Rung 2: TC-DOP-OPT-010/011 confirm sort-menu mechanism works on this page. Blocker: no Tab-2-sort TC exists yet.",
+      "dataBlockedUnlock": "Add a TC opening the Service-Type or Exempt column sort menu, clicking Sort descending, asserting first row changes",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both spec files for a Tab-2 sort TC; only Tab-1 sort is covered (TC-DOP-OPT-010 through TC-DOP-OPT-013); no TC exercises Tab-2 sort menus",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "id:radix-_r_2e_",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Tab 2 sort not covered by any TC. Rung 1: same Radix sort-menu pattern as Tab 1, clickable in write-enabled session. Rung 2: TC-DOP-OPT-010/011 confirm sort-menu mechanism works on this page. Blocker: no Tab-2-sort TC exists yet.",
+      "dataBlockedUnlock": "Add a TC opening the Service-Type or Exempt column sort menu, clicking Sort descending, asserting first row changes",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both spec files for a Tab-2 sort TC; only Tab-1 sort is covered (TC-DOP-OPT-010 through TC-DOP-OPT-013); no TC exercises Tab-2 sort menus",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Resize column serviceTypeName|div/div/table/thead/tr/th",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: cosmetic column-width drag handle; no functional test coverage required",
+      "dataBlockedReason": "Column resize handle is a cosmetic UI preference control, not a data-bearing functional interaction",
+      "dataBlockedUnlock": "Exclude from functional coverage; include only in visual-regression suites",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:th|Exempt|div/div/div/table/thead/tr",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Tab 2 sort not covered by any TC. Rung 1: same Radix sort-menu pattern as Tab 1, clickable in write-enabled session. Rung 2: TC-DOP-OPT-010/011 confirm sort-menu mechanism works on this page. Blocker: no Tab-2-sort TC exists yet.",
+      "dataBlockedUnlock": "Add a TC opening the Service-Type or Exempt column sort menu, clicking Sort descending, asserting first row changes",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both spec files for a Tab-2 sort TC; only Tab-1 sort is covered (TC-DOP-OPT-010 through TC-DOP-OPT-013); no TC exercises Tab-2 sort menus",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "id:radix-_r_2g_",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Tab 2 sort not covered by any TC. Rung 1: same Radix sort-menu pattern as Tab 1, clickable in write-enabled session. Rung 2: TC-DOP-OPT-010/011 confirm sort-menu mechanism works on this page. Blocker: no Tab-2-sort TC exists yet.",
+      "dataBlockedUnlock": "Add a TC opening the Service-Type or Exempt column sort menu, clicking Sort descending, asserting first row changes",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both spec files for a Tab-2 sort TC; only Tab-1 sort is covered (TC-DOP-OPT-010 through TC-DOP-OPT-013); no TC exercises Tab-2 sort menus",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Resize column isSpecialRateAllowed|div/div/table/thead/tr/th",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: cosmetic column-width drag handle; no functional test coverage required",
+      "dataBlockedReason": "Column resize handle is a cosmetic UI preference control, not a data-bearing functional interaction",
+      "dataBlockedUnlock": "Exclude from functional coverage; include only in visual-regression suites",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Computer Rental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Concise Equipment|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Digital Branding|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-EXM-021",
+      "dataBlockedReason": "Covered by TC-DOP-EXM-021 (exemptions spec line 178): toggleExempt(Digital Branding) as part of multi-cancel test; Cancel verifies state reverts.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-EXM-021; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Digital Services Equipment|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Digital Services Subrental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Equipment Rental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-EXM-020",
+      "dataBlockedReason": "Covered by TC-DOP-EXM-020 (exemptions spec line 137): toggleExempt(Equipment Rental) twice in save cycle. TC-DOP-EXM-021 (line 181) also toggles Equipment Rental as part of multi-cancel test.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-EXM-020 and TC-DOP-EXM-021; no additional probe required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md"
+    },
+    {
+      "elementId": "struct:checkbox|Exempt HSIA - Equipment|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt HSIA - Subrental Equipment|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt HSIA - Wi-Fi Services|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt HSIA Services|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Lighting|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Lighting Subrental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Photographic Services|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Power Infrastructure|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Power Rental Equipment|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Power Sub-rental Equipment|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Rigging Equipment - Subrental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Rigging Equipment Rental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Scenic Equipment Rental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Scenic Sub-Rental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Sub-Rental Equipment|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Telecom Equipment|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Telecom Services|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Telecom Subrental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Venue Equipment Rental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Virtual Events Equipment|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Virtual Events Professional Servi|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt Wedding Event Equipment Rental|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:checkbox|Exempt ZSub Rental Specialty|div/div/table/tbody/tr/td",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "dataBlockedReason": "Exempt checkbox for this service type not directly exercised by any TC. Rung 1: checkbox toggleable in write-enabled session using same Radix checkbox confirmed by TC-DOP-EXM-020 on Equipment Rental. Rung 2: TC-DOP-EXM-020/021 confirm toggle+Save+Cancel+persist cycle for two service types. Blocker: no dedicated TC for this service type row.",
+      "dataBlockedUnlock": "Add a TC toggling this service type exempt, verifying Save enables, then cancelling without persisting",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both exemption spec files for a TC toggling this specific service type; TC-DOP-EXM-020 covers Equipment Rental and TC-DOP-EXM-021 covers Digital Branding only",
+        "surfaces": [
+          "discount-optimization-exemptions.spec.ts",
+          "discount-optimization-locations.spec.ts"
+        ]
+      }
+    }
+  ]
+}

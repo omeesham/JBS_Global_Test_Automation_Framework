@@ -48,4 +48,9 @@ export const MODULE_CONFIG = {
     ],
     editableFields: ['override-price'],
   },
+  // Discount Optimization Settings: two tabs (Discount Optimization / Special Rate Exemptions).
+  // Tab 1 is the default resting surface; Tab 2 activated via openerRoleTextPatterns.
+  'discount-optimization': {
+    requiredStates: [{ label: 'resting' }, { label: 'tab:service-type-exemptions' }],
+  },
 };

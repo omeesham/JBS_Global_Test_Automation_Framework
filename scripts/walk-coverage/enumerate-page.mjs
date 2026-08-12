@@ -143,6 +143,33 @@ export const MODULE_CONFIG = {
     excludeOptionRoles: true,
     ...MC_DATA['corporate-pricing-new-pricebook'],
   },
+  // ===========================================================================================
+  // Discount Optimization Settings — 2 tabs.
+  // Tabs carry auto-generated Radix IDs (no data-testid) — activated via activateTabsByRoleText.
+  // contentMarker: 'tbody tr' — an actual grid row, genuinely absent until virtual scroll
+  // renders data (~22 s after navigation). The container testid exists pre-load, so it cannot
+  // serve as the marker; a real tbody row proves data has painted. Same pattern as
+  // corporate-pricing-search. Tab 2 (Special Rate Exemptions) is activated via
+  // openerRoleTextPatterns so its elements enter the denominator under the tab branch.
+  // ===========================================================================================
+  'discount-optimization': {
+    path: (office) => `${BASE}/locations/${office}/settings/discount-optimization-settings`,
+    // Tab 1 is the default; clicking it (already selected, aria-selected=true) forces
+    // activateTabByRoleText to enter the contentMarker-wait path immediately.
+    activateTabsByRoleText: [
+      { role: 'tab', text: 'Discount Optimization' },
+    ],
+    // tbody tr — only resolves after virtual scroll paints at least one data row.
+    contentMarker: 'tbody tr',
+    openerTestidPatterns: [],
+    // Tab 2 activated as an opener so its columns enter the denominator on cycle 1.
+    openerRoleTextPatterns: [
+      { role: 'tab', text: 'Special Rate Exemptions by Service Type', branch: 'tab:service-type-exemptions' },
+    ],
+    excludeOptionRoles: true,
+    ...MC_DATA['discount-optimization'],
+  },
+
   'corporate-pricing-override': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/pg-override`,
     contentMarker: 'h1:text-is("Product Group Override")',
@@ -191,6 +218,25 @@ async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300
 
 function isLoginRedirect(url) {
   return /login\.microsoftonline\.com|login\.microsoft\.com|\/oauth2\/|\/saml2\/|sts\./i.test(url || '');
+}
+
+// Activate a tab by accessible role + visible text when no stable data-testid is available.
+// Click → verify aria-selected flips → retry. Waits for contentMarker with a longer timeout
+// (35 s) to accommodate surfaces whose grid takes ~22 s to paint after navigation.
+async function activateTabByRoleText(page, role, text, contentMarker) {
+  const loc = page.getByRole(role, { name: text, exact: true });
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    if (!(await loc.count())) { await page.waitForTimeout(700); continue; }
+    try { await loc.first().click({ timeout: 8000 }); } catch { /* not actionable yet */ }
+    const sel = await loc.first().getAttribute('aria-selected').catch(() => null);
+    if (sel === 'true') {
+      if (contentMarker) { try { await page.waitForSelector(contentMarker, { timeout: 35000 }); } catch { /* marker absent in this data state */ } }
+      await waitReady(page);
+      return { ok: true, attempts: attempt };
+    }
+    await page.waitForTimeout(900);
+  }
+  return { ok: false, attempts: 5 };
 }
 
 // Robust Radix tab activation by TESTID (the pilot proved getByRole-by-name does not flip the
@@ -528,6 +574,16 @@ async function main() {
         const res = await activateTabByTestid(page, testid, cfg.contentMarker);
         report.tabActivate.push({ testid, ...res });
         if (!res.ok) report.tabActivateNote = `failed to activate ${testid} after ${res.attempts} attempts (aria-selected never true)`;
+      }
+    }
+
+    // --- activate configured tabs by role+text (for surfaces with no stable data-testid on tabs) ---
+    if (cfg && cfg.activateTabsByRoleText) {
+      report.tabActivateRoleText = [];
+      for (const { role, text } of cfg.activateTabsByRoleText) {
+        const res = await activateTabByRoleText(page, role, text, cfg.contentMarker);
+        report.tabActivateRoleText.push({ role, text, ...res });
+        if (!res.ok) report.tabActivateNote = `failed to activate tab role=${role} text="${text}" after ${res.attempts} attempts`;
       }
     }
 

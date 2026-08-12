@@ -115,7 +115,12 @@ export function extractManifestRows(text) {
   for (const line of section.split('\n')) {
     if (!/^\s*\|/.test(line)) continue;                 // not a table row
     if (/^\s*\|[-:\s|]+\|\s*$/.test(line)) continue;     // separator row
-    const cells = line.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => c.trim());
+    const PLACEHOLDER = '\x01';
+    let _row = line.trim();
+    if (_row.startsWith('|')) _row = _row.slice(1);
+    if (_row.endsWith('|')) _row = _row.slice(0, -1);
+    _row = _row.replace(/\\\|/g, PLACEHOLDER);
+    const cells = _row.split('|').map(c => c.replace(/\x01/g, '|').trim());
     // Disposition cell = first cell whose (backtick-stripped) text starts with a known token.
     let disposition = '';
     for (const c of cells) {
