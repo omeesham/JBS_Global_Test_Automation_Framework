@@ -1107,6 +1107,10 @@ self-grade work from the same session (AUD-017).
 **The three location axes**
 - [ ] Phase 3b emitted a `## Axis decisions` section with a **measured** verdict for 3b.1 (sort/search),
       3b.2 (office sensitivity per tab), and 3b.3 (which of the 9 offices render).
+      **NOT MET (2026-08-12).** The string "Axis decisions" appears in exactly one file in the repo —
+      this plan, where it is the requirement. No produced artifact carries the section, and the
+      walk-evidence file has no 3b.1 / 3b.2 / 3b.3 verdicts. Phase 3b's decisions were acted on but
+      never written down in the mandated form, so they are not independently re-checkable.
 - [ ] **Axis A** — every office in the 3b.3 list is covered or carries an LR-040(c) c.1/c.2/c.3 record;
       no office-invariance claim rests on fewer than 2 offices; tab 2's row set verified against the
       NM-1183 derivation rule on ≥2 offices with **different lines of business**.
@@ -1135,6 +1139,13 @@ self-grade work from the same session (AUD-017).
 - [ ] **Every confirmed bug logged** as a `BUG-DOP-<SUB>-NNN` record under `clients/encore/reports/bugs/`,
       each with a valid `baselineComparison` enum value and numbered `stepsToReproduce`. **No persistence
       defect filed without a captured save request AND its response.**
+      **NOT MET (2026-08-12), two defects in our own filing:**
+      (a) both records use the sub-code `LOC` (`BUG-DOP-LOC-001`, `-002`), but the registered DOP
+      sub-codes are `OPT` and `EXM` — `LOC` belongs to the locations *module* family, so the bug IDs do
+      not match the module they were filed against;
+      (b) `BUG-DOP-LOC-001-search-no-filter.md` carries **no steps-to-reproduce section at all** — zero
+      `stepsToReproduce` and no Steps heading — which by LR-044's filer obligation is a filing defect a
+      verifier is entitled to refuse. `-002` does carry both fields.
 - [ ] **Every confirmed bug has a failing bug-evidence TC** in the spec owning its tab, and every skip
       names the bug it waits on. The loop is closed: a bug with no TC, or a skip with no bug ID, is a
       finding.
