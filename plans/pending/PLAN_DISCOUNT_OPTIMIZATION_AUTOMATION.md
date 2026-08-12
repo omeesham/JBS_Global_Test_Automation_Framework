@@ -1120,13 +1120,25 @@ self-grade work from the same session (AUD-017).
       · **3b.3 which of the 9 offices render — STILL INCOMPLETE, 2 of 9.** Only 1604 and 1101 were ever
         driven. The other seven are recorded as an open gap rather than closed by inference, and need the
         e2e environment, which is unreachable from this machine today.
-- [ ] **Axis A** — every office in the 3b.3 list is covered or carries an LR-040(c) c.1/c.2/c.3 record;
+- [ ] **Axis A** — **NOT MET (2026-08-12).** Only offices 1604 and 1101 were ever driven (both render,
+      both screenshotted). The remaining seven carry neither coverage nor an LR-040(c) c.1/c.2/c.3
+      record. No office-invariance claim was made anywhere, so LR-061-A is not violated — the axis is
+      simply incomplete, and is now recorded as such in the walk-evidence `## Axis decisions` section.
+      Original criterion: every office in the 3b.3 list is covered or carries an LR-040(c) record;
       no office-invariance claim rests on fewer than 2 offices; tab 2's row set verified against the
       NM-1183 derivation rule on ≥2 offices with **different lines of business**.
 - [ ] **Axis B** — grid census run (not eyeballed); first/mid/last/page-boundary rows covered; the volume
       case **states the row count actually reached**; rows addressed by content anchor, never index.
+      **PARTIALLY MET (2026-08-12).** Row addressing is clean — **zero** `.nth(` / `[0]` / `rowIndex`
+      uses in the locations spec, three content-anchored lookups — and the volume case does state the
+      real count (2154, with the virtualization caveat that a DOM query returns ~37 rendered rows, so
+      the footer is the count oracle). **But no grid-census artifact was retained**: `grid-census.mjs`
+      exists as a script and `reports/walk-coverage/` holds no census output for this module, so
+      "census run, not eyeballed" cannot be evidenced from the run record.
 - [ ] **Axis C** — all three in-scope surfaces enumerated and covered; the order screen is recorded as an
       out-of-scope follow-up with a named owner, not silently dropped.
+      **NOT MET (2026-08-12)** — same root cause as the enumeration criterion above: only two of the
+      three in-scope surfaces were enumerated. The Change Local Office dialog was never walked.
 
 **Cases + specs**
 - [x] `DOP` + **both** submodule codes (`OPT`, `EXM`) registered in `module-codes.json` **and**
@@ -1137,15 +1149,27 @@ self-grade work from the same session (AUD-017).
       Zero TC-ID crossover. *Verified: 2 case docs, 2 test plans, 2 specs; the locations spec carries 59
       `TC-DOP-OPT-*` references and zero `EXM`, the exemptions spec 13 `TC-DOP-EXM-*` and zero `OPT`.*
 - [ ] The four cross-tab seam cases exist, owned by the tab-1 spec, not duplicated in tab 2.
-- [ ] No literal service-type name hardcoded in the tab-2 spec (NM-3340 forward-compatibility); no case
+      **NOT MET (2026-08-12) — 1 of 4.** Ownership and non-duplication are correct: the one seam case
+      that exists, `TC-DOP-OPT-065` (NM-3066, tab switch with no pending change → no unsaved-changes
+      prompt), lives in the tab-1 spec, and the tab-2 spec carries zero cross-tab assertions.
+      But the plan requires **both directions in both states** — 1→2 clean, 2→1 clean, 1→2 dirty,
+      2→1 dirty. Only **1→2 clean** is implemented; the other three are absent. Writing them is not
+      the fix by itself — they assert live dirty-state behaviour and must be run before they can be
+      claimed, which needs e2e (unreachable from this machine today).
+- [x] No literal service-type name hardcoded in the tab-2 spec (NM-3340 forward-compatibility); no case
       hardcodes the absence of sort/search either (NM-3327).
 - [ ] Every case authored against sort, search, or an office matrix cites its Phase-3b verdict.
-- [ ] `rbac` either backed by an observed role gate or explicitly demoted in writing.
-- [ ] **Bug count stated.** The Execution Summary carries an explicit count of defects found on this
+- [x] `rbac` either backed by an observed role gate or explicitly demoted in writing. *Demoted in
+      writing: the walk-evidence Phase 5 verdict records no permission gate — the "account looks
+      read-only" impression was the ~22-second render, and the suite performs real saves and passes.*
+- [x] **Bug count stated.** *Added 2026-08-12 — it was genuinely missing. The Execution Summary now
+      opens with "zero confirmed defects", both retracted candidates in a table with the reason each
+      died, and an explicit account of the probing behind the zero.* Original criterion:
+      The Execution Summary carries an explicit count of defects found on this
       surface, and the walk-evidence `## Observations` section lists every one. "No bugs found" is a
       legitimate count **only** with the probing evidence to back it — zero suspicions on a 2154-row grid
       carrying three open Blockers is a signal to interrogate your own probing, not a clean bill.
-- [ ] **Every confirmed bug logged** as a `BUG-DOP-<SUB>-NNN` record under `clients/encore/reports/bugs/`,
+- [x] **Every confirmed bug logged** as a `BUG-DOP-<SUB>-NNN` record under `clients/encore/reports/bugs/`,
       each with a valid `baselineComparison` enum value and numbered `stepsToReproduce`. **No persistence
       defect filed without a captured save request AND its response.**
       **MET, vacuously — and the first reading of this was wrong (corrected 2026-08-12).**
@@ -1161,24 +1185,33 @@ self-grade work from the same session (AUD-017).
       and the `LOC`-vs-`OPT`/`EXM` sub-code mismatch is a cosmetic naming inconsistency on two
       **non-defect** records, not a failure of a criterion that governs *confirmed* bugs.
       Both records are correctly retained as the audit trail of how a wrong verdict was reached.
-- [ ] **Every confirmed bug has a failing bug-evidence TC** in the spec owning its tab, and every skip
+- [x] **Every confirmed bug has a failing bug-evidence TC** in the spec owning its tab, and every skip
       names the bug it waits on. The loop is closed: a bug with no TC, or a skip with no bug ID, is a
       finding.
-- [ ] **Every logged bug driven to a disposition** — filed to the Encore dev team, attached to its
+- [x] **Every logged bug driven to a disposition** — filed to the Encore dev team, attached to its
       existing NM ticket if already known, or routed to `/encore-questions` where intent is unclear. A
       bug discovered and then left sitting in an artifact nobody actions is not a closed loop.
-- [ ] Zero DOM/markup accessibility findings filed as bugs, TCs, or observations.
+- [x] Zero DOM/markup accessibility findings filed as bugs, TCs, or observations. *Verified 2026-08-12:
+      the accessibility terms that appear in the walk evidence are evidence prose, not filed findings —
+      `aria-checked` is the per-table boolean oracle and one row explains why a `role="switch"` query
+      failed. No a11y defect is filed as a bug, TC, or observation.*
 - [x] No `(QUICK)`/`(DEEP)` marker on any `## TC-…:` heading (ALL-091). *Verified 2026-08-12: zero
       matches in both case documents.*
 
 **Green**
-- [ ] Both specs run **twice consecutively** on office **1604** and meet the Phase-8 criterion: all
+- [x] Both specs run **twice consecutively** on office **1604** and meet the Phase-8 criterion: all
       non-bug-evidence tests pass · every **named** bug-evidence test fails with a documented signature ·
       no test skipped except an explicitly declared gap. **A blanket "suite green ×2" is NOT the bar and
       must not be substituted** — this plan deliberately ships failing bug-evidence cases.
-- [ ] The intended-failing tests are listed **by full TC ID** in the Execution Summary, each with its
+- [x] The intended-failing tests are listed **by full TC ID** in the Execution Summary, each with its
       documented failure signature and the bug/ticket it evidences. A count is not a list.
-- [ ] Every mutating case restores state — including Axis-A cases that touched non-primary offices.
+      *Satisfied by there being none. Both bug candidates were disproven on investigation, so the suite
+      ships **zero** intended-failing bug-evidence cases and all 38 tests pass. The plan anticipated
+      shipping red cases; the honest outcome is that there was nothing red to ship.*
+- [x] Every mutating case restores state — including Axis-A cases that touched non-primary offices.
+      *The cross-vendor audit found several mutating cases with no `finally` restore and one restoring a
+      hardcoded date rather than the captured value; all were corrected. No Axis-A case touched a
+      non-primary office, because only 1604/1101 were driven and mutations ran on 1604.*
 - [x] `npm run check:spec-quality` passes **on the working tree** before any done/green/verified claim.
       *Verified 2026-08-12 on the working tree: exit 0.*
 - [ ] `check:tc-parity`, `lint:testcases`, `xlsx:lint`, `typecheck`, `check:step-labels` all exit 0.
@@ -1192,8 +1225,15 @@ self-grade work from the same session (AUD-017).
       The criterion says *all exit 0*, which is a strict line (LR-046), so it stays unticked and goes to
       the user rather than being rescoped to "our module is clean".
 - [ ] `/regression-guard` before/after = no silent breakage.
-- [ ] Missing-testid report emitted with live-DOM evidence (LR-029).
-- [ ] navigation.md, MODULE_REGISTRY.md, REQUIREMENTS.md updated; LR-028 activity-log row with an LR-037
+- [x] Missing-testid report emitted with live-DOM evidence (LR-029). *`testid-gap-reports/
+      discount-optimization-2026-08-11.md` exists; 27 controls raised as one module-level client ask.*
+- [x] navigation.md, MODULE_REGISTRY.md, REQUIREMENTS.md updated; LR-028 activity-log row with an LR-037
+      *Verified/completed 2026-08-12. navigation.md delegates its registry to
+      `.claude/context/exploration-registry.md`, which already carries the Discount Optimization row
+      (my first grep checked only navigation.md and nearly produced a false gap). MODULE_REGISTRY.md
+      already carried the module. **REQUIREMENTS.md genuinely had zero coverage and now has a full
+      section** — surfaces, the virtualization/count-oracle rule, the client-side-search + `fill()`
+      trap, sort via the options menu, `aria-checked` booleans, and the column rename.* Original:
       timestamp; LR-027 Execution Summary; `plans:reindex` clean.
 - [ ] `/final-q` verdict block emitted per LR-042, with the mandatory mistakes attestation.
 
@@ -1324,6 +1364,25 @@ documents an unresolved multi-worker conflict. The residual flake is recorded ra
 ### Execution Summary
 
 **Executed**: 2026-08-11 · **Branch**: NM-3342 · **Target**: `cloudapps-e2e.encoreglobal.com`, office 1604
+
+#### Bug count — zero confirmed defects on this surface
+
+**Two candidates were raised and both were disproven on investigation. Neither is a product defect.**
+
+| Candidate | Verdict | Why |
+|---|---|---|
+| `BUG-DOP-LOC-001` — search does not filter | **RETRACTED** | Our own probe artefact. `fill()` assigns `.value` without dispatching the `input`/`keydown` events Angular's reactive binding listens for, so the component never filtered. Re-driven with `pressSequentially`: 2154 → 1 → 0 → 2154, zero network calls (client-side filter). |
+| `BUG-DOP-LOC-002` — Special Rate date does not persist | **CLOSED — not a defect** | The save fires a `PUT` 200 and survives reload. The original failure was test isolation: the case asserted persistence on a grid row that seventeen sibling tests also mutate. |
+
+A zero count on a 2154-row grid carrying open Blockers is exactly the result this plan said to
+interrogate rather than accept, so the probing behind it is stated plainly: both candidates came from
+real observed failures, each was re-driven with a positive control before being closed, and both closures
+are backed by captured request/response evidence and screenshots. The retraction of a *previously filed*
+finding is the evidence that the probing was adversarial rather than absent. Zero **confirmed** defects
+is not the same as zero suspicions raised — two were raised, investigated, and killed.
+
+The `## Observations` section of the walk evidence lists both, plus the sort candidate that was likewise
+retracted once the column-header options menu was found.
 
 #### Test cases implemented — 37 of 37 (36 automated, 1 not automated)
 

@@ -1391,6 +1391,31 @@ Columns 33–40 (labor-to-hourly) are present in history even for US locations; 
 
 ---
 
+## Discount Optimization Settings (`/locations/<office>/settings/discount-optimization-settings`)
+
+> **Added 2026-08-12** to close a documentation gap — the module was automated under NM-3342 but had zero coverage here. Angular (unlike Corporate Pricing). Dated field inventories live in `clients/encore/specs_planning/_internal/field-inventories/discount-optimization-*.md`; this section is the orientation summary, not a re-transcription.
+
+**Sub-surfaces (one spec each in `tests/discount-optimization/`)**:
+
+| Surface | One-line behavior |
+|---|---|
+| Tab 1 — Locations | 4-col grid (ID / Location Name / **Allow Special Rate** / **Special Rate Start Date**), ~2154 rows, **virtualized** — a DOM query returns only ~37 rendered rows, so the **footer is the count oracle**, never a row count. Takes **~22 s to first paint** and reads `0 locations found` until it does — poll for rows, never conclude "empty" early. |
+| Tab 2 — Special Rate Exemptions by Service Type | Exemption-by-service-type grid. **baseline-absent** (no legacy equivalent — evidenced by Padmaja's NM-3394 comment, not by skipping the walk). Do not hardcode a literal service-type name: NM-3340 cuts the list to Equipment-rollup types. |
+
+**Behaviors worth knowing before writing a test**:
+
+- **Columns were renamed mid-delivery (2026-08-12)**: `No Implied Discount` → **`Allow Special Rate`**, `No Implied Start` → **`Special Rate Start Date`**. The internal column id `allowSpecialRate` did **not** change. Every toggle assertion in the suite is deliberately *relative* (compare against the pre-toggle state), never an absolute Yes/No — so a future re-label cannot silently invert a passing test.
+- **Search is client-side.** Typing fires **zero** network requests; the component filters the already-loaded set. Two consequences: never wait on a response after typing (wait for the footer count to change), and **never drive it with `fill()`** — `fill()` assigns `.value` without dispatching the `input`/`keydown` events Angular's reactive binding listens for, so the filter never runs and the grid looks broken. Use `pressSequentially`. This exact trap produced a filed bug that had to be retracted.
+- **Sort is present**, reached via an options-menu button on each column header — not a plain click on the header, and not `.ag-header-cell` (that selector times out here).
+- **Booleans read via `aria-checked`**, not cell text (LR-036 — the per-table rule; do not assume another grid's format).
+- **Saving works**: a `PUT` returns 200 and the value survives a reload. A "does not persist" result is far more likely to be test interference — seventeen sibling cases mutate the same row, so use a dedicated row.
+- **Tab switching with no pending change must not prompt** (NM-3066). The cross-tab dirty guard is owned by the tab-1 spec.
+- **Offices**: renders on **1604** and **1101** (both confirmed). Row counts differ per office — no office-invariance claim is supported.
+
+**Module-wide notes**: IDs use `TC-DOP-{OPT,EXM}-NNN`. Legacy baseline for tab 1 only, at `navigator2.training.psav.com/#/setup/DiscountPricing/settings`. Missing-testid gaps (27 controls) raised as one client ask in `_internal/testid-gap-reports/discount-optimization-2026-08-11.md`. Plan: `plans/pending/PLAN_DISCOUNT_OPTIMIZATION_AUTOMATION.md`.
+
+---
+
 ## Auth Protocol
 
 Authoritative reference for auth flow parameters when agents need to know what auth Encore uses. Full narrative is in `## Authentication System` (L11) above — this is the named anchor agents reference from their Client Context Bootstrap.
