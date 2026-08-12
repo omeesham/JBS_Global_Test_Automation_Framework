@@ -1,4 +1,4 @@
-﻿# Location Legal Test Cases
+# Location Legal Test Cases
 **Module**: locations | **Total**: 19 | **Status**: Partial | **Updated**: 2026-05-27
 
 ---
@@ -66,6 +66,22 @@
 
 ---
 
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| Service Charge Name is required | An empty or null Service Charge Name produces an invalid Legal-tab condition that blocks the left-panel Save |
+| Terms and Conditions Name is required | An empty or null Terms and Conditions Name produces an invalid Legal-tab condition that blocks the left-panel Save |
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observations for this module were recorded before the verification-log convention existed; the paired
+field inventory is absent. A fresh walk must populate this table before the next behavioural edit to
+this file.
+
+---
 ## TC-LOC-LGL-001: Verify Legal grid default structure
 | Priority | Status | Type |
 |----------|--------|------|

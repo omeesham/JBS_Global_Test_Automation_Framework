@@ -8,6 +8,35 @@
 
 ---
 
+## FIELD INVENTORY
+
+| Field | Control Type | Default | Required |
+|---|---|---|---|
+| Loc Pricing Export | Button (direct action) | Enabled | Not applicable |
+
+---
+
+## Validation Rules
+
+N/A — this is a single-action export button that triggers a direct CSV download with no dialog, no form fields, and no Save button; the inventory recorded no client-side validation behaviour.
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observed on office 1604 in the sessions recorded in the field inventory
+`corporate-pricing-loc-export-2026-07-09.md` (field detail carried forward from
+`corporate-pricing-toolbar-io-2026-06-08.md`; re-verified live 2026-07-09 via TC-CPR-TIO-012). Each
+row is an observation, not an expectation.
+
+| # | Verified | Result |
+|---|---|---|
+| 1 | "Loc Pricing Export" button present in action bar, office 1604 | Always enabled; no data-testid (use `button:text-is("Loc Pricing Export")`) |
+| 2 | Click behavior — direct download, no dialog | Clicking the button triggers a direct CSV download with no menu or dialog opened (distinct from the Export ▾ multi-variant dropdown) |
+| 3 | Downloaded filename pattern | `LocationPricebooks-<YYYYMMDD-HHMMSS>UTC.csv` |
+| 4 | Endpoint and locale parameter | Request path includes `/navigator/api/location/pricing/location-export`; request carries `locale=en-US` |
+
+---
 ## TC-CPR-LEX-001: Loc Pricing Export downloads a real CSV file with the expected filename
 | Priority | Status | Type |
 |----------|--------|------|

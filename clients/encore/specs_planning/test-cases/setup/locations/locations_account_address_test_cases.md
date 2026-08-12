@@ -1,4 +1,4 @@
-﻿# Location Account and Address Test Cases
+# Location Account and Address Test Cases
 **Module**: locations | **Total**: 33 | **Status**: Partial | **Updated**: 2026-06-11
 
 > **2026-06-11 (SUBPLAN_LAUNCHER_DIALOG_GAPS_FCC)**: the **Master Bill To Address** launcher was only proven to OPEN the shared "Select Customer Address" dialog (TC-012). The per-launcher select→Master-field-update→persist cycle was an uncovered gap (the same dialog persists from the Master launcher but NOT from the Venue launcher — ACC-027; per-launcher divergence proven live, LR-057). 2 net-new TCs added (TC-LOC-ACC-032..033); TC-012/014 notes extended. Evidence: `_internal/walk-evidence-account-address-master-bill-to-2026-06-11.md`; catalog `_internal/field-case-catalogs/launcher-dialogs-2026-06-11.md`.
@@ -39,6 +39,37 @@
 
 ---
 
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| Phone 1 is required | Clearing the field sets aria-invalid=true and shows an error icon; Save is not blocked by this state alone (TC-015/023) |
+| Phone 1 accepts any non-empty string | No phone-format validation enforced; any non-empty text is accepted |
+| Phone 2 is optional | Empty Phone 2 leaves aria-invalid=false |
+| Save is disabled at rest | Save enables only when the form has unsaved changes |
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observed on office 1604 in the sessions recorded in the field inventory
+`account-address-2026-05-29.md` (walk 2026-05-29). Each row is an observation, not an expectation.
+Rows marked "Not settled" are recorded because they were reached for and not resolved; no test case
+asserts them as fact.
+
+| # | Verified | Result |
+|---|---|---|
+| 1 | Account and Address tab is not active by default | Tab must be clicked; `aria-selected=true` confirmed after click |
+| 2 | Venue Name | "Parker Palm Springs" — read-only (disabled input) |
+| 3 | Phone 1 default and validation | "760-883-1957"; required; clearing triggers `aria-invalid=true`; phone mask applied on input |
+| 4 | Phone 1 save-persist | **Not automatable** — value always reverts to the account phone on save and reload (TC-021 dropped) |
+| 5 | Phone 2 save-persist | Proven — save and reload confirmed (TC-019/020) |
+| 6 | Address dialog row count | 7 data rows; footer reads "Total Addresses: 7"; naive visible-row count returns 8 due to a non-data header row |
+| 7 | Venue City/State/Zip/Country display | "WEST HOLLYWOOD" / "CA" / "90048" / "United States" — read-only; address selection in the dialog does NOT persist through save and reload (TC-027) |
+| 8 | Master Address launcher | Opens the same "Select Customer Address" dialog as the Venue Address button |
+| 9 | Office 1604 state at walk time | Clean baseline — no drift from REQUIREMENTS.md |
+
+---
 ## TC-LOC-ACC-001: Verify tab two-card layout
 | Priority | Status | Type |
 |----------|--------|------|

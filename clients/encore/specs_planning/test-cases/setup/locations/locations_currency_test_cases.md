@@ -1,4 +1,4 @@
-﻿# Location - Currency Test Cases
+# Location - Currency Test Cases
 
 **Module**: locations
 
@@ -41,6 +41,36 @@
 
 ---
 
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| At least one currency must remain selected | Unchecking the last selected currency disables Save as a preventive guard |
+| Is Default is disabled until the currency is selected | Is Default enables only when its row's Selected checkbox is checked |
+| Exactly one currency can be set as default | Checking a different row's Is Default automatically unchecks the previously checked Is Default |
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observed on office 1604 in the sessions recorded in the field inventory
+`currency-2026-06-17.md` (walk 2026-06-17). Each row is an observation, not an expectation.
+
+| # | Verified | Result |
+|---|---|---|
+| 1 | Currency tab activation | Requires a real Playwright `click`; raw-JS `.click()` does not flip `aria-selected` (Radix needs the full pointer sequence) |
+| 2 | USD Selected default | Checked |
+| 3 | USD Is Default default | Checked; single-default mutual exclusion enforced — checking one clears others |
+| 4 | USD Merchant default | "316370 - PSAV US/USD"; 2 merchant options available for office 1604 |
+| 5 | CAD Selected default | Unchecked |
+| 6 | CAD Is Default state | Disabled while CAD is unchecked; enables when CAD is selected |
+| 7 | CAD Merchant | "316446 - PSAV Canada/CAD"; 1 option |
+| 8 | MXN Merchant options | 0 options ("No Matches Found") — office-1604-seeded server config |
+| 9 | Unchecking a currency | Auto-disables and unchecks its Is Default checkbox |
+| 10 | Merchant option counts | USD=2 / CAD=1 / MXN=0 — office-1604-seeded, not framework-controlled |
+| 11 | Save button at session start | Disabled (no save issued during this walk) |
+
+---
 ## TC-LOC-CUR-001: Verify Currency grid default state
 | Priority | Status | Type |
 |----------|--------|------|

@@ -9,6 +9,68 @@
 
 ---
 
+## FIELD INVENTORY
+
+| Field | Control Type | Default | Required |
+|---|---|---|---|
+| Import ▾ trigger | Dropdown trigger button | Closed | Not applicable |
+| Import ▾ › All Equipment Pricing | Menu item | Not applicable | Not applicable |
+| Import ▾ › All Labor Pricing | Menu item | Not applicable | Not applicable |
+| Import ▾ › All Equipment Max Discount | Menu item | Not applicable | Not applicable |
+| Import ▾ › All Labor Max Discount | Menu item | Not applicable | Not applicable |
+| Year(s) (precondition dialog) | Multi-select combobox (Radix popover) | None selected | Yes (1–3 selections) |
+| Currency (precondition dialog) | Single-select combobox | None selected | Yes |
+| Continue (precondition dialog) | Button | Disabled | Not applicable |
+| Cancel (precondition dialog) | Button | Enabled | Not applicable |
+| File input (upload dialog) | File input (accept=.csv) | No file selected | Yes |
+| Browse (upload dialog) | Button | Enabled | Not applicable |
+| Upload (upload dialog) | Button | Disabled | Not applicable |
+| Cancel (upload dialog) | Button | Enabled | Not applicable |
+| Staged row checkboxes (publish modal) | Checkbox | Unchecked | Yes (≥1 to enable Publish) |
+| Publish (publish modal) | Button | Disabled | Not applicable |
+| Cancel (publish modal) | Button | Enabled | Not applicable |
+
+---
+
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| Year(s) selection is required | Continue stays disabled while no year is selected |
+| Currency selection is required | Continue stays disabled while no currency is selected |
+| Year(s) maximum is 3 | Selecting a fourth year is refused; selection stays at 3 |
+| Continue is gated on both Year(s) and Currency | Continue enables only when at least one year and a currency are both set |
+| File must be CSV | Non-CSV files are rejected client-side with "Unsupported file type" before any network request |
+| Upload is gated on file selection | Upload button stays disabled until a file is chosen |
+| Publish is gated on at least one staged row | Publish button stays disabled until at least one row checkbox is checked |
+
+---
+
+## MCP_VERIFICATION_LOG
+
+Observed on office 1604 in the session recorded in the field inventory
+`corporate-pricing-import-all-2026-07-21.md` (live walk 2026-07-21, headless Playwright script,
+storageState `encore-state.json`). Each row is an observation, not an expectation. Rows marked
+"Not settled" are recorded because they were reached for and not resolved; no test case asserts them
+as fact.
+
+| # | Verified | Result |
+|---|---|---|
+| 1 | Import ▾ trigger present; 4 variants | Labels identical to Export ▾: "All Equipment Pricing", "All Labor Pricing", "All Equipment Max Discount", "All Labor Max Discount" |
+| 2 | Precondition dialog — Year(s) and Currency both required | Continue button disabled until both fields are set; live-verified |
+| 3 | Year(s) combobox option count and selection cap | 8 options (2021–2028); a 4th selection is refused (stays at 3) |
+| 4 | Currency combobox options | 3 options: USD, CAD, MXN |
+| 5 | Upload dialog testid | `corporate-pricing-import-dialog` confirmed present live 2026-07-21 |
+| 6 | File input accept constraint | accept=.csv only; non-CSV rejected client-side as "Unsupported file type" before any network request |
+| 7 | File display default text | "No file selected"; shows "Attached file / {filename}" after a file is chosen |
+| 8 | Upload button gate | Disabled until a file is chosen; enables on file selection |
+| 9 | "No changes" outcome message | "There are no changes between the imported and server pricebook" (shown when the file matches server exactly) |
+| 10 | "No matching pricebooks" outcome message | "None of the pricebooks on the server match the imported pricebook" (shown for empty or malformed CSV) |
+| 11 | Publish modal row-selection gate | Publish button disabled until at least one staged row is checked; "Total Items" count displayed |
+| 12 | Publish success toast | "Pricing import complete. There were N pricing change updates." |
+| 13 | Precondition dialog data-testid coverage | Zero data-testid attributes on all precondition dialog elements — **Not settled** (tracked in testid-gap-report; locators use role/aria-label/text) |
+
+---
 ## TC-CPR-IMA-001: Each Import variant opens the shared "Import" Year(s)+Currency dialog
 | Priority | Status | Type |
 |----------|--------|------|
