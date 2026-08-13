@@ -42,7 +42,7 @@
     },
     {
       "role": "historical_spec",
-      "path": "clients/encore/tests/corporate-override/corporate-override-nm2271.spec.ts",
+      "path": "clients/encore/tests/corporate-override/corporate-override-labor-grid.spec.ts",
       "commit": "8665088cc6a1f9301c668e369c1977773fa5f586",
       "commit_date": "2026-07-21T16:48:45+05:30",
       "blob": "2c5d5680fc35711c6da1f618bfe5d072a3aca3c3",

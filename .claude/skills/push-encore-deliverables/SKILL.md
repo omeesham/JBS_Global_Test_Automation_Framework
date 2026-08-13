@@ -21,8 +21,12 @@ when-to-use: User types /push-encore-deliverables <branch>. Never auto-routes, n
 ## Step 0 — Require the branch
 
 ```
-/push-encore-deliverables nm2268
+/push-encore-deliverables notes
 ```
+
+> Per-ticket branches (`nm####`) were retired 2026-08-13 — only `main` ships to the client. The
+> argument is a surviving collection preset (notes/ssl/legal/account-address/corporate-pricing/
+> auto-addon/left-panel-basic-info/locations) or an ad-hoc `--modules`/`--surface` scope.
 
 No argument → list local `delivery/*` branches and existing remote branches, then stop and ask.
 

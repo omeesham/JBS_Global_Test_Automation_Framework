@@ -20,7 +20,7 @@ Every page in Navigator Cloud belongs to exactly ONE module. Module directory na
 | `locations` | Location Settings | `/settings/location` | local-information, currency, pricing, account-address, legal, notes, shared-setup-locations, auto-addon, left-panel-basic-information, management-history |
 | `local-office` | Local Office Settings | `/settings/local-office` | settings (Basic Information), history (Location Settings History), ect (ECT Settings) |
 | `corporate-pricing` | Corporate Pricing | `/settings/corporate-pricing` | search, strategy, detail (`/details/<guid>`), new-pricebook (`/add?type=equipment\|labor`), toolbar-io |
-| `corporate-override` | Corporate Override | `/pg-override` | core, nm2268, nm2269, nm2270, nm2271, nm2272, nm2273 |
+| `corporate-override` | Corporate Override | `/pg-override` | core, location-picker, filters, grid-sort, labor-grid, export, import |
 | `auth` | Microsoft SSO login | `/auth/sign-in` | page object `src/pages/auth/login.page.ts`; session setup `tests/auth.setup.ts` |
 
 > Spec file names are flat inside each module dir (e.g. `tests/locations/location-pricing.spec.ts`), NOT nested under a `setup/` or `history/` subfolder.

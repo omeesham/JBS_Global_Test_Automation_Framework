@@ -1,6 +1,6 @@
 # PLAN — Staged per-ticket delivery of NM-2268 / NM-2269 / NM-2270 to the Encore deliverables repo
 
-**Status**: Pending
+**Status**: SUPERSEDED (2026-08-14 — per-ticket delivery branches retired by Rutvik 2026-08-13; only `main` ships via `/push-encore-deliverables`. The `--branch=nm2268/69/70` instructions below describe a retired mechanism and must not be executed. Superseding context: PLAN_65_TICKET_ID_STRUCTURAL_NAMING_REMEDIATION + PLAN_66_DELIVERABLE_TRUTH_SWEEP; flagged by audit p66-p4-audit2-0814 defect 2.)
 **Model**: Opus · **Thinking**: ultrathink · **PermissionMode**: default
 **Owner identity**: OWNER (delivery ceremony + publishing are CLAUDE-ONLY)
 **Depends on**: `plans/done/SUBPLAN_CORP_PRICING_NM2268_LOC_SEARCH.md`, `..._NM2269_OVERRIDE_FILTERS.md`, `..._NM2270_GRID_FILTERS.md` (all DONE, green ×2, pushed to `origin/main` 2026-07-20)

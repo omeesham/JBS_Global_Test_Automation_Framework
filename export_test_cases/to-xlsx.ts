@@ -149,12 +149,12 @@ const SHEET_NAMES: Record<string, string> = {
   corporate_pricing_import_all: 'corporate_pricing_import_all',
   // Corporate Override sheets (group split from corporate-pricing, 59C/59D)
   corporate_override_core: 'corporate_override_core',
-  corporate_override_nm2268: 'corporate_override_loc_picker',
-  corporate_override_nm2269: 'corporate_override_filters',
-  corporate_override_nm2270: 'corporate_override_grid_sort',
-  corporate_override_nm2271: 'corporate_override_labor_grid',
-  corporate_override_nm2272: 'corporate_override_export',
-  corporate_override_nm2273: 'corporate_override_import',
+  corporate_override_location_picker: 'corporate_override_loc_picker',
+  corporate_override_filters: 'corporate_override_filters',
+  corporate_override_grid_sort: 'corporate_override_grid_sort',
+  corporate_override_labor_grid: 'corporate_override_labor_grid',
+  corporate_override_export: 'corporate_override_export',
+  corporate_override_import: 'corporate_override_import',
   // Terms and Conditions
   terms_conditions_core: 'terms_conditions_core',
   // Service Charge Text
@@ -192,12 +192,12 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   corporate_pricing_import_all: 'Corporate Pricing — Import All',
   // Corporate Override
   corporate_override_core: 'Corporate Override — Core',
-  corporate_override_nm2268: 'Corporate Override — Location Picker',
-  corporate_override_nm2269: 'Corporate Override — Active and Currency Filters',
-  corporate_override_nm2270: 'Corporate Override — Grid Text Filter and Sort',
-  corporate_override_nm2271: 'Corporate Override — Labor Grid',
-  corporate_override_nm2272: 'Corporate Override — Export',
-  corporate_override_nm2273: 'Corporate Override — Import',
+  corporate_override_location_picker: 'Corporate Override — Location Picker',
+  corporate_override_filters: 'Corporate Override — Active and Currency Filters',
+  corporate_override_grid_sort: 'Corporate Override — Grid Text Filter and Sort',
+  corporate_override_labor_grid: 'Corporate Override — Labor Grid',
+  corporate_override_export: 'Corporate Override — Export',
+  corporate_override_import: 'Corporate Override — Import',
   // Terms and Conditions
   terms_conditions_core: 'Terms and Conditions — Core',
   // Service Charge Text
@@ -236,12 +236,12 @@ const SPLIT_FILE_MAP: Record<string, { group: string; stem: string }> = {
   local_office_ect: { group: 'local-office', stem: 'local-office-ect' },
   // Corporate Override
   corporate_override_core: { group: 'corporate-override', stem: 'corporate-override-core' },
-  corporate_override_loc_picker: { group: 'corporate-override', stem: 'corporate-override-nm2268' },
-  corporate_override_filters: { group: 'corporate-override', stem: 'corporate-override-nm2269' },
-  corporate_override_grid_sort: { group: 'corporate-override', stem: 'corporate-override-nm2270' },
-  corporate_override_labor_grid: { group: 'corporate-override', stem: 'corporate-override-nm2271' },
-  corporate_override_export: { group: 'corporate-override', stem: 'corporate-override-nm2272' },
-  corporate_override_import: { group: 'corporate-override', stem: 'corporate-override-nm2273' },
+  corporate_override_loc_picker: { group: 'corporate-override', stem: 'corporate-override-location-picker' },
+  corporate_override_filters: { group: 'corporate-override', stem: 'corporate-override-filters' },
+  corporate_override_grid_sort: { group: 'corporate-override', stem: 'corporate-override-grid-sort' },
+  corporate_override_labor_grid: { group: 'corporate-override', stem: 'corporate-override-labor-grid' },
+  corporate_override_export: { group: 'corporate-override', stem: 'corporate-override-export' },
+  corporate_override_import: { group: 'corporate-override', stem: 'corporate-override-import' },
   // Terms and Conditions
   terms_conditions_core: { group: 'terms-conditions', stem: 'terms-conditions-core' },
   // Service Charge Text
