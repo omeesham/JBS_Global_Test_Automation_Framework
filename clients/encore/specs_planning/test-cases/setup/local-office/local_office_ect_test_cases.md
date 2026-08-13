@@ -450,6 +450,19 @@
 
 ---
 
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| Benefits Multiplier — numeric mask | Non-numeric input is silently rejected; field reverts to its prior value on blur. No `aria-invalid`, no error message. (Source: `local-office-settings-2026-04-27.md` §ECT Settings tab; MCP_VERIFICATION_LOG row "Validation error patterns") |
+| Historical Subrental % — numeric mask | Non-numeric input is silently rejected; field reverts to its prior value on blur. No `aria-invalid`, no error message. (Source: `local-office-settings-2026-04-27.md` §ECT Settings tab) |
+| Labor Cost inputs — numeric mask (incomplete) | Non-numeric text typed normally reverts silently on blur. Triple-click + Delete + non-numeric text silently coerces to `0.00` with Save button enabled — no `aria-invalid`, no error message (data-corruption vector, BUG-LOS-ECT-010). (Source: `local-office-settings-2026-04-27.md` §ECT Settings tab field `ect-settings-input-labor-cost-*` Notes; MCP_VERIFICATION_LOG row "Boundary behaviors") |
+| Save (Fixed Costs) — no confirmation dialog | Clicking `ect-settings-btn-save-fixed-costs-btn` saves directly; no confirmation dialog is shown. Button disables on completion. (Source: `local-office-settings-2026-04-27.md` §Save-cycle observations "Save (ECT Fixed Costs)") |
+| Save (Labor Costs) — no confirmation dialog | Clicking `ect-settings-btn-save-labor-costs-btn` saves directly; no confirmation dialog is shown. (Source: `local-office-settings-2026-04-27.md` §Save-cycle observations "Save (ECT Labor Costs)") |
+| Event Profit Target table — read-only | All rows in this table are display-only; no user input is accepted. (Source: `local-office-settings-2026-04-27.md` §ECT Settings tab field "Event Profit Target Table" State=read-only) |
+
+---
+
 ## TC-LOS-ECT-017: Discard Unsaved Changes — No Persistence (State Transition)
 
 | Priority | Status | Type | Automatable |

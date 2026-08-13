@@ -1198,6 +1198,16 @@ LR-040 classifies every applicable taxonomy case as (a) net-new TC, (b) covered 
 
 ---
 
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| No user-input validation on this tab | The Shared Setup tab has no required-input fields and no cross-field validation rules. No `aria-invalid` triggers and no error messages are ever displayed. (Source: `shared-setup-2026-05-12.md` §Matrix D2: "N/A-INDEPENDENT — Shared Setup tab has NO required-input fields, NO cross-field validation rules per REQUIREMENTS L759-792"; MCP_VERIFICATION_LOG row "Validation error patterns": "N/A -- no validation errors observed") |
+| Primary Office column — unconditionally disabled | The Primary Office checkbox is disabled on all rows (self and non-self); it is not user-editable on this tab. (Source: `shared-setup-2026-05-12.md` §Field Inventory "Primary Office" Enabled/Disabled States: "unconditionally disabled on ALL rows (REQUIREMENTS L787)") |
+| No text inputs in main tab | The main Shared Setup table contains no text or numeric input fields; only checkboxes and action buttons. No numeric or format validation applies. (Source: `shared-setup-2026-05-12.md` §Field Inventory; MCP_VERIFICATION_LOG row "Boundary behaviors": "N/A -- no text/numeric inputs in main tab") |
+
+---
+
 ### Group catalog summary
 
 | Group | Count | TC IDs | Field type |
