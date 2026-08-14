@@ -15,7 +15,7 @@ const HOME = process.env.HOME || process.env.USERPROFILE || '';
 const guardPath = join(HOME, '.claude', 'hooks', 'labor-gate.mjs');
 const { checkCommand } = await import('file:///' + guardPath.replace(/\\/g, '/'));
 
-// ─── Harness (matches test-dispatch-visibility-fixtures.mjs) ──────────────────
+// ─── Harness ─────────────────────────────────────────────────────────────────
 
 let passed = 0;
 let failed = 0;

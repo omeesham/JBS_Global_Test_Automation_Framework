@@ -41,8 +41,6 @@
       "Bash(node .claude/hooks/lib/check-no-verify.mjs *)",
       "Bash(bash .claude/hooks/graft-ship-gate.sh)",
       "Bash(node .claude/hooks/lib/check-graft-ship.mjs *)",
-      "Bash(bash .claude/hooks/dispatch-visibility-gate.sh)",
-      "Bash(node .claude/hooks/lib/check-dispatch-visibility.mjs *)",
       "Bash(bash .claude/hooks/visibility-reconcile.sh)",
       "Bash(node .claude/hooks/lib/check-visibility-reconcile.mjs *)",
       "mcp__plugin_playwright_playwright__browser_snapshot",
