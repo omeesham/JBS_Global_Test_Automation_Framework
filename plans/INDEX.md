@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 148 pending · 473 done · 119 stale (>14d) · 0 DONE-in-pending
+**Totals**: 149 pending · 474 done · 119 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -274,20 +274,21 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 122 | [PLAN_LEGACY_OFFICE_MIGRATION_AND_GAP_RETROFIT.md](pending/PLAN_LEGACY_OFFICE_MIGRATION_AND_GAP_RETROFIT.md) | PLAN_LEGACY_OFFICE_MIGRATION_AND_GAP_RETROFIT | Low now, High when triggered | [PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md](pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md) | PENDING | Opus | xhi | auto | cli | 2026-07-17 |
 | 123 | [PLAN_REPO_SLOP_SWEEP.md](pending/PLAN_REPO_SLOP_SWEEP.md) | PLAN_REPO_SLOP_SWEEP — Full Cleanup of Everything Claude and Copilot Have Touched | HIGH | — (ready) | PENDING | — | — | default | — | 2026-08-14 |
 | 124 | [SUBPLAN_OFFREPO_RECONCILIATION.md](pending/SUBPLAN_OFFREPO_RECONCILIATION.md) | SUBPLAN_OFFREPO_RECONCILIATION — Off-Repo Findings Transfer (95 items) | HIGH | — (ready) | PENDING | Opus | xhi | default | — | 2026-07-30 |
-| 125 | [SUBPLAN_SCT_RENUMBER_DEFERRED_SHARED_WRITES.md](pending/SUBPLAN_SCT_RENUMBER_DEFERRED_SHARED_WRITES.md) | PLAN_SCT_RENUMBER_CLOSEOUT (mega plan — full-council execution) | — | — (ready) | PENDING | Opus (CEO/orchestrator) — worker tiers declared per phase below | — | default | cli (Phase 5 suite run only; every other phase is `none`) | 2026-08-06 |
-| 126 | [PLAN_SPEC_BASELINE_ENFORCEMENT.md](pending/PLAN_SPEC_BASELINE_ENFORCEMENT.md) | PLAN — Spec Baseline-State Enforcement (fix + rule, no static gate) | — | — (ready) | PENDING | — | — | execution (one page-object method + spec `beforeEach` wiring + one rule-prose edit + one stale-comment fix) | — | 2026-06-08 |
-| 127 | [PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md](pending/PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md) | PLAN — Staged per-ticket delivery of NM-2268 / NM-2269 / NM-2270 to the Encore deliverables repo | — | — (ready) | SUPERSEDED | Opus · **Thinking**: ultrathink · **PermissionMode**: default | — | — | — | 2026-08-13 |
-| 128 | [PLAN_TEAM_REPO_GATE_INPUT_CLOSURE.md](pending/PLAN_TEAM_REPO_GATE_INPUT_CLOSURE.md) | PLAN_TEAM_REPO_GATE_INPUT_CLOSURE | — | — (ready) | PENDING | Opus (P1/P2/P5 judgment + guardrail edits) / Sonnet allowed on P3/P4 mechanical rows | standard; ultrathink only at the P2 gitignore flip decision | default (guardrail-layer edits inside — each lands via normal commit gates, no bypass) | none | 2026-08-12 |
-| 129 | [PLAN_GRAFT_NM3345_3346_TAKEOVER.md](pending/PLAN_GRAFT_NM3345_3346_TAKEOVER.md) | PLAN_GRAFT_NM3345_3346_TAKEOVER | — | — (ready) | PENDING | opus | xhi | auto | cli | 2026-08-06 |
-| 130 | [PLAN_ULTRAAUDIT_FIX_WAVE.md](pending/PLAN_ULTRAAUDIT_FIX_WAVE.md) | PLAN_ULTRAAUDIT_FIX_WAVE.md | HIGH | — (ready) | PENDING | — | — | default | — | 2026-08-14 |
-| 131 | [PLAN_WALK_STATE_CONTRACT_REALIGN.md](pending/PLAN_WALK_STATE_CONTRACT_REALIGN.md) | PLAN_WALK_STATE_CONTRACT_REALIGN | — | — (ready) | PENDING | opus | xhi | auto | cli | 2026-08-06 |
-| 132 | [SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md](pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md) | SUBPLAN_DISPATCH_INTEGRITY_PERMANENT | — | — (ready) | PENDING | — | — | acceptEdits | — | 2026-08-14 |
-| 133 | [SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md](pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md) | SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS | Medium — calendar-gated custodian for every in-flight LR-069 announce→deny ramp | — (ready) | PENDING | Opus | hi | auto | none | 2026-07-29 |
-| 134 | [SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md](pending/SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md) | SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE | High — closes the one coverage class the generative oracle structurally cannot derive | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-07-29 |
-| 135 | [SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH.md](pending/SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH.md) | SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH | — | — (ready) | PENDING | — | — | — | — | 2026-08-11 |
-| 136 | [SUBPLAN_WALKER_OBSERVATION_MANDATE.md](pending/SUBPLAN_WALKER_OBSERVATION_MANDATE.md) | SUBPLAN — Walker Observation Mandate (+ the Corp-Pricing error-state bug that exposed the gap) | High | — (ready) | PENDING | Opus | xhi | auto | chrome (Part 2 bug is visual; CLI is structurally blind to it) | 2026-06-26 |
-| 137 | [SUBPLAN_CORP_PRICING_1444_HISTORY.md](pending/SUBPLAN_CORP_PRICING_1444_HISTORY.md) | SUBPLAN_CORP_PRICING_1444_HISTORY — Pricebook Management History tab (GATED STUB) | P1 | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-06-05 |
-| 138 | [PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md](pending/PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md) | PLAN: Re-enable / de-flake the 6 fixable tests from the 2026-06-02 live QA verification | P1 | — (ready) | PENDING | opus | xhi | acceptEdits | cli | 2026-06-02 |
+| 125 | [PLAN_SC_INPUT_RACE_ROOT_CAUSE.md](pending/PLAN_SC_INPUT_RACE_ROOT_CAUSE.md) | PLAN — Service Charge input-race: one root cause hunt, delegated and evidence-forced | — | — (ready) | PENDING | gpt-5.5 xhigh (live/probe seats) + claude-opus-4.6 max (artifact seat) — no other tiers | ultrathink on mama's synthesis steps only | default (probes are read-only against the app; no source edits in Phases 0–2) | cli (workers drive standalone Playwright scripts; headed) | 2026-08-14 |
+| 126 | [SUBPLAN_SCT_RENUMBER_DEFERRED_SHARED_WRITES.md](pending/SUBPLAN_SCT_RENUMBER_DEFERRED_SHARED_WRITES.md) | PLAN_SCT_RENUMBER_CLOSEOUT (mega plan — full-council execution) | — | — (ready) | PENDING | Opus (CEO/orchestrator) — worker tiers declared per phase below | — | default | cli (Phase 5 suite run only; every other phase is `none`) | 2026-08-06 |
+| 127 | [PLAN_SPEC_BASELINE_ENFORCEMENT.md](pending/PLAN_SPEC_BASELINE_ENFORCEMENT.md) | PLAN — Spec Baseline-State Enforcement (fix + rule, no static gate) | — | — (ready) | PENDING | — | — | execution (one page-object method + spec `beforeEach` wiring + one rule-prose edit + one stale-comment fix) | — | 2026-06-08 |
+| 128 | [PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md](pending/PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md) | PLAN — Staged per-ticket delivery of NM-2268 / NM-2269 / NM-2270 to the Encore deliverables repo | — | — (ready) | SUPERSEDED | Opus · **Thinking**: ultrathink · **PermissionMode**: default | — | — | — | 2026-08-13 |
+| 129 | [PLAN_TEAM_REPO_GATE_INPUT_CLOSURE.md](pending/PLAN_TEAM_REPO_GATE_INPUT_CLOSURE.md) | PLAN_TEAM_REPO_GATE_INPUT_CLOSURE | — | — (ready) | PENDING | Opus (P1/P2/P5 judgment + guardrail edits) / Sonnet allowed on P3/P4 mechanical rows | standard; ultrathink only at the P2 gitignore flip decision | default (guardrail-layer edits inside — each lands via normal commit gates, no bypass) | none | 2026-08-12 |
+| 130 | [PLAN_GRAFT_NM3345_3346_TAKEOVER.md](pending/PLAN_GRAFT_NM3345_3346_TAKEOVER.md) | PLAN_GRAFT_NM3345_3346_TAKEOVER | — | — (ready) | PENDING | opus | xhi | auto | cli | 2026-08-06 |
+| 131 | [PLAN_ULTRAAUDIT_FIX_WAVE.md](pending/PLAN_ULTRAAUDIT_FIX_WAVE.md) | PLAN_ULTRAAUDIT_FIX_WAVE.md | HIGH | — (ready) | PENDING | — | — | default | — | 2026-08-14 |
+| 132 | [PLAN_WALK_STATE_CONTRACT_REALIGN.md](pending/PLAN_WALK_STATE_CONTRACT_REALIGN.md) | PLAN_WALK_STATE_CONTRACT_REALIGN | — | — (ready) | PENDING | opus | xhi | auto | cli | 2026-08-06 |
+| 133 | [SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md](pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md) | SUBPLAN_DISPATCH_INTEGRITY_PERMANENT | — | — (ready) | PENDING | — | — | acceptEdits | — | 2026-08-14 |
+| 134 | [SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md](pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md) | SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS | Medium — calendar-gated custodian for every in-flight LR-069 announce→deny ramp | — (ready) | PENDING | Opus | hi | auto | none | 2026-07-29 |
+| 135 | [SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md](pending/SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md) | SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE | High — closes the one coverage class the generative oracle structurally cannot derive | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-07-29 |
+| 136 | [SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH.md](pending/SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH.md) | SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH | — | — (ready) | PENDING | — | — | — | — | 2026-08-11 |
+| 137 | [SUBPLAN_WALKER_OBSERVATION_MANDATE.md](pending/SUBPLAN_WALKER_OBSERVATION_MANDATE.md) | SUBPLAN — Walker Observation Mandate (+ the Corp-Pricing error-state bug that exposed the gap) | High | — (ready) | PENDING | Opus | xhi | auto | chrome (Part 2 bug is visual; CLI is structurally blind to it) | 2026-06-26 |
+| 138 | [SUBPLAN_CORP_PRICING_1444_HISTORY.md](pending/SUBPLAN_CORP_PRICING_1444_HISTORY.md) | SUBPLAN_CORP_PRICING_1444_HISTORY — Pricebook Management History tab (GATED STUB) | P1 | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-06-05 |
+| 139 | [PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md](pending/PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md) | PLAN: Re-enable / de-flake the 6 fixable tests from the 2026-06-02 live QA verification | P1 | — (ready) | PENDING | opus | xhi | acceptEdits | cli | 2026-06-02 |
 
 ### ⚠️ Cycle Detected
 These plans form a circular dependency (authoring error). Resolve by editing `**Depends on**` fields.
@@ -323,6 +324,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | [PLAN_65_TICKET_ID_STRUCTURAL_NAMING_REMEDIATION.md](done/PLAN_65_TICKET_ID_STRUCTURAL_NAMING_REMEDIATION.md) | PLAN 65: Ticket-ID Structural Naming — Remediation + Prevention | DONE | 2026-08-14 |
 | [PLAN_66_DELIVERABLE_TRUTH_SWEEP.md](done/PLAN_66_DELIVERABLE_TRUTH_SWEEP.md) | PLAN_66 — Deliverable Truth Sweep (post-PLAN_65 poison containment) | DONE | 2026-08-14 |
 | [PLAN_67_DISPATCH_VISIBILITY_AND_COUNCIL_HARDENED_FIXES.md](done/PLAN_67_DISPATCH_VISIBILITY_AND_COUNCIL_HARDENED_FIXES.md) | PLAN_67: Dispatch Visibility Gate + Council-Hardened Fixes (rename-gate, exporter date churn) | DONE | 2026-08-14 |
+| [PLAN_69_GATE_MODULE_DEAD_CODE_REMOVAL.md](done/PLAN_69_GATE_MODULE_DEAD_CODE_REMOVAL.md) | PLAN_69 — Remove the last 1180 dead lines of the deleted command blocker | DONE | 2026-08-14 |
 | [PLAN_HIST_COLUMN_FIRST_PIVOT.md](done/PLAN_HIST_COLUMN_FIRST_PIVOT.md) | MASTER PLAN — HIST Column-First Pivot ("Column-First Pivot Plan") | ARCHIVED-REFERENCE | 2026-08-13 |
 | [PLAN_HIST_COMMIT_HISTORY_WORK.md](done/PLAN_HIST_COMMIT_HISTORY_WORK.md) | PLAN_HIST_COMMIT_HISTORY_WORK | ARCHIVED-REFERENCE | 2026-08-13 |
 | [PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md](done/PLAN_MD_CSV_SPEC_PARITY_AND_LOCAL_OFFICE_SPLIT.md) | Parity Fix Plan — MD ↔ CSV ↔ Spec for Encore Test Cases | — | 2026-08-13 |
@@ -800,8 +802,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (148 files)
-  done/                 ← completed plans (473 files)
+  pending/              ← active plans (149 files)
+  done/                 ← completed plans (474 files)
 ```
 
 When completing a plan:
@@ -828,6 +830,7 @@ When completing a plan:
 | 2026-08-14 | pending | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PENDING |
 | 2026-08-14 | pending | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PENDING |
 | 2026-08-14 | pending | [PLAN_REPO_SLOP_SWEEP.md](pending/PLAN_REPO_SLOP_SWEEP.md) | PENDING |
+| 2026-08-14 | pending | [PLAN_SC_INPUT_RACE_ROOT_CAUSE.md](pending/PLAN_SC_INPUT_RACE_ROOT_CAUSE.md) | PENDING |
 | 2026-08-14 | pending | [PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md](pending/PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md) | PENDING |
 | 2026-08-14 | pending | [PLAN_ULTRAAUDIT_FIX_WAVE.md](pending/PLAN_ULTRAAUDIT_FIX_WAVE.md) | PENDING |
 | 2026-08-14 | pending | [SUBPLAN_CORP_PRICING_NM2271_GRID_EQUIPMENT_LABOR.md](pending/SUBPLAN_CORP_PRICING_NM2271_GRID_EQUIPMENT_LABOR.md) | PENDING |
@@ -836,6 +839,7 @@ When completing a plan:
 | 2026-08-14 | pending | [SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md](pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md) | PENDING |
 | 2026-08-14 | pending | [_TRIPLAN_RECONCILIATION.md](pending/_TRIPLAN_RECONCILIATION.md) | REFERENCE-ARTIFACT |
 | 2026-08-14 | done | [PLAN_67_DISPATCH_VISIBILITY_AND_COUNCIL_HARDENED_FIXES.md](done/PLAN_67_DISPATCH_VISIBILITY_AND_COUNCIL_HARDENED_FIXES.md) | DONE |
+| 2026-08-14 | done | [PLAN_69_GATE_MODULE_DEAD_CODE_REMOVAL.md](done/PLAN_69_GATE_MODULE_DEAD_CODE_REMOVAL.md) | DONE |
 | 2026-08-13 | pending | [PLAN_NM1715_LOC_BASIC_INFO_COVERAGE.md](pending/PLAN_NM1715_LOC_BASIC_INFO_COVERAGE.md) | PENDING |
 | 2026-08-13 | pending | [PLAN_NM1715_LOC_BASIC_INFO_ULTRACOVERAGE.md](pending/PLAN_NM1715_LOC_BASIC_INFO_ULTRACOVERAGE.md) | PENDING |
 | 2026-08-13 | pending | [PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md](pending/PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md) | SUPERSEDED |
@@ -853,5 +857,3 @@ When completing a plan:
 | 2026-08-13 | done | [PLAN_BUG_ARCHETYPE_CATALOG.md](done/PLAN_BUG_ARCHETYPE_CATALOG.md) | DONE |
 | 2026-08-13 | done | [PLAN_BUNDLE_OPERATIONAL_HARDENING.md](done/PLAN_BUNDLE_OPERATIONAL_HARDENING.md) | DONE |
 | 2026-08-13 | done | [PLAN_BUNDLE_SMOKE_TEST.md](done/PLAN_BUNDLE_SMOKE_TEST.md) | DONE |
-| 2026-08-13 | done | [PLAN_CC_ANTHROPIC_ALIGNMENT.md](done/PLAN_CC_ANTHROPIC_ALIGNMENT.md) | DONE |
-| 2026-08-13 | done | [PLAN_CLIENT_DELIVERABLE_REBUILD.md](done/PLAN_CLIENT_DELIVERABLE_REBUILD.md) | DONE |
