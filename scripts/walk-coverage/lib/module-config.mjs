@@ -58,6 +58,12 @@ export const MODULE_CONFIG = {
   // Discount Optimization Settings: two tabs (Discount Optimization / Special Rate Exemptions).
   // Tab 1 is the default resting surface; Tab 2 activated via openerRoleTextPatterns.
   'discount-optimization': {
+    // NOTE (2026-08-13): 'dialog:change-local-office' is deliberately NOT a required state yet.
+    // The opener is wired in enumerate-page.mjs, but the Add button that opens the dialog is
+    // DISABLED on office 1604, so the branch cannot fire there and no artifact can ever list it in
+    // Walk_State. Declaring it required made verify-denominator fail unsatisfiably with
+    // `required walk state missing: "dialog:change-local-office"`. Re-add it only together with an
+    // artifact from an office where Add is enabled and the branch actually fired.
     requiredStates: [{ label: 'resting' }, { label: 'tab:service-type-exemptions' }],
   },
 };

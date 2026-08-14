@@ -163,8 +163,12 @@ export const MODULE_CONFIG = {
     contentMarker: 'tbody tr',
     openerTestidPatterns: [],
     // Tab 2 activated as an opener so its columns enter the denominator on cycle 1.
+    // Add button opens an "Add Location" right-panel (Cancel/Update buttons); the
+    // Change Local Office modal is a nested picker inside that panel, not the direct
+    // target of the Add click. Confirmed live DOM 2026-08-11 (see spec comment above TC-DOP-OPT-091).
     openerRoleTextPatterns: [
-      { role: 'tab', text: 'Special Rate Exemptions by Service Type', branch: 'tab:service-type-exemptions' },
+      { role: 'tab',    text: 'Special Rate Exemptions by Service Type', branch: 'tab:service-type-exemptions' },
+      { role: 'button', text: 'Add', branch: 'panel:add-location' },
     ],
     excludeOptionRoles: true,
     ...MC_DATA['discount-optimization'],

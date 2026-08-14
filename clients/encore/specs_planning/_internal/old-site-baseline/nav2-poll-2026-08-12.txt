@@ -1,0 +1,29 @@
+=== snapshot ===
+- Page Title: Navigator Order Entry 2026.03.12.978.1
+### Snapshot
+```yaml
+
+```
+=== poll up to 300s for tbody rows ===
+"rows=0 bodylen=0 waited=300s"
+
+=== ROOT CAUSE: machine network egress degraded (measured 2026-08-12 ~17:1x IST) ===
+Legacy DEEP-LINK  /#/setup/DiscountPricing/settings : snapshot EMPTY, rows=0 bodylen=0 after 300s poll
+Legacy ROOT       /                                 : domcontentloaded TIMEOUT 60s, bodylen=0
+curl navigator2.training.psav.com                   : http=000 ttfb=95.99s size=0 (exit 35, TLS connect)
+curl cloudapps-e2e.encoreglobal.com  (CONTROL)      : http=000 ttfb=30.20s size=0
+curl example.com                                    : FAILED exit 28 (timeout)
+curl api.github.com                                 : http=200 ttfb=0.31s   <-- fast, so not total loss
+curl api.business.githubcopilot.com                 : http=404 ttfb=21.55s  <-- responds, but 21s
+
+CONCLUSION: not an application fault and not a repo/ticket defect. Two independent clients
+(playwright-cli and curl) fail against BOTH Encore environments, including the e2e control that
+ran a green 38-test suite from this same machine at ~10:00 today. Uncached hosts stall ~21-30s.
+The same degradation tripped the GitHub Copilot circuit breaker
+('api.business.githubcopilot.com' is open), which is why the worker fleet died twice.
+
+NOT DETERMINED: whether the legacy grid paints rows, because the legacy site could not be reached
+at all this attempt. The prior 2026-08-10 finding (page reachable, footer "Count 2155" rendered,
+tbody empty after 301s) therefore still stands as the most recent VALID observation.
+UNLOCK: restore network egress (VPN / proxy / DNS), then re-run the walk. No manifest edit is
+warranted on this evidence.

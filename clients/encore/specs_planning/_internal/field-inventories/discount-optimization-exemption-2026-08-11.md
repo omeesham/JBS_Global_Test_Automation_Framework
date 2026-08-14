@@ -51,6 +51,22 @@ Tab 2's own content (29 service-type rows with checkboxes) renders promptly once
 
 Denominator: **61** elements assigned to this file (21 shared page-level elements + 40 Special Rate Exemptions-tab-specific elements). Source denominator across both tabs: 148.
 
+**Correction, 2026-08-13 — 29 rows re-dispositioned.** The 29 `struct:checkbox|Exempt <ServiceType>`
+rows in this table previously read `out-of-scope: presentational container carrying no independent
+user-facing behaviour`, contradicting the `## Coverage Manifest` below, which dispositions the *same
+keys* as `covered-by-TC: TC-DOP-EXM-020`. The manifest was right and this table was wrong:
+`TC-DOP-EXM-020` calls `toggleExempt()` on these controls, reads their state via `aria-checked`, saves,
+reloads to assert the change persisted, and restores the original state in a `finally` block. A control
+a test toggles and persists is by definition not presentational. The 29 rows now match the manifest.
+
+Two things this correction deliberately does **not** do. It does not touch the `## Coverage Manifest`
+section, which is the only section the Cx coverage gate parses — verified by re-running the gate's own
+`extractManifestRows`/`coverageVerdict` before and after: the verdict is unchanged at
+`out-of-scope 21/61 = 34.4% (BREACH, cap 15%)` either way. This was a documentation contradiction, not
+a coverage change, and nothing here narrows the gate. It also leaves the one legitimate
+`id:radix-_r_#_ [archetype×7]` button row on that disposition, because an unlabelled Radix portal root
+genuinely is presentational.
+
 **Disposition honesty note**: rows marked `covered-by-TC` name the case IDs that Phase 7 will author.
 Those cases **do not exist yet** — this inventory is the authoring contract, and it is not closed until
 each cited ID resolves to a real case. No row claims `affordance-probed` or `read-only-verified`,
@@ -90,35 +106,35 @@ observation-claiming disposition without that evidence would be a fabrication.
 | `struct:th|Exempt|div/div/div/table/thead/tr` | th | covered-by-TC: TC-DOP-OPT-002 |
 | `id:radix-_r_2g_` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
 | `struct:button|Resize column isSpecialRateAllowed|div/div/table/thead/tr/th` | button | out-of-scope: tab 2 column resize drag control; column resizing and tab 2 sort controls are out of scope per the locations test plan |
-| `struct:checkbox|Exempt Computer Rental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Concise Equipment|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Digital Branding|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Digital Services Equipment|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Digital Services Subrental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Equipment Rental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt HSIA - Equipment|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt HSIA - Subrental Equipment|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt HSIA - Wi-Fi Services|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt HSIA Services|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Lighting|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Lighting Subrental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Photographic Services|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Power Infrastructure|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Power Rental Equipment|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Power Sub-rental Equipment|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Rigging Equipment - Subrental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Rigging Equipment Rental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Scenic Equipment Rental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Scenic Sub-Rental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Sub-Rental Equipment|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Telecom Equipment|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Telecom Services|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Telecom Subrental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Venue Equipment Rental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Virtual Events Equipment|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Virtual Events Professional Servi|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt Wedding Event Equipment Rental|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:checkbox|Exempt ZSub Rental Specialty|div/div/table/tbody/tr/td` | checkbox | out-of-scope: presentational container carrying no independent user-facing behaviour |
+| `struct:checkbox|Exempt Computer Rental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Concise Equipment|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Digital Branding|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Digital Services Equipment|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Digital Services Subrental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Equipment Rental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt HSIA - Equipment|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt HSIA - Subrental Equipment|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt HSIA - Wi-Fi Services|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt HSIA Services|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Lighting|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Lighting Subrental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Photographic Services|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Power Infrastructure|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Power Rental Equipment|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Power Sub-rental Equipment|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Rigging Equipment - Subrental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Rigging Equipment Rental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Scenic Equipment Rental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Scenic Sub-Rental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Sub-Rental Equipment|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Telecom Equipment|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Telecom Services|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Telecom Subrental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Venue Equipment Rental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Virtual Events Equipment|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Virtual Events Professional Servi|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt Wedding Event Equipment Rental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
+| `struct:checkbox|Exempt ZSub Rental Specialty|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
 | `struct:section|Notifications alt+T|html/body` | section | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
 
 ---
