@@ -272,6 +272,81 @@ npx playwright test clients/encore/tests/service-charge/service-charge-basic-inf
 node scripts/verify-no-forbidden.mjs --target=<clean-extract>   # exit 0 before any Phase-5 push
 ```
 
+## Execution Summary
+
+**Status of this summary**: Phases 0–3 delivered; Phase 4 closure is PARTIAL and Phase 5 (ship) has not
+run. The plan stays PENDING — see "Remaining before DONE" at the end of this section.
+
+### Test cases implemented
+
+| Sub-tab | TC IDs | Count | Spec |
+|---|---|---|---|
+| Basic Information | TC-SVC-BAS-001 … TC-SVC-BAS-030 | 30 | `clients/encore/tests/service-charge/service-charge-basic-information.spec.ts` |
+| History | TC-SVC-HIS-001 … TC-SVC-HIS-015 | 15 | `clients/encore/tests/service-charge/service-charge-history.spec.ts` |
+
+None dropped. The test-case documents and the specs carry the same 45 identifiers — confirmed by
+`npm run check:tc-parity` (PASS) during the commit that landed this work.
+
+### Verification (2026-08-15)
+
+- Basic Information: 31 passed (the 30 test cases plus the sign-in setup step), on repeated full runs,
+  the last at 4.4 minutes. No retries, no test filter, single worker.
+- History: 16 passed (15 test cases plus sign-in setup).
+- `node scripts/check-step-labels.mjs` — 0 violations across 25 page files and 33 spec files.
+- `npx tsc --noEmit` — clean.
+
+### What the work found and fixed
+
+The intermittent failures across this module had one cause. The percentage grid enables its inputs
+about one and a half to two seconds before it writes their stored values, so anything typed in that
+window was silently overwritten. The page object now waits for those values to settle before a test may
+interact with them — no sleeps and no retries.
+
+That fix exposed an older problem in five negative test cases. They checked the rejection marking after
+focus left the field, where the application usually restores the stored value and clears the marking.
+Measured five times per value, the marking is reliable only while the field still has focus, and Save
+stays disabled after focus leaves in every case. Those five now check both signals, which is stricter
+than what they replaced, and the test-case document says the same.
+
+Landed in commit `b80bdd6d0`.
+
+### Documentation and deliverable changes
+
+- `clients/encore/specs_planning/test-cases/setup/service-charge/service_charge_basic_information_test_cases.md`
+  — five cases rewritten to the measured behaviour, two titles matched to the specs, a stale
+  "needs live confirmation" marker removed from TC-SVC-BAS-022, and a bare date removed from a
+  client-visible row.
+- `clients/encore/specs_planning/_internal/ground-truth-service-charge-manual-2026-08-14.md` — the
+  owner's own replication steps recorded as ground truth.
+- The Service Charge sheets in the deliverable workbooks were rebuilt from those documents and staged
+  with them in the same commit.
+
+### Four commit-gate defects fixed along the way
+
+These were pre-existing and blocked the commit; all four are in commit `b80bdd6d0`.
+
+1. The workbook builder counted files already staged for the commit as "uncommitted" and refused to
+   run, which made committing any test-case document impossible.
+2. The freshness check compared a hidden bookkeeping sheet that the comparison build is designed never
+   to produce, so it failed itself on every run.
+3. The "has anything changed" check read the last commit, so it could not see a staged edit and skipped
+   rebuilding.
+4. The freshness check could not see input-identity drift at all; it now compares the recorded
+   fingerprint separately from the visible rows.
+
+Reviewed adversarially by a second provider, which returned five findings; four were conceded and
+fixed, one was refuted with evidence. Reports under `clients/encore/reports/council-gatefixes-0815/`
+and `clients/encore/reports/council-defend-0815/`.
+
+### Remaining before DONE
+
+- **Phase 5 (ship)** has not run — it is gated on the owner's explicit in-chat GO for the push.
+- **Closure gate Cx** fails on artifacts from the earlier walk phases: the old-site baseline note
+  `clients/encore/specs_planning/_internal/old-site-baseline/service-charge-2026-08-11.md` is missing 29
+  machine keys from its manifest and has no parseable walk-state line, and both field inventories carry
+  out-of-scope row ratios far above the 15% cap (26/29 and 26/30).
+- **Closure gate Cr** requires a `## Prior-Fix Trial` section, which this plan does not yet have.
+
 ## Plan-Deviations log
 
 (append D-N rows during /execute for genuine scope/process surprises only)
