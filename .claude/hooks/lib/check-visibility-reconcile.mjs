@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // check-visibility-reconcile.mjs — detective Stop-hook for invisible-dispatch detection.
 //
-// WHAT THIS CLOSES: the preventive PreToolUse gate (check-dispatch-visibility.mjs) cannot
-// see inside files the agent authors — a wrapper script containing the dispatch command
-// bypasses all literal-string matching. This detective layer reconciles at session end:
+// WHAT THIS CLOSES: this is the ONLY layer. A preventive PreToolUse gate was built
+// alongside it and deleted on 2026-08-14 — it inspected Claude's own tool calls, so a
+// dispatched worker never reached it (LR-074 §74.2). This layer reconciles at session end:
 // every dispatch recorded in the ledger must correspond to a visible tool call. Matching
 // is done ONE-TO-ONE by run_id (the unique UUID passed as --run-id <id> to copilot-worker.sh),
 // never by substring or timestamp window (V2-ATTACK MAJOR finding).
@@ -32,7 +32,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve, join } from "node:path";
 import { tmpdir } from "node:os";
 import { fireTelemetry } from "./hook-utils.mjs";
-import { commandHasWrapperInExecutablePosition } from "./check-dispatch-visibility.mjs";
+import { commandHasWrapperInExecutablePosition } from "./dispatch-command-parse.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..", "..", "..");
@@ -123,17 +123,17 @@ export function runIdPattern(runId) {
  * Strip heredoc bodies from a command string so that wrapper invocations
  * inside a heredoc body are not visible to commandHasWrapperInExecutablePosition.
  *
- * This is the detective-side mirror of the preventive gate's V19 rule (see
- * UNMODELED_CONTEXTS / hasUnmodeledDispatch in check-dispatch-visibility.mjs):
- * a wrapper invocation that appears inside an unmodeled execution context must
- * NEVER count as a visible dispatch.
+ * The rule: a wrapper invocation appearing inside an execution context that
+ * cannot be parsed with confidence must NEVER count as a visible dispatch. The
+ * deleted preventive gate carried the mirror of this rule; it is written out
+ * here so it survives that file.
  *
  * Heredoc bodies require special handling here because splitStatements() splits
  * on newlines, making each body line appear as a separate "statement" — this
  * would cause the wrapper line inside `cat <<EOF\nbash copilot-worker.sh\nEOF`
  * to falsely match as being in executable position.
  *
- * The other unmodeled contexts listed in UNMODELED_CONTEXTS (eval, backticks,
+ * The other contexts of that kind (eval, backticks,
  * $(), subshells, xargs, bash -c, env/nice/timeout/sudo) are already safe in
  * the reconcile path because their payloads are inside shell quotes, which
  * splitStatements treats as opaque — the wrapper never ends up as the exec
