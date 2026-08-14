@@ -14,6 +14,8 @@
 // invisible dispatch occurred.
 
 import { existsSync, mkdirSync, appendFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 import { fireTelemetry } from './hook-utils.mjs';
 
 // A5 — files the gate itself protects from deletion/overwrite/rename.
@@ -31,27 +33,27 @@ const PROTECTED_DIRS = [
   '.claude/hooks',
 ];
 
-// A1 — detachment tokens (all Bash commands, regardless of dispatch reference).
-const DETACH_TOKENS = ['nohup', 'setsid', 'disown', 'coproc'];
+// A1 — executable-name detachment primitives (checked via executableOf per split statement,
+// NOT via whole-command regex — prevents false-deny on English words in arguments/comments).
+const EXEC_DETACH_NAMES = new Set(['nohup', 'setsid', 'disown', 'coproc', 'at', 'wsl.exe']);
 
-// A1 — detachment regex patterns.
-const DETACH_PATTERNS = [
-  /\bscreen\s+-d\b/,
-  /\bscreen\s+-dm\b/,
-  /\btmux\s+new\s+-d\b/,
-  /\btmux\s+new-session\s+-d\b/,
-  /\bschtasks\s+\/create\b/i,
-  /\bat\s+/,                        // `at` scheduler; trailing space avoids matching cat/bat
-  /detached\s*:\s*true/,
-  /start_new_session\s*=\s*True/,
+// A1 — executable-position detachment patterns (executable name must match, then pattern
+// is tested on the individual statement, not the whole command).
+const EXEC_DETACH_PATTERNS = [
+  { exec: 'screen',   rx: /\bscreen\s+-d\b/ },
+  { exec: 'screen',   rx: /\bscreen\s+-dm\b/ },
+  { exec: 'tmux',     rx: /\btmux\s+new\s+-d\b/ },
+  { exec: 'tmux',     rx: /\btmux\s+new-session\s+-d\b/ },
+  { exec: 'schtasks', rx: /\bschtasks\s+\/create\b/i },
+  { exec: 'cmd.exe',  rx: /\bcmd\.exe\s+\/c\s+start\b/i },
+  { exec: 'start',    rx: /\bstart\s+\/b\b/i },
+  { exec: 'start',    rx: /\bstart\s+""/i },
 ];
 
-// A1 V2 NEW-VECTORS — Windows/WSL trampoline primitives.
-const DETACH_NEW_VECTORS = [
-  /\bcmd\.exe\s+\/c\s+start\b/i,
-  /\bstart\s+\/b\b/i,
-  /\bstart\s+""/i,
-  /\bwsl\.exe\b/i,
+// A1 — syntax-based detachment patterns (not executable names; tested on full command text).
+const SYNTAX_DETACH_PATTERNS = [
+  /detached\s*:\s*true/,
+  /start_new_session\s*=\s*True/,
 ];
 
 // A1 PowerShell detachment primitives (A4).
@@ -92,6 +94,16 @@ const RISKY_MARKERS = [
 
 // Canonical wrapper repo-relative path (consumed by A2 and the detective reconcile layer).
 export const CANONICAL_WRAPPER_PATH = '.claude/skills/ultra-agents/copilot-worker.sh';
+
+// Compute the absolute canonical wrapper path anchored to the repo root (derived from this module's location).
+const __gate_dirname = dirname(fileURLToPath(import.meta.url));
+const CANONICAL_WRAPPER_ABS = canonicalizePath(resolve(__gate_dirname, '../../..', CANONICAL_WRAPPER_PATH));
+
+/** Check if a canonicalized path resolves to the canonical wrapper (repo-relative or repo-absolute). */
+export function isCanonicalWrapper(resolvedPath) {
+  if (!resolvedPath) return false;
+  return resolvedPath === CANONICAL_WRAPPER_PATH || resolvedPath === CANONICAL_WRAPPER_ABS;
+}
 
 // Unified runner family (LR-074 §74.3: one widened rule, not parallel matchers).
 // Single-word runners: next token is the target package/binary.
@@ -262,7 +274,7 @@ export function commandHasWrapperInExecutablePosition(cmd) {
     }
     if (execIdx >= tokens.length) continue;
     const execStmt = tokens.slice(execIdx).join(' ');
-    if (parseDispatchWrapperPath(execStmt) === CANONICAL_WRAPPER_PATH) return true;
+    if (isCanonicalWrapper(parseDispatchWrapperPath(execStmt))) return true;
   }
   return false;
 }
@@ -401,6 +413,30 @@ export function executableOf(stmt) {
   return idx < tokens.length ? tokens[idx] : null;
 }
 
+/**
+ * hasExecPositionDetach — check if any split statement has a detachment primitive
+ * in executable position. Routes EXEC_DETACH_NAMES and EXEC_DETACH_PATTERNS through
+ * executableOf so words like "at", "screen", "start" in arguments/comments don't fire.
+ */
+function hasExecPositionDetach(cmd) {
+  for (const stmt of splitStatements(cmd)) {
+    const exec = executableOf(stmt);
+    if (!exec) continue;
+    const execBase = canonicalizePath(exec).split('/').pop() || '';
+
+    if (EXEC_DETACH_NAMES.has(execBase)) {
+      return { deny: true, reason: `S0 visibility gate: detachment primitive '${execBase}' in executable position denied (A1)` };
+    }
+
+    for (const { exec: expectedExec, rx } of EXEC_DETACH_PATTERNS) {
+      if (execBase === expectedExec && rx.test(stmt)) {
+        return { deny: true, reason: `S0 visibility gate: detachment pattern '${rx.source}' denied (A1)` };
+      }
+    }
+  }
+  return { deny: false };
+}
+
 // ── §B tokenizer ─────────────────────────────────────────────────────────────
 
 /**
@@ -524,7 +560,7 @@ function hasDirectCopilotInvocation(cmd) {
       const scriptToken = tokens[scriptIdx];
       if (!scriptToken) continue;
       const scriptNorm = canonicalizePath(scriptToken.replace(/^['"]|['"]$/g, ''));
-      if (scriptNorm === CANONICAL_WRAPPER_PATH) continue; // canonical sanctioned dispatch — allow
+      if (isCanonicalWrapper(scriptNorm)) continue; // canonical sanctioned dispatch — allow
       if (/\bcopilot\b/.test(scriptNorm)) return true;
     }
   }
@@ -613,16 +649,17 @@ function hasUnmodeledDispatch(cmd) {
 const DISPATCH_ARGS_RX = /--run-id\s|--agent\s|--ticket\s/;
 
 function hasDispatchArgsOnNonWrapper(cmd) {
-  if (!DISPATCH_ARGS_RX.test(cmd)) return { found: false };
+  // Quote-aware: dispatch args inside quoted content (echo "--run-id X", grep --run-id) don't fire.
+  if (!DISPATCH_ARGS_RX.test(stripQuotedContent(cmd))) return { found: false };
   for (const stmt of splitStatements(cmd)) {
-    if (!DISPATCH_ARGS_RX.test(stmt)) continue;
+    if (!DISPATCH_ARGS_RX.test(stripQuotedContent(stmt))) continue;
     const tokens = stmt.trim().split(/\s+/).filter(Boolean);
     let execIdx = 0;
     while (execIdx < tokens.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[execIdx])) execIdx++;
     if (execIdx >= tokens.length) continue;
     const execStmt = tokens.slice(execIdx).join(' ');
     const wrapperPath = parseDispatchWrapperPath(execStmt);
-    if (wrapperPath === CANONICAL_WRAPPER_PATH) continue;
+    if (isCanonicalWrapper(wrapperPath)) continue;
     return {
       found: true,
       reason: 'S0 visibility gate: dispatch arguments (--run-id/--agent/--ticket) on non-wrapper executable — possible renamed/symlinked dispatch (V22)',
@@ -637,11 +674,25 @@ function hasDispatchArgsOnNonWrapper(cmd) {
  * Over-denial is intentional: the sanctioned path is a plain foreground command.
  */
 function hasRiskyLauncherConstruct(cmd) {
-  // ANSI-C quoting: $'...' must be a word-start token (preceded by whitespace, operator, or SOL).
-  // This avoids false-positives from regex patterns like \.spec\.ts$' where $ ends a pattern
-  // inside an ordinary single-quoted shell string.
+  // ANSI-C quoting: $'...' can encode detachment characters via hex/unicode/octal escapes.
+  // Narrowed: only deny when content contains risky escapes (\xNN, \uNNNN, \0NNN) or dispatch
+  // tokens. Safe escapes (\n, \t, \r, \\, \', etc.) are allowed through.
   if (/(?:^|[\s;|&(])\$'/.test(cmd)) {
-    return { found: true, reason: "ANSI-C quoting $'...' can encode detachment characters (over-denial intentional)" };
+    const ansiRx = /(?:^|[\s;|&(])\$'((?:[^'\\]|\\.)*)'/g;
+    let m;
+    let hasRisky = false;
+    while ((m = ansiRx.exec(cmd)) !== null) {
+      const body = m[1];
+      if (/\\x[0-9a-fA-F]/i.test(body) || /\\u[0-9a-fA-F]/i.test(body) || /\\[0-7]{3}/.test(body)) {
+        hasRisky = true; break;
+      }
+      if (DISPATCH_TOKEN_RX.test(body)) {
+        hasRisky = true; break;
+      }
+    }
+    if (hasRisky) {
+      return { found: true, reason: "ANSI-C quoting $'...' contains risky escape or dispatch token (A3)" };
+    }
   }
 
   const hasShellLauncher = /\b(bash|sh|zsh|wsl|cmd|powershell|pwsh)\b/i.test(cmd);
@@ -763,24 +814,16 @@ export function checkCommand(cmd, toolName) {
     return { deny: true, reason: "S0 visibility gate: direct 'copilot' CLI invocation bypasses wrapper ledger (A2); use copilot-worker.sh" };
   }
 
-  // A1 — detachment tokens
-  for (const token of DETACH_TOKENS) {
-    if (new RegExp(`\\b${token}\\b`).test(cmd)) {
-      return { deny: true, reason: `S0 visibility gate: detachment primitive '${token}' denied (A1)` };
-    }
+  // A1 — executable-position detachment (tokens + patterns + V2 vectors)
+  const execDetach = hasExecPositionDetach(cmd);
+  if (execDetach.deny) {
+    return { deny: true, reason: execDetach.reason };
   }
 
-  // A1 — detachment patterns
-  for (const pattern of DETACH_PATTERNS) {
+  // A1 — syntax-based detachment patterns (not executable names; whole-command text match)
+  for (const pattern of SYNTAX_DETACH_PATTERNS) {
     if (pattern.test(cmd)) {
       return { deny: true, reason: `S0 visibility gate: detachment pattern denied (A1): ${pattern.source}` };
-    }
-  }
-
-  // A1 — V2 new vectors
-  for (const pattern of DETACH_NEW_VECTORS) {
-    if (pattern.test(cmd)) {
-      return { deny: true, reason: `S0 visibility gate: V2 trampoline primitive denied (A1): ${pattern.source}` };
     }
   }
 

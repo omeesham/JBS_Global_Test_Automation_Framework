@@ -1,7 +1,7 @@
 // test-dispatch-visibility-fixtures.mjs — fixture suite for check-dispatch-visibility.mjs
 // Run with: node .claude/hooks/lib/test-dispatch-visibility-fixtures.mjs
 
-import { checkCommand, checkPayload, canonicalizePath, splitStatements, executableOf, commandHasWrapperInExecutablePosition } from './check-dispatch-visibility.mjs';
+import { checkCommand, checkPayload, canonicalizePath, splitStatements, executableOf, commandHasWrapperInExecutablePosition, isCanonicalWrapper } from './check-dispatch-visibility.mjs';
 
 let passed = 0;
 let failed = 0;
@@ -821,6 +821,139 @@ assert('V22-D2 PATH renamed binary with dispatch args DENY',
   '/tmp/mybin --run-id X --ticket t.md', 'Bash', true);
 assert('V22-D3 sanctioned wrapper with dispatch args ALLOW',
   'bash .claude/skills/ultra-agents/copilot-worker.sh --ticket t.md --run-id X --work-type build', 'Bash', false);
+
+// ── P67-F1: ordinary-English ALLOW block (false-deny fix) ─────────────────────
+
+console.log('\n── P67-F1 ordinary-English ALLOW probes ──\n');
+
+assert('ENG-01 commit message with "at" → ALLOW',
+  'git commit -m "fix the crash at startup"', 'Bash', false);
+assert('ENG-02 echo with "at" → ALLOW',
+  'echo "look at this"', 'Bash', false);
+assert('ENG-03 npm test --grep with "at" → ALLOW',
+  'npm test -- --grep "renders at 1280px"', 'Bash', false);
+assert('ENG-04 grep with "at " → ALLOW',
+  'grep -n "at " src/', 'Bash', false);
+assert('ENG-05 node with "at" in comment → ALLOW',
+  'node -e "console.log(1)" # runs at build time', 'Bash', false);
+assert('ENG-06 commit message with "screen" → ALLOW',
+  'git commit -m "update screen layout"', 'Bash', false);
+assert('ENG-07 commit message with "start" → ALLOW',
+  'git commit -m "start the migration"', 'Bash', false);
+assert('ENG-08 echo with "nice" → ALLOW',
+  'echo "that looks nice"', 'Bash', false);
+assert('ENG-09 commit message with "nohup" → ALLOW',
+  'git commit -m "remove nohup from script"', 'Bash', false);
+assert('ENG-10 grep for "start" → ALLOW',
+  'grep -rn "start" src/', 'Bash', false);
+assert('ENG-11 echo with "setsid" → ALLOW',
+  'echo "do not use setsid in production"', 'Bash', false);
+assert('ENG-12 commit with "disown" → ALLOW',
+  'git commit -m "disown the old API endpoint"', 'Bash', false);
+assert('ENG-13 npm test with "screen" in grep → ALLOW',
+  'npm test -- --grep "screen resizes correctly"', 'Bash', false);
+
+// ── P67-F1: .githooks file bodies ALLOW (read from disk at test time) ─────────
+
+console.log('\n── P67-F1 .githooks body ALLOW probes ──\n');
+
+{
+  const _preCommit = readFileSync(new URL('../../../.githooks/pre-commit', import.meta.url), 'utf8');
+  assert('HOOK-01 .githooks/pre-commit body verbatim → ALLOW', _preCommit, 'Bash', false);
+}
+{
+  const _commitMsg = readFileSync(new URL('../../../.githooks/commit-msg', import.meta.url), 'utf8');
+  assert('HOOK-02 .githooks/commit-msg body verbatim → ALLOW', _commitMsg, 'Bash', false);
+}
+// pre-push already tested as V20A-PP above
+
+// ── P67-F1: V22 dispatch-args quote-aware ALLOW ──────────────────────────────
+
+console.log('\n── P67-F1 dispatch-args quote-aware probes ──\n');
+
+assert('DARG-01 echo "--run-id abc" → ALLOW (dispatch arg in quotes)',
+  'echo "--run-id abc"', 'Bash', false);
+assert('DARG-02 grep --run-id src/ → ALLOW (dispatch arg as grep argument)',
+  'grep "--run-id" src/', 'Bash', false);
+assert('DARG-03 git commit -m "added --ticket flag" → ALLOW',
+  'git commit -m "added --ticket flag support"', 'Bash', false);
+assert('DARG-04 cat file with --agent in quotes → ALLOW',
+  "cat 'logs with --agent data'", 'Bash', false);
+assert('DARG-05 real dispatch args on non-wrapper still DENY',
+  'mybin --run-id X --agent council-worker', 'Bash', true);
+
+// ── P67-F1: absolute-path wrapper ALLOW ───────────────────────────────────────
+
+console.log('\n── P67-F1 absolute-path wrapper probes ──\n');
+
+assert('ABSWRAP-01 bash with absolute Windows path to canonical wrapper → ALLOW',
+  'bash C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\.claude\\skills\\ultra-agents\\copilot-worker.sh --run-id X --work-type build',
+  'Bash', false);
+assert('ABSWRAP-02 bash with non-local Unix absolute path to wrapper → DENY (different repo)',
+  'bash /home/user/encore_framework/.claude/skills/ultra-agents/copilot-worker.sh --run-id X --work-type build',
+  'Bash', true);
+assert('ABSWRAP-03 non-repo absolute path still DENY (M3 preserved)',
+  'bash /tmp/.claude/skills/ultra-agents/copilot-worker.sh --ticket t.md', 'Bash', true);
+
+// ── P67-F1: $'…' narrowing probes ────────────────────────────────────────────
+
+console.log('\n── P67-F1 ANSI-C narrowing probes ──\n');
+
+assert('ANSIC-01 echo $\'hello\\nworld\' → ALLOW (safe escape only)',
+  "echo $'hello\\nworld'", 'Bash', false);
+assert('ANSIC-02 echo $\'tab\\there\' → ALLOW (safe escape)',
+  "echo $'tab\\there'", 'Bash', false);
+assert('ANSIC-03 $\'\\x26\' still DENY (hex-encoded &)',
+  "bash script.sh $'--flag\\x26bg'", 'Bash', true);
+assert('ANSIC-04 $\'\\u0026\' still DENY (unicode-encoded &)',
+  "bash -c $'cmd \\u0026'", 'Bash', true);
+assert('ANSIC-05 $\'copilot-worker.sh\' DENY (dispatch token in ANSI-C)',
+  "bash $'copilot-worker.sh'", 'Bash', true);
+
+// ── P67-F1: still-denies block (real detachment primitives survive) ───────────
+
+console.log('\n── P67-F1 still-denies probes ──\n');
+
+assert('STILL-01 real at scheduler → DENY',
+  'at 09:00 bash deploy.sh', 'Bash', true);
+assert('STILL-02 real nohup → DENY',
+  'nohup bash deploy.sh', 'Bash', true);
+assert('STILL-03 real screen -dm → DENY',
+  'screen -dm bash deploy.sh', 'Bash', true);
+assert('STILL-04 real setsid → DENY',
+  'setsid bash deploy.sh', 'Bash', true);
+assert('STILL-05 real disown → DENY',
+  'disown -h %1', 'Bash', true);
+assert('STILL-06 real cmd.exe /c start → DENY',
+  'cmd.exe /c start /b notepad', 'Bash', true);
+assert('STILL-07 real wsl.exe → DENY',
+  'wsl.exe bash -c "echo hi"', 'Bash', true);
+assert('STILL-08 detached: true syntax → DENY',
+  'spawn("node", [], {detached: true})', 'Bash', true);
+assert('STILL-09 start_new_session=True syntax → DENY',
+  'subprocess.Popen(["bash"], start_new_session=True)', 'Bash', true);
+assert('STILL-10 real coproc → DENY',
+  'coproc myfd { bash deploy.sh; }', 'Bash', true);
+
+// ── P67-F1: isCanonicalWrapper unit tests ─────────────────────────────────────
+
+{
+  const label1 = 'ISWRAP-01 repo-relative path matches';
+  if (isCanonicalWrapper('.claude/skills/ultra-agents/copilot-worker.sh')) { passed++; console.log(`  PASS [ISWRAP] ${label1}`); }
+  else { failed++; console.error(`  FAIL [ISWRAP] ${label1}`); }
+
+  const label2 = 'ISWRAP-02 absolute path ending with canonical matches';
+  if (isCanonicalWrapper('c:/users/rutvikkhorasiya/projects/encore_framework/.claude/skills/ultra-agents/copilot-worker.sh')) { passed++; console.log(`  PASS [ISWRAP] ${label2}`); }
+  else { failed++; console.error(`  FAIL [ISWRAP] ${label2}`); }
+
+  const label3 = 'ISWRAP-03 non-repo absolute path does not match';
+  if (!isCanonicalWrapper(canonicalizePath('/tmp/.claude/skills/ultra-agents/copilot-worker.sh'))) { passed++; console.log(`  PASS [ISWRAP] ${label3}`); }
+  else { failed++; console.error(`  FAIL [ISWRAP] ${label3}`); }
+
+  const label4 = 'ISWRAP-04 null returns false';
+  if (!isCanonicalWrapper(null)) { passed++; console.log(`  PASS [ISWRAP] ${label4}`); }
+  else { failed++; console.error(`  FAIL [ISWRAP] ${label4}`); }
+}
 
 // ── Summary ──────────────────────────────────────────────────────────────────
 
