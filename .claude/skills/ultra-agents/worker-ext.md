@@ -9,7 +9,9 @@
 - **Rutvik = Owner.** Says what. Approves escalations (or leaves AUTO_SELF on).
 - **Claude = CEO / Guarantor.** Decomposes → writes tickets → dispatches → reads the FINAL VERDICT (not full reports) → decides if anything smells → returns a oneliner to Rutvik. Claude does NOT write product code, does NOT deep-read repos, and does NOT review by default. The delegation gate hook makes "no laboring" structural, not a promise.
 - **Copilot fleet = the workforce.** Workers (`council-worker`, `council-planner` in ticket mode) do the ENTIRE job per ticket — the full 8-duty stack, exactly what solo-Claude used to do. The reviewer (`council-reviewer`, different vendor) reviews their output and emits a short DIGEST. A verifier (`council-verifier`, cheap) mechanically checks acceptance criteria.
-- Corporate chain depth: Claude → ≤5 concurrent workers → each worker ≤3 sub-agents → those sub-agents spawn nothing (depth 2). Every agent owns its deliverable; reports flow up.
+- Corporate chain depth (org chart — Rutvik 2026-08-13, **depth 3**): CEO (Claude) → **2 assistants** → each assistant **3 subagents** (cross-family where possible) → each of those **2 sub-subagents IF NEEDED**. Tree max **2 + 6 + 12 = 20 agents**. `/ultra-agents` raises ALL THREE caps **3×** (6 + 18 + 36 = 60); beyond that, ask Rutvik. Every agent owns its deliverable; reports flow up.
+  - **Shape ≠ concurrency** (recorded so this is not re-flagged as a conflict): `MAX_WORKERS` (§Concurrency caps — default 5, → 15 under `/ultra-agents`, wrapper hard-clamp 20) limits how many dispatches run AT ONCE; the tree above limits how many agents may EXIST per depth. A 20-agent tree executing ≤5 concurrent is coherent — the surplus queues on the atomic slot-lock's bounded wait.
+  - Supersedes the pre-2026-08-13 line (`≤5 concurrent workers → each worker ≤3 sub-agents → those sub-agents spawn nothing (depth 2)`).
 
 ## Prime directive — least Claude, highest quality, least cost
 
@@ -186,9 +188,11 @@ Order is fixed: jobs → agents-dispatched headcount (Rutvik-mandated 2026-07-10
 
 Oneliners — 1 line default, up to ~10 if the thing genuinely needs it, deeper only when Rutvik asks "more". No agent/framework/process jargon. Say what happened and whether it's clean.
 
-## Nested sub-agents (Copilot's own `task` tool — allowed, capped at 3, SOFT cap)
+## Nested sub-agents (Copilot's own `task` tool — **depth 3** allowed: 3 then 2, SOFT cap)
 
-Copilot's CLI ships its own `task` tool; the agent files permit ≤3 sub-agents at depth 2, and the wrapper's `--deny-tool` doesn't touch `task`, so nested delegation is already unlocked. **The cap is a soft instruction, not enforced** — verified 2026-07-06: a task spec explicitly demanding 5 threads overrode the "max 3" agent rule; no CLI flag hard-caps nested spawns. Mitigations: (1) Claude-authored ticket specs never request >3 threads; (2) post-run, scan `result.md` for self-reported spawn counts and flag >3 as a Delegation-receipt anomaly (visibility, not prevention).
+Copilot's CLI ships its own `task` tool, and the wrapper's `--deny-tool` doesn't touch `task`, so nested delegation is already unlocked. Per the depth-3 org chart (§Roles, Rutvik 2026-08-13): an assistant may spawn **≤3 subagents**; each of those subagents may spawn **≤2 sub-subagents, IF NEEDED** (not by default — a third level is for genuine breadth, not reflex fan-out). Under `/ultra-agents` both fan-outs go 3× (≤9, then ≤6).
+
+**The cap is a soft instruction, not enforced** — verified 2026-07-06: a task spec explicitly demanding 5 threads overrode the "max 3" agent rule; no CLI flag hard-caps nested spawns. Raising the documented depth to 3 does NOT make it enforced; it makes the document match the intent. Mitigations stay post-hoc: (1) Claude-authored ticket specs never request more than the level's cap (>3 at depth 2, >2 at depth 3); (2) post-run, scan `result.md` for self-reported spawn counts and flag over-cap as a Delegation-receipt anomaly (visibility, not prevention).
 
 ## Model registry + effort (verified via `--log-level debug` capability probes — NOT assumed)
 

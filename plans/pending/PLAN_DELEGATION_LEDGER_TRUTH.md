@@ -103,7 +103,7 @@ per-tooth attribution in §4.
 **F5 — the ticket "OUTPUT" convention is drifted and unparseable as-is.** 71 ticket files carry an
 output line across ≥5 spellings (`OUTPUT:`, `Output file:`, `Output file (exact path):`,
 `**OUTPUT-DIR**:`, `**OUTPUT DIR (literal — ALL writes go here)**:`), with Windows paths
-(`C:\Users\rutvi\...`). Reports contain false-positive shapes (`OUTPUT: (no output) EXIT:0 → PASS`,
+(`C:\Users\RutvikKhorasiya\...`). Reports contain false-positive shapes (`OUTPUT: (no output) EXIT:0 → PASS`,
 `output: **46**`). The literal string `OUTPUT (LITERAL ABSOLUTE)` the defect report quotes does not
 appear anywhere. Fuzzy-matching this rebuilds the shape-recognition defect. **Resolution**: define
 ONE canonical field, parse only that exact anchored form, and add it to the ticket template. Legacy
@@ -214,7 +214,7 @@ for each anchor, confirm the state exists at that point and the record is still 
 
 Implementation constraints:
 - `set -uo pipefail` is active and `-e` is **not**. Every new variable is initialized before use.
-- Path normalization is mandatory — tickets carry `C:\Users\rutvi\...`; backslashes are escapes in
+- Path normalization is mandatory — tickets carry `C:\Users\RutvikKhorasiya\...`; backslashes are escapes in
   bash, so `[ -s "C:\Users\..." ]` silently misreads. Use `cygpath -u` when present, else a `sed`
   transform, and fall back to `not-declared` if normalization fails.
 - The OUTPUT parse is **strictly anchored** to the canonical token, first match only, and the result

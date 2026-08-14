@@ -152,7 +152,7 @@ author's defense is a protocol defect and goes back.
 contradict?
 
 - **Denominator**: user instructions extracted from the session transcript at
-  `C:\Users\rutvi\.claude\projects\C--Users-rutvi-projects-encore-framework\97fc2a8f-d682-49e5-ad02-431273e486b4.jsonl`
+  `C:\Users\RutvikKhorasiya\.claude\projects\C--Users-RutvikKhorasiya-projects-encore-framework\97fc2a8f-d682-49e5-ad02-431273e486b4.jsonl`
   (2933 lines), plus the pre-compaction instructions preserved in the summary block.
 - **L2 validation set** (the extractor must find all of these before its count is trusted):
   `abuse the council of copilot` · `there is also a sloppy shitty _unit file` · `we need to put

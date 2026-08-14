@@ -65,6 +65,67 @@ const DEFAULT_REPO_ROOT = path.resolve(__dirname, '..');
 const FRESHNESS_DAYS = 14;
 const TC_MD_GLOB_RE = /^clients\/[^/]+\/specs_planning\/test-cases\/.+\.md$/;
 
+/**
+ * INVARIANT: every path field parsed from the staged-diff stream must satisfy this.
+ * A record is legal only if its path fields are non-empty strings with no control
+ * characters. Throws on any violation — never silently drops a malformed record.
+ *
+ *   • missing / undefined / non-string → parse failure (truncated record)
+ *   • empty string → parse failure (truncated record, e.g. "M\0" with no path)
+ *   • C0 control characters (0x00–0x1F) or DEL (0x7F) → refuse (git path
+ *     corruption or adversarial filename — TC_MD_GLOB_RE uses `.+` without dotAll
+ *     so a newline-bearing path would silently return 0 entries; we refuse it
+ *     before the regex is ever tested so this regex property is irrelevant)
+ *
+ * @param {unknown} p       Field value to validate.
+ * @param {string}  context Descriptive context for the error message.
+ */
+function validateParsedPath(p, context) {
+  if (typeof p !== 'string' || p === '') {
+    throw new Error(`[check-tc-has-fieldinventory] malformed staged-diff: missing or empty path in ${context}`);
+  }
+  if (/[\x00-\x1F\x7F]/.test(p)) {
+    throw new Error(`[check-tc-has-fieldinventory] malformed staged-diff: path contains control character in ${context}: ${JSON.stringify(p)}`);
+  }
+}
+
+// ── Status token grammar validator ───────────────────────────────────────────
+
+/**
+ * Regex for the two legal shapes of a git --name-status status token:
+ *   Single-letter: A, M, D, T, U, X, B  (the full set git can emit)
+ *   Scored:        R or C followed by a similarity score of 0–100 (git's real percentage
+ *                  range, zero-padded to up to 3 digits, e.g. R100, C075, R000)
+ *
+ * Reference: git-diff(1), git-status(1); verified by probing `git diff --name-status -M<n>%`
+ * in a temp repo — highest score observed is R100 (identical); -M999% is accepted by git as a
+ * flag but git still only emits scores ≤ 100 in its output.
+ *
+ * D, T, U, X, B are valid git tokens but are not produced by --diff-filter=ACMR.
+ * They pass grammar validation and then fall to the else-throw branch, which is the
+ * correct deny-safe outcome for unexpected-but-legal tokens.
+ */
+const VALID_STATUS_SINGLE_RE = /^[AMDTUXB]$/;
+const VALID_STATUS_SCORED_RE = /^[RC](100|0\d{2}|\d{1,2})$/;
+
+/**
+ * Validate a git --name-status status token against git's exact grammar.
+ * Throws before any arity-branch logic for any token that does not match.
+ * This closes the class of "wrong-but-same-arity" prefix-match escapes:
+ * M100, RXYZ, CXYZ etc. would pass prefix matching but fail here.
+ *
+ * @param {string} status  The status token extracted from the diff stream.
+ * @param {string} context Descriptive context for the error message.
+ */
+function validateStatusToken(status, context) {
+  if (!VALID_STATUS_SINGLE_RE.test(status) && !VALID_STATUS_SCORED_RE.test(status)) {
+    throw new Error(
+      `[check-tc-has-fieldinventory] invalid status token ${JSON.stringify(status)} in ${context} — ` +
+      `expected single letter A/M/D/T/U/X/B or R/C followed by a score of 0–100 (e.g. R100, C075, R000)`
+    );
+  }
+}
+
 const STATE_DIR = path.join(DEFAULT_REPO_ROOT, '.claude', 'state');
 const GATE_FIRES_LOG = path.join(STATE_DIR, 'gate-fires.log');
 const GUARDRAIL_CONFIG = path.join(DEFAULT_REPO_ROOT, '.claude', 'guardrail-config.json');
@@ -254,11 +315,197 @@ export function findLatestArtifact({ repoRoot, client, module: moduleName, today
 }
 
 // ---------- git helpers (production mode) ----------
-function gitStagedTcFiles(repoRoot) {
-  const raw = execSync('git diff --cached --name-only --diff-filter=ACMR', {
-    cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  return raw.split(/\r?\n/).filter(l => l && TC_MD_GLOB_RE.test(l));
+
+/**
+ * Parse raw `git diff --cached --name-status -M --diff-filter=ACMR` output into
+ * TC file entries with rename-pair info.
+ *
+ * Returns Array<{ newPath: string, oldPath: string|null, forceNew: boolean }>
+ *   forceNew=true  → use oldContent='' regardless of git content (outside→inside
+ *                    rename, copy, or unrecognised status — deny-safe by construction)
+ *   forceNew=false → resolve old content from HEAD:<oldPath>
+ *
+ * Exported for unit testing without git.
+ */
+export function parseStagedNameStatus(raw) {
+  const entries = [];
+  for (const line of raw.split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    const parts = line.split('\t');
+    const status = parts[0];
+    if (!status || parts.length < 2) {
+      // Malformed line — AMENDMENT 3: fail closed (throw = parse failure surfaces as exit 2,
+      // never a silent drop that lets an unchecked file past the gate).
+      throw new Error(`[check-tc-has-fieldinventory] malformed staged-diff line (cannot extract path): ${JSON.stringify(line)}`);
+    }
+    // Validate the status token against git's exact grammar BEFORE branching on arity.
+    // This closes the prefix-match escape: M100, RXYZ, CXYZ etc. have correct arity
+    // for their wrong branch and would silently return 0 entries without this check.
+    validateStatusToken(status, `line: ${JSON.stringify(line)}`);
+    if (/^[AM]/.test(status)) {
+      // Added or modified: oldPath === newPath (HEAD:<newPath> is normal add/edit)
+      const newPath = parts[1];
+      if (TC_MD_GLOB_RE.test(newPath)) {
+        entries.push({ newPath, oldPath: newPath, forceNew: false });
+      }
+    } else if (/^R/.test(status)) {
+      // Wrong arity on R is a parse failure — throw before any TC-path filtering.
+      if (parts.length < 3) {
+        throw new Error(`[check-tc-has-fieldinventory] malformed staged-diff line (R requires 3 tab-fields, got ${parts.length}): ${JSON.stringify(line)}`);
+      }
+      const oldPath = parts[1];
+      const newPath = parts[2];
+      if (!TC_MD_GLOB_RE.test(newPath)) continue; // rename out of TC scope — skip
+      // AMENDMENT 1: outside→inside laundering guard.
+      // If the old path was NOT in TC jurisdiction, a rename brings authored TC content
+      // in from outside with no paired inventory. Force oldContent='' so the gate fires.
+      const forceNew = !TC_MD_GLOB_RE.test(oldPath);
+      entries.push({ newPath, oldPath, forceNew });
+    } else if (/^C/.test(status)) {
+      // Wrong arity on C is a parse failure — throw before any TC-path filtering.
+      if (parts.length < 3) {
+        throw new Error(`[check-tc-has-fieldinventory] malformed staged-diff line (C requires 3 tab-fields, got ${parts.length}): ${JSON.stringify(line)}`);
+      }
+      // AMENDMENT 2: C### copies → deny-safe (treat as new, no old content)
+      const newPath = parts[2];
+      if (TC_MD_GLOB_RE.test(newPath)) {
+        entries.push({ newPath, oldPath: null, forceNew: true });
+      }
+    } else {
+      // Unrecognised status → parse failure. Per the invariant, every record must be
+      // fully classified; an unknown status means corrupted or changed git output — throw.
+      throw new Error(`[check-tc-has-fieldinventory] malformed staged-diff line (unrecognised status ${JSON.stringify(status)}): ${JSON.stringify(line)}`);
+    }
+  }
+  return entries;
+}
+
+/**
+ * Parse NUL-delimited output from `git diff --cached -z --name-status`.
+ *
+ * With -z, git emits raw unquoted paths regardless of core.quotepath.
+ * Record layout (NUL-separated fields):
+ *   A/M:   <status>\0<path>\0
+ *   R/C:   <status>\0<oldpath>\0<newpath>\0
+ *
+ * FULL-CLASSIFICATION INVARIANT (enforced here, not scattered across callers):
+ * Every non-empty record in the stream must be fully classified — either as a TC
+ * entry or as an explicit non-TC skip (path outside TC_MD_GLOB_RE scope). Anything
+ * that does not fit a known pattern is a parse failure and MUST throw. Specifically:
+ *   • Status empty or whitespace-only → throw (field misalignment)
+ *   • Status unrecognised (not A/M/R/C) → throw (changed git format or corruption)
+ *   • Required path field missing, empty, or not a string → throw (validateParsedPath)
+ *   • Path containing CR, LF, or any C0/DEL control character → throw (validateParsedPath)
+ *   • Wrong field arity for R or C → throw
+ *   • Structural self-check: fields consumed during parsing must equal the total count
+ *     of non-empty fields in the stream; a mismatch means an unclassified record
+ *     escaped the loop — throw. This is the backstop that makes a new silent-skip
+ *     impossible without breaking this check.
+ *
+ * Exported for unit testing.
+ */
+export function parseStagedNameStatusZ(raw) {
+  if (!raw) return [];
+  const fields = raw.split('\0');
+  // Pre-count non-empty fields for the structural self-check at the end.
+  const nonEmptyCount = fields.filter(f => f !== '').length;
+  const entries = [];
+  let i = 0;
+  let fieldsConsumed = 0;
+
+  while (i < fields.length) {
+    const status = fields[i];
+    // Trailing NUL produces an empty last element — skip explicitly.
+    if (status === '') { i++; continue; }
+    if (!status.trim()) {
+      throw new Error(`[check-tc-has-fieldinventory] malformed -z staged-diff: whitespace-only status field at index ${i}`);
+    }
+    // Validate the status token against git's exact grammar BEFORE branching on arity.
+    // This closes the prefix-match escape: M100\0path\0, RXYZ\0old\0new\0, CXYZ\0old\0new\0
+    // each consume the correct field count for their branch while being misclassified,
+    // returning 0 entries. Grammar validation catches them before arity branching.
+    validateStatusToken(status, `field index ${i}`);
+    fieldsConsumed++; // status field
+
+    if (/^[AM]/.test(status)) {
+      const newPath = fields[i + 1];
+      validateParsedPath(newPath, `A/M record at field index ${i}`);
+      fieldsConsumed++; // path field
+      if (TC_MD_GLOB_RE.test(newPath)) {
+        entries.push({ newPath, oldPath: newPath, forceNew: false });
+      }
+      i += 2;
+    } else if (/^R/.test(status)) {
+      const oldPath = fields[i + 1];
+      const newPath = fields[i + 2];
+      if (typeof oldPath !== 'string' || typeof newPath !== 'string' || oldPath === '' || newPath === '') {
+        throw new Error(`[check-tc-has-fieldinventory] malformed -z staged-diff: R record requires oldpath+newpath at field index ${i} (got: ${JSON.stringify([oldPath, newPath])})`);
+      }
+      validateParsedPath(oldPath, `R record oldpath at field index ${i + 1}`);
+      validateParsedPath(newPath, `R record newpath at field index ${i + 2}`);
+      fieldsConsumed += 2; // oldpath + newpath
+      if (TC_MD_GLOB_RE.test(newPath)) {
+        const forceNew = !TC_MD_GLOB_RE.test(oldPath);
+        entries.push({ newPath, oldPath, forceNew });
+      }
+      // EXPLICIT non-TC classification: destination path outside TC scope → record is
+      // fully parsed and field-count is accounted for; the rename is deliberately skipped.
+      // This is NOT a silent zero — the arity branch was chosen from a VALIDATED status.
+      i += 3;
+    } else if (/^C/.test(status)) {
+      const oldPath = fields[i + 1];
+      const newPath = fields[i + 2];
+      if (typeof oldPath !== 'string' || typeof newPath !== 'string' || oldPath === '' || newPath === '') {
+        throw new Error(`[check-tc-has-fieldinventory] malformed -z staged-diff: C record requires oldpath+newpath at field index ${i} (got: ${JSON.stringify([oldPath, newPath])})`);
+      }
+      validateParsedPath(oldPath, `C record oldpath at field index ${i + 1}`);
+      validateParsedPath(newPath, `C record newpath at field index ${i + 2}`);
+      fieldsConsumed += 2; // oldpath + newpath
+      if (TC_MD_GLOB_RE.test(newPath)) {
+        entries.push({ newPath, oldPath: null, forceNew: true });
+      }
+      // EXPLICIT non-TC classification: destination path outside TC scope → record is
+      // fully parsed and field-count is accounted for; the copy is deliberately skipped.
+      i += 3;
+    } else {
+      // Unrecognised status → parse failure. Per the invariant, every record must be
+      // fully classified; an unknown status means corrupted or changed git output.
+      throw new Error(`[check-tc-has-fieldinventory] malformed -z staged-diff: unrecognised status ${JSON.stringify(status)} at field index ${i}`);
+    }
+  }
+
+  // Structural self-check: every non-empty field must have been accounted for.
+  // A mismatch here means a record was consumed with incorrect arity — impossible
+  // to introduce silently without breaking this assertion.
+  if (fieldsConsumed !== nonEmptyCount) {
+    throw new Error(`[check-tc-has-fieldinventory] staged-diff structural integrity check failed: consumed ${fieldsConsumed} fields but stream contained ${nonEmptyCount} non-empty fields — possible unclassified record`);
+  }
+
+  return entries;
+}
+
+/**
+ * Query git for staged TC files, returning rename-pair info for each entry.
+ * Uses -z NUL-delimited output so git never quotes or octal-escapes paths
+ * (fixing silent invisibility of files with non-ASCII or space characters).
+ * Exported for integration testing with a real git repo.
+ */
+export function gitStagedTcFilesWithStatus(repoRoot) {
+  let raw;
+  try {
+    raw = execSync('git diff --cached -z --name-status -M --diff-filter=ACMR', {
+      cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (e) {
+    process.stderr.write(`[check-tc-has-fieldinventory] git error: ${e.message}\n`);
+    process.exit(2);
+  }
+  try {
+    return parseStagedNameStatusZ(raw);
+  } catch (e) {
+    process.stderr.write(`[check-tc-has-fieldinventory] staged-diff parse failed — commit refused.\n${e.message}\n`);
+    process.exit(2);
+  }
 }
 
 function gitShow(repoRoot, ref) {
@@ -516,11 +763,11 @@ function main() {
     }));
     today = fixture.today || todayIso();
   } else {
-    const staged = gitStagedTcFiles(args.repoRoot);
-    files = staged.map(p => ({
-      path: p,
-      oldContent: gitOldContent(args.repoRoot, p),
-      newContent: gitStagedContent(args.repoRoot, p),
+    const staged = gitStagedTcFilesWithStatus(args.repoRoot);
+    files = staged.map(({ newPath, oldPath, forceNew }) => ({
+      path: newPath,
+      oldContent: forceNew ? '' : gitOldContent(args.repoRoot, oldPath),
+      newContent: gitStagedContent(args.repoRoot, newPath),
     }));
     today = todayIso();
   }

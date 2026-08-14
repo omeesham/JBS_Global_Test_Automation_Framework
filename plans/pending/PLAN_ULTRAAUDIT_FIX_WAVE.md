@@ -187,7 +187,7 @@ labor-gate shape) is a scoping defect, not a done lot.
 **Execution mechanics**: at execution start, batch every unfilled `DECIDE:` line through `/questionnaire`
 (decision mode). `/regression-guard` fingerprints are taken before the first apply and diffed after the
 last (see F-8). Evidence home: the audit artifacts cited below are preserved in-repo at
-`plans/pending/_audit-evidence-0805/` — `C:\Users\rutvi\aud\` is scheduled for teardown and must never be
+`plans/pending/_audit-evidence-0805/` — `C:\Users\RutvikKhorasiya\aud\` is scheduled for teardown and must never be
 the only copy.
 
 ---
@@ -198,7 +198,7 @@ the only copy.
 2026-08-05. Full report: `plans/pending/_audit-evidence-0805/AUDIT-REPORT-V2.md`. Ledger:
 `plans/pending/_audit-evidence-0805/PROGRESS.md`. Re-runnable check:
 `plans/pending/_audit-evidence-0805/reaudit2.mjs` (6/6 at wiring time; preserved in-repo before the
-`C:\Users\rutvi\aud\` workspace teardown).
+`C:\Users\RutvikKhorasiya\aud\` workspace teardown).
 
 **The audit was READ-ONLY by instruction.** Nothing below was fixed. **This plan is where the fixing
 happens.** Every block ends in a `DECIDE:` line; fill it, then execute it as a fix lot.

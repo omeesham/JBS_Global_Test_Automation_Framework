@@ -17,7 +17,7 @@ closure_meta: true
 
 v5 (`plans/done/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md`, 795 lines, 52 audit corrections) shipped in 3 commits (`717bf72` + `32398e2` + `6063b04`) and was closed with a self-graded GREEN `/final-q` verdict. Two external AI auditors then found 16 defects between them; self-review found 7 more. Total: **23 confirmed defects, 5 CRITICAL exploitable bypasses of the authorization surface**.
 
-**Audit evidence (read-only source-of-truth)**: `C:\Users\rutvi\.claude\plans\dazzling-noodling-yeti.md` — session-plan that ran the audit, lists every defect with file:line evidence + plan-body citation showing the contract that was broken.
+**Audit evidence (read-only source-of-truth)**: `C:\Users\RutvikKhorasiya\.claude\plans\dazzling-noodling-yeti.md` — session-plan that ran the audit, lists every defect with file:line evidence + plan-body citation showing the contract that was broken.
 
 The v5 implementation failed because:
 - 41 files in 3 commits in 1 session = too much surface to verify per-promise in one sitting.
@@ -270,7 +270,7 @@ v5 plan body explicitly rejected these. Any v6 chunk that reintroduces them = ma
 - Distinct override phrase for closure separate from LR-043 §A (v1 reviewer rejected via Q3 lock)
   - Verify: `grep -rnE "CLOSURE-OVERRIDE-REQUEST" .claude/ scripts/` → expect 0 matches.
 - Self-grading by the same session that produced the deliverable (AUD-017 — non-falsifiable)
-  - Verify: parent + each subplan's Execution Summary cites an EXTERNAL auditor verdict file (e.g., `C:\Users\rutvi\.claude\plans\*audit*.md`). Manual audit at v6-G.
+  - Verify: parent + each subplan's Execution Summary cites an EXTERNAL auditor verdict file (e.g., `C:\Users\RutvikKhorasiya\.claude\plans\*audit*.md`). Manual audit at v6-G.
 - String-presence-only "ALL GREEN" stamps (NV3 — every `[OK]` must be behavior-asserted)
   - Verify: `grep -nE '^[^#]*\[OK\]|ALL GREEN' scripts/test-fixtures/plan-closure/verify-v6-*.sh` → every match line must be inside a `# BEHAVIOR` comment block, not `# SMOKE`.
 - closure_meta over-exemption (B1 — exempts ONLY C1, never C2-C5)
@@ -288,7 +288,7 @@ The 795-line v5 plan body at [plans/done/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFOR
 
 ### Decision: REVERT v5 implementation before v6-A begins (user-authorized 2026-05-18)
 
-User chose **Option 1 (revert)** during v6 preservation audit (`C:\Users\rutvi\.claude\plans\v4-was-executed-we-fluffy-pond.md`). Rationale: 5 CRITICAL bypasses in shipped v5 code make in-place patching too risky; revert-then-rewrite gives PROMISE-PAIRED-TEST discipline a clean canvas.
+User chose **Option 1 (revert)** during v6 preservation audit (`C:\Users\RutvikKhorasiya\.claude\plans\v4-was-executed-we-fluffy-pond.md`). Rationale: 5 CRITICAL bypasses in shipped v5 code make in-place patching too risky; revert-then-rewrite gives PROMISE-PAIRED-TEST discipline a clean canvas.
 
 #### Pre-v6-A revert checklist (user-executed, NOT v6-A author's job)
 
@@ -348,7 +348,7 @@ Mechanism: user-executed `git revert 6063b04 32398e2 717bf72` (or interactive ch
 
 ## References
 
-- Audit evidence (session-plan, lives outside repo): `C:\Users\rutvi\.claude\plans\dazzling-noodling-yeti.md`
+- Audit evidence (session-plan, lives outside repo): `C:\Users\RutvikKhorasiya\.claude\plans\dazzling-noodling-yeti.md`
 - v5 plan body: [plans/done/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md](plans/done/PLAN_CLOSURE_GATE_AND_STRICT_LINE_ENFORCEMENT.md)
 - Subplans: `plans/pending/SUBPLAN_CLOSURE_GATE_V6_A_*.md` through `SUBPLAN_CLOSURE_GATE_V6_G_*.md`
 - LR-046 (strict plan lines): `.claude/rules/pipeline.md`

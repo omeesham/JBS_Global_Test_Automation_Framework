@@ -178,7 +178,7 @@ The following are the live delegation system shipped to the team repo on 2026-07
 
 ### Lot ORP-C1 — Memory-topic prune *(Category C — per-item Rutvik GO)*
 
-**Scope**: `~/.claude/projects/C--Users-rutvi-projects-encore-framework/memory/` — one index file plus 102 topic files.
+**Scope**: `~/.claude/projects/C--Users-RutvikKhorasiya-projects-encore-framework/memory/` — one index file plus 102 topic files.
 
 **Background**: A compaction on 2026-07-29 shortened wording only; the entry count did not move, so the index re-trips its size ceiling the moment anything is added. The real work is merging overlapping topic files and archiving stale ones so the *count* drops, not just the wording length.
 
@@ -614,7 +614,7 @@ target exists on the other side too, is a scoping defect, not a done lot.
 **Execution mechanics**: at execution start, batch every unfilled `DECIDE:` line through `/questionnaire`
 (decision mode) so Rutvik answers in one pass, not scattered mid-run asks. `/regression-guard` WRAPs every
 code-touching lot (B1, B2, C1, C2, D3). Evidence home: the audit artifacts cited below are preserved
-in-repo at `plans/pending/_audit-evidence-0805/` — `C:\Users\rutvi\aud\` is scheduled for teardown and
+in-repo at `plans/pending/_audit-evidence-0805/` — `C:\Users\RutvikKhorasiya\aud\` is scheduled for teardown and
 must never be the only copy.
 
 ---
@@ -626,7 +626,7 @@ must never be the only copy.
 `plans/pending/_audit-evidence-0805/AUDIT-REPORT-V2.md`. Ledger:
 `plans/pending/_audit-evidence-0805/PROGRESS.md`. Re-runnable check:
 `plans/pending/_audit-evidence-0805/reaudit2.mjs` (6/6 at wiring time; ran from the since-torn-down
-`C:\Users\rutvi\aud\` workspace — the copies here are the durable record, sha256-verified).
+`C:\Users\RutvikKhorasiya\aud\` workspace — the copies here are the durable record, sha256-verified).
 
 **The audit was READ-ONLY by instruction.** Every action below was deliberately NOT taken so the owner
 could decide. **This plan is where they actually get done** — create, update, delete, or just read, as

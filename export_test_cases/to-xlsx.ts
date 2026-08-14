@@ -42,6 +42,7 @@
  * CLI: `npm run xlsx:build` / `npm run xlsx:build:with-run`
  */
 
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
@@ -499,25 +500,185 @@ interface BuildOptions {
   selfCheck?: boolean;
   /** Pre-existing Playwright JSON reporter result files (passed to augmentByTcId). */
   runJsonPaths?: string[];
+  /** Override the clientRoot passed to augmentByTcId. For integration testing only —
+   *  allows tests to inject a temp directory so the S0 guard fires without touching real auth. */
+  _clientRootForTest?: string;
+}
+
+/**
+ * Walk the shallow set from .git/shallow (one hash per line). Returns empty set
+ * when the file does not exist (non-shallow repo).
+ */
+function readShallowSet(): Set<string> {
+  const shallowFile = path.join(REPO_ROOT, '.git', 'shallow');
+  if (!fs.existsSync(shallowFile)) return new Set();
+  return new Set(fs.readFileSync(shallowFile, 'utf-8').split('\n').map(l => l.trim()).filter(Boolean));
+}
+
+/**
+ * Derive the date (YYYY-MM-DD) and commit of the newest real content change for
+ * a tracked MD file. Follows renames via --follow. Pure renames (identical blobs)
+ * are skipped; the first commit where the blob actually differs is returned.
+ *
+ * Gate 1b: if the terminal add commit is listed in .git/shallow, history is
+ * truncated → hard-fail (the derived date may be wrong).
+ * Gate 4: empty git log → hard-fail for canonical builds; "UNCOMMITTED" for preview.
+ */
+export function getContentChangeDate(
+  mdPath: string,
+  shallowSet: Set<string>,
+  isCanonical: boolean,
+): { date: string; commit: string } {
+  let raw: string;
+  try {
+    raw = execFileSync(
+      'git',
+      ['log', '--follow', '--raw', '--format=COMMIT %H %aI', '--', mdPath],
+      { cwd: REPO_ROOT, encoding: 'utf-8' },
+    );
+  } catch (err) {
+    throw new Error(`[xlsx:build] git log failed for ${path.basename(mdPath)}: ${(err as Error).message}`);
+  }
+
+  if (!raw.trim()) {
+    if (isCanonical) {
+      throw new Error(
+        `[xlsx:build] ${path.basename(mdPath)} has no git history — commit it before building the canonical workbook.`,
+      );
+    }
+    return { date: 'UNCOMMITTED', commit: 'none' };
+  }
+
+  let currentCommit = '';
+  let currentDate = '';
+  let lastCommit = '';
+  let lastDate = '';
+  // newestChange = first blob-change commit encountered (git log is newest-first).
+  // oldestChange = last blob-change commit encountered — the add/initial boundary.
+  // Gate 1b must check the OLDEST followed raw-event commit: if that commit is in
+  // the shallow set, history is truncated at the add boundary and the derived date
+  // may be wrong. Checking only the newest commit (as the prior code did) misses
+  // files whose add commit is at the graft while the rename commit is not.
+  let newestChange: { commit: string; date: string } | null = null;
+  let oldestChange: { commit: string; date: string } | null = null;
+
+  for (const line of raw.split('\n')) {
+    const t = line.trim();
+    if (t.startsWith('COMMIT ')) {
+      const parts = t.split(' ');
+      currentCommit = parts[1] ?? '';
+      currentDate = (parts[2] ?? '').slice(0, 10);
+      lastCommit = currentCommit;
+      lastDate = currentDate;
+    } else if (t.startsWith(':')) {
+      // Raw diff entry: ":oldMode newMode oldBlob newBlob STATUS\tpath"
+      const tabIdx = t.indexOf('\t');
+      const meta = tabIdx >= 0 ? t.slice(0, tabIdx) : t;
+      const parts = meta.split(/\s+/);
+      const oldBlob = parts[2] ?? '';
+      const newBlob = parts[3] ?? '';
+      if (oldBlob !== newBlob) {
+        // Real content change (includes initial add: old blob = all-zeros)
+        if (newestChange === null) {
+          newestChange = { commit: currentCommit, date: currentDate };
+        }
+        // Always update oldestChange — last assignment wins (oldest in the stream)
+        oldestChange = { commit: currentCommit, date: currentDate };
+      }
+      // oldBlob === newBlob → pure rename, skip
+    }
+  }
+
+  if (newestChange !== null) {
+    // Gate 1b: the OLDEST blob-change commit is the add/initial-content boundary.
+    // If it is in the shallow set, history is truncated there → hard-fail.
+    if (oldestChange !== null && shallowSet.has(oldestChange.commit)) {
+      throw new Error(
+        `[xlsx:build] ${path.basename(mdPath)} history is truncated at shallow graft ${oldestChange.commit} — run: git fetch --unshallow`,
+      );
+    }
+    return newestChange;
+  }
+
+  // Fallback: no blob-changing diff line found (all pure renames — extremely rare)
+  if (lastCommit) {
+    if (shallowSet.has(lastCommit)) {
+      throw new Error(
+        `[xlsx:build] ${path.basename(mdPath)} history is truncated at shallow graft ${lastCommit} — run: git fetch --unshallow`,
+      );
+    }
+    return { date: lastDate, commit: lastCommit };
+  }
+
+  if (isCanonical) {
+    throw new Error(
+      `[xlsx:build] ${path.basename(mdPath)} has no git history — commit it before building the canonical workbook.`,
+    );
+  }
+  return { date: 'UNCOMMITTED', commit: 'none' };
+}
+
+/**
+ * Build a Map<mdPath, date-string> for every consumed MD file (one git lookup per file).
+ */
+function buildMdDateMap(
+  mdFiles: string[],
+  shallowSet: Set<string>,
+  isCanonical: boolean,
+): Map<string, string> {
+  // Detect MD files with staged content changes. Their content-change date is
+  // today because the commit being built will record today's author date.
+  // Without this, getContentChangeDate reads git log (which cannot see the
+  // pending commit) and returns the previous commit's date — stale by one commit.
+  let stagedSet: Set<string>;
+  try {
+    const stagedRaw = execFileSync(
+      'git', ['diff', '--cached', '--name-only', '--diff-filter=ACMR', '--', ...mdFiles],
+      { cwd: REPO_ROOT, encoding: 'utf-8' },
+    );
+    stagedSet = new Set(stagedRaw.split('\n').map(l => l.trim()).filter(Boolean).map(f => path.resolve(REPO_ROOT, f)));
+  } catch {
+    stagedSet = new Set();
+  }
+  const today = new Date().toISOString().slice(0, 10);
+  const map = new Map<string, string>();
+  for (const file of mdFiles) {
+    if (stagedSet.has(path.resolve(file))) {
+      map.set(file, today);
+    } else {
+      const { date } = getContentChangeDate(file, shallowSet, isCanonical);
+      map.set(file, date);
+    }
+  }
+  return map;
 }
 
 /**
  * MD-primary parsing path (Phase A.5+; sole operative source post-Phase-D).
  * Humanization is applied inside `parseMd()` via the shared `humanize()` helper
  * from `./humanize`, so `--list-only` and `--with-run` produce CSV-equivalent cells.
+ *
+ * Returns Map<sheetName, { tcs, mdPath }> with a hard-fail on sheet-name collisions
+ * from different source files.
  */
-function buildFromMdSource(): Map<string, ParsedTc[]> {
-  const mdFiles = walkMd(MD_ROOT);
-  if (mdFiles.length === 0) throw new Error(`[xlsx:build] No MD files found under ${MD_ROOT}`);
-
-  const tcsBySheet = new Map<string, ParsedTc[]>();
+export function buildFromMdSource(mdFiles: string[]): Map<string, { tcs: ParsedTc[]; mdPath: string }> {
+  const tcsBySheet = new Map<string, { tcs: ParsedTc[]; mdPath: string }>();
   for (const file of mdFiles) {
     const baseSlug = path.basename(file).replace(/\.md$/, '').replace(/_test_cases$/, '');
     const tcs = parseMd(file);
     if (tcs.length === 0) continue;
     const sheetName = toSheetName(baseSlug); // resolver accepts both forms
-    if (!tcsBySheet.has(sheetName)) tcsBySheet.set(sheetName, []);
-    tcsBySheet.get(sheetName)!.push(...tcs);
+    if (tcsBySheet.has(sheetName)) {
+      const existing = tcsBySheet.get(sheetName)!;
+      if (existing.mdPath !== file) {
+        throw new Error(
+          `[xlsx:build] Sheet name collision: '${sheetName}' produced by both '${existing.mdPath}' and '${file}'`,
+        );
+      }
+      existing.tcs.push(...tcs);
+    } else {
+      tcsBySheet.set(sheetName, { tcs: [...tcs], mdPath: file });
+    }
   }
 
   // The 'Specific Field' + 'Tags' columns were removed from the deliverable on
@@ -525,28 +686,81 @@ function buildFromMdSource(): Map<string, ParsedTc[]> {
   return tcsBySheet;
 }
 
-export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; sheetsBuilt: string[]; rowsPerSheet: Record<string, number> }> {
-  const buildIsoDate = new Date().toISOString().slice(0, 10);
+export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; sheetsBuilt: string[]; rowsPerSheet: Record<string, number>; fingerprint?: string }> {
   const buildTimestamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
 
+  // Resolve output path early — needed by gates and date derivation.
+  const outPath = opts.outPath ?? XLSX_PATH;
+  const isCanonical = outPath === XLSX_PATH;
+
+  // ── Precondition Gate 3: git must be available ──────────────────────────────
+  try {
+    execFileSync('git', ['--version'], { cwd: REPO_ROOT, encoding: 'utf-8' });
+  } catch {
+    throw new Error('[xlsx:build] git is not available — install git before building the canonical workbook.');
+  }
+
+  // ── MD file discovery ────────────────────────────────────────────────────────
   // MD-primary parsing path is the sole operative path post-Phase-D
   // (2026-05-27 cleanup of PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION removed
   // `--from-csv` mode and `buildFromCsvSource()`). `list-only` and `with-run`
   // are the only valid modes; programmatic callers passing `from-csv` fall
   // through to MD-primary parsing.
-  const tcsBySheet = buildFromMdSource();
+  const mdFiles = walkMd(MD_ROOT);
+  if (mdFiles.length === 0) throw new Error(`[xlsx:build] No MD files found under ${MD_ROOT}`);
+
+  // ── Precondition Gate 1: shallow-repo warning ────────────────────────────────
+  const shallowSet = readShallowSet();
+  if (shallowSet.size > 0) {
+    process.stderr.write('[xlsx:build] WARN — repository is shallow; per-file history may be truncated (git fetch --unshallow to resolve).\n');
+  }
+
+  // One-commit model: staged markdown is accepted because it lands in the same commit
+  // as the workbook. Content-change dates for staged files use today's date (the commit
+  // date) so the workbook is not stale by one commit. Working-copy edits and untracked
+  // markdown are blocked because the workbook could not be rebuilt from that commit alone.
+  const unstaged = execFileSync('git', ['diff', '--name-only', '--', ...mdFiles], { cwd: REPO_ROOT, encoding: 'utf-8' })
+    .split('\n').map(l => l.trim()).filter(Boolean);
+  // Untracked files anywhere under MD_ROOT (check membership against consumed set)
+  const mdFileSet = new Set(mdFiles.map(f => path.relative(REPO_ROOT, f).replace(/\\/g, '/')));
+  const untrackedRaw = execFileSync('git', ['ls-files', '--others', '--exclude-standard', '--', MD_ROOT], { cwd: REPO_ROOT, encoding: 'utf-8' })
+    .split('\n').map(l => l.trim()).filter(Boolean);
+  const untracked = untrackedRaw.filter(f => mdFileSet.has(f.replace(/\\/g, '/')));
+  const dirtyFiles = [...new Set([...unstaged, ...untracked])];
+  if (dirtyFiles.length > 0) {
+    throw new Error(
+      `[xlsx:build] Consumed MD source(s) are not staged for the commit: ${dirtyFiles.join(', ')}. Stage, commit, or stash before building.`,
+    );
+  }
+
+  // ── Build per-file content-change date map (one git lookup per MD) ───────────
+  const mdDateMap = buildMdDateMap(mdFiles, shallowSet, isCanonical);
+
+  const tcsBySheet = buildFromMdSource(mdFiles);
+
+  // Completeness gate: every non-Overview sheet must have exactly one split target.
+  // Fires here so it covers both the skip path and the write path below.
+  validateSplitCompleteness(Array.from(tcsBySheet.keys()));
 
   // SP00 augment — populate Coverage Status / Automation Execution / Reason for every TC ID
   const allTcIds: string[] = [];
-  for (const [, tcs] of tcsBySheet) for (const tc of tcs) allTcIds.push(tc.id);
+  for (const [, entry] of tcsBySheet) for (const tc of entry.tcs) allTcIds.push(tc.id);
   const augment = augmentByTcId(allTcIds, {
     mode: opts.mode,
-    clientRoot: CLIENT_ROOT,
+    clientRoot: opts._clientRootForTest ?? CLIENT_ROOT,
     fixmeRegistryPath: FIXME_REGISTRY,
     runJsonPaths: opts.runJsonPaths,
   });
-  for (const [, tcs] of tcsBySheet) {
-    for (const tc of tcs) {
+  // S0-BIND guard: augmentByTcId must return entries for every TC ID it receives
+  // (it pre-populates the map at construction). An empty map when TC IDs exist
+  // means the integration call was severed (e.g. replaced with `new Map()`).
+  if (allTcIds.length > 0 && augment.size === 0) {
+    throw new Error(
+      `S0-BIND: augmentByTcId returned 0 entries for ${allTcIds.length} TC IDs — integration severed`
+    );
+  }
+  for (const [, entry] of tcsBySheet) {
+    for (const tc of entry.tcs) {
       const a = augment.get(tc.id);
       if (!a) continue;
       tc.coverageStatus = a.coverageStatus;
@@ -559,7 +773,10 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
   // hits the `spawnSync npx ENOENT` fallback so playwright's `kind === 'fixme'`
   // signal never reaches augment, leaving `Automation Execution` blank for blocked
   // TCs. The overlay sets execution='Blocked' + ifFailedReason from the registry.
-  const overlay = applyBlockedOverlay(tcsBySheet, { repoRoot: REPO_ROOT, registryPath: FIXME_REGISTRY });
+  // applyBlockedOverlay expects Map<string, T[]>; extract flat map (mutations are in-place).
+  const tcsFlatMap = new Map<string, ParsedTc[]>();
+  for (const [sheet, entry] of tcsBySheet) tcsFlatMap.set(sheet, entry.tcs);
+  const overlay = applyBlockedOverlay(tcsFlatMap, { repoRoot: REPO_ROOT, registryPath: FIXME_REGISTRY });
   process.stderr.write(`[xlsx:build] Blocked overlay applied to ${overlay.applied} row(s) from ${overlay.resolvedTcIds.length} registry TC(s)\n`);
 
   // Curated client-facing reason / disposition overrides (LR-ENC-004). COMMITTED,
@@ -575,8 +792,8 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
   } catch (err) {
     process.stderr.write(`[xlsx:build] WARN — could not read blocked-reasons.json: ${(err as Error).message}\n`);
   }
-  for (const [, tcs] of tcsBySheet) {
-    for (const tc of tcs) {
+  for (const [, entry] of tcsBySheet) {
+    for (const tc of entry.tcs) {
       const o = blockedReasons[tc.id];
       if (!o) continue;
       if (o.coverage !== undefined) tc.coverageStatus = o.coverage as ParsedTc['coverageStatus'];
@@ -590,8 +807,8 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
   // that still carries a failure reason is a Data Integrity Exception: the upstream
   // join in sp00-augment-logic.ts mis-attributed a blocked sibling's reason to a
   // passing test. NEVER coerce it silently — fail the build so the SOURCE is fixed.
-  for (const [, tcs] of tcsBySheet) {
-    for (const tc of tcs) {
+  for (const [, entry] of tcsBySheet) {
+    for (const tc of entry.tcs) {
       if (tc.automationExecution === 'Pass' && (tc.ifFailedReason || '').trim() !== '') {
         throw new Error(
           `[Data Integrity Exception] TC ${tc.id} is marked PASS but carries a failure reason ` +
@@ -602,12 +819,71 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
     }
   }
 
+  // ── Fingerprint: collect inputs → compare with embedded → skip if unchanged ──
+  // Fail toward writing: any error in fingerprint computation forces a write.
+  let fingerprint = '';
+  let shouldSkip = false;
+  {
+    let exporterSourceHash = 'ERROR';
+    try { exporterSourceHash = computeExporterSourceHash(); }
+    catch (err) {
+      process.stderr.write(`[xlsx:build] WARN — exporter hash failed: ${(err as Error).message}; will write unconditionally.\n`);
+    }
+
+    const { map: blobIdMap, ok: blobIdsOk } = collectBlobIds(mdFiles);
+    const splitMembershipHash = crypto.createHash('sha256')
+      .update(JSON.stringify(Object.fromEntries(Object.entries(SPLIT_FILE_MAP).sort())))
+      .digest('hex');
+    const mdSourcesList = mdFiles
+      .map(f => {
+        const relPath = path.relative(REPO_ROOT, f).replace(/\\/g, '/');
+        return { relPath, blobId: blobIdMap[relPath] ?? '', contentChangeDate: mdDateMap.get(f) ?? 'UNCOMMITTED' };
+      })
+      .sort((a, b) => a.relPath.localeCompare(b.relPath));
+    const perTcAugment = collectAugmentForFingerprint(tcsBySheet);
+
+    const fpRecord: FingerprintRecord = {
+      schemaVersion: 1,
+      mdSources: mdSourcesList,
+      perTcAugment,
+      exporterSourceHash,
+      excelJsVersion: EXCELJS_VERSION,
+      splitTargetMembershipHash: splitMembershipHash,
+    };
+    fingerprint = computeFingerprint(fpRecord);
+
+    if (computeSkipEligible({ exporterSourceHash, blobIdsOk, isCanonical })) {
+      // Read consolidated fingerprint; fail toward writing on any error
+      const existingFp = await readEmbeddedFingerprint(outPath);
+      if (existingFp === fingerprint) {
+        // Fast existence check for all expected splits (avoids silent stale splits)
+        let allSplitsExist = true;
+        for (const [, mapping] of Object.entries(SPLIT_FILE_MAP)) {
+          if (!fs.existsSync(path.join(XLSX_DIR, mapping.group, `${mapping.stem}.xlsx`))) {
+            allSplitsExist = false;
+            break;
+          }
+        }
+        if (allSplitsExist) {
+          process.stderr.write(`[xlsx:build] Inputs unchanged — skipping write.\n`);
+          shouldSkip = true;
+        } else {
+          process.stderr.write(`[xlsx:build] Some split files missing — rebuilding despite matching fingerprint.\n`);
+        }
+      }
+    }
+  }
+  if (shouldSkip) {
+    if (outPath === XLSX_PATH) pruneStaleeSplitFiles();
+    return { outPath, sheetsBuilt: [], rowsPerSheet: {}, fingerprint: fingerprint ?? undefined };
+  }
+
   // 5. Emit workbook
   const wb = new ExcelJS.Workbook();
   wb.creator = 'encore_framework xlsx:build';
   wb.created = new Date();
 
-  const overviewRows: { sheet: string; metrics: SheetMetrics }[] = [];
+  const overviewRows: { sheet: string; metrics: SheetMetrics; mdPath: string }[] = [];
   const sortedSheetNames = Array.from(tcsBySheet.keys()).sort((a, b) => orderSheets(a, b));
   const rowsPerSheet: Record<string, number> = {};
 
@@ -634,7 +910,9 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
     // after the plain numeric block, and the non-numeric SKIP-BILLING sorts last.
     // MUST stay identical to compareTcId() in scripts/xlsx-lint-rules.mjs — the C6
     // guard re-asserts this exact order at build/commit/ship and fails on divergence.
-    const tcs = tcsBySheet.get(sheetName)!;
+    const { tcs, mdPath: sheetMdPath } = tcsBySheet.get(sheetName)!;
+    const sheetDate = mdDateMap.get(sheetMdPath);
+    if (!sheetDate) throw new Error(`[xlsx:build] Internal: no content-change date for ${sheetMdPath}`);
     tcs.sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }));
     const metrics = emptyMetrics();
     const ws = wb.addWorksheet(sheetName, { views: [{ state: 'frozen', ySplit: 1 }] });
@@ -705,7 +983,7 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
         : 'Not run in this delivery', // Automation Status col
       // Preconditions, Steps (Step), Steps (Expected Result) — empty
       '', '', '',
-      `Last Updated: ${buildIsoDate}`, // Notes / Reason col (last)
+      `Last Updated: ${sheetDate}`, // Notes / Reason col — content-change date from git history
     ]);
     summary.font = { bold: true };
     summary.eachCell(cell => {
@@ -719,14 +997,15 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
     // Autosize columns (rough — bound by 12..80)
     autoSize(ws, MODULE_SHEET_HEADERS.length);
 
-    overviewRows.push({ sheet: sheetName, metrics });
+    overviewRows.push({ sheet: sheetName, metrics, mdPath: sheetMdPath });
     rowsPerSheet[sheetName] = tcs.length;
   }
 
   // Fill Overview data rows AFTER module sheets so hyperlinks resolve
-  for (const { sheet, metrics } of overviewRows) {
+  for (const { sheet, metrics, mdPath: entryMdPath } of overviewRows) {
     const measured = moduleWasMeasured(metrics);
     const executedDenom = metrics.total - metrics.skipped - metrics.blocked;
+    const entryDate = mdDateMap.get(entryMdPath) ?? 'UNCOMMITTED';
     const row = overview.addRow([
       sheet,
       metrics.total,
@@ -740,7 +1019,7 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
       measured ? fmtPct(metrics.pass, metrics.total) : '—',
       measured ? fmtPct(metrics.pass, executedDenom) : '—',
       fmtPct(metrics.automated, metrics.total),
-      buildIsoDate,
+      entryDate, // content-change date from git history (not build date)
     ]);
     // Hyperlink Sheet column → that sheet's A1
     const sheetCell = row.getCell(1);
@@ -749,15 +1028,18 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
   }
   autoSize(overview, OVERVIEW_HEADERS.length);
 
+  // Embed fingerprint in consolidated workbook before writing
+  if (isCanonical && fingerprint) embedFingerprint(wb, fingerprint);
+
   // 6. Write — to opts.outPath for a throwaway build (freshness gate), else the canonical path.
-  const outPath = opts.outPath ?? XLSX_PATH;
   const outDir = path.dirname(outPath);
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
   await wb.xlsx.writeFile(outPath);
 
   // Write split files — one workbook per module sheet (PLAN_59 D2).
   if (outPath === XLSX_PATH) {
-    await writeSplitFiles(wb);
+    await writeSplitFiles(wb, fingerprint);
+    pruneStaleeSplitFiles();
   }
 
   // Build-time self-fail (LR-ENC-004): re-lint the workbook we just wrote with the
@@ -780,7 +1062,7 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
     }
   }
 
-  return { outPath, sheetsBuilt: ['Overview', ...sortedSheetNames], rowsPerSheet };
+  return { outPath, sheetsBuilt: ['Overview', ...sortedSheetNames], rowsPerSheet, fingerprint: fingerprint ?? undefined };
 }
 
 /** Order: Overview first (handled outside), then local_office_* alphabetical, then locations_* alphabetical. */
@@ -832,6 +1114,265 @@ function walkMd(dir: string): string[] {
   return acc;
 }
 
+// ─────────────────────────── Fingerprint (A half — skip-write) ───────────────
+//
+// B6-CONVERGENCE prescription: embed a deterministic fingerprint INSIDE the
+// workbook (hidden sheet __fp__) so skip-write is clone-safe and sidecar-free.
+// The fingerprint covers every input that determines a workbook's content.
+// Fail-toward-writing: any error computing or reading a fingerprint forces a write.
+
+export const FINGERPRINT_SHEET = '__fp__';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const EXCELJS_VERSION: string = (() => {
+  try { return (require('exceljs/package.json') as { version: string }).version; }
+  catch { return 'unknown'; }
+})();
+
+/**
+ * Hash all *.ts and *.json files directly in export_test_cases/ (top-level only,
+ * sorted) so any new top-level dependency is automatically included. This is the
+ * rot-proof coverage guarantee: add a file → hash changes → fingerprint invalidates
+ * → write. Subdirectory imports are not supported; if a subdirectory is ever added,
+ * this function must be updated to recurse into it.
+ *
+ * Exported so the rot-proof coverage test (xlsx-dates.test.ts) can verify that
+ * introducing a new file in this directory changes the hash.
+ */
+export function computeExporterSourceHash(): string {
+  const h = crypto.createHash('sha256');
+  const files = fs.readdirSync(__dirname)
+    .filter(f => f.endsWith('.ts') || f.endsWith('.json'))
+    .sort();
+  for (const f of files) {
+    h.update(f + '\n');
+    h.update(fs.readFileSync(path.join(__dirname, f)));
+    h.update('\n---\n');
+  }
+  return h.digest('hex');
+}
+
+export interface FingerprintRecord {
+  schemaVersion: 1;
+  mdSources: Array<{ relPath: string; blobId: string; contentChangeDate: string }>;
+  perTcAugment: Array<{ tcId: string; coverageStatus: string; automationExecution: string; ifFailedReason: string }>;
+  exporterSourceHash: string;
+  excelJsVersion: string;
+  splitTargetMembershipHash: string;
+}
+
+/**
+ * Returns true only when all three skip-eligibility conditions hold:
+ *   - blobIdsOk: every consumed MD file resolved a blob ID (shallow repo or new file sets this false)
+ *   - exporterSourceHash is not 'ERROR' (hash computation succeeded)
+ *   - isCanonical: build is a full canonical write (not list-only / preview)
+ * Exported for unit testing of the skip-guard axis.
+ */
+export function computeSkipEligible(params: { blobIdsOk: boolean; exporterSourceHash: string; isCanonical: boolean }): boolean {
+  return params.exporterSourceHash !== 'ERROR' && params.blobIdsOk && params.isCanonical;
+}
+
+/**
+ * Compute a deterministic SHA-256 fingerprint over all workbook-content inputs.
+ * Exported for unit tests.
+ */
+export function computeFingerprint(inputs: FingerprintRecord): string {
+  return crypto.createHash('sha256').update(JSON.stringify(inputs)).digest('hex');
+}
+
+/**
+ * Reject a SPLIT_FILE_MAP target whose group or stem could escape the deliverable root.
+ * Checks: no absolute path, no '..' segment, no path separator inside group or stem,
+ * and the fully-resolved output path must fall inside XLSX_DIR.
+ */
+function assertSplitTargetSafe(key: string, group: string, stem: string): void {
+  if (path.isAbsolute(group) || path.isAbsolute(stem)) {
+    throw new Error(
+      `[xlsx:build] SPLIT_FILE_MAP entry "${key}": group and stem must not be absolute paths ` +
+      `(got group="${group}", stem="${stem}") — refusing to proceed.`,
+    );
+  }
+  const hasDotDot = (s: string): boolean => s.split(/[/\\]/).some(seg => seg === '..');
+  if (hasDotDot(group) || hasDotDot(stem)) {
+    throw new Error(
+      `[xlsx:build] SPLIT_FILE_MAP entry "${key}": group and stem must not contain '..' segments ` +
+      `(got group="${group}", stem="${stem}") — refusing to proceed.`,
+    );
+  }
+  if (/[/\\]/.test(group) || /[/\\]/.test(stem)) {
+    throw new Error(
+      `[xlsx:build] SPLIT_FILE_MAP entry "${key}": group and stem must not contain path separators ` +
+      `(got group="${group}", stem="${stem}") — refusing to proceed.`,
+    );
+  }
+  const xlsxDirResolved = path.resolve(XLSX_DIR);
+  const targetResolved = path.resolve(xlsxDirResolved, group, `${stem}.xlsx`);
+  if (!targetResolved.startsWith(xlsxDirResolved + path.sep)) {
+    throw new Error(
+      `[xlsx:build] SPLIT_FILE_MAP entry "${key}": target resolves outside the deliverable root ` +
+      `"${xlsxDirResolved}" (resolved: "${targetResolved}") — refusing to proceed.`,
+    );
+  }
+}
+
+/**
+ * Assert the set of built non-Overview sheet names is EXACTLY EQUAL to the set of
+ * SPLIT_FILE_MAP keys (bijection), with no duplicate output paths and no targets that
+ * escape the deliverable root. Hard-fails (throws) on any violation. Both the bijection
+ * check and target sanitization fire before the fingerprint/skip decision, so they
+ * apply on the write path and the skip path alike.
+ *
+ * Exported for unit tests — pass a synthetic splitMap to exercise error paths.
+ */
+export function validateSplitCompleteness(
+  builtSheetNames: string[],
+  splitMap: Record<string, { group: string; stem: string }> = SPLIT_FILE_MAP,
+): void {
+  const mapEntries = Object.entries(splitMap);
+  if (mapEntries.length === 0) {
+    throw new Error(
+      '[xlsx:build] SPLIT_FILE_MAP is empty — cannot validate split completeness; ' +
+      'refusing to proceed to avoid silent data loss.',
+    );
+  }
+  for (const [key, val] of mapEntries) {
+    if (!val || typeof val.group !== 'string' || !val.group || typeof val.stem !== 'string' || !val.stem) {
+      throw new Error(
+        `[xlsx:build] SPLIT_FILE_MAP entry "${key}" is malformed ` +
+        '(expected { group: string; stem: string }) — refusing to proceed.',
+      );
+    }
+  }
+  // Sanitize every target before any write or prune (prevents path-escape via group/stem)
+  for (const [key, { group, stem }] of mapEntries) {
+    assertSplitTargetSafe(key, group, stem);
+  }
+  // Bijection: built non-Overview sheet set must EQUAL the SPLIT_FILE_MAP key set.
+  // Report the symmetric difference so both directions of violation are named in one error.
+  const nonOverviewSheets = new Set(builtSheetNames.filter(s => s !== 'Overview'));
+  const mapKeySet = new Set(Object.keys(splitMap));
+  const sheetsWithNoMapping = [...nonOverviewSheets].filter(s => !mapKeySet.has(s));
+  const ghostMapKeys = [...mapKeySet].filter(k => !nonOverviewSheets.has(k));
+  if (sheetsWithNoMapping.length > 0 || ghostMapKeys.length > 0) {
+    const parts: string[] = [];
+    if (sheetsWithNoMapping.length > 0) {
+      parts.push(
+        `Sheets built with no SPLIT_FILE_MAP entry (silently absent from deliverables): ` +
+        sheetsWithNoMapping.map(s => `"${s}"`).join(', ') + '.',
+      );
+    }
+    if (ghostMapKeys.length > 0) {
+      parts.push(
+        `SPLIT_FILE_MAP keys with no built sheet (ghost entries protect stale files from pruning): ` +
+        ghostMapKeys.map(k => `"${k}"`).join(', ') + '.',
+      );
+    }
+    throw new Error(
+      '[xlsx:build] SPLIT_FILE_MAP bijection violated. ' +
+      parts.join(' ') +
+      ' Fix the map or source files before rebuilding.',
+    );
+  }
+  // No two entries may resolve to the same output path (duplicate target = hard fail)
+  const seen = new Map<string, string>(); // outputPath → first sheet key
+  for (const [sheetKey, { group, stem }] of mapEntries) {
+    const outputPath = `${group}/${stem}.xlsx`;
+    const prior = seen.get(outputPath);
+    if (prior !== undefined) {
+      throw new Error(
+        `[xlsx:build] Duplicate split target "${outputPath}" — ` +
+        `sheets "${prior}" and "${sheetKey}" both map to the same output file. ` +
+        'Each sheet must have a unique split target.',
+      );
+    }
+    seen.set(outputPath, sheetKey);
+  }
+}
+
+/** Try to read the embedded fingerprint from an existing workbook. Returns null on any error. */
+async function readEmbeddedFingerprint(filePath: string): Promise<string | null> {
+  if (!fs.existsSync(filePath)) return null;
+  try {
+    const existingWb = new ExcelJS.Workbook();
+    await existingWb.xlsx.readFile(filePath);
+    const ws = existingWb.getWorksheet(FINGERPRINT_SHEET);
+    if (!ws) return null;
+    const val = ws.getCell('A1').value;
+    return typeof val === 'string' && val.length > 0 ? val : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Embed the fingerprint as a hidden metadata sheet (no client-visible content). */
+function embedFingerprint(wb: ExcelJS.Workbook, fingerprint: string): void {
+  // Remove any prior __fp__ sheet before re-embedding
+  const prior = wb.getWorksheet(FINGERPRINT_SHEET);
+  if (prior) wb.removeWorksheet(prior.id);
+  const ws = wb.addWorksheet(FINGERPRINT_SHEET, { state: 'hidden' });
+  ws.getCell('A1').value = fingerprint;
+}
+
+/** Collect per-TC augment data after all overlays, sorted by tcId, for fingerprinting. */
+function collectAugmentForFingerprint(
+  tcsBySheet: Map<string, { tcs: ParsedTc[]; mdPath: string }>,
+): Array<{ tcId: string; coverageStatus: string; automationExecution: string; ifFailedReason: string }> {
+  const rows: Array<{ tcId: string; coverageStatus: string; automationExecution: string; ifFailedReason: string }> = [];
+  for (const [, entry] of tcsBySheet) {
+    for (const tc of entry.tcs) {
+      rows.push({
+        tcId: tc.id,
+        coverageStatus: tc.coverageStatus ?? '',
+        automationExecution: tc.automationExecution ?? '',
+        ifFailedReason: tc.ifFailedReason ?? '',
+      });
+    }
+  }
+  return rows.sort((a, b) => a.tcId.localeCompare(b.tcId));
+}
+
+/**
+ * Collect git blob IDs for consumed MD files from the staged index.
+ * Returns { map: relPath→blobId, ok: true } when every consumed MD has a
+ * non-empty blob ID. Returns { map, ok: false } on any git failure or when
+ * any MD file is absent from the index (empty blob ID). A degraded result MUST
+ * prevent skip — caller must force a write and log the reason.
+ */
+function collectBlobIds(mdFiles: string[]): { map: Record<string, string>; ok: boolean } {
+  const map: Record<string, string> = {};
+  if (mdFiles.length === 0) return { map, ok: true };
+  try {
+    // Read the index because pre-commit builds must fingerprint the content that will be committed.
+    const out = execFileSync('git', ['ls-files', '-s', '--', ...mdFiles], { cwd: REPO_ROOT, encoding: 'utf-8' });
+    for (const line of out.split('\n')) {
+      const t = line.trim();
+      if (!t) continue;
+      // format: "100644 <hash> 0\t<relpath>"
+      const tabIdx = t.indexOf('\t');
+      if (tabIdx < 0) continue;
+      const relPath = t.slice(tabIdx + 1).replace(/\\/g, '/');
+      const cols = t.slice(0, tabIdx).split(/\s+/);
+      const blobId = cols[1] ?? '';
+      map[relPath] = blobId;
+    }
+  } catch (err) {
+    process.stderr.write(`[xlsx:build] WARN — blob ID collection failed: ${(err as Error).message}; will write unconditionally.\n`);
+    return { map, ok: false };
+  }
+  // Verify every consumed MD has a non-empty blob ID in the index.
+  const missing: string[] = [];
+  for (const f of mdFiles) {
+    const relPath = path.relative(REPO_ROOT, f).replace(/\\/g, '/');
+    if (!map[relPath]) missing.push(relPath);
+  }
+  if (missing.length > 0) {
+    process.stderr.write(`[xlsx:build] WARN — ${missing.length} MD file(s) have no blob ID in the index (${missing.slice(0, 3).join(', ')}${missing.length > 3 ? '…' : ''}); will write unconditionally.\n`);
+    return { map, ok: false };
+  }
+  return { map, ok: true };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * Extract per-step expected results from markdown step tables.
  * Returns a map from TC ID to an array of expected-result strings,
@@ -862,11 +1403,58 @@ function extractPerStepExpected(filePath: string): Map<string, string[]> {
 }
 
 /**
+ * Delete any .xlsx files under XLSX_DIR subdirectories that are NOT in the current
+ * SPLIT_FILE_MAP. A removal or rename in SPLIT_FILE_MAP leaves stale tracked split
+ * files that would otherwise keep shipping even after a forced rebuild. This must
+ * run after writeSplitFiles() so it only removes truly obsolete files, never
+ * concurrently-written ones.
+ */
+function pruneStaleeSplitFiles(): void {
+  // Belt-and-suspenders: refuse to prune if the map is empty or malformed — an empty
+  // expectedPaths set would delete every tracked split file with no error.
+  const mapEntries = Object.entries(SPLIT_FILE_MAP);
+  if (mapEntries.length === 0) {
+    throw new Error(
+      '[xlsx:build] SPLIT_FILE_MAP is empty — refusing to prune split files to avoid deleting all client deliverables.',
+    );
+  }
+  for (const [key, val] of mapEntries) {
+    if (!val || typeof val.group !== 'string' || !val.group || typeof val.stem !== 'string' || !val.stem) {
+      throw new Error(
+        `[xlsx:build] SPLIT_FILE_MAP entry "${key}" is malformed — refusing to prune split files.`,
+      );
+    }
+  }
+  // Sanitize every target before computing expected paths (escape-root prevention)
+  for (const [key, { group, stem }] of mapEntries) {
+    assertSplitTargetSafe(key, group, stem);
+  }
+  const expectedPaths = new Set<string>(
+    Object.values(SPLIT_FILE_MAP).map(({ group, stem }) =>
+      path.join(XLSX_DIR, group, `${stem}.xlsx`),
+    ),
+  );
+  if (!fs.existsSync(XLSX_DIR)) return;
+  for (const entry of fs.readdirSync(XLSX_DIR)) {
+    const subdir = path.join(XLSX_DIR, entry);
+    if (!fs.statSync(subdir).isDirectory()) continue;
+    for (const file of fs.readdirSync(subdir)) {
+      if (!file.endsWith('.xlsx')) continue;
+      const fullPath = path.join(subdir, file);
+      if (!expectedPaths.has(fullPath)) {
+        fs.unlinkSync(fullPath);
+        process.stderr.write(`[xlsx:build] Deleted stale split file: ${path.relative(REPO_ROOT, fullPath).replace(/\\/g, '/')}\n`);
+      }
+    }
+  }
+}
+
+/**
  * Write split files — one single-sheet workbook per module under testcases/<group>/.
  * Each split workbook clones the corresponding sheet from the consolidated workbook
  * with its header, data rows, blank separator, and SUMMARY row intact (PLAN_59 D2).
  */
-async function writeSplitFiles(consolidatedWb: ExcelJS.Workbook): Promise<void> {
+async function writeSplitFiles(consolidatedWb: ExcelJS.Workbook, fingerprint: string): Promise<void> {
   for (const [sheetName, mapping] of Object.entries(SPLIT_FILE_MAP)) {
     const srcWs = consolidatedWb.getWorksheet(sheetName);
     if (!srcWs) continue;
@@ -887,6 +1475,7 @@ async function writeSplitFiles(consolidatedWb: ExcelJS.Workbook): Promise<void> 
     for (let c = 1; c <= MODULE_SHEET_HEADERS.length; c++) {
       destWs.getColumn(c).width = srcWs.getColumn(c).width;
     }
+    if (fingerprint) embedFingerprint(splitWb, fingerprint);
     await splitWb.xlsx.writeFile(splitPath);
   }
 }

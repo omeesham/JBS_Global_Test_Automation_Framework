@@ -257,7 +257,7 @@ DO-NOW / APPEND with grep-verification. Bare deferral = HALT + ask.
 |---|---|---|---|
 | HUNTER | import-target certification artifact (Phase 0.7 — pre-build recon, executed by the BUILDER seat; no identity switch) | `clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-import-target-<YYYY-MM-DD>.md` | artifact exists AND names a certified office; `grep -c "1604" <artifact>` shows it only as a rejected/never-use entry |
 | GIVER | test-cases MD + test-plan MD + XLSX | `clients/encore/specs_planning/test-cases/corporate_pricing_override_test_cases.md` (Upload-disabled + malformed-rejection + empty-file TCs) | `npm run check:tc-parity` exit 0 |
-| BUILDER | corporate-override-nm2273.spec.ts + page object extensions | `clients/encore/tests/corporate-override/corporate-override-nm2273.spec.ts` (Phase 1–3 TCs) | `npx playwright test --list` resolves new TC IDs; spec run green ×2 |
+| BUILDER | corporate-override-import.spec.ts + page object extensions | `clients/encore/tests/corporate-override/corporate-override-import.spec.ts` (Phase 1–3 TCs) | `npx playwright test --list` resolves new TC IDs; spec run green ×2 |
 | HEALER | (none) | (none) | (none) |
 | WATCHDOG | closure audit findings + guard negative-test report | `clients/encore/specs_planning/_internal/corp-pricing-remediation-closure-audit-2026-06-19.md` (Phase 5 audit verdict) | audit verdict GREEN; full suite green ×2 |
 | GARDENER | (none) | (none) | (none) |

@@ -11,7 +11,7 @@ Progress: clients/encore/specs_planning/_internal/REMEDIATION_PROGRESS.md · Dev
 # PLAN: Encore Deliverable Remediation — Verified Findings, RCA, Remediation
 
 ## Bootstrap (read before executing)
-- Repo: `C:\Users\rutvi\projects\encore_framework`; client surface: `clients/encore/` (self-contained Playwright/TS suite for Navigator Cloud).
+- Repo: `C:\Users\RutvikKhorasiya\projects\encore_framework`; client surface: `clients/encore/` (self-contained Playwright/TS suite for Navigator Cloud).
 - Creds: `clients/encore/.env.local` (gitignored, NEVER commit). Run: `npm test -- --grep "<id>"` from `clients/encore/`. NEVER `CI_ENV=e2e` locally (LR-ENC-003).
 - Live app: `cloudapps-e2e.encoreglobal.com`, test office 1604 (1605 multi-currency, 1607 has pricing dropdown data, 1101 corporate master).
 - Ship discipline: LR-049 — deliver only via `git archive`/`client:ship`, never `cp -r`. LR-058 — no internal jargon in shipped `clients/encore/` files (this plan lives at repo root, exempt).

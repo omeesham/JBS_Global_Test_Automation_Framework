@@ -23,8 +23,8 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
 
 const arg = (f, d) => { const i = process.argv.indexOf(f); return i > -1 ? process.argv[i + 1] : d; };
-const REPO = arg('--repo', 'C:/Users/rutvi/projects/encore_framework');
-const HOME = arg('--home', 'C:/Users/rutvi');
+const REPO = arg('--repo', 'C:/Users/RutvikKhorasiya/projects/encore_framework');
+const HOME = arg('--home', 'C:/Users/RutvikKhorasiya');
 const SELF_TEST = process.argv.includes('--self-test');
 // RE-PINNED 2026-08-05 after a parallel session merged 10 commits (c83b307e -> ca99f77c).
 // The re-pin is not cosmetic: every HEAD-frame assertion below was re-verified against the NEW head

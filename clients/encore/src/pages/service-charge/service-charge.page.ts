@@ -4,7 +4,7 @@ import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
 import { serviceCharge as sc } from '../../selectors/service-charge/service-charge';
-import { SC_ROUTE, SC_SERVICE_TYPE_INDEX } from '../../data/service-charge/service-charge';
+import { SC_ROUTE, SC_ROW_COUNT, SC_SERVICE_TYPE_INDEX } from '../../data/service-charge/service-charge';
 
 /**
  * Service Charge setup page.
@@ -13,9 +13,9 @@ import { SC_ROUTE, SC_SERVICE_TYPE_INDEX } from '../../data/service-charge/servi
  * - Basic Information (default): 79-row table of decimal percentage inputs, one per service type.
  * - Service Charge History: read-only audit grid.
  *
- * Loading: the Basic Information tab renders 79 percentage inputs disabled for ~30 s after
- * navigation before enabling them all at once. waitUntilLoaded() waits for the first input
- * to become enabled — this is the reliable load gate for the Basic Information tab.
+ * Loading: the Basic Information tab renders 79 percentage inputs disabled before enabling
+ * them and filling their values. waitUntilLoaded() waits for the inputs to enable and for
+ * the grid to stop changing before tests interact with it.
  *
  * Tabs: located by accessible name (Radix ids shift between builds — never use them).
  *
@@ -23,9 +23,9 @@ import { SC_ROUTE, SC_SERVICE_TYPE_INDEX } from '../../data/service-charge/servi
  * is assumed; a custom dialog exists only if a live walk proves otherwise. Confirm
  * before authoring save-cycle assertions.
  *
- * RUNTIME VERIFICATION OUTSTANDING: the e2e environment was degraded at build time
- * (all inputs disabled, office header showing "Local Office : -"). Every method below
- * is authored against the application's DOM as observed on 2026-08-10; no live run has confirmed behaviour.
+ * Live runs confirmed the grid enables before final values arrive, and invalid
+ * percentage values are marked while the input is focused. The waits and
+ * negative tests use those observed behaviours.
  */
 export class ServiceChargePage extends BasePage {
   constructor(page: Page, config?: IConfig) {
@@ -64,19 +64,67 @@ export class ServiceChargePage extends BasePage {
   }
 
   /**
-   * Waits until the Basic Information tab's percentage inputs are enabled.
+   * Waits until the Basic Information tab's percentage inputs are ready.
    *
-   * After navigation the page renders all 79 percentage inputs in a disabled state for
-   * approximately 30 seconds before enabling them all at once. Waiting for skeleton
-   * disappearance alone returns too early — inputs are still disabled at that point.
-   * This gate waits for the first percentage input to become enabled, which confirms the
-   * page is ready to interact with. A 60-second timeout accommodates the observed ~30.5 s
-   * enable delay with comfortable headroom.
+   * After navigation the page enables the percentage inputs before it finishes updating
+   * the grid. Waiting for enablement alone can return during that gap, so this gate waits
+   * until the grid has stopped changing before any test interacts with it.
+   * A 60-second timeout accommodates the observed enable delay with comfortable headroom.
    */
   @step('Wait for the page to finish loading')
   async waitUntilLoaded(timeout = 60_000): Promise<void> {
-    await expect(this.page.locator(sc.percentageByIndex(0)).first()).toBeEnabled({ timeout });
+    await this.waitForPercentageValuesToSettle(timeout);
     await this.waitForAngularStable();
+  }
+
+  /**
+   * Waits until the percentage grid has finished changing.
+   *
+   * The grid enables its inputs before it fills them in, and a value typed in that gap is
+   * overwritten when the values arrive. The page is ready only after the percentage inputs
+   * themselves have stopped changing for a short quiet period.
+   */
+  private async waitForPercentageValuesToSettle(timeout = 30_000, quietMs = 2_500): Promise<void> {
+    const percentageInputs = this.page.locator(sc.allPercentageInputs);
+    const firstPercentageInput = percentageInputs.first();
+    await firstPercentageInput.waitFor({ state: 'attached', timeout });
+    await expect(percentageInputs).toHaveCount(SC_ROW_COUNT, { timeout });
+    await expect(firstPercentageInput).toBeEnabled({ timeout });
+
+    let previousSignature: string | undefined;
+    let stableSince = Date.now();
+
+    await expect
+      .poll(
+        async () => {
+          const signature = await percentageInputs.evaluateAll((elements) =>
+            elements
+              .map((element) => {
+                const input = element as HTMLInputElement;
+                return [
+                  input.getAttribute('data-testid') ?? '',
+                  input.disabled ? 'disabled' : 'enabled',
+                  input.value,
+                ].join('=');
+              })
+              .join('\n'),
+          );
+
+          const now = Date.now();
+          if (signature !== previousSignature) {
+            previousSignature = signature;
+            stableSince = now;
+          }
+
+          return now - stableSince;
+        },
+        {
+          timeout,
+          intervals: [100],
+          message: 'Service Charge percentage inputs should stop changing before interaction',
+        },
+      )
+      .toBeGreaterThanOrEqual(quietMs);
   }
 
   /**
@@ -229,9 +277,9 @@ export class ServiceChargePage extends BasePage {
    *
    * For standard percentage values (finite, non-negative, at most two decimal places) the
    * method confirms the written value was accepted by polling the input until it reflects
-   * the expected number. If the app reverts the value (e.g. due to a re-render race after
-   * a prior save), it re-applies once and polls again. Throws if the value still has not
-   * landed after the retry — a silent no-op is never tolerated for valid writes.
+   * the expected number. If the app reverts the value during a re-render, it re-applies
+   * the value up to three times. Throws if the value still has not landed after those
+   * attempts — a silent no-op is never tolerated for valid writes.
    *
    * Boundary and edge-case inputs (negative numbers, empty strings, whitespace, values
    * with more than two decimal places) skip the postcondition check because the app may
@@ -260,30 +308,58 @@ export class ServiceChargePage extends BasePage {
       expected >= 0 &&
       Math.round(expected * 100) / 100 === expected;
 
-    await applyValue();
-
     if (!isConfirmable) {
-      await this.page.waitForTimeout(400);
+      await applyValue();
+      await this.waitForAngularStable(2000);
       return;
     }
 
-    // Let Angular process the blur event before checking — the re-render race
-    // that reverts values fires within a few hundred milliseconds of Tab.
-    await this.page.waitForTimeout(500);
+    const maxAttempts = 3;
+    let actual = Number.NaN;
 
-    const actual = await readNumericValue();
-    if (actual === expected) return;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      await applyValue();
 
-    // Value was reverted by a re-render. Re-apply once.
-    await applyValue();
-    await this.page.waitForTimeout(500);
-
-    const afterRetry = await readNumericValue();
-    if (afterRetry !== expected) {
-      throw new Error(
-        `Percentage field at row ${index}: wrote ${expected} but found ${afterRetry} after retry`,
-      );
+      try {
+        await expect
+          .poll(readNumericValue, {
+            timeout: 2000,
+            message: `Percentage field at row ${index} should keep ${expected}`,
+          })
+          .toBe(expected);
+        return;
+      } catch {
+        actual = await readNumericValue();
+      }
     }
+
+    throw new Error(
+      `Percentage field at row ${index}: wrote ${expected} but found ${actual} after ${maxAttempts} attempts`,
+    );
+  }
+
+  /**
+   * Types a percentage value and reads the field before focus leaves it.
+   * Some invalid values are marked only while the field is focused.
+   */
+  @step('Type a percentage value and keep focus')
+  async typePercentageAndReadFocused(
+    index: number,
+    value: string,
+  ): Promise<{ value: string; invalid: string | null }> {
+    const field = await this.resolveEnabledPercentageField(index);
+    await field.click();
+    await field.fill(value);
+    return {
+      value: await field.inputValue(),
+      invalid: await field.getAttribute('aria-invalid'),
+    };
+  }
+
+  /** Moves focus away from the current percentage field. */
+  @step('Move away from the percentage field')
+  async moveAwayFromPercentageField(): Promise<void> {
+    await this.page.keyboard.press('Tab');
   }
 
   /**

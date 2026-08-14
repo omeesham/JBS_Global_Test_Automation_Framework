@@ -1,6 +1,6 @@
 {
   "session_id": "v13-fixture-session",
-  "transcript_path": "C:/Users/rutvi/projects/encore_framework/pipeline/tests/hooks/fixtures/transcript-in-execute-with-todo.jsonl",
+  "transcript_path": "C:/Users/RutvikKhorasiya/projects/encore_framework/pipeline/tests/hooks/fixtures/transcript-in-execute-with-todo.jsonl",
   "tool_name": "TodoWrite",
   "tool_input": {
     "todos": [

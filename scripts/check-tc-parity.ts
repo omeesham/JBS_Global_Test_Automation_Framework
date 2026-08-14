@@ -28,6 +28,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as XLSX from 'xlsx';
 import { SHARED_PATHS } from './shared-types';
+import { FINGERPRINT_SHEET } from '../export_test_cases/to-xlsx';
 
 const TC_PATTERN = /TC-[A-Z]+-[A-Z]+-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/g;
 
@@ -275,18 +276,8 @@ assertContentMismatchDetectorWorks();
 // segment) passed guardrails 1-5, C1-C7, and shipped Module="locations" to the
 // client workbook. Guardrail 6 makes the MEANING checkable.
 
-// Derive the fingerprint sheet name from the exporter's own constant (LR-069 §3.5:
-// never duplicate a literal — read from the source so divergence is impossible).
-function getFingerprintSheetName(): string {
-  const srcPath = path.join(__dirname, '..', 'export_test_cases', 'to-xlsx.ts');
-  const src = fs.readFileSync(srcPath, 'utf8');
-  const m = src.match(/^const\s+FINGERPRINT_SHEET\s*=\s*'([^']+)';/m);
-  if (!m) {
-    throw new Error('check-tc-parity: cannot extract FINGERPRINT_SHEET from export_test_cases/to-xlsx.ts — the constant must exist');
-  }
-  return m[1]!;
-}
-const FINGERPRINT_SHEET_NAME = getFingerprintSheetName();
+// Use the exported constant from the generator (shared single source of truth).
+const FINGERPRINT_SHEET_NAME = FINGERPRINT_SHEET;
 
 interface ModuleRegistry {
   modules: Record<string, { name: string; display: string; dir: string }>;

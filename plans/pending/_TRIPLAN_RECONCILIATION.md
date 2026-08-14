@@ -71,7 +71,7 @@ Source: `out-rh-E/OFFREPO-COLLISION.md`
 
 **NEVER-TOUCH gap**: 7 exact-path/simple-glob NEVER-TOUCH patterns fail to protect 20 bak files carrying `.bak-*` suffixes. Only directory-scoped patterns (`gates/`, `agents/`) are robust. Source: `OFFREPO-COLLISION.md § NEVER-TOUCH GAP`.
 
-**ORP-A1 scratch-root hazard**: `%LOCALAPPDATA%/Temp/claude/` contains at least 2 actively-written directories (`C--Users-rutvi`, `c--Users-rutvi-projects-encore-framework`) as of 2026-07-30. Blanket deletion while Claude sessions are live would corrupt in-flight work. Source: `OFFREPO-COLLISION.md § SCRATCH-ROOT HAZARD`.
+**ORP-A1 scratch-root hazard**: `%LOCALAPPDATA%/Temp/claude/` contains at least 2 actively-written directories (`C--Users-RutvikKhorasiya`, `C--Users-RutvikKhorasiya-projects-encore-framework`) as of 2026-07-30. Blanket deletion while Claude sessions are live would corrupt in-flight work. Source: `OFFREPO-COLLISION.md § SCRATCH-ROOT HAZARD`.
 
 **Unique-content elevated-risk files** (large, no prior audit ruling):
 - `~/.claude/delegation/copilot-worker.sh.bak-ledgertruth-20260723` (42,364 bytes) — may contain ledger-truth logic

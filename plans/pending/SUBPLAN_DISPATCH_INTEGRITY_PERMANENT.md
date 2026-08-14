@@ -15,7 +15,7 @@ Read in order, nothing else:
 1. .claude/skills/ultra-agents/worker-ext.md lines 1-120
 2. This plan, in full
 3. .claude/state/ua-worker/chips/fdle/CEO-CORRECTIONS.md §5 (root cause, evidenced)
-Repo root: C:\Users\rutvi\projects\encore_framework
+Repo root: C:\Users\RutvikKhorasiya\projects\encore_framework
 NOTE: .claude/skills/ultra-agents/copilot-worker.sh is NOT tracked by git.
       Back it up before every edit; .bak files are the only rollback.
 Git Bash is C:\Program Files\Git\bin\bash.exe — plain `bash` from PowerShell hits WSL and fails.

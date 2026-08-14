@@ -94,7 +94,7 @@ New mechanism difference: machine deny at the tool-call layer + live-fire proof 
 2. This preflight is the structural half of memory rule "workers get zero Atlassian access" — today it passes vacuously (no server configured); it exists to make silently ADDING one impossible.
 
 ### Phase 4 — User-level machine layer `[RUTVIK-GO — hook/permission self-modification]` — CEO
-1. `~/.claude/settings.json`: add `permissions.deny` block (same 10 UUID-qualified entries) + PreToolUse `"matcher": "mcp__.*"` → `node C:/Users/rutvi/.claude/hooks/jira-readonly-gate.mjs` (node-direct port of the repo mjs, per user-level convention). **Dual-copy drift rule**: the user-level file is a byte-copy of the repo mjs's match logic; any future edit updates BOTH or it's a defect (both edits are Rutvik-GO-gated anyway).
+1. `~/.claude/settings.json`: add `permissions.deny` block (same 10 UUID-qualified entries) + PreToolUse `"matcher": "mcp__.*"` → `node C:/Users/RutvikKhorasiya/.claude/hooks/jira-readonly-gate.mjs` (node-direct port of the repo mjs, per user-level convention). **Dual-copy drift rule**: the user-level file is a byte-copy of the repo mjs's match logic; any future edit updates BOTH or it's a defect (both edits are Rutvik-GO-gated anyway).
 2. Best-effort: add both gate files to the PROTECTED array + sha256 pins in `~/.claude/delegation/private/` (infra is landed-but-UNPROVEN per delegation-temp §Honest-Gaps — do it, don't claim tamper-proofness from it).
 
 ### Phase 5 — Live-fire proof + closure — CEO (workers have no MCP; probes are Claude-only)

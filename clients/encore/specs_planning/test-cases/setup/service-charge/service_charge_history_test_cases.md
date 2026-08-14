@@ -30,7 +30,7 @@
 | Grid rows | Table rows | 50 rows for office 1604 (observed 2026-08-11) | Read-only — no inputs, selects, links, or contenteditable inside grid | (no data-testid on rows) |
 | Service Type cell | Table cell | Text label, e.g. `Lighting` | Read-only | (no data-testid) |
 | Service Charge Percentage cell | Table cell | Format: `24.00 %` (two decimals, space, `%`) | Read-only | (no data-testid) |
-| Modified By cell | Table cell | Raw GUID string, e.g. `0c0bec78-1b63-4eed-a2ea-967920c8bfc3` | Read-only | (no data-testid) |
+| Modified By cell | Table cell | User identifier email, e.g. `s-prd-clickauto@psav.com` (re-verified 2026-08-14) | Read-only | (no data-testid) |
 | Modified On cell | Table cell | Format: `MM/DD/YYYY hh:mm:ss AM\|PM` (12-hour with meridiem), e.g. `01/12/2023 09:19:51 AM` | Read-only | (no data-testid) |
 
 ---
@@ -41,12 +41,12 @@
 |---|---|
 | History tab is read-only | Interactive census inside the grid: 0 inputs, 0 selects, 0 links, 0 contenteditable, 0 tabindex. The only 4 buttons are the column headers themselves. |
 | Column headers are fixed | Four `<th>` elements in order: `Service Type`, `Service Charge Percentage`, `Modified By`, `Modified On`. |
-| Page `<h1>` should include the office name (NM-2210 AC5, NM-3300) | The heading is intended to reflect the currently selected office name (e.g. `Service Charge — Parker Palm Springs`). Tab activation is signalled by `aria-selected="true"` on the History trigger and `"false"` on Basic Information. **Known defect**: NM-3300 — the heading currently renders only `Service Charge` with no office name. |
+| Page `<h1>` heading and office context | The `<h1>` reads `Service Charge` on both tabs — office context is rendered separately per tab. Basic Information tab shows a "Local Office : \<name\>" line; History tab shows a "Service Charge History : \<name\>" section header. The History section header renders `Service Charge History : Parker Palm Springs` — verified live 2026-08-14. Whether the page `<h1>` was ever meant to carry the office name is not settled by available evidence. |
 | Default sort is Modified On descending | Observed order: 2023 row first, then 2021, then 2017 block. Within the 2017 block, `06:56:13 PM` entries precede the `06:56:12 PM` entry — confirming descending order. |
 | Percentage format | `24.00 %` — two decimal places, one space before the `%` sign. |
 | Date format (Modified On) | `MM/DD/YYYY hh:mm:ss AM\|PM` — 12-hour clock with meridiem suffix; no timezone. |
-| Modified By identifies the user who made the change (NM-2210 AC4) | Modified By is intended to show who made each change. **Known defect**: all sampled rows on 2026-08-11 rendered a raw GUID (`0c0bec78-…`, `b5668cc9-…`, `156d03e1-…`) instead of a display name; no ticket covering this was found. |
-| Unsaved changes modal on tab switch (NM-3285) | Navigating from Basic Information to History with unsaved edits must present a Save Changes / Discard Changes / Cancel modal. **Known defect**: NM-3285 — the modal does not appear; navigation proceeds without confirmation. |
+| Modified By identifies the user who made the change (NM-2210 AC4) | Modified By renders the user's email address (e.g. `s-prd-clickauto@psav.com`). Verified 2026-08-14 (`reports/rca-nm3344-0814/seatB/walk-log.jsonl:414`). Legacy/migrated rows may differ. |
+| Unsaved changes modal on tab switch (NM-3285) | Navigating from Basic Information to History with unsaved edits presents an in-app "Unsaved changes" modal titled "Unsaved changes" with body "Are you sure you want to leave this view? Any unsaved changes will be lost." and buttons **Stay** and **Discard**. Verified 2026-08-14 (`reports/rca-nm3344-0814/seatB/walk-log.jsonl:117`). |
 | No pagination control | No aria-labelled page controls, no next/prev buttons, no page-size selector, no load-more button observed. |
 | No filter or search control | 0 inputs inside the grid area, 0 search inputs globally in the grid, 0 date-range pickers. |
 | No horizontal scroll | scrollWidth equals clientWidth (1680 px each); `hasHorizontalScroll: false`. |
@@ -68,7 +68,7 @@
 | 6 | Percentage format | Confirmed `24.00 %` across all ten sampled rows. Source: `nm3344-histwalk2-0811`. |
 | 7 | Date format (Modified On) | Confirmed `MM/DD/YYYY hh:mm:ss AM\|PM` (e.g. `01/12/2023 09:19:51 AM`). Source: `nm3344-histwalk2-0811`. |
 | 8 | Default sort Modified On descending | Confirmed by row ordering: 2023 → 2021 → 2017 block, and within block `…:13 PM` before `…:12 PM`. Source: `nm3344-histwalk2-0811`. |
-| 9 | Modified By renders raw GUID | Confirmed across all ten sampled rows — no name or email appears. Source: `nm3344-histwalk2-0811`. |
+| 9 | Modified By renders a user identifier | Current rows render the automation user's email; the 2026-08-11 GUID observation was superseded by the 2026-08-14 re-verification. |
 | 10 | Interactive census inside grid | Confirmed: 0 inputs, 0 selects, 0 links, 0 contenteditable, 0 tabindex, 4 buttons (column headers). Source: `nm3344-histwalkfull-0811`. |
 | 11 | No pagination control | Confirmed: 0 aria-page controls, 0 next/prev, 0 page-size selector, 0 load-more. Source: `nm3344-histwalkfull-0811`. |
 | 12 | No filter/search control | Confirmed: 0 inputs in grid area, 0 search inputs, 0 date-range pickers. Source: `nm3344-histwalkfull-0811`. |
@@ -89,14 +89,15 @@
 |---|------|-----------------|
 | 1 | Navigate to the Service Charge settings page for office 1604 | The page loads; the Basic Information tab trigger has `aria-selected="true"` and the History tab trigger has `aria-selected="false"`. |
 | 2 | Click the **Service Charge History** tab | The History tab trigger transitions to `aria-selected="true"`; the Basic Information tab trigger transitions to `aria-selected="false"`. |
-| 3 | Read the page `<h1>` text | The heading reflects the currently selected office name (e.g. `Service Charge — Parker Palm Springs`). |
-| 4 | Read the four column header texts in order | The headers are `Service Type`, `Service Charge Percentage`, `Modified By`, `Modified On` — verbatim, in that order. |
+| 3 | Read the page `<h1>` text | The heading reads `Service Charge` (same on both tabs; office context is not in the h1). |
+| 4 | Read the History section header | The header reads `Service Charge History : Parker Palm Springs` — office name is present. |
+| 5 | Read the four column header texts in order | The headers are `Service Type`, `Service Charge Percentage`, `Modified By`, `Modified On` — verbatim, in that order. |
 
-**Expected**: The History tab activates via `aria-selected`; the `<h1>` includes the selected office name; all four column headers are present in the correct order.
+**Expected**: The History tab activates via `aria-selected`; the `<h1>` reads `Service Charge`; the History section header includes the office name; all four column headers are present in the correct order.
 
-**Known defect**: NM-3300 — the header currently renders only `Service Charge` with no office name. Step 3 is expected to fail against the current e2e build; it is the evidence vehicle for that defect.
+The History section header renders `Service Charge History : Parker Palm Springs` — verified live 2026-08-14. Whether the page `<h1>` was ever meant to carry the office name is not settled by available evidence.
 
-**Evidence**: `nm3344-histwalkfull-0811` column-headers array; `aria-selected` observed on tab triggers; `nm3344-histwalk2-0811` confirms no office-name heading.
+**Evidence**: `nm3344-histwalkfull-0811` column-headers array; `aria-selected` observed on tab triggers; live walk 2026-08-14 confirms section header `Service Charge History : Parker Palm Springs`.
 
 **Surface_Family**: render-state (QUICK)
 
@@ -254,7 +255,7 @@
 
 ---
 
-## TC-SVC-HIS-010: Modified By cells render a raw GUID, not a person name or email
+## TC-SVC-HIS-010: Modified By cells render a user identifier, not a raw GUID
 
 **Automatable**: Yes
 **Preconditions**: The History grid for office 1604 is fully loaded.
@@ -267,9 +268,7 @@
 
 **Expected**: Modified By identifies the user who made the change — a display name, username, or human-readable identifier, not an opaque system GUID.
 
-**Known defect**: No ticket covering this was found. All ten sampled rows on 2026-08-11 rendered a raw GUID (`0c0bec78-…`, `b5668cc9-…`, `156d03e1-…`) — no display name appeared on any row. This step is expected to fail against the current build; it records the gap for future resolution.
-
-**Evidence**: `nm3344-histwalk2-0811` — all ten sampled rows show UUIDs. No name or email observed on any row.
+**Evidence**: Current rows render the automation user's email address, e.g. `s-prd-clickauto@psav.com`, re-verified 2026-08-14.
 
 **Surface_Family**: render-state (QUICK)
 
@@ -351,13 +350,13 @@
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Edit any Service Charge Percentage value on the Basic Information tab without saving | The field shows an unsaved value; the Save button is enabled. |
-| 2 | Click the **Service Charge History** tab without saving | An Unsaved Changes confirmation modal appears with Save Changes, Discard Changes, and Cancel options. The application does not navigate to the History tab without user confirmation. |
+| 2 | Click the **Service Charge History** tab without saving | An "Unsaved changes" modal appears with **Stay** and **Discard** buttons. The application does not navigate to the History tab without user confirmation. |
 
-**Expected**: Navigating from Basic Information to the History tab with unsaved edits triggers an Unsaved Changes modal offering Save Changes / Discard Changes / Cancel.
+**Expected**: Navigating from Basic Information to the History tab with unsaved edits triggers an "Unsaved changes" modal with body "Are you sure you want to leave this view? Any unsaved changes will be lost." and buttons Stay / Discard.
 
-**Known defect**: NM-3285 — the modal does not appear; the application navigates directly to the History tab without prompting. The ticket is closed Done; this case determines whether the fix is live in the current build.
+The modal now appears on tab switch — verified 2026-08-14 (`reports/rca-nm3344-0814/seatB/walk-log.jsonl:117`).
 
-**Evidence**: NM-3285 Actual Result — no modal displayed when navigating away from unsaved Basic Information edits.
+**Evidence**: Live walk 2026-08-14: alertdialog text "Unsaved changes / Are you sure you want to leave this view? Any unsaved changes will be lost. / Stay / Discard".
 
 ---
 
@@ -374,11 +373,11 @@
 | 2 | Click the **Service Charge History** tab | The History tab activates without triggering a full page reload. |
 | 3 | Confirm the office context after the tab switch | The same office (1604 / Parker Palm Springs) is still selected; the History grid shows the 1604 row set (≥ 1 row, consistent with the per-office row count observed for 1604). |
 
-**Expected**: Switching from Basic Information to the History tab preserves the current office context without a page reload; the History grid displays records belonging to the same office that was selected before the switch.
+**Expected**: Switching from Basic Information to the History tab preserves the current office context; the Basic Information tab shows "Local Office : 1604 - Parker Palm Springs" before the switch, and the History section header shows "Service Charge History : Parker Palm Springs" after the switch; the History grid displays records for office 1604.
 
-**Known defect**: NM-3300 family — the office context header (breadcrumb element) renders as "Local Office :" with no office name. The intended value is "Local Office : Parker Palm Springs". This is the same root cause as NM-3300 (which tracks the page heading omitting the office name) but affects a different element (the breadcrumb/context header, not the h1). Confirmed deterministic across 2 independent runs on 2026-08-11. Step 1 is expected to fail against the current build; it is the evidence vehicle for this defect occurrence. Second sighting recorded in walk evidence (SVC-OBS-5).
+The History section header renders `Service Charge History : Parker Palm Springs` — verified live 2026-08-14.
 
-**Evidence**: NM-2210 AC6 / AC9 (office context preservation requirement); 2-of-2 spec-run failures on 2026-08-11 with identical `"Local Office :"` return from `getOfficeHeader()`.
+**Evidence**: NM-2210 AC6 / AC9; live walk 2026-08-14 confirms both elements carry the office name.
 
 ---
 
@@ -394,7 +393,7 @@ The following items were deferred in earlier drafts but are now resolved at QUIC
 - Read-only grid — **covered** (TC-SVC-HIS-007)
 - No pagination — **covered** (TC-SVC-HIS-008)
 - No filter/search — **covered** (TC-SVC-HIS-009)
-- Modified By GUID format — **covered** (TC-SVC-HIS-010)
+- Modified By identifier format — covered (TC-SVC-HIS-010)
 - Per-office isolation — **covered** (TC-SVC-HIS-011)
 
 The following remain deferred to DEEP (genuinely require deep coverage):
