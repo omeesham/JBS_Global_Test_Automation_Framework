@@ -273,13 +273,28 @@ Two consequences. That run's report is method-untrustworthy — its verdicts may
 
 A redirect target assembled at run time, where no protected path appears in the command text, cannot be caught by inspecting the command. Beyond that, §74.4 stands unchanged and is reinforced by the incident above: deciding whether a command is safe by reading its text is an approximation, and the preventive layer must never be described as closing the class. The reconciliation layer carries the guarantee — it parses no commands, matching ledger rows against visible tool calls — and it is the half that is switched on.
 
+## Third addendum — 2026-08-14 evening (commit f2e51bebd)
+
+The owner ended this work and named the blocking half slop. It was removed rather than left idling, per LR-069 §3.5 — a convicted fix is rewired or deleted in the same change, never kept as sediment.
+
+**Removed**: `.claude/hooks/dispatch-visibility-gate.sh` (41 lines), `.claude/hooks/lib/test-dispatch-visibility-fixtures.mjs` (1519), the `check:dispatch-visibility` npm script, and two `permissions.allow` entries. LR-074 §74.2 rewritten from a two-layer design to one, carrying an explicit instruction not to rebuild the matcher.
+
+**Prior-Fix Trial on the preventive layer itself** — verdict **CONVICTED**, on two independent grounds:
+
+1. `different-sub-class` is the charitable reading and it still fails: six adversarial rounds each produced a fresh bypass at every corpus size (163 → 402), because pattern-matching an unbounded command language leaks by construction. Growing the corpus never converged.
+2. The disqualifying ground: **it was scoped to the wrong actor.** A PreToolUse hook inspects Claude's own tool calls. A dispatched worker is a separate OS process that never reaches it. The layer could not protect a file from a worker even switched on — demonstrated the same day when run `p67-a13-attack4-0814` overwrote `.claude/settings.json` while the gate was wired.
+
+**Survives**: `.claude/hooks/lib/check-dispatch-visibility.mjs`, not on merit but because the live Stop hook imports `commandHasWrapperInExecutablePosition`, which pulls in `splitStatements`, `parseDispatchWrapperPath`, `isCanonicalWrapper`, `canonicalizePath` and `resolveRunnerTarget` — roughly 280 of its 1466 lines. Extracting them means editing the one component that works. Recorded here as a known residual rather than done quietly; ~1180 lines of that file are dead.
+
+**Execution note**: every path in this change is denied to Claude by the protected-state hook (`isProtectedState` matches `/.claude/hooks/`, `/.claude/settings.json`) independently of any grant, and `package.json` needed a grant that had lapsed. The owner applied all four edits by running a self-checking script. Its first run aborted — the script hard-coded a Unix line ending and `package.json` is CRLF; the LF reading came from `grep | cat -A`, and Git Bash grep strips the CR, so that check could never have detected it. Fixed by deriving the terminator per file and anchoring the prose edit on section headings instead of an exact literal.
+
 ## Verification artifact
 
 ```bash
-npm run check:dispatch-visibility && npm run check:visibility-reconcile && node scripts/dispatch-preflight.mjs --self-test && node scripts/labor-gate-prose.test.mjs
+npm run check:visibility-reconcile && node scripts/dispatch-preflight.mjs --self-test && node scripts/labor-gate-prose.test.mjs
 ```
 
-Expected: all exit 0; 402, 53, 24 and 19 passing respectively. (Supersedes the 262/53 figures above.)
+Expected: all exit 0; 53, 24 and 19 passing respectively. (Supersedes the 402/262 figures above — that suite covered the deleted module.)
 
 ## Handoff
 
