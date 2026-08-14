@@ -1106,6 +1106,413 @@ assert('PROSE-DENY-06 node --print with spawn_sync → DENY',
 assert('PROSE-DENY-07 npm exec node -e with execFileSync → DENY',
   'npm exec node -e "execFileSync(\'ls\')"', 'Bash', true);
 
+// ── A6 PATH-FIRST: twelve gap DENY fixtures ──────────────────────────────────
+
+console.log('\n── A6 path-first gap DENY probes ──\n');
+
+// Bash gaps
+assert('GAP-01 tee overwrite protected file → DENY (path-first)',
+  'echo x | tee .claude/settings.json', 'Bash', true);
+assert('GAP-02 tee -a append protected file → DENY (path-first)',
+  'echo x | tee -a .claude/hooks/dispatch-visibility-gate.sh', 'Bash', true);
+assert('GAP-03 dd of= protected file → DENY (path-first)',
+  'dd if=/dev/zero of=.claude/settings.json bs=1 count=1', 'Bash', true);
+{
+  const dynImp = "node -e \"import(" + "'fs'" + ").then(m=>m.writeFile" + "Sync('.claude/settings.json','x'))\"";
+  assert('GAP-04 node dynamic import fs write protected file → DENY (path-first)', dynImp, 'Bash', true);
+}
+{
+  const pyPath = "python -c \"from pathlib import Path; Path(" + "'.claude/settings.json'" + ").write_text('x')\"";
+  assert('GAP-05 python pathlib write_text protected file → DENY (path-first)', pyPath, 'Bash', true);
+}
+assert('GAP-06 tee overwrite ledger → DENY (path-first)',
+  'echo forged | tee .claude/state/ua-worker/ledger.jsonl', 'Bash', true);
+assert('GAP-07 dd of= ledger → DENY (path-first)',
+  'dd if=/dev/null of=.claude/state/ua-worker/ledger.jsonl', 'Bash', true);
+{
+  const pyOpen = "python -c \"open(" + "'.claude/settings.json'" + ",'w').write('x')\"";
+  assert('GAP-08 python open().write() protected file → DENY (path-first)', pyOpen, 'Bash', true);
+}
+
+// PowerShell gaps
+assert('GAP-09 PS redirect > protected file → DENY (path-first)',
+  '"data" > .claude\\settings.json', 'PowerShell', true);
+assert('GAP-10 PS Out-File protected file → DENY (path-first)',
+  '"data" | Out-File .claude\\settings.json', 'PowerShell', true);
+assert('GAP-11 PS Copy-Item -Force protected file → DENY (path-first)',
+  'Copy-Item src.txt .claude\\settings.json -Force', 'PowerShell', true);
+assert('GAP-12 PS Tee-Object protected file → DENY (path-first)',
+  '"data" | Tee-Object .claude\\settings.json', 'PowerShell', true);
+
+// Substitution regression: redirect routes stream into nested writer targeting protected path
+assert('GAP-REG substitution regression: pipe to bash -c writer targeting protected file → DENY',
+  "echo data | bash -c 'cat > .claude/settings.json'", 'Bash', true);
+assert('GAP-REG-L substitution regression: pipe to bash -c writer targeting ledger → DENY',
+  "echo data | bash -c 'cat > .claude/state/ua-worker/ledger.jsonl'", 'Bash', true);
+
+// ── Natural executable-bearing form for all 12 gaps (A7 bounce) ──────────────
+// Each gap re-tested with a real command producing real output, not a bare literal.
+
+console.log('\n── A6 path-first gap DENY probes (natural executable-bearing form) ──\n');
+
+// Bash gaps: existing forms are already executable-bearing; second fixture proves
+// the deny holds with a reader producing the input stream.
+assert('GAP-01-NAT tee overwrite protected file from reader → DENY',
+  'cat /etc/hostname | tee .claude/settings.json', 'Bash', true);
+assert('GAP-02-NAT tee -a append protected file from reader → DENY',
+  'cat /etc/hostname | tee -a .claude/hooks/dispatch-visibility-gate.sh', 'Bash', true);
+assert('GAP-03-NAT dd of= protected file with real input → DENY',
+  'dd if=/etc/hostname of=.claude/settings.json bs=512 count=1', 'Bash', true);
+{
+  const dynImpNat = "node -e \"const fs=require('fs');fs.writeFileSync('.claude/settings.json',fs.readFileSync('/etc/hostname'))\"";
+  assert('GAP-04-NAT node require fs write protected file → DENY (path-first)', dynImpNat, 'Bash', true);
+}
+{
+  const pyPathNat = "python3 -c \"from pathlib import Path; Path('.claude/settings.json').write_text(Path('/etc/hostname').read_text())\"";
+  assert('GAP-05-NAT python pathlib read+write protected file → DENY (path-first)', pyPathNat, 'Bash', true);
+}
+assert('GAP-06-NAT tee overwrite ledger from reader → DENY',
+  'cat /etc/hostname | tee .claude/state/ua-worker/ledger.jsonl', 'Bash', true);
+assert('GAP-07-NAT dd of= ledger with real input → DENY',
+  'dd if=/etc/hostname of=.claude/state/ua-worker/ledger.jsonl', 'Bash', true);
+{
+  const pyOpenNat = "python3 -c \"open('.claude/settings.json','w').write(open('/etc/hostname').read())\"";
+  assert('GAP-08-NAT python open().read()+write() protected file → DENY (path-first)', pyOpenNat, 'Bash', true);
+}
+
+// PowerShell gaps: natural form with a real cmdlet producing the redirected output.
+// GAP-09-NAT is the corpus defect: Get-Content is in KNOWN_SAFE_EXEC_PS, so before
+// the A7 fix the redirect bypassed the path-first check entirely.
+assert('GAP-09-NAT PS reader cmdlet redirect > protected file → DENY (path-first)',
+  'Get-Content C:\\temp\\data.txt > .claude\\settings.json', 'PowerShell', true);
+assert('GAP-09-NAT-L PS reader cmdlet redirect > ledger → DENY (path-first)',
+  'Get-Content C:\\temp\\data.txt > .claude\\state\\ua-worker\\ledger.jsonl', 'PowerShell', true);
+assert('GAP-10-NAT PS reader cmdlet pipe Out-File protected file → DENY (path-first)',
+  'Get-Content C:\\temp\\data.txt | Out-File .claude\\settings.json', 'PowerShell', true);
+assert('GAP-11-NAT PS Copy-Item from real source to protected file → DENY (path-first)',
+  'Copy-Item C:\\temp\\data.txt .claude\\settings.json', 'PowerShell', true);
+assert('GAP-12-NAT PS reader cmdlet pipe Tee-Object protected file → DENY (path-first)',
+  'Get-Content C:\\temp\\data.txt | Tee-Object .claude\\settings.json', 'PowerShell', true);
+
+// ── A6 PATH-FIRST: three false denial ALLOW fixtures ─────────────────────────
+
+console.log('\n── A6 path-first false-denial ALLOW probes ──\n');
+
+assert('FD-01 cat protected file with stderr routing → ALLOW (false-deny #1 fixed)',
+  'cat .claude/settings.json 2>/dev/null', 'Bash', false);
+assert('FD-01b cat protected file with stderr to file → ALLOW',
+  'cat .claude/settings.json 2>err.log', 'Bash', false);
+assert('FD-02 canonical dispatch with --timeout → ALLOW (false-deny #2 / V19 fixed)',
+  'bash .claude/skills/ultra-agents/copilot-worker.sh --timeout 300 --ticket t.md --run-id X --work-type build',
+  'Bash', false);
+assert('FD-03 preflight script with dispatch flags → ALLOW (false-deny #3 / V22 fixed)',
+  'node scripts/dispatch-preflight.mjs --ticket t.md --run-id X --agent council-worker',
+  'Bash', false);
+
+// ── A6 PATH-FIRST: read-only inspection ALLOW spread ─────────────────────────
+
+console.log('\n── A6 path-first read-only ALLOW probes ──\n');
+
+assert('RO-01 cat protected file → ALLOW',
+  'cat .claude/hooks/dispatch-visibility-gate.sh', 'Bash', false);
+assert('RO-02 head protected file → ALLOW',
+  'head -20 .claude/settings.json', 'Bash', false);
+assert('RO-03 tail protected file → ALLOW',
+  'tail -5 .claude/hooks/lib/check-dispatch-visibility.mjs', 'Bash', false);
+assert('RO-04 wc protected file → ALLOW',
+  'wc -l .claude/settings.json', 'Bash', false);
+assert('RO-05 grep protected file → ALLOW',
+  'grep -n "dispatch" .claude/hooks/dispatch-visibility-gate.sh', 'Bash', false);
+assert('RO-06 ls protected dir → ALLOW',
+  'ls -la .claude/hooks/', 'Bash', false);
+assert('RO-07 stat protected file → ALLOW',
+  'stat .claude/settings.json', 'Bash', false);
+assert('RO-08 test -f protected file → ALLOW',
+  'test -f .claude/settings.json', 'Bash', false);
+assert('RO-09 diff two protected files → ALLOW',
+  'diff .claude/settings.json .claude/hooks/dispatch-visibility-gate.sh', 'Bash', false);
+assert('RO-10 sha256sum protected file → ALLOW',
+  'sha256sum .claude/settings.json', 'Bash', false);
+assert('RO-11 cat protected + stderr to /dev/null → ALLOW',
+  'cat .claude/settings.json 2>/dev/null', 'Bash', false);
+assert('RO-12 grep protected + stderr to file → ALLOW',
+  'grep pattern .claude/settings.json 2>err.log', 'Bash', false);
+assert('RO-13 cat ledger → ALLOW (existing LEDGER-09 shape)',
+  'cat .claude/state/ua-worker/ledger.jsonl', 'Bash', false);
+assert('RO-14 wc ledger → ALLOW',
+  'wc -l .claude/state/ua-worker/ledger.jsonl', 'Bash', false);
+assert('RO-15 node -e readFileSync protected file → ALLOW (modeled read)',
+  "node -e \"const d=require('fs').readFileSync('.claude/settings.json','utf8');console.log(d)\"", 'Bash', false);
+assert('RO-16 PS Get-Content protected file → ALLOW',
+  'Get-Content .claude\\settings.json', 'PowerShell', false);
+assert('RO-17 PS Select-String protected file → ALLOW',
+  'Select-String -Pattern "hook" .claude\\hooks\\dispatch-visibility-gate.sh', 'PowerShell', false);
+assert('RO-18 PS Test-Path protected file → ALLOW',
+  'Test-Path .claude\\settings.json', 'PowerShell', false);
+
+// ── A7: git read-only subcommands ALLOW, write subcommands DENY ──────────────
+
+console.log('\n── A7 git subcommand probes ──\n');
+
+assert('GIT-RO-01 git log protected file → ALLOW',
+  'git log .claude/settings.json', 'Bash', false);
+assert('GIT-RO-02 git diff protected file → ALLOW',
+  'git diff .claude/settings.json', 'Bash', false);
+assert('GIT-RO-03 git show protected file → ALLOW',
+  'git show HEAD:.claude/settings.json', 'Bash', false);
+assert('GIT-RO-04 git status protected dir → ALLOW',
+  'git status .claude/hooks/', 'Bash', false);
+assert('GIT-RO-05 git blame protected file → ALLOW',
+  'git blame .claude/settings.json', 'Bash', false);
+assert('GIT-RO-06 git --no-pager diff protected file → ALLOW',
+  'git --no-pager diff .claude/hooks/lib/check-dispatch-visibility.mjs', 'Bash', false);
+assert('GIT-RO-07 git log ledger → ALLOW',
+  'git log .claude/state/ua-worker/ledger.jsonl', 'Bash', false);
+assert('GIT-RO-08 git diff ledger → ALLOW',
+  'git diff .claude/state/ua-worker/ledger.jsonl', 'Bash', false);
+
+assert('GIT-WR-01 git checkout -- protected file → DENY',
+  'git checkout -- .claude/settings.json', 'Bash', true);
+assert('GIT-WR-02 git restore protected file → DENY',
+  'git restore .claude/settings.json', 'Bash', true);
+assert('GIT-WR-03 git apply patch to protected dir → DENY',
+  'git apply fix.patch .claude/hooks/', 'Bash', true);
+assert('GIT-WR-04 git reset protected file → DENY',
+  'git reset HEAD .claude/settings.json', 'Bash', true);
+
+// ── A7: common text utilities ALLOW ──────────────────────────────────────────
+
+assert('TXT-RO-01 awk protected file → DENY (delisted A12: general-purpose language)',
+  "awk '{print NR, $0}' .claude/settings.json", 'Bash', true);
+assert('TXT-RO-02 tac protected file → ALLOW',
+  'tac .claude/settings.json', 'Bash', false);
+
+// ── A7: git read-only with redirect to protected path → DENY ─────────────────
+
+assert('GIT-REDIR-01 git diff redirect to protected file → DENY',
+  'git diff HEAD > .claude/settings.json', 'Bash', true);
+
+// ── A6 V19/V22: dispatch with --timeout ALLOW, real launcher DENY ────────────
+
+console.log('\n── A6 V19/V22 probes ──\n');
+
+assert('V19-TIMEOUT-01 dispatch with --timeout ALLOW (flag not launcher)',
+  'bash .claude/skills/ultra-agents/copilot-worker.sh --timeout 300 --ticket t.md --run-id X --work-type build',
+  'Bash', false);
+assert('V19-TIMEOUT-02 real timeout launcher with dispatch token still DENY',
+  'timeout 60 bash .claude/skills/ultra-agents/copilot-worker.sh --run-id X --work-type build',
+  'Bash', true);
+assert('V22-PF-01 preflight with full flags → ALLOW',
+  'node scripts/dispatch-preflight.mjs --ticket t.md --run-id run-001 --agent council-worker --model claude-sonnet-4-5',
+  'Bash', false);
+assert('V22-PF-02 non-preflight script with dispatch args still DENY',
+  'node scripts/evil.mjs --ticket t.md --run-id X --agent worker',
+  'Bash', true);
+
+// ── A6: preserved detections ─────────────────────────────────────────────────
+
+console.log('\n── A6 preserved detection probes ──\n');
+
+assert('PRES-01 rm protected file still DENY',
+  'rm .claude/settings.json', 'Bash', true);
+assert('PRES-02 mv protected file still DENY',
+  'mv .claude/settings.json /tmp/', 'Bash', true);
+assert('PRES-03 sed -i protected file still DENY',
+  'sed -i "s/x/y/" .claude/settings.json', 'Bash', true);
+assert('PRES-04 cp overwrite protected file still DENY',
+  'cp /tmp/evil .claude/settings.json', 'Bash', true);
+assert('PRES-05 truncate protected file still DENY',
+  'truncate -s 0 .claude/settings.json', 'Bash', true);
+assert('PRES-06 nohup detach still DENY',
+  'nohup bash deploy.sh &', 'Bash', true);
+assert('PRES-07 setsid detach still DENY',
+  'setsid bash deploy.sh', 'Bash', true);
+assert('PRES-08 direct copilot CLI still DENY',
+  'copilot --agent x -p ticket.md', 'Bash', true);
+assert('PRES-09 renamed wrapper still DENY',
+  'bash evil-copilot-worker.sh --ticket t.md', 'Bash', true);
+assert('PRES-10 eval dispatch still DENY',
+  'eval "copilot --agent x"', 'Bash', true);
+assert('PRES-11 PS Remove-Item protected file still DENY',
+  'Remove-Item .claude\\settings.json', 'PowerShell', true);
+assert('PRES-12 PS Start-Process still DENY',
+  'Start-Process bash -ArgumentList "deploy.sh"', 'PowerShell', true);
+assert('PRES-13 dispatch args on symlink still DENY',
+  'mybin --run-id X --agent council-worker --ticket t.md', 'Bash', true);
+assert('PRES-14 detached:true syntax still DENY',
+  'spawn("node", [], {detached: true})', 'Bash', true);
+assert('PRES-15 node -e writeFileSync protected file still DENY',
+  "node -e \"require('fs').writeFileSync('.claude/settings.json','')\"", 'Bash', true);
+
+// ── B2-D1: write-mode invocations of allowlisted programs DENY ───────────────
+
+console.log('\n── B2 Defect 1: write-mode allowlist probes ──\n');
+
+assert('WM-01 awk -i inplace protected file → DENY',
+  "gawk -i inplace '{gsub(/x/,\"y\")}1' .claude/settings.json", 'Bash', true);
+assert('WM-02 gawk -i inplace protected file → DENY',
+  "gawk -i inplace '{print}' .claude/settings.json", 'Bash', true);
+assert('WM-03 awk read protected file → DENY (delisted A12: general-purpose language)',
+  "awk '{print NR, $0}' .claude/settings.json", 'Bash', true);
+assert('WM-04 sed -i protected file → DENY (write mode)',
+  'sed -i "s/x/y/" .claude/settings.json', 'Bash', true);
+assert('WM-05 sed -n print-only protected file → ALLOW',
+  "sed -n '1,5p' .claude/settings.json", 'Bash', false);
+assert('WM-06 find -delete under protected dir → DENY',
+  'find .claude/hooks -name "*.bak" -delete', 'Bash', true);
+assert('WM-07 find read-only under protected dir → ALLOW',
+  'find .claude/hooks -name "*.sh" -type f', 'Bash', false);
+assert('WM-08 sort -o protected file → DENY',
+  'sort -o .claude/settings.json .claude/settings.json', 'Bash', true);
+
+// ── B2-D2: inline-eval with write API denies without literal path ────────────
+
+console.log('\n── B2 Defect 2: inline-eval write without literal path ──\n');
+
+{
+  const fragments = "node -e \"const p='.claude/'+" + "'settings'+'.json'; require('fs').writeFileSync(p,'')\"";
+  assert('EVAL-WR-01 node -e writeFileSync with path from fragments → DENY',
+    fragments, 'Bash', true);
+}
+assert('EVAL-WR-02 node -e readFileSync only (no write) → ALLOW',
+  "node -e \"console.log(require('fs').readFileSync('package.json','utf8'))\"", 'Bash', false);
+assert('EVAL-WR-03 node -e writeFile to non-protected path still DENY (write API in eval)',
+  "node -e \"require('fs').writeFile('/tmp/x','data',()=>{})\"", 'Bash', true);
+
+// ── B2-D3: five refused read-only commands now ALLOW ─────────────────────────
+
+console.log('\n── B2 Defect 3: previously-refused read-only commands ──\n');
+
+assert('D3-01 git grep scoped to protected file → ALLOW',
+  'git grep "pattern" .claude/settings.json', 'Bash', false);
+assert('D3-02 find under protected hooks dir → ALLOW',
+  'find .claude/hooks -type f', 'Bash', false);
+assert('D3-03 du of protected hooks dir → ALLOW',
+  'du -sh .claude/hooks', 'Bash', false);
+assert('D3-04 sed -n print range of protected file → ALLOW',
+  "sed -n '10,20p' .claude/settings.json", 'Bash', false);
+assert('D3-05a PS cat (alias for Get-Content) protected file → ALLOW',
+  'cat .claude\\settings.json', 'PowerShell', false);
+assert('D3-05b PS type (alias for Get-Content) protected file → ALLOW',
+  'type .claude\\settings.json', 'PowerShell', false);
+
+// ── A11 BOUNCE3: quote-aware redirect target extraction ───────────────────────
+
+console.log('\n── A11 quoted redirect target DENY probes ──\n');
+
+assert('QR-01 double-quoted redirect to settings → DENY',
+  'cat /etc/hostname > ".claude/settings.json"', 'Bash', true);
+assert('QR-02 single-quoted redirect to settings → DENY',
+  "cat /etc/hostname > '.claude/settings.json'", 'Bash', true);
+assert('QR-03 double-quoted redirect to ledger → DENY',
+  'cat /etc/hostname > ".claude/state/ua-worker/ledger.jsonl"', 'Bash', true);
+assert('QR-04 single-quoted redirect to ledger → DENY',
+  "cat /etc/hostname > '.claude/state/ua-worker/ledger.jsonl'", 'Bash', true);
+assert('QR-05 double-quoted append redirect to gate script → DENY',
+  'echo payload >> ".claude/hooks/dispatch-visibility-gate.sh"', 'Bash', true);
+assert('QR-06 PS double-quoted redirect to settings → DENY',
+  'Get-Content C:\\temp\\data.txt > ".claude\\settings.json"', 'PowerShell', true);
+assert('QR-07 PS single-quoted redirect to settings → DENY',
+  "Get-Content C:\\temp\\data.txt > '.claude\\settings.json'", 'PowerShell', true);
+assert('QR-08 unquoted redirect still DENY (regression)',
+  'cat /etc/hostname > .claude/settings.json', 'Bash', true);
+
+// ── A11: sed --in-place long form DENY ───────────────────────────────────────
+
+console.log('\n── A11 sed --in-place long form ──\n');
+
+assert('SED-LF-01 sed --in-place protected file → DENY',
+  'sed --in-place "s/x/y/" .claude/settings.json', 'Bash', true);
+assert('SED-LF-02 sed -n still ALLOW (regression)',
+  "sed -n '1,5p' .claude/settings.json", 'Bash', false);
+
+// ── A11: find -exec with reader ALLOW, non-reader DENY ──────────────────────
+
+console.log('\n── A11 find -exec probes ──\n');
+
+assert('FEXEC-01 find -exec cat {} \\; → ALLOW (reader in exec)',
+  'find .claude/hooks -exec cat {} \\;', 'Bash', false);
+assert('FEXEC-02 find -exec grep pattern {} + → ALLOW',
+  'find .claude/hooks -exec grep -l pattern {} +', 'Bash', false);
+assert('FEXEC-03 find -exec rm {} \\; → DENY (non-reader)',
+  'find .claude/hooks -exec rm {} \\;', 'Bash', true);
+assert('FEXEC-04 find -execdir sed -i {} \\; → DENY (non-reader via execdir)',
+  'find .claude/hooks -execdir sed -i "s/x/y/" {} \\;', 'Bash', true);
+assert('FEXEC-05 find -delete still DENY',
+  'find .claude/hooks -name "*.bak" -delete', 'Bash', true);
+assert('FEXEC-06 find -fprint file → DENY',
+  'find .claude/hooks -fprint /tmp/out', 'Bash', true);
+assert('FEXEC-07 find read-only still ALLOW (regression)',
+  'find .claude/hooks -type f', 'Bash', false);
+
+// ── A11: piped commands — per-statement path relevance ───────────────────────
+
+console.log('\n── A11 piped command false-deny fixes ──\n');
+
+assert('PIPE-01 find protected | xargs grep → ALLOW',
+  'find .claude/hooks -type f | xargs grep pattern', 'Bash', false);
+assert('PIPE-02 PS Get-Content protected | ConvertTo-Json → ALLOW',
+  'Get-Content .claude\\settings.json | ConvertTo-Json', 'PowerShell', false);
+assert('PIPE-03 PS Get-Content protected | Out-String → ALLOW',
+  'Get-Content .claude\\settings.json | Out-String', 'PowerShell', false);
+assert('PIPE-04 PS Get-Content protected | Format-Wide → ALLOW',
+  'Get-Content .claude\\settings.json | Format-Wide', 'PowerShell', false);
+assert('PIPE-05 cat protected | sort still ALLOW (regression)',
+  'cat .claude/settings.json | sort', 'Bash', false);
+
+// ── A11: awk/sed program-text writes DENY ────────────────────────────────────
+
+console.log('\n── A11 program-text write probes ──\n');
+
+assert('PW-01 awk print > file on protected path → DENY',
+  "awk '{print > \"/tmp/out\"}' .claude/settings.json", 'Bash', true);
+assert('PW-02 awk system() on protected path → DENY',
+  "awk '{system(\"rm \" FILENAME)}' .claude/settings.json", 'Bash', true);
+assert('PW-03 sed w command on protected path → DENY',
+  "sed 'w /tmp/out' .claude/settings.json", 'Bash', true);
+assert('PW-04 awk read-only on protected path → DENY (delisted A12: general-purpose language)',
+  "awk '{print NR, $0}' .claude/settings.json", 'Bash', true);
+
+// ── A12: awk family delisted — all forms DENY on protected paths ─────────────
+
+console.log('\n── A12 awk-family delisting probes ──\n');
+
+assert('DL-01 awk print-expression > file on protected path → DENY',
+  "awk '{print $1 > \"/tmp/out\"}' .claude/settings.json", 'Bash', true);
+assert('DL-02 awk printf > file on protected path → DENY',
+  "awk '{printf \"%s\\n\", $0 > \"/tmp/out\"}' .claude/settings.json", 'Bash', true);
+assert('DL-03 awk append >> file on protected path → DENY',
+  "awk '{print $0 >> \"/tmp/out\"}' .claude/settings.json", 'Bash', true);
+assert('DL-04 awk pipe to shell command on protected path → DENY',
+  "awk '{print $0 | \"cat > /tmp/out\"}' .claude/settings.json", 'Bash', true);
+assert('DL-05 awk system() on protected path → DENY',
+  "awk '{system(\"cp \" FILENAME \" /tmp\")}' .claude/settings.json", 'Bash', true);
+assert('DL-06 gawk on protected path → DENY',
+  "gawk '{print}' .claude/settings.json", 'Bash', true);
+assert('DL-07 mawk on protected path → DENY',
+  "mawk '{print}' .claude/settings.json", 'Bash', true);
+assert('DL-08 nawk on protected path → DENY',
+  "nawk '/pattern/' .claude/settings.json", 'Bash', true);
+assert('DL-09 gawk -i inplace on protected path → DENY',
+  "gawk -i inplace '{gsub(/old/,\"new\")}' .claude/settings.json", 'Bash', true);
+assert('DL-10 cat still ALLOW on protected path (bounded reader regression)',
+  'cat .claude/settings.json', 'Bash', false);
+assert('DL-11 head still ALLOW on protected path (bounded reader regression)',
+  'head -20 .claude/settings.json', 'Bash', false);
+assert('DL-12 grep still ALLOW on protected path (bounded reader regression)',
+  'grep pattern .claude/settings.json', 'Bash', false);
+
+// ── A11: node computed property access DENY ──────────────────────────────────
+
+console.log('\n── A11 computed property access probes ──\n');
+
+{
+  const computed = "node -e \"require('fs')['writ' + 'eFileSync']('.claude/settings.json','')\"";
+  assert('CP-01 node -e fs[computed] write → DENY', computed, 'Bash', true);
+}
+assert('CP-02 node -e readFileSync still ALLOW (regression)',
+  "node -e \"console.log(require('fs').readFileSync('.claude/settings.json','utf8'))\"", 'Bash', false);
+
 // ── Summary ──────────────────────────────────────────────────────────────────
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed (total ${passed + failed}) ===\n`);

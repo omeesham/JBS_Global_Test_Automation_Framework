@@ -88,6 +88,141 @@ const DESTRUCTIVE_BASH = [
 ];
 const DESTRUCTIVE_PS   = [/Remove-Item/i, /Move-Item/i, /Set-Content/i, /Clear-Content/i, /Rename-Item/i];
 
+// ── A5/A5-L path-first read-only allowlist ────────────────────────────────────
+// When a command mentions a protected path or the ledger, it is allowed ONLY when
+// every statement's executable is a known non-destructive shape AND no redirect
+// lands on a protected path. Everything else denies — including shapes nobody has
+// thought of — naming the unmodeled construct in the deny reason.
+// This is NOT a second normalization site: all path comparisons flow through
+// canonicalizePath (the single funnel enforced by STRUCT01/02).
+
+const KNOWN_SAFE_EXEC_BASH = new Set([
+  'cat', 'head', 'tail', 'less', 'more', 'wc',
+  'grep', 'egrep', 'fgrep', 'rg', 'ag',
+  'ls', 'file', 'stat', 'test', '[',
+  'diff', 'cmp', 'comm',
+  'sha256sum', 'sha1sum', 'md5sum', 'cksum', 'b2sum',
+  'readlink', 'realpath', 'basename', 'dirname', 'pwd',
+  'echo', 'printf', 'true', 'false',
+  'sort', 'uniq', 'cut', 'tr', 'column', 'paste', 'fold', 'fmt',
+  'hexdump', 'xxd', 'od', 'strings', 'nl', 'rev',
+  'jq', 'yq',
+  'set', 'cd', 'export', 'unset',
+  'tac',
+  'find', 'du', 'sed',
+]);
+
+const KNOWN_SAFE_EXEC_PS = new Set([
+  'get-content', 'select-string', 'test-path', 'get-item',
+  'get-itemproperty', 'resolve-path', 'get-filehash',
+  'get-childitem', 'measure-object', 'format-list', 'format-table',
+  'write-output', 'write-host', 'write-verbose', 'write-debug',
+  'select-object', 'where-object', 'foreach-object',
+  'compare-object', 'group-object', 'sort-object',
+  'cat', 'type', 'gc',
+  // Data converters and formatters — read-only transforms, no file writes
+  'convertto-json', 'convertfrom-json',
+  'convertto-csv', 'convertfrom-csv',
+  'convertto-xml', 'convertto-html',
+  'out-string', 'out-null',
+  'format-wide', 'format-custom',
+]);
+
+// ── Invocation-level write-mode patterns for allowlisted executables ──────────
+// Safety is a property of an invocation, not a program. These patterns detect
+// write-mode flags that make an otherwise read-only program destructive.
+// Every spelling the tool accepts must be covered: short, long, joined, separated, bundled.
+const EXEC_WRITE_MODE_PATTERNS = {
+  'sed':  [/\s-i\b/, /\s--in-place\b/, /\bw\s+\S/],
+  'find': [/-delete\b/, /-fls\b/, /-fprint\b/, /-fprint0\b/, /-fprintf\b/],
+  'sort': [/\s-o\b/, /\s--output\b/, /\s--output=\S/],
+  'yq':   [/\s-i\b/, /\s--in-place\b/],
+};
+
+// Pure-reader subset of KNOWN_SAFE_EXEC_BASH: executables with NO write mode at all.
+// Used to validate find -exec targets — only these are safe after -exec.
+const PURE_READER_EXEC = new Set([
+  'cat', 'head', 'tail', 'less', 'more', 'wc',
+  'grep', 'egrep', 'fgrep', 'rg', 'ag',
+  'file', 'stat', 'test', '[',
+  'diff', 'cmp', 'comm',
+  'sha256sum', 'sha1sum', 'md5sum', 'cksum', 'b2sum',
+  'readlink', 'realpath', 'basename', 'dirname', 'pwd',
+  'echo', 'printf', 'true', 'false',
+  'hexdump', 'xxd', 'od', 'strings', 'nl', 'rev', 'tac',
+  'ls', 'du',
+]);
+
+/**
+ * findHasUnsafeExec — returns true if a find statement contains -exec/-execdir/-ok/-okdir
+ * with a command that is NOT a known pure reader. Returns false if no exec option present
+ * or if the exec'd command is a pure reader.
+ */
+function findHasUnsafeExec(stmt) {
+  const tokens = stmt.trim().split(/\s+/).filter(Boolean);
+  for (let i = 0; i < tokens.length; i++) {
+    if (/^-(exec|execdir|ok|okdir)$/.test(tokens[i])) {
+      const cmdToken = i + 1 < tokens.length ? tokens[i + 1] : '';
+      const cmdBase = canonicalizePath(cmdToken).split('/').pop() || '';
+      if (!PURE_READER_EXEC.has(cmdBase)) {
+        return { unsafe: true, option: `${tokens[i]} ${cmdToken}` };
+      }
+      // Skip past the terminator (\; or +)
+      while (i < tokens.length && tokens[i] !== ';' && tokens[i] !== '\\;' && tokens[i] !== '+') i++;
+    }
+  }
+  return { unsafe: false };
+}
+
+// Git read-only subcommands: allowed against protected paths. Unrecognised subcommands deny (fail-closed).
+const GIT_READONLY_SUBCOMMANDS = new Set([
+  'log', 'diff', 'show', 'status', 'blame', 'shortlog', 'whatchanged',
+  'reflog', 'describe', 'rev-parse', 'rev-list', 'name-rev', 'merge-base',
+  'ls-files', 'ls-tree', 'cat-file', 'for-each-ref', 'verify-commit', 'verify-tag',
+  'branch', 'tag', 'remote', 'stash', 'grep',
+]);
+// Git write-capable subcommands: always deny. Listed for documentation; the deny is the default for non-read-only.
+// checkout, restore, apply, reset, clean, rm, mv, rebase, merge, cherry-pick, revert, push, pull, fetch, commit, add, init, clone
+
+/**
+ * gitSubcommandOf — extract the git subcommand from a statement whose executable is 'git'.
+ * Skips flags (tokens starting with -) between 'git' and the subcommand, per git's own parsing.
+ */
+function gitSubcommandOf(stmt) {
+  const tokens = stmt.trim().split(/\s+/).filter(Boolean);
+  let i = 0;
+  // skip env assignments
+  while (i < tokens.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[i])) i++;
+  // skip 'git' itself
+  i++;
+  // skip global flags (e.g. --no-pager, -C dir, -c key=val)
+  while (i < tokens.length) {
+    const t = tokens[i];
+    if (!t.startsWith('-')) break;
+    // flags that consume the next token
+    if (/^(-C|-c|--git-dir|--work-tree|--namespace)$/.test(t)) { i += 2; continue; }
+    i++;
+  }
+  return i < tokens.length ? canonicalizePath(tokens[i]) : '';
+}
+
+// Node write APIs that disqualify a node -e statement from path-first read-only.
+const NODE_WRITE_RX = [
+  /\bwriteFileSync\b/i, /\bwriteFile\b/i,
+  /\bappendFileSync\b/i, /\bappendFile\b/i,
+  /\bcreateWriteStream\b/i,
+  /\bunlinkSync\b/i, /\bunlink\b/i,
+  /\brmSync\b/i, /\brmdirSync\b/i,
+  /\brenameSync\b/i, /\brename\b/i,
+  /\bcopyFileSync\b/i, /\bcopyFile\b/i,
+  /\bmkdirSync\b/i,
+  // Computed property access on fs module: fs['writeFileSync'] bypasses literal name checks
+  /(?:\bfs|['"]fs['"]\s*\))\s*\[/i,
+];
+
+// V19 fix: launcher names checked via executableOf per statement, not whole-command regex.
+const LAUNCHER_EXEC_NAMES = new Set(['env', 'nice', 'timeout', 'sudo', 'exec', 'time', 'command', 'builtin']);
+
 // §C — risky markers: commands containing these get fail-CLOSED on internal error.
 const RISKY_MARKERS = [
   /\b(bash|sh|zsh|wsl|cmd|powershell|pwsh)\b/i,
@@ -105,6 +240,9 @@ export const CANONICAL_WRAPPER_PATH = '.claude/skills/ultra-agents/copilot-worke
 // Compute the absolute canonical wrapper path anchored to the repo root (derived from this module's location).
 const __gate_dirname = dirname(fileURLToPath(import.meta.url));
 const CANONICAL_WRAPPER_ABS = canonicalizePath(resolve(__gate_dirname, '../../..', CANONICAL_WRAPPER_PATH));
+
+// V22 fix: preflight script canonical path (legitimate consumer of dispatch flags).
+const PREFLIGHT_CANONICAL_PATH = canonicalizePath('scripts/dispatch-preflight.mjs');
 
 /** Check if a canonicalized path resolves to the canonical wrapper (repo-relative or repo-absolute). */
 export function isCanonicalWrapper(resolvedPath) {
@@ -497,57 +635,6 @@ function hasDetachAmpersand(cmd) {
 
 // ── Rule checkers ─────────────────────────────────────────────────────────────
 
-/** A5 — deny commands that destructively target a protected gate file or directory.
- *
- * Ancestor-aware: a command targeting `.claude` (which contains `.claude/hooks`) is
- * denied because it would destroy protected dirs/files. Only named protected paths and
- * `.claude/hooks` are protected — `.claude/state/**` telemetry appends are ALLOWED.
- */
-function hasProtectedFileDestruction(cmd, isPowerShell) {
-  const ops = isPowerShell ? DESTRUCTIVE_PS : DESTRUCTIVE_BASH;
-  // Case policy: op detection uses original cmd (Bash ops are lowercase; PS patterns carry /i).
-  // canonicalizePath is the sole normalizer for all path comparisons below.
-  if (!ops.some(rx => rx.test(cmd))) return false;
-  const normPaths = PROTECTED_PATHS.map(canonicalizePath);
-  const normDirs  = PROTECTED_DIRS.map(canonicalizePath);
-  // Substring check on the full normalized command for protected file paths only
-  // (catches inline string forms like `node -e "...writeFileSync('.claude/settings.json'...)"`).
-  // Not applied to dirs — that would match .claude/state/* telemetry writes.
-  const normCmd = canonicalizePath(cmd);
-  if (normPaths.some(p => normCmd.includes(p))) return true;
-  // Token check: canonicalize each whitespace-delimited token to catch absolute and UNC paths.
-  // (e.g. C:\...\encore_framework\.claude\settings.json or \\?\C:\...\.claude\settings.json).
-  // Ancestor-aware: token t is dangerous when:
-  //   - it equals a protected path/dir directly
-  //   - it is inside a protected dir (starts with dir + '/')
-  //   - it ends with a protected path (absolute form)
-  //   - it is an ANCESTOR of a protected path/dir (p or d starts with t + '/')
-  return cmd.split(/\s+/).some(t => {
-    if (!t) return false;
-    const ct = canonicalizePath(t);
-    if (normPaths.some(p => ct === p || ct.endsWith('/' + p) || p.startsWith(ct + '/'))) return true;
-    if (normDirs.some(d => ct === d || ct.startsWith(d + '/') || ct.endsWith('/' + d) || d.startsWith(ct + '/'))) return true;
-    return false;
-  });
-}
-
-/** A5-L — deny destructive commands targeting the wrapper ledger.
- *  Exact-match only (no ancestor-awareness) to avoid false-deny on commands
- *  that mention `.claude/state` as a token without targeting the ledger.
- */
-function hasLedgerDestruction(cmd, isPowerShell) {
-  const ops = isPowerShell ? DESTRUCTIVE_PS : DESTRUCTIVE_BASH;
-  if (!ops.some(rx => rx.test(cmd))) return false;
-  const normLedger = LEDGER_PROTECTED_PATHS.map(canonicalizePath);
-  const normCmd = canonicalizePath(cmd);
-  if (normLedger.some(p => normCmd.includes(p))) return true;
-  return cmd.split(/\s+/).some(t => {
-    if (!t) return false;
-    const ct = canonicalizePath(t);
-    return normLedger.some(p => ct === p || ct.endsWith('/' + p));
-  });
-}
-
 /**
  * A2 — deny direct `copilot` CLI invocation.
  * Resolves the executable through executableOf (V19 fix) so env-prefixed forms like
@@ -679,7 +766,293 @@ function hasEncodedSpawn(cmd) {
   return { found: false };
 }
 
-// V19 — dispatch token regex used by hasUnmodeledDispatch.
+/**
+ * hasInlineEvalWrite — deny any node inline-eval that reaches a filesystem write API,
+ * regardless of whether a protected path appears literally. A payload that constructs
+ * the path from fragments bypasses the path-first literal-path check; this closes it
+ * the same way hasEncodedSpawn closes process-creation: the payload's contents cannot
+ * be trusted to declare their own targets.
+ */
+function hasInlineEvalWrite(cmd) {
+  for (const stmt of splitStatements(cmd)) {
+    if (!isNodeInlineEval(stmt)) continue;
+    for (const rx of NODE_WRITE_RX) {
+      if (rx.test(stmt)) {
+        return { found: true, reason: `S0 visibility gate: filesystem write API '${rx.source}' in inline-eval context — path may be constructed dynamically (A5-eval)` };
+      }
+    }
+  }
+  return { found: false };
+}
+
+// ── A5/A5-L path-first self-protection ────────────────────────────────────────
+
+/** Check if a command text mentions any protected path or ancestor dir (no destructive-op gate). */
+function commandTouchesProtectedPath(cmd) {
+  const normPaths = PROTECTED_PATHS.map(canonicalizePath);
+  const normDirs  = PROTECTED_DIRS.map(canonicalizePath);
+  const normCmd = canonicalizePath(cmd);
+  if (normPaths.some(p => normCmd.includes(p))) return true;
+  return cmd.split(/\s+/).some(t => {
+    if (!t) return false;
+    const ct = canonicalizePath(t);
+    if (normPaths.some(p => ct === p || ct.endsWith('/' + p) || p.startsWith(ct + '/'))) return true;
+    if (normDirs.some(d => ct === d || ct.startsWith(d + '/') || ct.endsWith('/' + d) || d.startsWith(ct + '/'))) return true;
+    return false;
+  });
+}
+
+/** Check if a command text mentions the ledger path (no destructive-op gate). */
+function commandTouchesLedgerPath(cmd) {
+  const normLedger = LEDGER_PROTECTED_PATHS.map(canonicalizePath);
+  const normCmd = canonicalizePath(cmd);
+  if (normLedger.some(p => normCmd.includes(p))) return true;
+  return cmd.split(/\s+/).some(t => {
+    if (!t) return false;
+    const ct = canonicalizePath(t);
+    return normLedger.some(p => ct === p || ct.endsWith('/' + p));
+  });
+}
+
+/**
+ * extractRedirectTargets — quote-aware extraction of redirect targets from raw statement text.
+ * Scans outside quotes for redirect operators (>, >>, N>, &>, etc.) and extracts the target
+ * token, properly handling quoted targets by stripping delimiters but preserving the value.
+ * This is the primitive fix: the old approach used stripQuotedContent first, which blanked
+ * out quoted targets entirely — a quoted path was invisible to every downstream check.
+ */
+function extractRedirectTargets(stmt) {
+  const targets = [];
+  let i = 0;
+  const len = stmt.length;
+
+  while (i < len) {
+    const c = stmt[i];
+
+    // Skip single-quoted strings (content is opaque, no redirect inside)
+    if (c === "'") {
+      i++;
+      while (i < len && stmt[i] !== "'") i++;
+      if (i < len) i++;
+      continue;
+    }
+    // Skip double-quoted strings
+    if (c === '"') {
+      i++;
+      while (i < len) {
+        if (stmt[i] === '\\' && i + 1 < len) { i += 2; continue; }
+        if (stmt[i] === '"') { i++; break; }
+        i++;
+      }
+      continue;
+    }
+    // Skip backslash escapes outside quotes
+    if (c === '\\' && i + 1 < len) { i += 2; continue; }
+
+    // Detect redirect operators outside quotes
+    let isRedirect = false;
+    let redirEnd = i;
+
+    if (c === '>') {
+      redirEnd = i + 1;
+      if (redirEnd < len && stmt[redirEnd] === '>') redirEnd++; // >>
+      isRedirect = true;
+    } else if (c === '&' && i + 1 < len && stmt[i + 1] === '>') {
+      redirEnd = i + 2;
+      if (redirEnd < len && stmt[redirEnd] === '>') redirEnd++; // &>>
+      isRedirect = true;
+    } else if (/\d/.test(c)) {
+      let j = i + 1;
+      while (j < len && /\d/.test(stmt[j])) j++;
+      if (j < len && stmt[j] === '>') {
+        redirEnd = j + 1;
+        if (redirEnd < len && stmt[redirEnd] === '>') redirEnd++; // N>>
+        isRedirect = true;
+      }
+    }
+
+    if (isRedirect) {
+      i = redirEnd;
+      // Skip whitespace between operator and target
+      while (i < len && /\s/.test(stmt[i])) i++;
+      if (i >= len) break;
+
+      // fd dup (&N, &-) — not a file target
+      if (stmt[i] === '&') { i++; while (i < len && /[\d-]/.test(stmt[i])) i++; continue; }
+
+      // Extract target token — may be quoted
+      let target = '';
+      if (stmt[i] === '"') {
+        i++;
+        while (i < len) {
+          if (stmt[i] === '\\' && i + 1 < len) {
+            const next = stmt[i + 1];
+            // In double quotes, only \$, \`, \", \\, \newline are true escapes.
+            // All other \X pairs preserve the backslash (shell semantics).
+            if (next === '$' || next === '`' || next === '"' || next === '\\' || next === '\n') {
+              target += next; i += 2;
+            } else {
+              target += '\\' + next; i += 2;
+            }
+            continue;
+          }
+          if (stmt[i] === '"') { i++; break; }
+          target += stmt[i]; i++;
+        }
+      } else if (stmt[i] === "'") {
+        i++;
+        while (i < len && stmt[i] !== "'") { target += stmt[i]; i++; }
+        if (i < len) i++;
+      } else {
+        while (i < len && !/\s/.test(stmt[i])) { target += stmt[i]; i++; }
+      }
+
+      if (target) targets.push(target);
+      continue;
+    }
+
+    i++;
+  }
+  return targets;
+}
+
+/** Check if any redirect in a statement lands on a protected or ledger path. */
+function redirectTargetsProtectedPath(stmt) {
+  const allProtected = [...PROTECTED_PATHS, ...LEDGER_PROTECTED_PATHS].map(canonicalizePath);
+  const allDirs = PROTECTED_DIRS.map(canonicalizePath);
+  const targets = extractRedirectTargets(stmt);
+  for (const target of targets) {
+    const ct = canonicalizePath(target);
+    // Safe targets: /dev/null, nul, fd dup (&N), close (&-), bare fd number
+    if (ct === '/dev/null' || ct === 'nul' || /^\d+$/.test(ct) || ct === '-' || ct.startsWith('&')) continue;
+    if (allProtected.some(p => ct === p || ct.endsWith('/' + p))) return true;
+    if (allDirs.some(d => ct === d || ct.startsWith(d + '/') || ct.endsWith('/' + d))) return true;
+  }
+  return false;
+}
+
+/**
+ * stmtReferencesProtectedPath — check if a single statement references any protected
+ * or ledger path, either in its tokens or in its redirect targets (quote-aware).
+ * Used by checkPathFirst to skip statements that don't touch protected paths,
+ * preventing false-deny on piped/chained commands (e.g. xargs, ConvertTo-Json).
+ */
+function stmtReferencesProtectedPath(stmt, checkProtected, checkLedger) {
+  const normPaths = checkProtected ? PROTECTED_PATHS.map(canonicalizePath) : [];
+  const normDirs = checkProtected ? PROTECTED_DIRS.map(canonicalizePath) : [];
+  const normLedger = checkLedger ? LEDGER_PROTECTED_PATHS.map(canonicalizePath) : [];
+
+  // Check full statement text (substring match catches partial/inline references)
+  const normStmt = canonicalizePath(stmt);
+  if (normPaths.some(p => normStmt.includes(p))) return true;
+  if (normLedger.some(p => normStmt.includes(p))) return true;
+
+  // Check individual tokens
+  const tokens = stmt.split(/\s+/).filter(Boolean);
+  for (const t of tokens) {
+    const ct = canonicalizePath(t);
+    if (normPaths.some(p => ct === p || ct.endsWith('/' + p) || p.startsWith(ct + '/'))) return true;
+    if (normDirs.some(d => ct === d || ct.startsWith(d + '/') || ct.endsWith('/' + d) || d.startsWith(ct + '/'))) return true;
+    if (normLedger.some(p => ct === p || ct.endsWith('/' + p))) return true;
+  }
+
+  // Check redirect targets (quote-aware)
+  const targets = extractRedirectTargets(stmt);
+  for (const target of targets) {
+    const ct = canonicalizePath(target);
+    if (normPaths.some(p => ct === p || ct.endsWith('/' + p))) return true;
+    if (normDirs.some(d => ct === d || ct.startsWith(d + '/') || ct.endsWith('/' + d))) return true;
+    if (normLedger.some(p => ct === p || ct.endsWith('/' + p))) return true;
+  }
+
+  return false;
+}
+
+/**
+ * checkPathFirst — path-first self-protection for A5 and A5-L.
+ *
+ * When a command mentions a protected path or the ledger, only statements that
+ * actually reference the protected path are checked against the allowlist.
+ * Statements in a pipeline/chain that don't reference any protected path are
+ * skipped — they can't modify what they don't name. This prevents false-deny
+ * on piped transforms (xargs, ConvertTo-Json, Format-Table, etc.).
+ */
+function checkPathFirst(cmd, isPowerShell) {
+  const touchesProtected = commandTouchesProtectedPath(cmd);
+  const touchesLedger = commandTouchesLedgerPath(cmd);
+  if (!touchesProtected && !touchesLedger) return { deny: false, reason: 'allow' };
+
+  const pathType = touchesProtected ? 'protected gate file' : 'wrapper ledger';
+  const ruleTag = touchesProtected ? 'A5' : 'A5-L';
+  const stmts = splitStatements(cmd);
+  const readers = isPowerShell ? KNOWN_SAFE_EXEC_PS : KNOWN_SAFE_EXEC_BASH;
+
+  for (const stmt of stmts) {
+    const exec = executableOf(stmt);
+    if (!exec) continue; // pure env assignments — safe
+
+    // Skip statements that don't reference any protected path — they can't write to it
+    if (!stmtReferencesProtectedPath(stmt, touchesProtected, touchesLedger)) continue;
+
+    const execNorm = canonicalizePath(exec);
+    const execBase = execNorm.split('/').pop() || '';
+
+    // Known safe executable — verify no write-mode flags and no redirect to protected path
+    if (readers.has(execBase)) {
+      const writeModes = EXEC_WRITE_MODE_PATTERNS[execBase];
+      if (writeModes && writeModes.length > 0 && writeModes.some(rx => rx.test(stmt))) {
+        return { deny: true, reason: `S0 visibility gate: write-mode invocation of '${execBase}' targets ${pathType} (${ruleTag} path-first)` };
+      }
+      // find -exec/-execdir/-ok/-okdir: check what command follows; deny if not a pure reader
+      if (execBase === 'find') {
+        const execCheck = findHasUnsafeExec(stmt);
+        if (execCheck.unsafe) {
+          return { deny: true, reason: `S0 visibility gate: find exec option '${execCheck.option}' targets ${pathType} — executed command is not a proven reader (${ruleTag} path-first)` };
+        }
+      }
+      if (redirectTargetsProtectedPath(stmt)) {
+        return { deny: true, reason: `S0 visibility gate: redirect targets ${pathType} (${ruleTag} path-first)` };
+      }
+      continue;
+    }
+
+    // Modeled VCS: git with read-only subcommand is safe; write-capable or unrecognised denies
+    if (execBase === 'git') {
+      const gitSub = gitSubcommandOf(stmt);
+      if (GIT_READONLY_SUBCOMMANDS.has(gitSub)) {
+        if (redirectTargetsProtectedPath(stmt)) {
+          return { deny: true, reason: `S0 visibility gate: redirect targets ${pathType} (${ruleTag} path-first)` };
+        }
+        continue;
+      }
+      return {
+        deny: true,
+        reason: `S0 visibility gate: git subcommand '${gitSub || '(none)'}' is not a proven read-only shape targeting ${pathType} (${ruleTag} path-first)`,
+      };
+    }
+
+    // Modeled read-only node -e: inline-eval with only read APIs (no write/spawn patterns)
+    if (!isPowerShell && /^node(\.exe)?$/.test(execBase) && isNodeInlineEval(stmt)) {
+      const hasWrite = NODE_WRITE_RX.some(rx => rx.test(stmt));
+      const hasSpawn = ENCODED_SPAWN_PATTERNS.some(({ rx }) => rx.test(stmt));
+      if (!hasWrite && !hasSpawn) {
+        if (redirectTargetsProtectedPath(stmt)) {
+          return { deny: true, reason: `S0 visibility gate: redirect targets ${pathType} (${ruleTag} path-first)` };
+        }
+        continue;
+      }
+      return { deny: true, reason: `S0 visibility gate: node inline-eval with write/spawn pattern targets ${pathType} (${ruleTag} path-first)` };
+    }
+
+    // Unmodeled executable touching a protected path — deny
+    return {
+      deny: true,
+      reason: `S0 visibility gate: unmodeled construct '${execBase}' targets ${pathType} — not a proven read-only shape (${ruleTag} path-first)`,
+    };
+  }
+
+  return { deny: false, reason: 'allow' };
+}
 // Matches the CLI name or the wrapper script basename anywhere in the command text.
 const DISPATCH_TOKEN_RX = /\bcopilot\b|copilot-worker\.sh/i;
 
@@ -697,7 +1070,9 @@ const UNMODELED_CONTEXTS = [
   { rx: /(?:^|[\s;|&])\(/,             label: 'subshell ()' },
   { rx: /\bxargs\b/,                   label: 'xargs' },
   { rx: /\b(bash|sh)\s+-c\b/,          label: 'bash -c / sh -c' },
-  { rx: /\b(env|nice|timeout|sudo|exec|time|command|builtin)\b/, label: 'launcher/prefix command' },
+  // V19 fix: launcher/prefix commands moved to LAUNCHER_EXEC_NAMES, checked via
+  // executableOf per statement below — prevents --flag names containing launcher
+  // words (e.g. --timeout) from false-denying.
   { rx: /<<\s*\w/,                     label: 'heredoc' },
   // V22: new unmodeled contexts for defense-in-depth
   { rx: /(?:^|[\s;|&])(?:source|\.)\s+\S/, label: 'source/dot-source' },
@@ -730,9 +1105,26 @@ function hasUnmodeledDispatch(cmd) {
           reason: `S0 visibility gate: unmodeled execution context '${label}' contains a dispatch token — cannot verify visibility (V19)`,
         };
       }
-      // Unmodeled context without dispatch token: ordinary scripting — allow.
     }
   }
+
+  // V19 fix: launcher names via executableOf per statement (not whole-command regex).
+  // Prevents --timeout flag from matching as timeout launcher while keeping real
+  // launcher-position uses (e.g. `timeout 60 copilot ...`) denied.
+  if (DISPATCH_TOKEN_RX.test(cmd)) {
+    for (const stmt of splitStatements(cmd)) {
+      const exec = executableOf(stmt);
+      if (!exec) continue;
+      const execBase = canonicalizePath(exec).split('/').pop() || '';
+      if (LAUNCHER_EXEC_NAMES.has(execBase)) {
+        return {
+          found: true,
+          reason: `S0 visibility gate: launcher '${execBase}' in executable position with dispatch token — cannot verify visibility (V19)`,
+        };
+      }
+    }
+  }
+
   return { found: false };
 }
 
@@ -751,6 +1143,18 @@ function hasDispatchArgsOnNonWrapper(cmd) {
     const execStmt = tokens.slice(execIdx).join(' ');
     const wrapperPath = parseDispatchWrapperPath(execStmt);
     if (isCanonicalWrapper(wrapperPath)) continue;
+    // V22 fix: preflight script is a legitimate consumer of dispatch flags
+    // (--ticket, --run-id, --agent) — it validates them, not executes them.
+    if (wrapperPath === PREFLIGHT_CANONICAL_PATH || (wrapperPath && wrapperPath.endsWith('/' + PREFLIGHT_CANONICAL_PATH))) continue;
+    // Also check if any token in the statement is the preflight script (handles node launcher)
+    {
+      const stmtTokens = stmt.trim().split(/\s+/).filter(Boolean);
+      const isPreflight = stmtTokens.some(tk => {
+        const ct = canonicalizePath(tk.replace(/^['"]|['"]$/g, ''));
+        return ct === PREFLIGHT_CANONICAL_PATH || ct.endsWith('/' + PREFLIGHT_CANONICAL_PATH);
+      });
+      if (isPreflight) continue;
+    }
     return {
       found: true,
       reason: 'S0 visibility gate: dispatch arguments (--run-id/--agent/--ticket) on non-wrapper executable — possible renamed/symlinked dispatch (V22)',
@@ -853,14 +1257,10 @@ function emitDeny(reason) {
 export function checkCommand(cmd, toolName) {
   const isPowerShell = /powershell/i.test(toolName);
 
-  // A5 — self-protection (both modes)
-  if (hasProtectedFileDestruction(cmd, isPowerShell)) {
-    return { deny: true, reason: 'S0 visibility gate: command targets a protected gate file (A5 self-protection)' };
-  }
-
-  // A5-L — ledger write-protection
-  if (hasLedgerDestruction(cmd, isPowerShell)) {
-    return { deny: true, reason: 'S0 visibility gate: command targets the wrapper ledger (A5-L write-protection)' };
+  // A5/A5-L — path-first self-protection (both modes)
+  const pathFirstResult = checkPathFirst(cmd, isPowerShell);
+  if (pathFirstResult.deny) {
+    return { deny: true, reason: pathFirstResult.reason };
   }
 
   if (isPowerShell) {
@@ -903,6 +1303,12 @@ export function checkCommand(cmd, toolName) {
   const spawnCheck = hasEncodedSpawn(cmd);
   if (spawnCheck.found) {
     return { deny: true, reason: spawnCheck.reason };
+  }
+
+  // A5-eval — inline-eval with filesystem write APIs (path may be constructed dynamically)
+  const evalWriteCheck = hasInlineEvalWrite(cmd);
+  if (evalWriteCheck.found) {
+    return { deny: true, reason: evalWriteCheck.reason };
   }
 
   // A2 — direct copilot CLI bypasses ledger

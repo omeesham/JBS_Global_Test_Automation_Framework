@@ -168,6 +168,10 @@ function runChecks(opts) {
   }
 
   // Check 6: effort tier valid for model
+  // The wrapper resolves a SINGLE top-verified tier per model (effort_top) and rejects any
+  // explicit effort that does not equal it (exit 2). The preflight must ask the same question:
+  // does the requested effort equal effort_top? Membership in the tiers array is irrelevant —
+  // the wrapper never checks it.
   const registry = loadRegistry(registryPath);
   if (effort !== undefined) {
     if (!registry) {
@@ -176,12 +180,12 @@ function runChecks(opts) {
       const modelEntry = registry.models && registry.models.find(m => m.id === model);
       if (!modelEntry) {
         results.push({ status: 'WARN', check: 'effort-tier', msg: `Model '${model}' not found in registry — cannot validate effort. Advice: omitting --effort applies the wrapper's work-type cap and cannot fail.` });
-      } else if (!modelEntry.tiers || modelEntry.tiers.length === 0) {
+      } else if (!modelEntry.effort_top) {
         results.push({ status: 'FAIL', check: 'effort-tier', msg: `Model '${model}' has no reasoning-effort tiers — passing --effort is an error. Advice: omitting --effort applies the wrapper's work-type cap and cannot fail.` });
-      } else if (!modelEntry.tiers.includes(effort)) {
-        results.push({ status: 'FAIL', check: 'effort-tier', msg: `--effort '${effort}' is not a valid tier for model '${model}' (valid: ${modelEntry.tiers.join(', ')}). Advice: omitting --effort applies the wrapper's work-type cap and cannot fail.` });
+      } else if (effort !== modelEntry.effort_top) {
+        results.push({ status: 'FAIL', check: 'effort-tier', msg: `--effort '${effort}' will be rejected by the wrapper — model '${model}' only accepts its top verified tier '${modelEntry.effort_top}'. Use --effort ${modelEntry.effort_top} or omit --effort (the wrapper's work-type cap applies automatically and cannot fail).` });
       } else {
-        results.push({ status: 'PASS', check: 'effort-tier', msg: `Effort '${effort}' valid for model '${model}'` });
+        results.push({ status: 'PASS', check: 'effort-tier', msg: `Effort '${effort}' matches top verified tier for model '${model}'` });
       }
     }
   } else {
@@ -308,8 +312,8 @@ function selfTest() {
     const wrapperNoFloors = join(tmp, 'wrapper-nofloors.sh');
     writeFileSync(wrapperNoFloors, '#!/bin/bash\n_WORK_TYPE_ENUM="build|review|verify|draft|rca|walk|probe|research|orchestrate"\n');
 
-    // Test 1: good ticket passes
-    let r = runChecks({ ticket: goodTicket, runId: 'fresh-001', model: 'claude-opus-4.6', workType: 'build', effort: 'high', maxCredits: '300', wrapperPath: wrapper, ledgerPath: ledger, registryPath: registry });
+    // Test 1: good ticket passes (effort=max is top tier for opus)
+    let r = runChecks({ ticket: goodTicket, runId: 'fresh-001', model: 'claude-opus-4.6', workType: 'build', effort: 'max', maxCredits: '300', wrapperPath: wrapper, ledgerPath: ledger, registryPath: registry });
     assert('good ticket — all PASS', r.every(x => x.status === 'PASS'));
 
     // Test 2: missing OUTPUT anchor warns
@@ -371,6 +375,40 @@ function selfTest() {
     // Test 16: absent --mode = PASS
     r = runChecks({ ticket: goodTicket, runId: 'fresh-015', model: 'claude-opus-4.6', workType: 'build', wrapperPath: wrapper, ledgerPath: ledger, registryPath: registry });
     assert('absent mode — PASS', r.find(x => x.check === 'mode')?.status === 'PASS');
+
+    // ── P67 effort-top fixtures (the death-class that killed opus+high today) ──
+
+    // Test 17: opus-4.6 + effort=high → FAIL (the exact command that died)
+    r = runChecks({ ticket: goodTicket, runId: 'fresh-016', model: 'claude-opus-4.6', workType: 'build', effort: 'high', wrapperPath: wrapper, ledgerPath: ledger, registryPath: registry });
+    assert('opus effort=high — FAIL (death-class)', r.find(x => x.check === 'effort-tier')?.status === 'FAIL');
+
+    // Test 18: opus-4.6 + effort=low → FAIL (same class, different value)
+    r = runChecks({ ticket: goodTicket, runId: 'fresh-017', model: 'claude-opus-4.6', workType: 'build', effort: 'low', wrapperPath: wrapper, ledgerPath: ledger, registryPath: registry });
+    assert('opus effort=low — FAIL (same class)', r.find(x => x.check === 'effort-tier')?.status === 'FAIL');
+
+    // Test 19: opus-4.6 + effort=medium → FAIL (same class, different value)
+    r = runChecks({ ticket: goodTicket, runId: 'fresh-018', model: 'claude-opus-4.6', workType: 'build', effort: 'medium', wrapperPath: wrapper, ledgerPath: ledger, registryPath: registry });
+    assert('opus effort=medium — FAIL (same class)', r.find(x => x.check === 'effort-tier')?.status === 'FAIL');
+
+    // Test 20: opus-4.6 + effort=max → PASS (top tier)
+    r = runChecks({ ticket: goodTicket, runId: 'fresh-019', model: 'claude-opus-4.6', workType: 'build', effort: 'max', wrapperPath: wrapper, ledgerPath: ledger, registryPath: registry });
+    assert('opus effort=max — PASS (top tier)', r.find(x => x.check === 'effort-tier')?.status === 'PASS');
+
+    // Test 21: sonnet-4.6 + effort=max → PASS (different model, its own top tier)
+    r = runChecks({ ticket: goodTicket, runId: 'fresh-020', model: 'claude-sonnet-4.6', workType: 'build', effort: 'max', wrapperPath: wrapper, ledgerPath: ledger, registryPath: registry });
+    assert('sonnet effort=max — PASS (top tier)', r.find(x => x.check === 'effort-tier')?.status === 'PASS');
+
+    // Test 22: no effort passed → PASS (wrapper applies work-type cap internally)
+    r = runChecks({ ticket: goodTicket, runId: 'fresh-021', model: 'claude-opus-4.6', workType: 'build', wrapperPath: wrapper, ledgerPath: ledger, registryPath: registry });
+    assert('no effort — PASS', r.find(x => x.check === 'effort-tier')?.status === 'PASS');
+
+    // Test 23: haiku (no tiers) + effort → FAIL
+    r = runChecks({ ticket: goodTicket, runId: 'fresh-022', model: 'claude-haiku-4.5', workType: 'build', effort: 'low', wrapperPath: wrapper, ledgerPath: ledger, registryPath: registry });
+    assert('haiku + effort — FAIL (no tiers)', r.find(x => x.check === 'effort-tier')?.status === 'FAIL');
+
+    // Test 24: unreadable registry + effort → FAIL (fail-closed)
+    r = runChecks({ ticket: goodTicket, runId: 'fresh-023', model: 'claude-opus-4.6', workType: 'build', effort: 'max', wrapperPath: wrapper, ledgerPath: ledger, registryPath: join(tmp, 'nonexistent.json') });
+    assert('unreadable registry + effort — FAIL', r.find(x => x.check === 'effort-tier')?.status === 'FAIL');
 
     console.log(`\nSELF-TEST: ${passed}/${total} passed`);
     return passed === total ? 0 : 1;
