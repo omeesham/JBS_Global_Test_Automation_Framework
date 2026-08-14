@@ -1652,3 +1652,17 @@ Append-only audit trail per LR-028. Format: `| YYYY-MM-DDThh:mm | agent | status
 | 2026-08-14T18:07 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-sc-finalverify-0814-e.md — gpt-5.5 verify ok=true |
 | 2026-08-14T18:14 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-A8-FINAL-ATTACK.md — gpt-5.5 review ok=true |
 | 2026-08-14T18:18 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-localgates-0814.md — gpt-5.5 verify ok=true |
+| 2026-08-14T18:25 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-A9-BOUNCE2.md — claude-opus-4.6 build ok=true |
+| 2026-08-14T18:36 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-A10-ATTACK3.md — gpt-5.5 review ok=true |
+| 2026-08-14T18:54 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-sc-finalverify-0814-f.md — gpt-5.5 verify ok=false |
+| 2026-08-14T18:54 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-A11-BOUNCE3.md — claude-opus-4.6 build ok=true |
+| 2026-08-14T19:01 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-rca-bas-0814.md — claude-opus-4.6 rca ok=true |
+| 2026-08-14T19:03 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-A12-DELIST.md — claude-opus-4.6 build ok=true |
+| 2026-08-14T19:04 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-hist-run-0814.md — gpt-5.5 verify ok=true |
+| 2026-08-14T19:06 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-fix-setter-0814.md — gpt-5.5 build ok=true |
+| 2026-08-14T19:12 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-A13-ATTACK4.md — gpt-5.5 review ok=true |
+| 2026-08-14T19:15 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-probe-alpha-0814.md — gpt-5.5 probe ok=false |
+| 2026-08-14T19:22 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-rca-seatA-alpha-0814.md — claude-opus-4.6 rca ok=true |
+| 2026-08-14T19:28 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-rca-seatB-alpha-0814.md — gpt-5.5 rca ok=true |
+| 2026-08-14T19:35 | OWNER | fix | .claude/hooks/lib/check-dispatch-visibility.mjs, .claude/hooks/lib/test-dispatch-visibility-fixtures.mjs, scripts/dispatch-preflight.mjs, scripts/labor-gate-prose.test.mjs, .claude/settings.json | [PLAN_67 addendum 2] preflight now compares effort_top so a pass means the dispatch starts; labor-gate quote-awareness corpus landed in-repo; self-protection rebuilt path-first over six adversarial rounds, closing twelve verified write paths and three false denials. Preventive half deliberately unwired, reconciliation half on. Incident: a reviewer run executed its own attack payloads and destroyed settings.json; recovered from backup. Commit d10326196. Suites 402/53/24/19, typecheck clean. |
+| 2026-08-14T19:35 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-fix-bas009-spec-0814.md — gpt-5.5 build ok=true |

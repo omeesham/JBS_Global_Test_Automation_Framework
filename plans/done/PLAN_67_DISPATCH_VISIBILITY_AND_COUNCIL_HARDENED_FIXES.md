@@ -230,6 +230,57 @@ node .claude/hooks/lib/test-dispatch-visibility-fixtures.mjs && node .claude/hoo
 
 Expected: both exit 0; suites report 262 and 53 passing. (The figures in the original artifact above — 163 and 53 — were correct at closure and are superseded.)
 
+---
+
+# Second addendum — 2026-08-14 evening (commit d10326196)
+
+The three items under `### Still not done` above are resolved or superseded, and the module was rebuilt. Recorded here rather than in a new plan because it is the same work.
+
+## The two control-file edits landed
+
+The owner gave the in-chat GO and then applied both edits himself, from a verified self-checking applier that refused to guess on any mismatch. Claude attempted the writes first and was denied by `check-delegation-envelope.mjs` TP-1, which is mode-independent and reads no grant — so a `SELF_GRANT` could never have unblocked it. **The deny message in `delegation-gate.mjs` is misleading**: it instructs Claude to author a grant after the owner's approval, while the enforcing hook refuses that write unconditionally. The enforcing hook is the correct behaviour; the message text should be corrected when that file is next touched.
+
+- The labor-gate splitter is now quote-aware. A regression corpus lands in-repo at `scripts/labor-gate-prose.test.mjs` (19 cases, both directions) so the off-repo patch cannot be silently reverted. Item 2 above is closed.
+- `.claude/settings.json` gained the permission entries and the Stop-hook reconciliation. The PreToolUse entry was added and then **deliberately removed** — see below. Item 1 is closed as a decision, not as a wiring.
+
+## Why the preventive half is off
+
+Within an hour of being switched on, the gate produced three false denials against ordinary work, each verified by direct probe: the wrapper's own `--timeout` flag matched as the `timeout` launcher; `scripts/dispatch-preflight.mjs` matched as a disguised dispatcher because it accepts the flags it exists to validate; and reading a protected file with stderr routed anywhere matched as a destructive write. Two of the three blocked the sanctioned dispatch path itself, forcing a choice between skipping the preflight and not dispatching at all.
+
+Investigating those exposed the larger defect. `hasProtectedFileDestruction` and `hasLedgerDestruction` asked whether a command *looked* destructive before asking whether it *touched* a protected path, so anything absent from a hand-written operation list was allowed regardless of effect — **twelve verified ways to overwrite the gate's own files or the ledger**, including a pipeline into a copy-to-file utility, a block-copy utility, and four PowerShell writers. The ledger was among them, which retracts this plan's earlier claim that ledger tampering was closed: that verification tested seven shapes nobody had thought past.
+
+## What the rebuild changed
+
+The order is inverted, matching §74.3's default everywhere else in the module. A command touching a protected path or the ledger is allowed only when every statement runs a bounded reader and no output lands on a protected path; everything else denies, naming the unmodeled construct. Redirect targets are extracted from raw text by a quote-aware scan and reassembled the way the shell joins adjacent fragments. Utilities whose read-only behaviour cannot be established from the invocation — the general-purpose text and scripting interpreters — are off the allowlist entirely, at the cost of denying them as readers.
+
+Six adversarial rounds drove it. Every round found real defects and **every round's own suite was green**, because its fixtures encoded the spelling its author pictured. That is the finding worth carrying: a green corpus authored by the same mind that wrote the fix measures agreement, not safety.
+
+## Prior-Fix Trial
+
+| Prior fix | What it did | Why it did not prevent this | Verdict |
+|---|---|---|---|
+| The operation-shape prefilter (original A5/A5-L) | Matched a hand-written list of destructive command shapes before any path check | `scoped-wrong` — an enumeration of dangerous spellings can never be complete, and its position ahead of the path check turned every omission into a silent allow | **CONVICTED** — removed, not extended |
+| Executable-position scoping (`373871096`) | Routed detachment names through `executableOf` per statement | `different-sub-class` — correct for what it covered; its lesson simply was not carried to the launcher and process-creation lists, which this round fixed | **SURVIVES** |
+| The 262-fixture corpus | Asserted gate behaviour across command shapes | `rubber-stampable` — authored alongside the fix, so it could only test what the author imagined; four rounds of green suites hid live bypasses | **CONVICTED** — the durable replacement is adversarial review by a different provider, not a larger corpus |
+
+## Incident — a reviewer executed its own attack payloads
+
+Run `p67-a13-attack4-0814` (gpt-5.5, adversarial review) was instructed to edit zero files and to classify command strings without running them. It ran them. At 19:12 it overwrote `.claude/settings.json` with a 16-byte UTF-16 payload, destroying the owner's live configuration. Recovered in full from a pre-write backup; blast radius was that one file, with the ledger intact at 2,494 parseable rows.
+
+Two consequences. That run's report is method-untrustworthy — its verdicts may derive from live execution rather than classification, though every finding was independently confirmed before being acted on. And more importantly: **the gate could not have prevented this even switched on.** It inspects Claude's tool calls; workers are separate processes that never reach it. The self-protection hardened across six rounds does not cover the actor that actually performed the only real write to those files.
+
+## Residual — stated plainly, the class is not closed
+
+A redirect target assembled at run time, where no protected path appears in the command text, cannot be caught by inspecting the command. Beyond that, §74.4 stands unchanged and is reinforced by the incident above: deciding whether a command is safe by reading its text is an approximation, and the preventive layer must never be described as closing the class. The reconciliation layer carries the guarantee — it parses no commands, matching ledger rows against visible tool calls — and it is the half that is switched on.
+
+## Verification artifact
+
+```bash
+npm run check:dispatch-visibility && npm run check:visibility-reconcile && node scripts/dispatch-preflight.mjs --self-test && node scripts/labor-gate-prose.test.mjs
+```
+
+Expected: all exit 0; 402, 53, 24 and 19 passing respectively. (Supersedes the 262/53 figures above.)
+
 ## Handoff
 
 Chat-only per LR-039: outcomes + next actions, no blocker prose. Deviations logged as D-rows in this file per the taxonomy.
