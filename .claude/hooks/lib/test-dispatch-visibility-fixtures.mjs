@@ -955,6 +955,157 @@ assert('STILL-10 real coproc → DENY',
   else { failed++; console.error(`  FAIL [ISWRAP] ${label4}`); }
 }
 
+// ── P67-F2V2: Ledger write-protection (Finding A) ────────────────────────────
+
+assert('LEDGER-01 append-redirect to ledger → DENY',
+  'echo "forged" >> .claude/state/ua-worker/ledger.jsonl', 'Bash', true);
+assert('LEDGER-02 truncate ledger → DENY',
+  'truncate -s 0 .claude/state/ua-worker/ledger.jsonl', 'Bash', true);
+assert('LEDGER-03 rm ledger → DENY',
+  'rm .claude/state/ua-worker/ledger.jsonl', 'Bash', true);
+assert('LEDGER-04 mv ledger → DENY',
+  'mv .claude/state/ua-worker/ledger.jsonl /tmp/gone', 'Bash', true);
+assert('LEDGER-05 sed -i on ledger → DENY',
+  'sed -i "s/real/fake/" .claude/state/ua-worker/ledger.jsonl', 'Bash', true);
+assert('LEDGER-06 cp overwrite ledger → DENY',
+  'cp /tmp/fake.jsonl .claude/state/ua-worker/ledger.jsonl', 'Bash', true);
+assertPayload('LEDGER-07 Write tool to ledger → DENY',
+  { tool_name: 'Write', tool_input: { file_path: '.claude/state/ua-worker/ledger.jsonl', content: 'forged' } }, true);
+assertPayload('LEDGER-08 Edit tool to ledger → DENY',
+  { tool_name: 'Edit', tool_input: { file_path: '.claude/state/ua-worker/ledger.jsonl', old_str: 'x', new_str: 'y' } }, true);
+
+// False-deny guards: reads of ledger must ALLOW
+assert('LEDGER-09 cat ledger → ALLOW (read-only)',
+  'cat .claude/state/ua-worker/ledger.jsonl', 'Bash', false);
+assert('LEDGER-10 grep ledger → ALLOW (read-only)',
+  'grep "run-id" .claude/state/ua-worker/ledger.jsonl', 'Bash', false);
+assert('LEDGER-11 tail ledger → ALLOW (read-only)',
+  'tail -20 .claude/state/ua-worker/ledger.jsonl', 'Bash', false);
+assert('LEDGER-12 node read ledger → ALLOW (read-only)',
+  'node -e "const d = require(\'fs\').readFileSync(\'.claude/state/ua-worker/ledger.jsonl\',\'utf8\'); console.log(d)"', 'Bash', false);
+assert('LEDGER-13 wc ledger → ALLOW (read-only)',
+  'wc -l .claude/state/ua-worker/ledger.jsonl', 'Bash', false);
+
+// ── P67-F2V2: Missing spawn keywords (Finding B) ────────────────────────────
+
+assert('SPAWN-01 spawn_sync via process.binding → DENY',
+  "node -e \"process.binding('spawn_sync')\"", 'Bash', true);
+assert('SPAWN-02 worker_threads require → DENY',
+  'node -e "require(\'worker_threads\')"', 'Bash', true);
+assert('SPAWN-03 node:worker_threads import → DENY',
+  'node -e "import(\'node:worker_threads\')"', 'Bash', true);
+assert('SPAWN-04 execFileSync → DENY',
+  'node -e "execFileSync(\'ls\')"', 'Bash', true);
+assert('SPAWN-05 spawnSync still denied (regression)',
+  'node -e "spawnSync(\'ls\')"', 'Bash', true);
+assert('SPAWN-06 child_process still denied (regression)',
+  'node -e "require(\'child_process\')"', 'Bash', true);
+
+// ── P67-F3: Prose-mention ALLOW (every ENCODED_SPAWN_PATTERNS entry) ────────
+// A guard's corpus must contain the ordinary inputs it must NOT block.
+
+console.log('\n── P67-F3 prose-mention ALLOW probes ──\n');
+
+// -- child_process --
+assert('PROSE-01 grep for child_process → ALLOW',
+  'grep -rn "child_process" src/', 'Bash', false);
+assert('PROSE-02 commit message mentioning child_process → ALLOW',
+  'git commit -m "document the child_process limitation"', 'Bash', false);
+assert('PROSE-03 echo child_process to docs → ALLOW',
+  'echo "Uses child_process for IPC" >> docs/architecture.md', 'Bash', false);
+
+// -- spawnSync --
+assert('PROSE-04 grep for spawnSync → ALLOW',
+  'grep -rn "spawnSync" src/', 'Bash', false);
+assert('PROSE-05 commit message mentioning spawnSync → ALLOW',
+  'git commit -m "replace spawnSync with a safer call"', 'Bash', false);
+assert('PROSE-06 echo spawnSync to docs → ALLOW',
+  'echo "Avoid spawnSync in hot paths" >> docs/notes.md', 'Bash', false);
+
+// -- spawn_sync --
+assert('PROSE-07 grep for spawn_sync → ALLOW',
+  'grep -n "spawn_sync" notes.md', 'Bash', false);
+assert('PROSE-08 commit message mentioning spawn_sync → ALLOW',
+  'git commit -m "remove spawn_sync usage"', 'Bash', false);
+assert('PROSE-09 echo spawn_sync to docs → ALLOW',
+  'echo "spawn_sync is a Node binding" >> docs/internals.md', 'Bash', false);
+
+// -- execSync --
+assert('PROSE-10 grep for execSync → ALLOW',
+  'grep -rn "execSync" lib/', 'Bash', false);
+assert('PROSE-11 commit message mentioning execSync → ALLOW',
+  'git commit -m "migrate from execSync to spawn"', 'Bash', false);
+assert('PROSE-12 echo execSync to docs → ALLOW',
+  'echo "execSync blocks the event loop" >> docs/perf.md', 'Bash', false);
+
+// -- execFile --
+assert('PROSE-13 grep for execFile → ALLOW',
+  'grep -rn "execFile" src/', 'Bash', false);
+assert('PROSE-14 commit message mentioning execFile → ALLOW',
+  'git commit -m "replace execFile with spawn"', 'Bash', false);
+assert('PROSE-15 echo execFile to docs → ALLOW',
+  'echo "execFile is safer than exec" >> docs/security.md', 'Bash', false);
+
+// -- execFileSync --
+assert('PROSE-16 grep for execFileSync → ALLOW',
+  'grep -rn "execFileSync" src/', 'Bash', false);
+assert('PROSE-17 commit message mentioning execFileSync → ALLOW',
+  'git commit -m "replace execFileSync with a safer call"', 'Bash', false);
+assert('PROSE-18 echo execFileSync to docs → ALLOW',
+  'echo "execFileSync is synchronous" >> docs/api.md', 'Bash', false);
+
+// -- worker_threads --
+assert('PROSE-19 grep for worker_threads → ALLOW',
+  'grep -rn "worker_threads" src/', 'Bash', false);
+assert('PROSE-20 commit message mentioning worker_threads → ALLOW',
+  'git commit -m "document the worker_threads limitation"', 'Bash', false);
+assert('PROSE-21 echo worker_threads to docs → ALLOW',
+  'echo "worker_threads enables parallelism" >> docs/threading.md', 'Bash', false);
+
+// -- String.fromCharCode --
+assert('PROSE-22 grep for String.fromCharCode → ALLOW',
+  'grep -rn "String.fromCharCode" src/', 'Bash', false);
+assert('PROSE-23 commit message mentioning String.fromCharCode → ALLOW',
+  'git commit -m "audit String.fromCharCode usage"', 'Bash', false);
+assert('PROSE-24 echo String.fromCharCode to docs → ALLOW',
+  'echo "String.fromCharCode converts code points" >> docs/strings.md', 'Bash', false);
+
+// -- Buffer.from(base64) --
+assert('PROSE-25 grep for Buffer.from base64 → ALLOW',
+  "grep -rn \"Buffer.from('base64')\" src/", 'Bash', false);
+assert('PROSE-26 commit message mentioning Buffer.from base64 → ALLOW',
+  "git commit -m \"audit Buffer.from with base64 encoding\"", 'Bash', false);
+
+// -- Auto-memory directory write mentioning these APIs --
+assert('PROSE-27 write agent-mistakes.md discussing spawn APIs → ALLOW',
+  'echo "Lesson: child_process and spawnSync and worker_threads keywords in grep must not be blocked" >> .claude/collaborator-memory/agent-mistakes.md', 'Bash', false);
+
+// -- The four ticket-cited commands that must ALLOW --
+assert('PROSE-28 ticket-cited: git commit mentioning worker_threads → ALLOW',
+  'git commit -m "document the worker_threads limitation"', 'Bash', false);
+assert('PROSE-29 ticket-cited: grep worker_threads → ALLOW',
+  'grep -rn "worker_threads" src/', 'Bash', false);
+assert('PROSE-30 ticket-cited: git commit mentioning execFileSync → ALLOW',
+  'git commit -m "replace execFileSync with a safer call"', 'Bash', false);
+assert('PROSE-31 ticket-cited: grep spawn_sync → ALLOW',
+  'grep -n "spawn_sync" notes.md', 'Bash', false);
+
+// -- Deny direction: inline-eval still denies via runner and shell wrapper --
+assert('PROSE-DENY-01 npx node -e with child_process → DENY',
+  'npx node -e "require(\'child_process\')"', 'Bash', true);
+assert('PROSE-DENY-02 bunx node -e with spawnSync → DENY',
+  'bunx node -e "spawnSync(\'ls\')"', 'Bash', true);
+assert('PROSE-DENY-03 bash -c wrapping node -e with worker_threads → DENY',
+  "bash -c 'node -e \"require(worker_threads)\"'", 'Bash', true);
+assert('PROSE-DENY-04 node --eval with execSync → DENY',
+  'node --eval "require(\'child_process\').execSync(\'id\')"', 'Bash', true);
+assert('PROSE-DENY-05 node -p with child_process → DENY',
+  'node -p "require(\'child_process\').execSync(\'id\').toString()"', 'Bash', true);
+assert('PROSE-DENY-06 node --print with spawn_sync → DENY',
+  'node --print "process.binding(\'spawn_sync\')"', 'Bash', true);
+assert('PROSE-DENY-07 npm exec node -e with execFileSync → DENY',
+  'npm exec node -e "execFileSync(\'ls\')"', 'Bash', true);
+
 // ── Summary ──────────────────────────────────────────────────────────────────
 
 console.log(`\n=== Results: ${passed} passed, ${failed} failed (total ${passed + failed}) ===\n`);

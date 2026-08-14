@@ -27,6 +27,13 @@ const PROTECTED_PATHS = [
   '.claude/hooks/lib/check-visibility-reconcile.mjs',
 ];
 
+// A5-L — write-protected ledger path. Separated from PROTECTED_PATHS to avoid
+// ancestor-aware matching (a token like `.claude/state` would false-deny via the
+// p.startsWith(ct+'/') ancestor rule). Exact-match and endsWith only.
+const LEDGER_PROTECTED_PATHS = [
+  '.claude/state/ua-worker/ledger.jsonl',
+];
+
 // A5 — containing directories: deletion of these also destroys the gate.
 // Note: .claude/state/** telemetry writes are NORMAL and must ALLOW — only .claude/hooks is protected.
 const PROTECTED_DIRS = [
@@ -524,6 +531,23 @@ function hasProtectedFileDestruction(cmd, isPowerShell) {
   });
 }
 
+/** A5-L — deny destructive commands targeting the wrapper ledger.
+ *  Exact-match only (no ancestor-awareness) to avoid false-deny on commands
+ *  that mention `.claude/state` as a token without targeting the ledger.
+ */
+function hasLedgerDestruction(cmd, isPowerShell) {
+  const ops = isPowerShell ? DESTRUCTIVE_PS : DESTRUCTIVE_BASH;
+  if (!ops.some(rx => rx.test(cmd))) return false;
+  const normLedger = LEDGER_PROTECTED_PATHS.map(canonicalizePath);
+  const normCmd = canonicalizePath(cmd);
+  if (normLedger.some(p => normCmd.includes(p))) return true;
+  return cmd.split(/\s+/).some(t => {
+    if (!t) return false;
+    const ct = canonicalizePath(t);
+    return normLedger.some(p => ct === p || ct.endsWith('/' + p));
+  });
+}
+
 /**
  * A2 — deny direct `copilot` CLI invocation.
  * Resolves the executable through executableOf (V19 fix) so env-prefixed forms like
@@ -573,16 +597,83 @@ function hasDirectCopilotInvocation(cmd) {
 const ENCODED_SPAWN_PATTERNS = [
   { rx: /\bchild_process\b/,               label: 'child_process' },
   { rx: /\bspawnSync\b/,                    label: 'spawnSync' },
+  { rx: /\bspawn_sync\b/,                   label: 'spawn_sync' },
   { rx: /\bexecSync\b/,                     label: 'execSync' },
   { rx: /\bexecFile\b/,                     label: 'execFile' },
+  { rx: /\bexecFileSync\b/,                 label: 'execFileSync' },
+  { rx: /\bworker_threads\b/,               label: 'worker_threads' },
   { rx: /String\.fromCharCode\s*\(/,        label: 'String.fromCharCode' },
   { rx: /Buffer\.from\s*\([^)]*['"]base64['"]/, label: 'Buffer.from(base64)' },
 ];
 
+/**
+ * isNodeInlineEval — returns true when a single statement invokes `node` (directly, via a
+ * package runner, or via a shell -c wrapper) with an inline-eval flag (-e/--eval/-p/--print).
+ * Uses executableOf and resolveRunnerTarget — no parallel normalization site.
+ */
+function isNodeInlineEval(stmt) {
+  const exec = executableOf(stmt);
+  if (!exec) return false;
+  const execBase = canonicalizePath(exec).split('/').pop() || '';
+  const tokens = stmt.trim().split(/\s+/).filter(Boolean);
+  let execIdx = 0;
+  while (execIdx < tokens.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[execIdx])) execIdx++;
+
+  // Direct node invocation: check for eval flags after the executable
+  if (/^node(\.exe)?$/.test(execBase)) {
+    return hasEvalFlag(tokens, execIdx + 1);
+  }
+
+  // Runner family (npx node -e "..."): resolve target, check if it's node with eval flag
+  const runnerTargetIdx = resolveRunnerTarget(tokens, execIdx);
+  if (runnerTargetIdx >= 0) {
+    const targetBase = canonicalizePath(tokens[runnerTargetIdx]).split('/').pop() || '';
+    if (/^node(\.exe)?$/.test(targetBase)) {
+      return hasEvalFlag(tokens, runnerTargetIdx + 1);
+    }
+  }
+
+  // Shell wrapper: bash/sh -c '...node -e "..."...'
+  if (/^(bash|sh)$/.test(execBase)) {
+    for (let i = execIdx + 1; i < tokens.length; i++) {
+      if (tokens[i] === '-c' && i + 1 < tokens.length) {
+        const innerCmd = tokens.slice(i + 1).join(' ');
+        if (/\bnode\b/i.test(innerCmd) && /\s-[ep]\b|\s--eval\b|\s--print\b/.test(innerCmd)) {
+          return true;
+        }
+        break;
+      }
+    }
+  }
+
+  return false;
+}
+
+/** Check if tokens starting at startIdx contain a node inline-eval flag. */
+function hasEvalFlag(tokens, startIdx) {
+  for (let i = startIdx; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t === '-e' || t === '--eval' || t === '-p' || t === '--print') return true;
+    // Combined short flags containing e or p (e.g. -pe, -ep)
+    if (/^-[a-z]*[ep]/i.test(t) && !t.startsWith('--')) return true;
+  }
+  return false;
+}
+
+/**
+ * hasEncodedSpawn — M2 process-creation construct detector.
+ * Scoped to inline-eval contexts: patterns fire only when a statement evaluates inline
+ * JavaScript (node -e/--eval/-p/--print), not when keywords appear as search terms,
+ * commit messages, filenames, or documentation prose.
+ * Routes through splitStatements + executableOf (no parallel normalization site).
+ */
 function hasEncodedSpawn(cmd) {
-  for (const { rx, label } of ENCODED_SPAWN_PATTERNS) {
-    if (rx.test(cmd)) {
-      return { found: true, reason: `S0 visibility gate: risky process-creation construct '${label}' detected outside wrapper ledger (M2)` };
+  for (const stmt of splitStatements(cmd)) {
+    if (!isNodeInlineEval(stmt)) continue;
+    for (const { rx, label } of ENCODED_SPAWN_PATTERNS) {
+      if (rx.test(stmt)) {
+        return { found: true, reason: `S0 visibility gate: risky process-creation construct '${label}' detected in inline-eval context (M2)` };
+      }
     }
   }
   return { found: false };
@@ -767,6 +858,11 @@ export function checkCommand(cmd, toolName) {
     return { deny: true, reason: 'S0 visibility gate: command targets a protected gate file (A5 self-protection)' };
   }
 
+  // A5-L — ledger write-protection
+  if (hasLedgerDestruction(cmd, isPowerShell)) {
+    return { deny: true, reason: 'S0 visibility gate: command targets the wrapper ledger (A5-L write-protection)' };
+  }
+
   if (isPowerShell) {
     // A4 — PowerShell detachment primitives (case policy: canonicalizePath lowercases both sides;
     // PS_DETACH_TOKENS are pre-lowercased so this is the only normalization site)
@@ -859,6 +955,11 @@ export function checkPayload(payload) {
                                     normPath.endsWith('/' + d) || normPath.includes('/' + d + '/'));
       if (hit) {
         return { deny: true, reason: `S0 visibility gate: Edit/Write to protected gate path denied (A5/C2): ${filePath}` };
+      }
+      // A5-L — ledger write-protection for Edit/Write
+      const normLedger = LEDGER_PROTECTED_PATHS.map(canonicalizePath);
+      if (normLedger.some(p => normPath === p || normPath.endsWith('/' + p))) {
+        return { deny: true, reason: `S0 visibility gate: Edit/Write to wrapper ledger denied (A5-L): ${filePath}` };
       }
     }
     return { deny: false, reason: 'allow' };
