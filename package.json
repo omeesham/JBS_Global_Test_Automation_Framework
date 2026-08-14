@@ -138,7 +138,11 @@
     "selfclean:restore": "node .claude/hooks/lib/selfclean/sweep.mjs --restore",
     "selfclean:gc": "node .claude/hooks/lib/selfclean/sweep.mjs --gc",
     "selfclean:status": "node .claude/hooks/lib/selfclean/sweep.mjs --status",
-    "prepare": "npm run plans:hooks:install"
+    "prepare": "npm run plans:hooks:install",
+    "test:xlsx-dates": "ts-node scripts/xlsx-dates.test.ts",
+    "check:dispatch-visibility": "node .claude/hooks/lib/test-dispatch-visibility-fixtures.mjs",
+    "check:visibility-reconcile": "node .claude/hooks/lib/test-visibility-reconcile-fixtures.mjs",
+    "kill:orphan": "node scripts/kill-orphaned-worker.mjs"
   },
   "keywords": [
     "playwright",

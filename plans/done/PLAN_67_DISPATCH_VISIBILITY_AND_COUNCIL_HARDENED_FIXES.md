@@ -160,6 +160,76 @@ npm run typecheck && npm run test:xlsx-dates && npm run test:xlsx-tripwire && no
 
 Expected: all exit 0; fixture suites report 163 and 53 passing respectively.
 
+## Post-closure addendum — 2026-08-14, same day
+
+Work continued after this plan was closed. Two commits landed against the gate — `373871096` and `46441ca14` — and they exist because the closure above was wrong in a way worth recording rather than quietly overwriting.
+
+### Correction 1 — the "zero false denials" claim was measured against a blind corpus
+
+The Phase V summary states zero false denials across 26 real repository commands, naming the verbatim `.githooks/pre-push` body. That is true as written and misleading as read. The `.githooks/pre-commit` body was **denied**, and so was ordinary English: `git commit -m "fix the crash at startup"`, `echo "look at this"`, a test filter containing the word "at". Nine executable names — `at`, `nohup`, `setsid`, `disown`, `coproc`, `screen`, `tmux`, `schtasks`, `start`, `wsl.exe` — were matched as free text anywhere in a command instead of in executable position. Wired on, the gate would have made a session unusable within minutes.
+
+The 163 fixtures passed because **not one of them contained ordinary prose**. The corpus could not see the defect it existed to catch. Fixed in `373871096`: those patterns now resolve through `executableOf` per split statement; dispatch-argument detection ignores quoted text; an absolute path to the wrapper resolves through the single `canonicalizePath`; ANSI-C quoting is denied only on a risky escape. Fixtures 163 → 205, including every `.githooks/*` body read from disk at test time so they cannot drift.
+
+### Correction 2 — `classifyOrphans` wording
+
+The commit message for `3de7294e5` says `classifyOrphans` reports a worker that outlives its stopped dispatch. It does surface that case, but as `untracked`, not `orphan` — because a stopped run writes no ledger row at all (D2). The class is reported; the label in that sentence is imprecise. Recorded here rather than by rewriting history.
+
+### What `46441ca14` added
+
+The wrapper ledger at `.claude/state/ua-worker/ledger.jsonl` had **no write protection**: an agent could append forged rows so an unseen dispatch looked reconciled, or truncate the file to erase real ones. That matters because the ledger is the only evidence the detective layer has. Writes are now refused, reads stay open, and the wrapper's own append is unaffected — it happens inside the spawned worker, never as an inspected command.
+
+Three spellings were missing from the process-creation list: the snake_case internal binding name for synchronous spawn, the sync exec-file helper (unreachable behind the previous word boundary), and the thread-module entry point.
+
+### Plan Deviations (continued)
+
+- **D4 — three dispatches died at exit 126; the cause was my own ticket text.** One ticket failed three times with `node: Permission denied` from the npm shim while 76 other dispatches that hour succeeded, two of them fired in the same second. A cross-family RCA pulled Defender Operational events 1116/1117 at 15:50:24, 15:52:04 and 16:09:24 — exactly the three death timestamps — classifying the copilot loader's command line as `Trojan:Win32/SuspExec.SE`. **Ticket text is passed on the process command line.** That ticket was the only one quoting literal process-spawn invocations, including an inline-eval one-liner spawning a process named `copilot`; Defender was behaving correctly. Re-dispatching the identical work with those APIs described rather than quoted ran to completion. Two corrections to the RCA's own conclusions were required: its "timing, not shape" reading cannot hold (two concurrent dispatches survived the same second), and its proposed one-shot wrapper retry on exit 126 would have burned credits against a deterministic block. No wrapper change was made. Recorded in `feedback_ticket_text_rides_the_command_line.md` — which also carries the sharper consequence: a secret in a ticket is readable by anything that can list processes.
+- **D5 — the same false-DENY class recurred one round after being fixed.** Adding the three spellings above reintroduced it: `grep -rn "worker_threads" src/` and a commit message mentioning `execFileSync` were both refused, and the suite went green at 224 for the same reason it had at 163 — no prose in the corpus. Bounced back scoped to the class rather than the four cases found: all nine pattern entries now match only inside statements that actually evaluate inline code, and every entry carries prose cases that must pass, including one asserting that a note discussing these APIs can still be written. Fixtures 205 → 262. Per LR-069 §3.5 the prior fix is convicted, not layered over — the whole list moved, not the three new rows. Recorded in `feedback_a_guards_test_corpus_must_contain_what_it_must_not_block.md`.
+
+## Prior-Fix Trial
+
+The false-DENY class — a guard reading a *description* of a command as the command — recurred twice in one day after being fixed, so the prior fixes go on trial before anything new lands.
+
+| Prior fix | What it did | Why it did not prevent this instance | Verdict |
+|---|---|---|---|
+| The 163-fixture corpus (`3de7294e5`) | Asserted gate behavior across 163 command shapes and claimed zero false denials over 26 real repository commands | `scoped-wrong` — every fixture was a *command shape*. None was ordinary English, a commit message, or a real hook body, so the corpus was structurally incapable of observing a prose false positive. It went green while the gate refused the word "at". | **CONVICTED** |
+| Executable-position scoping of the detachment list (`373871096`) | Routed nine detachment executable names through `executableOf` per split statement | `different-sub-class` — it corrected the A1 detachment list only. The M2 process-creation list is a separate list that still matched against the whole command, so adding three spellings to it reproduced the class one round later. The fix holds for what it covered; its lesson was simply not carried across. | **SURVIVES** |
+| The labor gate's compound-command splitter (`~/.claude/hooks/labor-gate.mjs`) | Splits a command on `&&`, `\|\|`, `;` and newline, then classifies each fragment by leading program | `scoped-wrong` — the splitter does not track quote state, so a multi-line commit message is chopped and a line of its body is classified as a standalone command. Every downstream layer is quote-aware; the first splitter is not. | **CONVICTED** |
+
+**Where each convicted fix lived.** Stated in plain text so the closure validator can read them — it strips inline-code spans before scanning: the convicted corpus is .claude/hooks/lib/test-dispatch-visibility-fixtures.mjs:829, the pattern list it failed to guard is .claude/hooks/lib/check-dispatch-visibility.mjs:597, the sibling list already moved one round earlier is .claude/hooks/lib/check-dispatch-visibility.mjs:428, and the deleted whole-command scan is .claude/hooks/lib/check-dispatch-visibility.mjs:670.
+
+The corpus conviction is anchored at `.claude/hooks/lib/test-dispatch-visibility-fixtures.mjs:829` — the first case of the prose block that had to be added, in a file that previously held 163 command-shape assertions and not one sentence of English. The mechanism it failed to guard is anchored at `.claude/hooks/lib/check-dispatch-visibility.mjs:597`, the process-creation pattern list, and at `.claude/hooks/lib/check-dispatch-visibility.mjs:428`, the detachment list that had already been moved to executable position one round earlier. The labor-gate conviction is anchored at `labor-gate.mjs:80` (absolute path `~/.claude/hooks/labor-gate.mjs`, outside this repo) — the quote-unaware compound-command splitter.
+
+**Rewire, not layer.** The removal diff is real, not additive: `hasEncodedSpawn` at `.claude/hooks/lib/check-dispatch-visibility.mjs:670` no longer tests the pattern list against the whole command at all. That whole-command scan was **deleted** and replaced by a per-statement inline-eval gate (`isNodeInlineEval`, `.claude/hooks/lib/check-dispatch-visibility.mjs:614`), so every one of the nine entries changed behaviour — not just the three that were added. Nothing was left idling beside it. The convicted corpus was likewise replaced rather than extended: prose cases are now mandatory per entry, and the `.githooks/*` bodies are read from disk at test time so the fixtures cannot drift from the real hooks.
+
+### Protection-parity table
+
+Every protection the deleted whole-command scan provided, and where it lives now. A conviction may not drop coverage — this is the check that the rewire lost nothing.
+
+| Protective function of the removed whole-command scan | Surviving mechanism after the rewire | Proof |
+|---|---|---|
+| Deny inline evaluation reaching a child-process API | `isNodeInlineEval` gate at `.claude/hooks/lib/check-dispatch-visibility.mjs:614`, applied per split statement | Fixtures M2-F01..F05, SPAWN-01..06; owner-run probe: direct `-e`, `--eval`, `-p` all DENY |
+| Deny the same through a package runner | Same gate, executable resolved via `resolveRunnerTarget` before the eval-flag test | PROSE-DENY-01/02/07; owner-run probe: `npx node -e …` DENY |
+| Deny the same wrapped in a shell invocation | Same gate, inner payload extracted from the `bash -c` wrapper | PROSE-DENY-03; owner-run probe: `bash -c "node -e …"` DENY |
+| Deny an encoded/assembled payload (character codes, base64) | Retained as list entries, now scoped to eval context | M2-F04, M2-F05 |
+| Incidentally denied a heredoc writing a spawner script | Retained — heredoc bodies remain an unmodeled context under LR-074 §74.3 | Owner-run probe: heredoc writing a spawner DENY; running it afterwards ALLOW, the documented §74.4 residual |
+| Incidentally denied ordinary prose mentioning these APIs | **Deliberately dropped** — this was the defect, not a protection | PROSE-01..31 assert those commands must ALLOW |
+
+The convicted labor-gate splitter has a tested patch and fixtures at `.claude/state/ua-worker/chips/p67-visibility-0814/C1-LABOR-GATE.md`; it is a control file and is **not** applied, so that conviction remains open and is recorded in `### Still not done` below rather than claimed as fixed.
+
+### Still not done
+
+1. **`.claude/settings.json` remains unwired.** The owner gave an in-chat GO on 2026-08-14. The second factor is absent: `~/.claude/delegation/SELF_GRANT` expired at 13:34:41, is scoped to `.claude/rules/guardrail-policy.md`, and its own reason line excludes settings wiring. Claude cannot author its own grant (LR-074 §74.1), so the gate stays dormant.
+2. **A labor-gate defect of the same class is diagnosed but unpatched.** `~/.claude/hooks/labor-gate.mjs` splits commands on newlines and semicolons without tracking quote state, so a multi-line commit message whose body contains a command shape is read as that command — reproduced against the real module on this session's own blocked commit. A tested patch and fixtures exist at `.claude/state/ua-worker/chips/p67-visibility-0814/C1-LABOR-GATE.md`; it is a control file and waits on the same grant.
+3. **The residual is unchanged.** LR-074 §74.4 still holds: a script written to disk and then run carries no readable token. Writing such a script by heredoc is refused; running it afterwards is not.
+
+### Updated verification artifact
+
+```bash
+node .claude/hooks/lib/test-dispatch-visibility-fixtures.mjs && node .claude/hooks/lib/test-visibility-reconcile-fixtures.mjs
+```
+
+Expected: both exit 0; suites report 262 and 53 passing. (The figures in the original artifact above — 163 and 53 — were correct at closure and are superseded.)
+
 ## Handoff
 
 Chat-only per LR-039: outcomes + next actions, no blocker prose. Deviations logged as D-rows in this file per the taxonomy.
