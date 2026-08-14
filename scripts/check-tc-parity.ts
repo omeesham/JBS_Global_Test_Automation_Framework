@@ -275,6 +275,19 @@ assertContentMismatchDetectorWorks();
 // segment) passed guardrails 1-5, C1-C7, and shipped Module="locations" to the
 // client workbook. Guardrail 6 makes the MEANING checkable.
 
+// Derive the fingerprint sheet name from the exporter's own constant (LR-069 §3.5:
+// never duplicate a literal — read from the source so divergence is impossible).
+function getFingerprintSheetName(): string {
+  const srcPath = path.join(__dirname, '..', 'export_test_cases', 'to-xlsx.ts');
+  const src = fs.readFileSync(srcPath, 'utf8');
+  const m = src.match(/^const\s+FINGERPRINT_SHEET\s*=\s*'([^']+)';/m);
+  if (!m) {
+    throw new Error('check-tc-parity: cannot extract FINGERPRINT_SHEET from export_test_cases/to-xlsx.ts — the constant must exist');
+  }
+  return m[1]!;
+}
+const FINGERPRINT_SHEET_NAME = getFingerprintSheetName();
+
 interface ModuleRegistry {
   modules: Record<string, { name: string; display: string; dir: string }>;
   submodules: Record<string, Record<string, { name: string; display: string; sheet: string; mdBasename: string }>>;
@@ -386,6 +399,7 @@ function runGuardrail6and7(reg: ModuleRegistry, mdIdsBySheetExpectation: Set<str
     const wb = XLSX.readFile(workbookPath, { cellDates: false, cellNF: false });
     for (const sheetName of wb.SheetNames) {
       if (sheetName === 'Overview') continue;
+      if (sheetName === FINGERPRINT_SHEET_NAME) continue;
       const owner = sheetOwner.get(sheetName);
       if (!owner) { failures.push(`[G6e] workbook sheet "${sheetName}" is not registered to any submodule in module-codes.json`); continue; }
       const expectModuleCell = reg.modules[owner.mod]!.name;

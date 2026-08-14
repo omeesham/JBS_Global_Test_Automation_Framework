@@ -180,3 +180,37 @@ Reason string (verbatim): `CLAIM-CENSUS VIOLATION: ${claimEls.length} element(s)
 **Trigger**: any attempt to close or flip-DONE an interaction-map that produces a FAIL verdict on `unclassified-element` or `claim-census`.
 
 **Graduated from**: PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION criterion 9 (2026-07-30). Cross-refs LR-069 §3.5 (recurrence convicts — on first human touch, recurrence law triggers the edit above), LR-070 (uplink law — human adjudicates, never finds).
+
+---
+
+## LR-074: Every delegated dispatch must be visible to the owner as it happens
+
+**Sev S0.** A worker run the owner cannot see in Claude Code is indistinguishable from a worker run the agent chose to hide. Intent does not enter into it: the *capability* to run work invisibly is itself the defect, because it makes every "I dispatched N workers" claim unverifiable. Gate on first occurrence.
+
+### §74.1 — The law
+
+Every Copilot dispatch runs through the canonical wrapper (`.claude/skills/ultra-agents/copilot-worker.sh`), in the **foreground of a tracked tool call**, so the command, its run-id, and its completion all land in the transcript the owner reads. Backgrounding through the harness's own tracked mechanism is visible and therefore allowed; backgrounding that detaches the process from the harness is not.
+
+Forbidden, without exception: detachment primitives (a surviving unquoted `&`, `nohup`, `setsid`, `disown`, `coproc`, `screen -dm`, `tmux new -d`, `schtasks /create`, `at`, node `detached:true`, python `start_new_session=True`, PowerShell `Start-Process` / `Start-Job` / `-WindowStyle Hidden` / `Invoke-Command -AsJob`, `cmd /c start`, `wsl.exe` trampolines); invoking the `copilot` CLI directly, bypassing the wrapper that writes the ledger row; any launcher construct whose purpose is to put a dispatch behind one more layer of indirection; and editing the gate, its libraries, or `.claude/settings.json` to weaken any of the above. Those control files are self-protected: changing them requires the owner's in-chat GO **plus** a `SELF_GRANT` the owner writes. Claude cannot author its own grant — the grant file is itself gate-protected, and that is deliberate.
+
+### §74.2 — Two layers, because one cannot be enough
+
+**Preventive** — `.claude/hooks/dispatch-visibility-gate.sh` + `.claude/hooks/lib/check-dispatch-visibility.mjs`: a PreToolUse deny on the constructs above.
+
+**Detective** — `.claude/hooks/visibility-reconcile.sh` + `.claude/hooks/lib/check-visibility-reconcile.mjs`: a Stop hook matching each dispatch-ledger row for the session against the visible tool calls, one-to-one by `run_id`, reporting any row with no corresponding visible call.
+
+The detective layer is not redundancy; it is the layer that closes what the matcher structurally cannot. Six adversarial review rounds against the preventive gate each produced a fresh bypass — a PowerShell character-code array carrying no literal dispatch string, then `echo hi && copilot`, then env-assignment prefixes, subshells, backticks, `$(…)`, `eval`, `bash -c`, `timeout`. Pattern-matching an unbounded command language leaks by construction. Reconciliation does not care how the command was spelled. **Anyone extending this gate adds fixtures to both layers, never to the matcher alone.**
+
+### §74.3 — Deny what you cannot parse
+
+Six rounds of naming constructs and being beaten by the next ones convicted the enumerate-and-patch approach. The default is inverted instead: the module declares which shell forms it parses with confidence, and treats the rest — heredoc bodies, `eval`, backticks, `$( … )`, subshells, `xargs`, `case`, and the launcher forms `env` / `nice` / `timeout` / `sudo` / `bash -c` / `sh -c` — as **unmodeled**. An unmodeled context that also mentions a dispatch token is denied, naming the construct; one that does not is allowed, so ordinary `$(date)` and `timeout 60 npm test` keep working. On the detective side the mirror applies: a wrapper invocation found inside an unmodeled context never counts as a visible dispatch. The deny set becomes "what I cannot read", not "what I have thought of", and that converges.
+
+Two supporting invariants, each of which failed at least once before being made structural: every path decision funnels through a single `canonicalizePath`, and every executable decision through a single `executableOf` over ALL statements of a quote-aware split. Structural tests fail the suite if a second normalization site appears or a detector derives an executable by any other route. Those tests are the anti-recurrence mechanism — a fix without one returns.
+
+### §74.4 — The residual, stated plainly
+
+Direct process creation outside the wrapper — a launch whose command is assembled at runtime from character codes or base64 — writes no ledger row and carries no readable name, so neither layer sees it. **Neither layer may be described as complete on its own, and the pair may not be described as closing the class.** Two layers make hiding hard and leave a trail; they do not make it impossible. Any future edit that claims otherwise in a comment, a report, or a rule is wrong.
+
+**Trigger**: authoring or modifying any dispatch path, hook, or delegation wrapper; any command that would start a worker; any edit to the gate files or to `.claude/settings.json`.
+
+**Graduated from**: owner directive, 2026-08-14 — *"i dont want claude to run copilot in a way i wont ever know and notice on how its run.... it would be a deceptive fooling technique"* — hardened across six opus-vs-gpt review rounds under PLAN_67. Cross-refs LR-069 §3.1 (S0 gates on first occurrence) and §3.5 (recurrence convicted per-site patching three times, forcing the single-funnel rewrite, the shared tokenizer, and the inverted default).
