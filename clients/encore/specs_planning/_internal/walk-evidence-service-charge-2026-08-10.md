@@ -176,6 +176,8 @@ Validation Rules row "Page `<h1>` should include the office name (NM-2210 AC5, N
 defect: NM-3300". `jira-defect-crossref-service-charge-2026-08-10.md` §2 row NM-3300.
 Spec-run confirmation: `.claude/state/ua-worker/nm3344-svcfail-0811/result.md` § TC-SVC-HIS-001.
 
+RE-VERIFIED FIXED 2026-08-14 — The History section header renders "Service Charge History : Parker Palm Springs" — office name present. Evidence: `clients/encore/reports/rca-nm3344-0814/seatB/walk-log.jsonl:414`.
+
 ---
 
 **SVC-OBS-2 — Unsaved-changes modal does not appear when switching from Basic Information to History tab. EXISTING TICKET: NM-3285.**
@@ -187,6 +189,8 @@ proceeds without confirmation. Do not re-file; tracked as NM-3285.
 *Source*: `service_charge_history_test_cases.md` Validation Rules row "Unsaved changes modal on tab
 switch (NM-3285)" — "Known defect: NM-3285". `jira-defect-crossref-service-charge-2026-08-10.md`
 §2 row NM-3285.
+
+RE-VERIFIED FIXED 2026-08-14 — Clicking the History tab with a dirty field shows the in-page "Unsaved changes" modal with Stay / Discard buttons. Browser-back fires the browser's native beforeunload dialog instead. Both behaviours confirmed by live walk and owner screenshot. See `ground-truth-service-charge-manual-2026-08-14.md`.
 
 ---
 
@@ -212,7 +216,7 @@ item 9: "Modified By renders raw GUID — Confirmed across all ten sampled rows"
 ua-worker/nm3344-nav2-0811/nav2-observations.md` "Modified By — Three verbatim values: System
 Update, System Update, System Update."
 
----
+RE-VERIFIED FIXED 2026-08-14 — Current rows render `s-prd-clickauto@psav.com` (user email), not a raw GUID. Legacy/migrated rows may still show GUIDs. Evidence: `clients/encore/reports/rca-nm3344-0814/seatB/walk-log.jsonl:414`.
 
 **SVC-OBS-4 — Percentage inputs remained disabled for approximately 30 seconds after page load. JUDGEMENT: environment characteristic, not a product defect.**
 

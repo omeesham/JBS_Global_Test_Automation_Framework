@@ -108,15 +108,33 @@ export class ServiceChargePage extends BasePage {
   // ---------------------------------------------------------------- reading
 
   /**
-   * Returns the full office header text shown at the top of the page
-   * (e.g. "Local Office : Parker Palm Springs").
-   * The header element carries no data-testid; located by visible text pattern.
+   * Returns the full office header line shown on the Basic Information tab, including
+   * the office name (e.g. "Local Office : 1604 - Parker Palm Springs").
+   * The label "Local Office :" and the office name value live in separate child nodes;
+   * reading the parent element captures both. Verified 2026-08-14.
    */
   @step('Read the office header text')
   async getOfficeHeader(): Promise<string> {
     const raw = await this.page
       .getByText(/Local Office\s*:/, { exact: false })
       .first()
+      .locator('xpath=..')
+      .textContent();
+    return (raw ?? '').replace(/\s+/g, ' ').trim();
+  }
+
+  /**
+   * Returns the section header line shown on the Service Charge History tab, including
+   * the office name (e.g. "Service Charge History : Parker Palm Springs").
+   * The label and office name live in separate child nodes; reading the parent captures both.
+   * Verified 2026-08-14.
+   */
+  @step('Read the History section header text')
+  async getHistorySectionHeader(): Promise<string> {
+    const raw = await this.page
+      .getByText(/Service Charge History\s*:/, { exact: false })
+      .first()
+      .locator('xpath=..')
       .textContent();
     return (raw ?? '').replace(/\s+/g, ' ').trim();
   }
@@ -206,21 +224,66 @@ export class ServiceChargePage extends BasePage {
   /**
    * Sets the percentage value at the given row index. Waits for the field to be enabled
    * before interacting — percentage inputs are disabled for ~30 s after every navigation
-   * or reload. Clears the field, types the new value, and presses Tab to move focus away
-   * and trigger Angular change detection.
+   * or reload. Clears the field, types the new value, and presses Tab to trigger Angular
+   * change detection.
    *
-   * The 400 ms settle after Tab is intentionally kept as a fixed wait. A deterministic
-   * signal (e.g. Save button enabling) cannot be used here because restore paths set the
-   * value back to the saved default, which produces a net-zero change — Save stays
-   * disabled — making Save-enabled an unreliable gate for this method.
+   * For standard percentage values (finite, non-negative, at most two decimal places) the
+   * method confirms the written value was accepted by polling the input until it reflects
+   * the expected number. If the app reverts the value (e.g. due to a re-render race after
+   * a prior save), it re-applies once and polls again. Throws if the value still has not
+   * landed after the retry — a silent no-op is never tolerated for valid writes.
+   *
+   * Boundary and edge-case inputs (negative numbers, empty strings, whitespace, values
+   * with more than two decimal places) skip the postcondition check because the app may
+   * legitimately transform or reject them.
    */
   @step('Set a percentage value by row index')
   async setPercentageByIndex(index: number, value: string): Promise<void> {
     const field = await this.resolveEnabledPercentageField(index);
-    await field.click();
-    await field.fill(value);
-    await this.page.keyboard.press('Tab');
-    await this.page.waitForTimeout(400);
+    const expected = parseFloat(value);
+
+    const applyValue = async (): Promise<void> => {
+      await field.click();
+      await field.fill(value);
+      await this.page.keyboard.press('Tab');
+    };
+
+    const readNumericValue = async (): Promise<number> => {
+      const raw = await field.inputValue();
+      return parseFloat(raw.replace('%', ''));
+    };
+
+    // Only confirm the postcondition for values the app is expected to accept
+    // unchanged: finite, non-negative, and already at two-or-fewer decimal places.
+    const isConfirmable =
+      Number.isFinite(expected) &&
+      expected >= 0 &&
+      Math.round(expected * 100) / 100 === expected;
+
+    await applyValue();
+
+    if (!isConfirmable) {
+      await this.page.waitForTimeout(400);
+      return;
+    }
+
+    // Let Angular process the blur event before checking — the re-render race
+    // that reverts values fires within a few hundred milliseconds of Tab.
+    await this.page.waitForTimeout(500);
+
+    const actual = await readNumericValue();
+    if (actual === expected) return;
+
+    // Value was reverted by a re-render. Re-apply once.
+    await applyValue();
+    await this.page.waitForTimeout(500);
+
+    const afterRetry = await readNumericValue();
+    if (afterRetry !== expected) {
+      throw new Error(
+        `Percentage field at row ${index}: wrote ${expected} but found ${afterRetry} after retry`,
+      );
+    }
   }
 
   /**
@@ -247,6 +310,57 @@ export class ServiceChargePage extends BasePage {
     await this.page.locator(sc.save).first().click();
   }
 
+  // ---------------------------------------------------------------- baseline restore
+
+  /**
+   * Restores the given rows to their recorded default values before each test.
+   *
+   * For each row: reads the current value, skips if it already matches (numeric compare),
+   * sets and verifies if not. Saves once at the end only if anything changed, then re-reads
+   * to confirm. Up to 3 attempts; throws with row detail if restoration fails.
+   */
+  @step('Restore mutated rows to their recorded default values')
+  async ensureDefaultState(
+    defaults: { rowIndex: number; value: string }[],
+  ): Promise<void> {
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      let dirty = false;
+      for (const { rowIndex, value } of defaults) {
+        const current = parseFloat((await this.getPercentageByIndex(rowIndex)).replace('%', ''));
+        const expected = parseFloat(value);
+        if (current !== expected) {
+          await this.setPercentageByIndex(rowIndex, value);
+          dirty = true;
+        }
+      }
+      if (!dirty) return; // already at defaults
+      await this.waitForSaveActive();
+      await this.clickSave();
+      await this.waitUntilLoaded();
+      // Re-read and verify all rows after save
+      let allMatch = true;
+      for (const { rowIndex, value } of defaults) {
+        const after = parseFloat((await this.getPercentageByIndex(rowIndex)).replace('%', ''));
+        if (after !== parseFloat(value)) {
+          allMatch = false;
+          break;
+        }
+      }
+      if (allMatch) return;
+    }
+    // Build a diagnostic message with the first mismatched row
+    for (const { rowIndex, value } of defaults) {
+      const actual = await this.getPercentageByIndex(rowIndex);
+      const actualNum = parseFloat(actual.replace('%', ''));
+      if (actualNum !== parseFloat(value)) {
+        throw new Error(
+          `ensureDefaultState: row ${rowIndex} expected ${value} but found ${actual} after ${maxAttempts} attempts`,
+        );
+      }
+    }
+  }
+
   // ---------------------------------------------------------------- History tab
 
   /**
@@ -268,8 +382,8 @@ export class ServiceChargePage extends BasePage {
 
   /**
    * Returns the page `<h1>` heading text, trimmed and normalised.
-   * The heading reads "Service Charge" on both tabs; NM-3300 tracks a known defect where
-   * the office name is missing (expected: "Service Charge — Parker Palm Springs").
+   * The heading reads "Service Charge" on both tabs; office context is rendered separately
+   * per tab (Basic Information tab: "Local Office : <name>"; History tab: "Service Charge History : <name>").
    */
   @step('Read the page heading')
   async getPageHeading(): Promise<string> {
@@ -357,8 +471,7 @@ export class ServiceChargePage extends BasePage {
    *
    * Angular's dirty state does not reliably reset after save. When navigating from
    * Basic Information to History with unsaved edits, the app should present an alertdialog
-   * with Save Changes / Discard Changes / Cancel options (NM-3285). Use this method to
-   * assert whether the modal appeared.
+   * with Stay / Discard options. Use this method to assert whether the modal appeared.
    */
   @step('Check whether the Unsaved Changes modal is visible')
   async isUnsavedChangesModalVisible(): Promise<boolean> {
