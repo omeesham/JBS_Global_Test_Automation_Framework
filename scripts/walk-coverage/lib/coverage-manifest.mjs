@@ -99,6 +99,54 @@ export function parseCoverageSignals(text) {
   return { mcpDate, hasManifest, ratio, ratioComplete, crossCheck, crossCheckClean, partial, undispositioned, manifestRows, completionRef, hasCompletionRecord, walkMode };
 }
 
+// Split a markdown table row into cells, respecting backslash-escaped bars (\|) which are NOT
+// cell delimiters. Strips the leading and trailing outer bars. NM-3344 severity: high — without
+// this, keys containing literal bars (e.g. struct:a|Home|…) are truncated at the first bar.
+function splitTableRow(line) {
+  const inner = line.replace(/^\s*\|/, '').replace(/\|\s*$/, '');
+  const cells = [];
+  let current = '';
+  for (let i = 0; i < inner.length; i++) {
+    if (inner[i] === '\\' && i + 1 < inner.length) {
+      if (inner[i + 1] === '|') {
+        // Count consecutive backslashes before this position
+        let bsCount = 1;
+        let j = i - 1;
+        while (j >= 0 && inner[j] === '\\') { bsCount++; j--; }
+        // Odd backslash count (including this one): the pipe is escaped
+        // Even count: backslashes pair off, the pipe is a real delimiter
+        if (bsCount % 2 === 1) {
+          current += '\\|';
+          i++; // skip the bar
+        } else {
+          current += '\\';
+        }
+      } else if (inner[i + 1] === '\\') {
+        current += '\\';
+        // don't skip — next iteration handles the second backslash
+      } else {
+        current += '\\';
+      }
+    } else if (inner[i] === '|') {
+      cells.push(current);
+      current = '';
+    } else {
+      current += inner[i];
+    }
+  }
+  cells.push(current);
+  return cells;
+}
+
+// Extract the content from a cell that may be backtick-wrapped with a trailing annotation,
+// e.g. `struct:button|Order Search|…` _(A∖B — disabled)_ → struct:button|Order Search|…
+function stripBacktickWrap(cell) {
+  const trimmed = cell.trim();
+  const m = trimmed.match(/^`([^`]+)`/);
+  if (m) return m[1].trim();
+  return trimmed.replace(/^`+|`+$/g, '').trim();
+}
+
 // Parse the Coverage Manifest table rows. Each row is a markdown table line whose cells carry a
 // disposition token (`covered-by-TC` / `affordance-probed` / `read-only-verified` / `out-of-scope`).
 // We capture per row: { disposition, controlRef (the id/key cell, prefix-stripped), provenance
@@ -117,7 +165,9 @@ export function extractManifestRows(text) {
   for (const line of section.split('\n')) {
     if (!/^\s*\|/.test(line)) continue;                 // not a table row
     if (/^\s*\|[-:\s|]+\|\s*$/.test(line)) continue;     // separator row
-    const cells = line.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => c.trim());
+    // Split on unescaped bars only (a backslash before a bar means the bar is part of the key,
+    // not a cell delimiter). After splitting, unescape \| → | in each cell.
+    const cells = splitTableRow(line).map(c => c.trim().replace(/\\\|/g, '|'));
     // Disposition cell = first cell whose (backtick-stripped) text starts with a known token.
     let disposition = '';
     for (const c of cells) {
@@ -127,12 +177,14 @@ export function extractManifestRows(text) {
     }
     if (!disposition) continue;                          // header row or non-disposition row
     // controlRef = the id/key cell — first cell that looks like `prefix:value` / `testid:…` / `id:…`.
+    // A cell may be backtick-wrapped with a trailing annotation: `key` _(A∖B — disabled)_
+    // so extract the backtick-delimited content when present.
     let controlRef = '';
     for (const c of cells) {
-      const bare = c.replace(/^`+|`+$/g, '').trim();
+      const bare = stripBacktickWrap(c);
       if (/^(testid|id|struct|aria|role|name):/i.test(bare)) { controlRef = bare; break; }
     }
-    if (!controlRef && cells.length > 1) controlRef = cells[1].replace(/^`+|`+$/g, '').trim();
+    if (!controlRef && cells.length > 1) controlRef = stripBacktickWrap(cells[1]);
     const provM = line.match(/provenance\s*:\s*(live|oracle)\b/i);
     const evM = line.match(/evidence\s*:\s*([^\s|`]+)/i);
     rows.push({

@@ -28,12 +28,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
 
 // ---- normalize -------------------------------------------------------------------------------
-// Lowercase + trim only. Prefix (testid:|id:|…) is PRESERVED so two distinct machine keys that
-// differ only by prefix (e.g. testid:save vs id:save) map to distinct Set entries and each
-// requires its own manifest row. extractManifestRows also returns controlRef with the prefix,
-// so both sides compare prefixed strings and the match is still exact.
+// Trim only — case is SIGNIFICANT. The enumerator produces mixed-case keys (e.g. `struct:a|Home|…`)
+// and the manifest must reproduce that case exactly. Prefix (testid:|id:|…) is PRESERVED so two
+// distinct machine keys that differ only by prefix (e.g. testid:save vs id:save) map to distinct
+// Set entries and each requires its own manifest row.
 function normalize(key) {
-  return (key || '').toLowerCase().trim();
+  return (key || '').trim();
 }
 
 // ---- unreachable exemptions ------------------------------------------------------------------
@@ -116,11 +116,11 @@ export function verifyDenominator(artifactText, jsonPath) {
     reasons.push(`${missing.length} machine key(s) missing from manifest: ${missing.slice(0, 10).join(', ')}`);
   }
 
-  // 4b. inflation = manifestKeys \ machineKeys → if > 5% of |machineKeys| → FAIL.
+  // 4b. inflation = manifestKeys \ machineKeys → any non-zero → FAIL (zero tolerance).
   if (machineKeys.size > 0) {
     const inflation = [...manifestKeys].filter(k => !machineKeys.has(k));
-    if (inflation.length / machineKeys.size > 0.05) {
-      reasons.push(`manifest inflation ${inflation.length}/${machineKeys.size} (${Math.round(inflation.length / machineKeys.size * 100)}% > 5%): ${inflation.slice(0, 5).join(', ')}`);
+    if (inflation.length > 0) {
+      reasons.push(`manifest inflation ${inflation.length}/${machineKeys.size}: ${inflation.slice(0, 10).join(', ')}`);
     }
   }
 

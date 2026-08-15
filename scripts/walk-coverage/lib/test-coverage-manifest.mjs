@@ -182,5 +182,41 @@ v = coverageVerdict(allForgedArtifact, LANDING, { crossModuleControls: emptyRegi
 ok('F4 all rows claim outside-module but no evidence → NOT complete',
   v.applicable && !v.complete && v.reasons.some(r => /NOT evidenced/.test(r)), JSON.stringify(v.reasons));
 
+// === Escaped-bar key parsing (NM-3344 manifest reader defect) ===
+// E1. A key with escaped bars (\|) parses to the unescaped form
+const ESCAPED_BAR_ROW = '| `struct:a\\|Home\\|div/div/div/div/ul/li` | a | 2026-07-01 | `out-of-scope: outside-module — global navigation link, not a module element` |\n';
+const escapedRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + ESCAPED_BAR_ROW).manifestRows;
+ok('E1 escaped-bar key parses to unescaped form',
+  escapedRows.length === 1 && escapedRows[0].controlRef === 'struct:a|Home|div/div/div/div/ul/li',
+  `got: ${escapedRows[0]?.controlRef}`);
+
+// E2. An invented key (not in any enumeration) is still rejected by the cross-module gate
+const INVENTED_ROW = '| `testid:totally-invented-xyz` | button | 2026-07-01 | `out-of-scope: outside-module — invented element` |\n';
+const inventedArtifact = header('2026-07-01', '2/2 (100%)', 'clean') + COVERED_ROW + INVENTED_ROW;
+v = coverageVerdict(inventedArtifact, LANDING, { crossModuleControls: emptyRegistry, artifactPath: 'clients/encore/specs_planning/_internal/field-inventories/test-module-2026-07-01.md' });
+ok('E2 invented key still rejected (inflation check works)',
+  v.applicable && !v.complete && v.reasons.some(r => /NOT evidenced as shared shell/.test(r)), JSON.stringify(v.reasons));
+
+// E3. A case-mismatched key (STRUCT:A|HOME|DIV/DIV vs struct:a|Home|div/div) must NOT parse as equal
+const CASE_MISMATCH_ROW = '| `STRUCT:A\\|HOME\\|DIV/DIV` | a | 2026-07-01 | covered-by-TC: TC-99 |\n';
+const caseMismatchRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + CASE_MISMATCH_ROW).manifestRows;
+ok('E3 case-mismatched escaped key parses with original case preserved',
+  caseMismatchRows.length === 1 && caseMismatchRows[0].controlRef === 'STRUCT:A|HOME|DIV/DIV',
+  `got: ${caseMismatchRows[0]?.controlRef}`);
+
+// E4. Doubled backslash (\\|) should NOT unescape to a pipe — it is a literal backslash + delimiter
+const DOUBLED_BS_ROW = '| `struct:a\\\\|home` | a | 2026-07-01 | covered-by-TC: TC-100 |\n';
+const doubledBsRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + DOUBLED_BS_ROW).manifestRows;
+ok('E4 doubled backslash is literal backslash + cell delimiter (key truncates at delimiter)',
+  doubledBsRows.length === 1 && doubledBsRows[0].controlRef === 'struct:a\\\\',
+  `got: ${doubledBsRows[0]?.controlRef}`);
+
+// E5. Unicode look-alike bar (U+2502 BOX DRAWINGS LIGHT VERTICAL) is NOT a delimiter — stays in key
+const UNICODE_BAR_ROW = '| `struct:a\u2502Home\u2502div` | a | 2026-07-01 | covered-by-TC: TC-101 |\n';
+const unicodeBarRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + UNICODE_BAR_ROW).manifestRows;
+ok('E5 unicode look-alike bar stays in key (not a delimiter)',
+  unicodeBarRows.length === 1 && unicodeBarRows[0].controlRef === 'struct:a\u2502Home\u2502div',
+  `got: ${unicodeBarRows[0]?.controlRef}`);
+
 console.log(`\ncoverage-manifest fixtures: ${passed} passed, ${failed} failed, ${passed + failed} total`);
 process.exit(failed > 0 ? 1 : 0);
