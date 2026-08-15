@@ -19,6 +19,7 @@
 # PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK — NM-3344 Service Charge page: QUICK field-level validation coverage (2 sub-tabs = 2 specs) + client-deliverable push
 
 **Status**: PENDING
+**Executed**: 2026-08-15
 **Priority**: P0
 **Created**: 2026-08-10
 **Identity**: OWNER (multi-identity by phase — HUNTER → GIVER → BUILDER → WATCHDOG → OWNER)
@@ -241,7 +242,25 @@ The client-facing surface is committed and ships independently.
 
 ## Prior-Fix Trial
 
-Not applicable — net-new surface coverage, not a recurrence-class fix (no prior fix for this class exists to convict).
+| Prior fix | What it was meant to prevent | Why it failed to prevent this instance | Replacement and verdict |
+|---|---|---|---|
+| Value-string readiness gate for Service Charge percentage fields; old-fix evidence: clients/encore/reports/settle-gate-0814/RESULT.md:33 | Prevent tests from typing while the grid was still loading, after the inputs enabled but before stored values finished writing. | It watched the percentage fields' displayed value strings and declared readiness when those strings stopped changing. clients/encore/reports/settle-gate-v2-0814/RESULT.md:9 through :16 recorded 316 input-attribute rewrites after that gate on all eight measured loads; because the rewritten fields could keep the same visible value string, the gate passed while the race was still active. | **CONVICTED** — removed, not layered over. clients/encore/src/pages/service-charge/service-charge.page.ts:87 now polls the 79 percentage inputs directly, including enabled state and input value, until their signatures stay quiet before interaction. |
+| Post-blur invalid-marking checks in the negative percentage cases; old-fix evidence: clients/encore/reports/fix-invalid-asserts-0814/RESULT.md:24 | Prove invalid percentage entries were rejected after focus left the field. | The live signal did not live after blur: clients/encore/reports/invalid-signal-0814/RESULT.md:34 through :41 measured each value five times and showed the invalid marking was reliable while focused for the invalid values, while after blur the app usually restored the stored value and cleared the marking; Save stayed disabled after blur in every measured case. | **CONVICTED** — removed, not layered over. clients/encore/src/pages/service-charge/service-charge.page.ts:346 now checks the focused invalid signal before tabbing away, and the tests then check Save remains disabled after blur. |
+
+### Removal diff
+
+The old value-string readiness gate was removed and rewired with removal diff to the direct percentage-input signature poll. The post-blur-only negative checks were removed and rewired with removal diff to focused invalid-signal checks plus post-blur Save-disabled checks.
+
+### Protection-parity table
+
+| Protective Function | Surviving Mechanism |
+|---|---|
+| Wait until percentage-field values are safe before typing | Direct polling of all percentage input signatures, including enabled state and input value |
+| Prove invalid percentage input is rejected | Focused invalid-signal assertion followed by Save-disabled assertion after blur |
+
+## Deferral Authorization
+
+Phase 5, the ship-to-client-deliverables phase, is deferred by owner decision. On 2026-08-15 the owner declined the push in chat with the exact words "no pushing, fix other things". Everything Phase 5 depends on is already finished and committed, so the ship phase can run unchanged whenever the owner chooses.
 
 ---
 
