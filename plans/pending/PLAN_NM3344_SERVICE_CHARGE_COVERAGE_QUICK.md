@@ -244,23 +244,38 @@ The client-facing surface is committed and ships independently.
 
 | Prior fix | What it was meant to prevent | Why it failed to prevent this instance | Replacement and verdict |
 |---|---|---|---|
-| Value-string readiness gate for Service Charge percentage fields; old-fix evidence: clients/encore/reports/settle-gate-0814/RESULT.md:33 | Prevent tests from typing while the grid was still loading, after the inputs enabled but before stored values finished writing. | It watched the percentage fields' displayed value strings and declared readiness when those strings stopped changing. clients/encore/reports/settle-gate-v2-0814/RESULT.md:9 through :16 recorded 316 input-attribute rewrites after that gate on all eight measured loads; because the rewritten fields could keep the same visible value string, the gate passed while the race was still active. | **CONVICTED** — removed, not layered over. clients/encore/src/pages/service-charge/service-charge.page.ts:87 now polls the 79 percentage inputs directly, including enabled state and input value, until their signatures stay quiet before interaction. |
+| Value-string readiness gate for Service Charge percentage fields; old-fix evidence: clients/encore/reports/settle-gate-0814/RESULT.md:33 | Prevent tests from typing while the grid was still loading, after the inputs enabled but before stored values finished writing. | It watched the percentage fields' displayed value strings and declared readiness when those strings stopped changing. clients/encore/reports/settle-gate-v3-0814/RESULT.md:9 through :16 recorded 316 input-attribute rewrites after that gate on all eight measured loads; because the rewritten fields could keep the same visible value string, the gate passed while the race was still active. | **CONVICTED** — removed, not layered over. clients/encore/src/pages/service-charge/service-charge.page.ts:87 now polls the 79 percentage inputs directly, including enabled state and input value, until their signatures stay quiet before interaction. |
 | Post-blur invalid-marking checks in the negative percentage cases; old-fix evidence: clients/encore/reports/fix-invalid-asserts-0814/RESULT.md:24 | Prove invalid percentage entries were rejected after focus left the field. | The live signal did not live after blur: clients/encore/reports/invalid-signal-0814/RESULT.md:34 through :41 measured each value five times and showed the invalid marking was reliable while focused for the invalid values, while after blur the app usually restored the stored value and cleared the marking; Save stayed disabled after blur in every measured case. | **CONVICTED** — removed, not layered over. clients/encore/src/pages/service-charge/service-charge.page.ts:346 now checks the focused invalid signal before tabbing away, and the tests then check Save remains disabled after blur. |
 
 ### Removal diff
 
-The old value-string readiness gate was removed and rewired with removal diff to the direct percentage-input signature poll. The post-blur-only negative checks were removed and rewired with removal diff to focused invalid-signal checks plus post-blur Save-disabled checks.
+Both convicted approaches were removed, not layered over, in the same change that replaced them —
+commit b80bdd6d0. The removal diff deleted the value-string readiness wait from
+`clients/encore/src/pages/service-charge/service-charge.page.ts` and rewired the call site to the
+signature poll now at :87; the same patch deleted the post-blur-only invalid assertions from the five
+negative percentage cases in
+`clients/encore/tests/service-charge/service-charge-basic-information.spec.ts` and rewired them to the
+focused read at :346 plus a Save-disabled check after blur. Neither convicted mechanism survives
+anywhere in either file.
 
 ### Protection-parity table
 
 | Protective Function | Surviving Mechanism |
 |---|---|
-| Wait until percentage-field values are safe before typing | Direct polling of all percentage input signatures, including enabled state and input value |
-| Prove invalid percentage input is rejected | Focused invalid-signal assertion followed by Save-disabled assertion after blur |
+| Do not type into percentage fields until their stored values have finished being written | Direct polling of all 79 percentage input signatures — enabled state and value — until they stop changing (`service-charge.page.ts:87`) |
+| Prove an invalid percentage entry is rejected | The invalid marking is read while the field still has focus (`service-charge.page.ts:346`), and the five negative tests then confirm Save stays disabled after focus leaves |
 
 ## Deferral Authorization
 
-Phase 5, the ship-to-client-deliverables phase, is deferred by owner decision. On 2026-08-15 the owner declined the push in chat with the exact words "no pushing, fix other things". Everything Phase 5 depends on is already finished and committed, so the ship phase can run unchanged whenever the owner chooses.
+Phase 5, the ship-to-client-deliverables phase, is deferred by owner decision. On 2026-08-15 the owner
+declined the push in chat with the exact words "no pushing, fix other things"; that quote is from the
+session transcript and has no separate on-disk record.
+
+What the ship phase itself copies — the specs, page objects, test cases and workbook — is committed as
+of b80bdd6d0, so the ship command can run unchanged whenever the owner chooses. That is not the same as
+the plan being finished: Phase 4 closure is still partial, and the walk-coverage check reports a
+shortfall in the recorded control denominator. The deferral covers the push only; it does not close the
+plan.
 
 ---
 

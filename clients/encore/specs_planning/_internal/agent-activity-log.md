@@ -1742,3 +1742,26 @@ Append-only audit trail per LR-028. Format: `| YYYY-MM-DDThh:mm | agent | status
 | 2026-08-15T02:46 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-xlsx-rebuild-r6-0815.md — gpt-5.5 build ok=true |
 | 2026-08-15T03:03 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-steplabels-sc-0815.md — gpt-5.5 build ok=true |
 | 2026-08-15T03:20 | OWNER | done | clients/encore/src/pages/service-charge/service-charge.page.ts, clients/encore/tests/service-charge/service-charge-basic-information.spec.ts, clients/encore/tests/service-charge/service-charge-history.spec.ts, clients/encore/specs_planning/test-cases/setup/service-charge/*.md, clients/encore/specs_planning/_internal/ground-truth-service-charge-manual-2026-08-14.md, export_test_cases/to-xlsx.ts, scripts/xlsx-freshness.ts, scripts/check-tc-parity.ts, clients/encore/testcases/*.xlsx, plans/pending/PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK.md | Service Charge grid-readiness fix + 5 negative tests tightened to the measured signals; 4 commit-gate defects repaired (staged-file refusal, fingerprint-sheet self-failure, last-commit skip check, invisible input-identity drift); workbooks rebuilt; cross-provider council review with author defence; committed b80bdd6d0 (76 files). BAS 31 passed, HIS 16 passed. Plan stays PENDING — Phase 5 ship awaits owner GO; closure gate Cx/Cr outstanding. |
+| 2026-08-15T13:06 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-closure-diagnose-0815.md — gpt-5.5 research ok=true |
+| 2026-08-15T13:11 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-walk-denominator-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T13:18 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-plan-sections-0815.md — gpt-5.5 build ok=true |
+| 2026-08-15T16:11 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-oos-cap-scope-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T16:20 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-oos-cap-attack-0815.md — gpt-5.5 review ok=true |
+| 2026-08-15T16:32 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-oos-cap-defend-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T16:40 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-baseline-manifest-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T16:55 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-baseline-keys-0815.md — gpt-5.5 build ok=true |
+| 2026-08-15T19:50 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-manifest-parser-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T20:01 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-parser-attack-0815.md — gpt-5.5 review ok=true |
+| 2026-08-15T20:08 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-parser-defend-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T20:15 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-walkstate-parity-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T20:33 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-parity-scope-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T20:39 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-parity-attack-0815.md — gpt-5.5 review ok=true |
+| 2026-08-15T20:44 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-plantext-attack-0815.md — claude-opus-4.6 review ok=true |
+| 2026-08-15T20:49 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-parity-defend-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T20:55 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-evidence-attack-0815.md — gpt-5.5 review ok=true |
+| 2026-08-15T20:55 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-parity-bounce-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T21:01 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-evidence-fix-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T21:03 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-circularity-attack-0815.md — gpt-5.5 review ok=true |
+| 2026-08-15T21:05 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-evidence-fix2-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T21:10 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-merge-defend-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T21:15 | OWNER | done | plans/pending/PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK.md, clients/encore/specs_planning/_internal/old-site-baseline/service-charge-2026-08-11.md | Corrected a wrong report citation and an overclaim in the plan; restored the removal-diff and protection-parity sections the closure check requires; restored the old-site walk state the earlier edit had narrowed |

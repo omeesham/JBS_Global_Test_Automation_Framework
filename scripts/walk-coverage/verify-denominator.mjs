@@ -22,7 +22,7 @@ import { randomBytes } from 'node:crypto';
 import { extractManifestRows } from './lib/coverage-manifest.mjs';
 import { MODULE_CONFIG as MODULE_REQUIRED_STATES } from './lib/module-config.mjs';
 import { loadFieldCaseTaxonomy } from './lib/field-case-parser.mjs';
-import { computePathA, computePathB, reconcile } from './lib/case-parity.mjs';
+import { computePathA, computePathB, reconcile, partitionControls, gridUnits } from './lib/case-parity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
@@ -229,9 +229,74 @@ export function verifyDenominator(artifactText, jsonPath) {
         );
       } else {
         const raw = JSON.parse(readFileSync(rowsPath, 'utf-8'));
-        const rows = Array.isArray(raw) ? raw : (raw.rows || raw.case_rows || []);
+        const allRows = Array.isArray(raw) ? raw : (raw.rows || raw.case_rows || []);
+
+        // Scope Path B to the artifact under check. Prefer source_artifact provenance when
+        // rows carry it (exact page-level scoping). Fall back to field_key membership for
+        // legacy rows that predate the provenance field — but warn that this is coarser.
+        const artifactLabel = jsonPath.replace(/^.*[/\\]/, '').replace(/\.json$/i, '');
+        const artifactFieldKeys = new Set(Object.keys(data.derived_types));
+        const { gridRowKeys: artGridKeys } = partitionControls(data.derived_types);
+        for (const [unit] of gridUnits(artGridKeys)) {
+          artifactFieldKeys.add(`grid:${unit}`);
+        }
+
+        const hasProvenance = allRows.some(r => r.source_artifact != null);
+        let rows;
+        let scopeMethod;
+        if (hasProvenance) {
+          rows = allRows.filter(r => r.source_artifact === artifactLabel);
+          scopeMethod = 'source_artifact';
+          // Fallback: if this artifact has no provenance-tagged rows yet, scope by field_key
+          // (legacy rows predate the provenance field).
+          if (rows.length === 0) {
+            rows = allRows.filter(r => r.source_artifact == null && artifactFieldKeys.has(r.field_key));
+            scopeMethod = 'field_key (fallback — legacy rows without source_artifact)';
+          }
+        } else {
+          rows = allRows.filter(r => artifactFieldKeys.has(r.field_key));
+          scopeMethod = 'field_key (coarser — shared keys across artifacts match identically)';
+        }
+
         const parity = reconcile(pathA, computePathB(rows));
-        console.log(parity.report);
+
+        // Row-membership validation (Finding CA-002): each row's field_key must exist in the
+        // page record, and its field_type must match the record's resolved type (or 'UNRESOLVED'
+        // when the control is unresolved). This is a THIRD check — it does NOT feed into Path A
+        // or Path B computation, so it cannot collapse the two independent sides.
+        const membershipErrors = [];
+        for (const row of rows) {
+          if (!row.field_key) continue;
+          const entry = data.derived_types[row.field_key];
+          if (!entry) {
+            membershipErrors.push(`row field_key "${row.field_key}" not found in page record`);
+            continue;
+          }
+          const expectedType = (!entry.resolved || entry.type === null) ? 'UNRESOLVED' : entry.type;
+          if (row.field_type && row.field_type !== expectedType) {
+            membershipErrors.push(
+              `row "${row.field_key}" has field_type="${row.field_type}" but page record says "${expectedType}"`
+            );
+          }
+        }
+        if (membershipErrors.length > 0) {
+          const sample = membershipErrors.slice(0, 5).join('; ');
+          const more = membershipErrors.length > 5 ? ` (+${membershipErrors.length - 5} more)` : '';
+          reasons.push(`ROW-MEMBERSHIP: ${membershipErrors.length} row(s) fail page-record validation: ${sample}${more}`);
+        }
+
+        // Compute unresolved ratio for the success message
+        const dtKeys = Object.keys(data.derived_types);
+        const { controlKeys: ckForMsg } = partitionControls(data.derived_types);
+        const unresolvedForMsg = ckForMsg.filter(k => {
+          const e = data.derived_types[k];
+          return !e?.resolved || e?.type === null;
+        }).length;
+        const unresolvedNote = ckForMsg.length > 0 && unresolvedForMsg > 0
+          ? ` NOTE: ${unresolvedForMsg}/${ckForMsg.length} controls unresolved — parity confirms equal widened estimates, not resolved coverage.`
+          : '';
+
+        console.log(`${parity.report} (artifact: ${artifactLabel}, scope: ${scopeMethod}, ${rows.length}/${allRows.length} rows matched)${unresolvedNote}`);
         reasons.push(...parity.reasons);
       }
     } catch (err) {

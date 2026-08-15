@@ -21,8 +21,8 @@
 //
 // No empty catch. No swallowed errors (LR-003).
 
-import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { resolve, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadFieldCaseTaxonomy, parseFieldCaseTaxonomy } from './lib/field-case-parser.mjs';
 // Structural key-identity helpers only (which keys are grid rows, and which grid each belongs to).
@@ -46,6 +46,9 @@ function parseArgs(argv) {
 }
 
 const args = parseArgs(process.argv);
+const sourceArtifact = args['completion-record']
+  ? basename(resolve(args['completion-record'])).replace(/\.json$/i, '')
+  : null;
 
 if (args.help) {
   process.stdout.write(
@@ -58,10 +61,14 @@ if (args.help) {
     '    [--taxonomy=<path>]          override path to field-case-generation.md\n' +
     '    [--json]                     output JSON instead of NDJSON rows\n' +
     '    [--out=<path>]               write output to file instead of stdout\n' +
+    '    [--merge]                    when used with --out, merge new rows into an existing\n' +
+    '                                 file by replacing rows with the same source_artifact\n' +
+    '                                 and keeping all others. Without --merge, --out overwrites.\n' +
+    '                                 On merge-read failure: exits 1, target file untouched.\n' +
     '\n' +
     'Exit codes:\n' +
     '  0   success\n' +
-    '  1   error (taxonomy failure, missing args, silent-pass guard)\n'
+    '  1   error (taxonomy failure, missing args, silent-pass guard, merge-read failure)\n'
   );
   process.exit(0);
 }
@@ -263,6 +270,7 @@ for (const controlKey of controlKeys) {
       requires_oracle: c.requiresOracle,
       disposed_by:     null,
     };
+    if (sourceArtifact) row.source_artifact = sourceArtifact;
     if (widened) row.widened = true;
     rows.push(row);
   }
@@ -281,7 +289,7 @@ const grids = gridUnits(gridRowKeys);
 for (const [unit, memberRows] of grids) {
   for (const family of surfaceFamilies) {
     for (const c of family.cases ?? []) {
-      rows.push({
+      const gridRow = {
         case_id:         `grid:${unit}::${family.family}::${c.caseId ?? c.input}`,
         field_key:       `grid:${unit}`,
         field_label:     `GRID (${memberRows.length} row(s), counted once)`,
@@ -290,7 +298,9 @@ for (const [unit, memberRows] of grids) {
         surface_family:  family.family,
         requires_oracle: c.requiresOracle ?? false,
         disposed_by:     null,
-      });
+      };
+      if (sourceArtifact) gridRow.source_artifact = sourceArtifact;
+      rows.push(gridRow);
     }
   }
 }
@@ -353,7 +363,48 @@ if (args.json) {
 }
 
 if (args.out) {
-  writeFileSync(resolve(args.out), outputText, 'utf-8');
+  const outPath = resolve(args.out);
+
+  // --merge: read existing file, remove rows with the same source_artifact, keep all others,
+  // append this run's rows. Allows multiple pages to coexist in one case-rows.json.
+  if (args.merge && existsSync(outPath) && sourceArtifact) {
+    try {
+      const existing = JSON.parse(readFileSync(outPath, 'utf-8'));
+      const existingRows = Array.isArray(existing) ? existing : (existing.rows || []);
+      const kept = existingRows.filter(r => r.source_artifact !== sourceArtifact);
+      const merged = [...kept, ...rows];
+
+      // Recompute summary for the merged set
+      const mergedTotal = merged.length;
+      const mergedDisposed = merged.filter(r => r.disposed_by !== null).length;
+      const mergedWidened = merged.filter(r => r.widened === true).length;
+      const mergedSummary = {
+        Case_Coverage_Ratio: {
+          ratio: mergedTotal === 0 ? 0 : mergedDisposed / mergedTotal,
+          disposed_cases: mergedDisposed,
+          total_cases: mergedTotal,
+        },
+        controls: '(merged — per-artifact counts in individual runs)',
+        rows: mergedTotal,
+        widened: mergedWidened,
+        parity_gaps: '(merged)',
+      };
+      const mergedOutput = JSON.stringify({ summary: mergedSummary, rows: merged }, null, 2) + '\n';
+      writeFileSync(outPath, mergedOutput, 'utf-8');
+      process.stdout.write(
+        `MERGED: kept ${kept.length} existing rows + ${rows.length} new (source_artifact=${sourceArtifact}) → ${merged.length} total\n`
+      );
+    } catch (err) {
+      process.stderr.write(
+        `emit-case-rows: FATAL — merge read failed (${err.message}). ` +
+        `Target file is left untouched; no rows written. ` +
+        `Fix or remove the target file before retrying.\n`
+      );
+      process.exit(1);
+    }
+  } else {
+    writeFileSync(outPath, outputText, 'utf-8');
+  }
   // Summary JSON echoed to stdout when redirected to a file
   process.stdout.write(JSON.stringify({ summary, parity_gaps: parityGaps }, null, 2) + '\n');
 } else {

@@ -9,7 +9,7 @@
 **Test_Entity**: Office 1604 (Parker Palm Springs)
 **Walk_Mode**: quick
 **Coverage_Ratio**: 30/30 (100%)
-**Walk_State**: office=1604 module=service-charge walked=[resting,tab:history]
+Walk_State: office=1604 module=service-charge walked=[resting,tab:history]
 **CrossCheck**: clean
 **Completion_Record**: reports/walk-coverage/service-charge-history.json (status=complete, elements=30)
 **Walk_Evidence**: reports/walk-coverage/service-charge-history.json (enumerated 2026-08-11 via enumerate-page.mjs run-id nm3344-histdenom-0811; resting + tab:history states; History tab activated via role=tab text="Service Charge History")

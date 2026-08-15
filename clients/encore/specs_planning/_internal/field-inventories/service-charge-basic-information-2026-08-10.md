@@ -11,7 +11,7 @@
 **Stale_After**: 2026-08-17
 **Walk_Evidence**: reports/walk-coverage/service-charge-basic-info.json (enumerated 2026-08-11 via enumerate-page.mjs run-id nm3344-denominator-0811; 29 elements; archetype-collapsed)
 **Coverage_Ratio**: 29/29 (100%)
-**Walk_State**: office=1604 module=service-charge walked=[resting]
+Walk_State: office=1604 module=service-charge walked=[resting]
 **CrossCheck**: clean
 **Completion_Record**: reports/walk-coverage/service-charge-basic-info.json (status=complete, elements=29)
 ---
