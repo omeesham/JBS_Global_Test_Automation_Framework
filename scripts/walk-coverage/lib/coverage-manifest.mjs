@@ -23,7 +23,7 @@
 // missing-or-stale-evidence row makes the whole manifest incomplete AND sets `provenanceFail` (the
 // fabrication signal the closure gate turns into a whole-plan rejection + integrity strike).
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { isAbsolute, join, dirname, resolve } from 'node:path';
@@ -144,6 +144,84 @@ export function extractManifestRows(text) {
     });
   }
   return rows;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cross-module evidence: a control is genuinely "shared shell" only if it appears in at least
+// one OTHER module's field-inventory enumeration. This makes the outside-module exclusion
+// machine-decidable — a row cannot leave the denominator just because someone wrote a sentence.
+//
+// Module identity is derived from the filename: everything before the first `-YYYY-` date segment.
+// Controls are matched by their full controlRef (prefix:value) after stripping archetype suffixes
+// and annotation markers like `_(A∖B)_` / `_(B∖A)_` / `_(A∖B — disabled)_`.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const FIELD_INVENTORIES_DIR = join(REPO_ROOT, 'clients', 'encore', 'specs_planning', '_internal', 'field-inventories');
+
+/** Normalize a controlRef for cross-module comparison: strip archetype multipliers and A∖B markers.
+ *  Radix dynamic IDs (`id:radix-_r_0_`, `id:radix-_r_#_`) are collapsed to a canonical form
+ *  since Radix UI generates unique IDs per render — the same physical control gets different
+ *  suffixes on different pages. */
+function normalizeControlRef(ref) {
+  if (!ref) return '';
+  return ref
+    .replace(/\s*\[archetype[^\]]*\]/gi, '')   // `[archetype×5]`
+    .replace(/\s*_\([^)]*\)_/g, '')             // `_(A∖B — disabled)_`
+    .replace(/\s*#\s*$/, '')                     // trailing `#` from archetype patterns
+    .replace(/(id:radix-_r_)[^_]*(_)/i, '$1*$2') // collapse dynamic Radix suffix
+    .trim();
+}
+
+/** Extract module name from a field-inventory filename (e.g. "service-charge-history" from "service-charge-history-2026-08-10.md"). */
+function moduleFromFilename(filename) {
+  const m = filename.match(/^(.+?)-\d{4}-\d{2}-\d{2}/);
+  return m ? m[1] : filename.replace(/\.md$/i, '');
+}
+
+/**
+ * Load cross-module controls from all field-inventory artifacts on disk.
+ * Returns a Map<normalizedControlRef, Set<moduleName>> — the set of modules that enumerate each control.
+ * On any error, returns an empty Map (fail toward rejection).
+ */
+export function loadCrossModuleRegistry() {
+  const registry = new Map();
+  let files;
+  try {
+    files = readdirSync(FIELD_INVENTORIES_DIR).filter(f => f.endsWith('.md') && !f.startsWith('_'));
+  } catch {
+    return registry;
+  }
+  for (const file of files) {
+    const moduleName = moduleFromFilename(file);
+    let text;
+    try { text = readFileSync(join(FIELD_INVENTORIES_DIR, file), 'utf-8'); } catch { continue; }
+    const rows = extractManifestRows(text);
+    for (const row of rows) {
+      const key = normalizeControlRef(row.controlRef);
+      if (!key) continue;
+      if (!registry.has(key)) registry.set(key, new Set());
+      registry.get(key).add(moduleName);
+    }
+  }
+  return registry;
+}
+
+/**
+ * Check whether a controlRef is evidenced as shared shell (appears in another module's inventory).
+ * @param {string} controlRef - the row's controlRef
+ * @param {string} currentModule - the module name of the artifact being checked
+ * @param {Map<string,Set<string>>|null} registry - cross-module registry (null = load from disk)
+ * @returns {boolean} true if the control appears in at least one other module
+ */
+function isEvidencedShellControl(controlRef, currentModule, registry) {
+  const key = normalizeControlRef(controlRef);
+  if (!key) return false;
+  const modules = registry.get(key);
+  if (!modules) return false;
+  for (const m of modules) {
+    if (m !== currentModule) return true;
+  }
+  return false;
 }
 
 // The distinctive token of a controlRef for the "evidence names the control" (c) check —
@@ -458,9 +536,21 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
     }
   }
 
-  // Item 3: out-of-scope citation validation + 15% global cap
+  // Item 3: out-of-scope citation validation + 15% module-own cap
+  // NM-3344 (2026-08-15): the denominator excludes rows whose controlRef is EVIDENCED as shared
+  // shell — i.e. the same control appears in at least one OTHER module's field-inventory manifest.
+  // The `outside-module` prefix is necessary (intent signal) but NOT sufficient (evidence required).
+  // A row cannot leave the denominator just because someone wrote a sentence saying it should.
   const oosRows = (s.manifestRows || []).filter(r => r.disposition === 'out-of-scope');
   const totalRows = (s.manifestRows || []).length;
+  const OUTSIDE_MODULE_RX = /^outside-module\b/i;
+  const shellRows = [];
+  const inModuleOosRows = [];
+
+  // Determine current module and load cross-module registry for evidence check.
+  const crossModuleRegistry = opts.crossModuleControls !== undefined ? opts.crossModuleControls : loadCrossModuleRegistry();
+  const currentModule = artifactPath ? moduleFromFilename(artifactPath.replace(/.*[/\\]/, '')) : '';
+
   for (const row of oosRows) {
     const reasonText = row.raw.match(/out-of-scope\s*:\s*([^|`\n]+)/i)?.[1]?.trim() || '';
     if (reasonText.length < 20) {
@@ -469,9 +559,24 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
     if (!OOS_CITATION_RX.some(rx => rx.test(reasonText))) {
       reasons.push(`out-of-scope "${row.controlRef}" lacks allowlist citation`);
     }
+    if (OUTSIDE_MODULE_RX.test(reasonText)) {
+      // The prefix declares intent, but evidence decides membership: the control must appear
+      // in at least one other module's enumeration to leave the denominator.
+      if (isEvidencedShellControl(row.controlRef, currentModule, crossModuleRegistry)) {
+        shellRows.push(row);
+      } else {
+        reasons.push(`outside-module "${row.controlRef}" NOT evidenced as shared shell (control not found in any other module's inventory)`);
+        inModuleOosRows.push(row);
+      }
+    } else {
+      inModuleOosRows.push(row);
+    }
   }
-  if (totalRows > 0 && oosRows.length / totalRows > 0.15) {
-    reasons.push(`out-of-scope rows exceed 15% global cap (${oosRows.length}/${totalRows} = ${Math.round(oosRows.length / totalRows * 100)}%)`);
+  // The denominator is the module's own controls: total rows minus those evidenced as shell.
+  // The cap bites at 15% of that reduced set.
+  const moduleOwnRows = totalRows - shellRows.length;
+  if (moduleOwnRows > 0 && inModuleOosRows.length / moduleOwnRows > 0.15) {
+    reasons.push(`out-of-scope rows exceed 15% module-own cap (${inModuleOosRows.length}/${moduleOwnRows} in-module OOS; ${shellRows.length} outside-module rows excluded from denominator)`);
   }
 
   // Item 2 gate side: Completion_Record required for post-mandatory-date artifacts

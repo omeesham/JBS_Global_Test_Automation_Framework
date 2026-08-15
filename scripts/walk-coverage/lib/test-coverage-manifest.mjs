@@ -5,7 +5,7 @@
 //
 //   node scripts/walk-coverage/lib/test-coverage-manifest.mjs
 
-import { coverageVerdict, parseCoverageSignals, isGrandfathered } from './coverage-manifest.mjs';
+import { coverageVerdict, parseCoverageSignals, isGrandfathered, loadCrossModuleRegistry } from './coverage-manifest.mjs';
 
 const LANDING = '2026-06-19';
 const PRE_MANDATE_TRACKED_ARTIFACT = 'package.json';
@@ -124,7 +124,9 @@ ok('P5 covered-by-TC + provenance oracle → NOT complete + provenanceFail',
   v.applicable && !v.complete && v.provenanceFail && v.reasons.some(r => /contradicts provenance: oracle/.test(r)));
 
 // P6. out-of-scope is honest inference — oracle there is fine (F7: do not over-reject)
-v = coverageVerdict(provHeader('2026-06-25', P6_ROWS, '7/7 (100%)'), LANDING);
+// Cross-module registry confirms `testid:nav` is shared shell (appears in another module).
+const shellRegistry = new Map([['testid:nav', new Set(['other-module', 'yet-another'])]]);
+v = coverageVerdict(provHeader('2026-06-25', P6_ROWS, '7/7 (100%)'), LANDING, { crossModuleControls: shellRegistry });
 ok('P6 out-of-scope + oracle → complete (honest inference, not gated)', v.applicable && v.complete && !v.provenanceFail, JSON.stringify(v.reasons));
 
 // P7. THE no-false-positive guard (F1): a pre-2026-06-24 artifact with an oracle observation row is
@@ -148,6 +150,37 @@ ok('P8 covered-by-TC (no provenance) on gated artifact → complete', v.applicab
 const prows = parseCoverageSignals(provHeader('2026-06-25', ROW_LIVE_OK)).manifestRows;
 ok('P9 parser extracts manifest row provenance+evidence',
   prows.length === 1 && prows[0].disposition === 'affordance-probed' && prows[0].provenance === 'live' && prows[0].evidence === '.playwright-cli/net-x.json');
+
+// === Cross-module evidence gate (NM-3344 defence) ===
+// F1. Forged row: a real module control with outside-module prefix but NOT in any other module → REJECTED
+const FORGED_ROW = '| `testid:terms-conditions-save` | button | 2026-07-01 | `out-of-scope: outside-module — global navigation shell save button not part of Terms and Conditions module` |\n';
+const COVERED_ROW = '| `testid:btn-ok` | button | 2026-07-01 | covered-by-TC: TC-1 |\n';
+const forgedArtifact = header('2026-07-01', '2/2 (100%)', 'clean') + COVERED_ROW + FORGED_ROW;
+// Empty registry = no cross-module evidence for anything
+const emptyRegistry = new Map();
+v = coverageVerdict(forgedArtifact, LANDING, { crossModuleControls: emptyRegistry, artifactPath: 'clients/encore/specs_planning/_internal/field-inventories/terms-conditions-core-2026-06-20.md' });
+ok('F1 forged outside-module row (no cross-module evidence) → NOT complete',
+  v.applicable && !v.complete && v.reasons.some(r => /NOT evidenced as shared shell/.test(r)), JSON.stringify(v.reasons));
+
+// F2. Genuine shell row: control appears in another module's inventory → excluded from denominator
+const GENUINE_SHELL_ROW = '| `struct:a|Home|div/div/div/div/ul/li` | a | 2026-07-01 | `out-of-scope: outside-module — global navigation link, not a module element` |\n';
+const genuineArtifact = header('2026-07-01', '2/2 (100%)', 'clean', undefined, { completionRecord: '' }) + COVERED_ROW + GENUINE_SHELL_ROW;
+const registryWithHome = new Map([['struct:a', new Set(['service-charge-history', 'service-charge-basic-information'])]]);
+v = coverageVerdict(genuineArtifact, LANDING, { crossModuleControls: registryWithHome, artifactPath: POST_COVERAGE_PRE_MANDATE_TRACKED_ARTIFACT });
+ok('F2 genuine shell row (cross-module evidence) → complete (excluded from denominator)',
+  v.applicable && v.complete, JSON.stringify(v.reasons));
+
+// F3. Zero-module-denominator: all rows excluded AND evidenced → pass (genuine all-shell artifact)
+const allShellArtifact = header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + GENUINE_SHELL_ROW;
+v = coverageVerdict(allShellArtifact, LANDING, { crossModuleControls: registryWithHome, artifactPath: POST_COVERAGE_PRE_MANDATE_TRACKED_ARTIFACT });
+ok('F3 all rows are evidenced shell → complete (zero module-own denominator allowed when evidenced)',
+  v.applicable && v.complete, JSON.stringify(v.reasons));
+
+// F4. Zero-module-denominator WITHOUT evidence: all rows claim outside-module but none evidenced → FAIL
+const allForgedArtifact = header('2026-07-01', '1/1 (100%)', 'clean') + FORGED_ROW;
+v = coverageVerdict(allForgedArtifact, LANDING, { crossModuleControls: emptyRegistry, artifactPath: 'clients/encore/specs_planning/_internal/field-inventories/terms-conditions-core-2026-06-20.md' });
+ok('F4 all rows claim outside-module but no evidence → NOT complete',
+  v.applicable && !v.complete && v.reasons.some(r => /NOT evidenced/.test(r)), JSON.stringify(v.reasons));
 
 console.log(`\ncoverage-manifest fixtures: ${passed} passed, ${failed} failed, ${passed + failed} total`);
 process.exit(failed > 0 ? 1 : 0);
