@@ -11,7 +11,7 @@
 **Stale_After**: 2026-08-17
 **Walk_Evidence**: reports/walk-coverage/service-charge-basic-info.json (enumerated 2026-08-11 via enumerate-page.mjs run-id nm3344-denominator-0811; 29 elements; archetype-collapsed)
 **Coverage_Ratio**: 29/29 (100%)
-Walk_State: office=1604 module=service-charge walked=[resting]
+Walk_State: office=1604 module=service-charge walked=[resting,tab:history] (resting walked 2026-08-10 and again 2026-08-15; the history tab was reached on 2026-08-15 only — the two 2026-08-10 attempts hit a degraded environment)
 **CrossCheck**: clean
 **Completion_Record**: reports/walk-coverage/service-charge-basic-info.json (status=complete, elements=29)
 ---
@@ -24,16 +24,18 @@ Modelled on: `service-charge-text-2026-08-03.md` and `terms-conditions-2026-08-0
 
 - `https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/service-charge`
   - **Basic Information** tab — active by default; contains the 79-row service-charge percentage table. Walked on 2026-08-10 via machine script (`nm3344-basicinv2-0810`).
-  - **Service Charge History** tab — present in page UI; not successfully walked (see not-yet-walked note in § Field Inventory → Service Charge History Tab). Run-ids attempted: `nm3344-histwalk-0810`, `nm3344-histwalk2-0810`.
+  - **Service Charge History** tab — present in page UI. Two attempts on 2026-08-10 (run-ids `nm3344-histwalk-0810`, `nm3344-histwalk2-0810`) hit the degraded environment and captured only loading placeholders; walked successfully on 2026-08-15 (see § Field Inventory → Service Charge History Tab).
 
 ## Live-state caveat
 
-At the time of the walk (2026-08-10), the page header displayed `Local Office : -` (office name failed to load) and every percentage input and the Save button were `disabled`. This is an environment condition — the e2e environment was degraded and even previously delivered specs were failing on short locator waits. The disabled state is NOT a permanent field property; do not author tests that assume these fields are always read-only.
+At the time of the initial walk (2026-08-10), the page header displayed `Local Office : -` (office name failed to load) and every percentage input and the Save button were `disabled`. This was an environment condition — the e2e environment was degraded. The disabled state is NOT a permanent field property.
 
-| Field | Live (2026-08-10) | Documented default | Drift reason (if known) |
-|---|---|---|---|
-| All 79 percentage inputs | `disabled` | expected `enabled` when Local Office loads | e2e environment degraded; `Local Office : -` header indicates office data did not load |
-| Save button | `disabled` | expected enabled after any edit | same environment condition |
+**Re-walk 2026-08-15** confirmed the environment is healthy: office `1604 - Parker Palm Springs` loads correctly, all 79 percentage inputs are present, carry values, and are **enabled** (`disabled=false`). The Save button is present and disabled at rest (no pending changes) — this is the expected default behaviour, not an environment fault. Evidence: `clients/encore/reports/sc-livewalk-0815/RESULT.md` + `clients/encore/reports/sc-livewalk-0815/basic-information-tab.png`.
+
+| Field | Live (2026-08-10) | Live (2026-08-15) | Documented default | Drift reason (if known) |
+|---|---|---|---|---|
+| All 79 percentage inputs | `disabled` | `enabled` | expected `enabled` when Local Office loads | 2026-08-10: e2e environment degraded; 2026-08-15: confirmed healthy |
+| Save button | `disabled` | `disabled` (at rest, no edits pending) | disabled until a percentage value is edited | 2026-08-10: env condition; 2026-08-15: correct default state confirmed |
 
 ## Field Inventory
 
@@ -131,23 +133,31 @@ Column headers observed: `Service Type` | `Service Charge Percentage`
 
 **Field-type classification (§2 justification)**: All 79 percentage inputs map to the **"Numeric / spinbutton"** template family. Rationale: the inputs carry `inputmode="decimal"` (decimal keypad hint), store values in decimal-percentage format (`24.00 %`), and are always-visible inline inputs in a table. They are NOT click-to-edit grid cells (the `click-to-edit grid cell` template applies when clicking a non-input cell causes an input to materialize — these inputs are present in the DOM at rest). The value stored in `input.value` is the decimal number including a trailing ` %` suffix — test cases must account for that format when reading and writing values. No declarative min/max/step/pattern is present, so boundary values are not enforced via HTML attributes; server-side or JavaScript validation behaviour is unprobed (fields were disabled for the entire walk).
 
-### Service Charge History Tab — NOT YET WALKED
+### Service Charge History Tab
 
-| Field | data-testid | Control Type | Default Value | Validation Rules | Enabled/Disabled States | Cross-field deps | Notes |
-|---|---|---|---|---|---|---|---|
-| (tab not yet walked) | (unknown) | (unknown) | (unknown) | (unknown) | (unknown) | (unknown) | Walk attempted twice on 2026-08-10 (run-ids `nm3344-histwalk-0810` and `nm3344-histwalk2-0810`); both runs hit the degraded e2e environment. The rows observed were loading skeletons — no row data was successfully captured. Only the following facts were observed: page heading `Service Charge History : Parker Palm Springs`; column headers `Service Type`, `Service Charge Percentage`, `Modified By`, `Modified On`. No further data fabricated. |
+**Walk history**: attempted twice on 2026-08-10 (run-ids `nm3344-histwalk-0810`, `nm3344-histwalk2-0810`) — both hit the degraded environment and captured only loading skeletons. Successfully walked on 2026-08-15 (evidence: `clients/encore/reports/sc-livewalk-0815/RESULT.md` + `clients/encore/reports/sc-livewalk-0815/history-tab.png`).
+
+**2026-08-15 observations**: heading `Service Charge History`; column headers `Service Type`, `Service Charge Percentage`, `Modified By`, `Modified On`; **347 data rows** present; zero skeleton/loading placeholders after 38s wait. First three rows read:
+
+| Row | Service Type | Service Charge Percentage | Modified By | Modified On |
+|---|---|---|---|---|
+| 0 | Audio Conferencing | 24.00 % | s-prd-clickauto@psav.com | 08/14/2026 09:29:47 PM |
+| 1 | Audio Conferencing | 34.00 % | s-prd-clickauto@psav.com | 08/14/2026 09:29:39 PM |
+| 2 | Equipment Rental | 24.00 % | s-prd-clickauto@psav.com | 08/14/2026 09:28:59 PM |
+
+The remaining 344 rows were not read individually. The tab is a read-only history log (no editable inputs observed).
 
 ## Labels + Section Names
 
 **Basic Information tab**:
 - Page heading: `Service Charge` (in page title area)
 - Table column headers (verbatim): `Service Type` | `Service Charge Percentage`
-- Local Office context display: `Local Office : -` (observed at walk time; normally shows office name)
+- Local Office context display: `Local Office : -` (observed 2026-08-10, env degraded); `Local Office :` with office name in child element (observed 2026-08-15, healthy)
 
-**Service Charge History tab** (partial — tab heading only):
-- Tab heading: `Service Charge History : Parker Palm Springs` (observed during degraded-environment walk attempt before skeletons appeared)
+**Service Charge History tab**:
+- Tab heading: `Service Charge History` (2026-08-15; the office-qualified portion was not captured by the text locator — see COULD_NOT_READ in walk report)
 - Column headers: `Service Type` | `Service Charge Percentage` | `Modified By` | `Modified On`
-- Row content: NOT captured — loading skeletons only
+- Row content: 347 data rows present (2026-08-15); first three read verbatim (see History Tab section above)
 
 ## Save-cycle observations
 
@@ -160,7 +170,18 @@ Column headers observed: `Service Type` | `Service Charge Percentage`
 
 **Post-save toast**: not observed — no save was committed.
 
-**Dirty-state behavior**: not observed — all inputs were disabled; no dirty state could be triggered.
+**Dirty-state behavior**: not observed on 2026-08-10 (all inputs were disabled). On 2026-08-15 a non-numeric value was entered (see § Invalid-input observation below) and the Save button remained disabled. Save was never observed in its enabled state, so what makes it enable has not yet been established — do not read the disabled Save as proof of how the dirty-state mechanism behaves.
+
+## Invalid-input observation (2026-08-15)
+
+**Scope**: only the **non-numeric** case has been observed live. Numeric out-of-range values (e.g., values > 100) were measured separately on 2026-08-14 and behave differently after focus leaves; the two have not been compared and this note covers only what was directly observed on 2026-08-15.
+
+**Trial**: typed `abc` into `service-charge-percentage-0` (APP Downloaded).
+- **While focused**: `aria-invalid="true"`, browser `validity.valid=true` (custom validation, not native HTML constraint).
+- **After Tab (focus left)**: field retains value `abc`, `aria-invalid="true"` persists, Save button remains **disabled**.
+- Page reloaded without saving — no changes persisted.
+
+**Evidence**: `clients/encore/reports/sc-livewalk-0815/RESULT.md` § INVALID_INPUT_TRIAL.
 
 ## Observations
 
@@ -184,10 +205,10 @@ none
 
 ## Staleness signal
 
-- **Last verified**: 2026-08-10
-- **Fresh-until**: 2026-08-24
-- **Stale-after**: 2026-09-07
-- **Refresh triggers**: percentage values change on office 1604 (any row drifts from the values catalogued here); Save button behaviour changes (dialog added/removed); new service-type rows added or existing rows removed; History tab becomes walkable (current walk gap resolved); e2e environment stabilises and an enabled-state walk can be completed to verify validation behaviour
+- **Last verified**: 2026-08-15
+- **Fresh-until**: 2026-08-29
+- **Stale-after**: 2026-09-12
+- **Refresh triggers**: percentage values change on office 1604 (any row drifts from the values catalogued here); Save button behaviour changes (dialog added/removed); new service-type rows added or existing rows removed; numeric out-of-range input validation behaviour confirmed (only non-numeric case observed so far — see § Invalid-input observation)
 
 ## Coverage Manifest (machine-enumerated)
 

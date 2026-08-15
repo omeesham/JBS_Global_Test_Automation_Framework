@@ -854,6 +854,10 @@ function checkCx(body, planPath, landingDate, cliCoverageTierMode) {
       if (!dr.ok) denomReasons.push(...(dr.reasons || [dr.reason]).filter(Boolean));
       if (!sr.ok) denomReasons.push(...sr.failures.map(f => `spot-audit: ${f}`));
       if (denomReasons.length > 0) items.push({ artifact: rel, reasons: denomReasons, severity: 'FAIL', fabrication: false });
+      // Announce-mode findings: visible but non-blocking (informational only).
+      if (dr.ok && dr.announcements && dr.announcements.length > 0) {
+        items.push({ artifact: rel, reasons: dr.announcements, severity: 'INFO', fabrication: false });
+      }
     }
   }
   return { check: 'Cx', status: items.some(i => i.severity === 'FAIL') ? 'FAIL' : 'PASS', overridable: false, items };
@@ -1311,6 +1315,7 @@ function runSingle(planPath, opts) {
   } else {
     console.log(`[${result.status}] ${result.plan}`);
     for (const c of (result.checks || [])) {
+      const infoItems = (c.items || []).filter(i => i.severity === 'INFO');
       if (c.status !== 'PASS') {
         console.log(`  ${c.check}: ${c.status}${c.overridable ? ' (OVERRIDABLE)' : ' (NOT OVERRIDABLE)'}`);
         for (const item of c.items.slice(0, 5)) {
@@ -1319,6 +1324,13 @@ function runSingle(planPath, opts) {
           const cxDetail = item.artifact ? `${item.artifact}: ${(item.reasons || []).join('; ')}` : '';
           const detail = item.reason || item.token || item.path || item.target || cxDetail || '';
           console.log(`    - ${detail}`);
+        }
+      } else if (infoItems.length > 0) {
+        console.log(`  ${c.check}: PASS — closure permitted; ${infoItems.length} unresolved finding(s) remain`);
+        for (const item of infoItems) {
+          const cxDetail = item.artifact ? `${item.artifact}: ${(item.reasons || []).join('; ')}` : '';
+          const detail = item.reason || item.token || item.path || item.target || cxDetail || '';
+          console.log(`    [informational] ${detail}`);
         }
       }
     }

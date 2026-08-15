@@ -26,6 +26,7 @@ import { computePathA, computePathB, reconcile, partitionControls, gridUnits } f
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
+const ANNOUNCE_PREFIX = '[ANNOUNCE] ';
 
 // ---- normalize -------------------------------------------------------------------------------
 // Trim only — case is SIGNIFICANT. The enumerator produces mixed-case keys (e.g. `struct:a|Home|…`)
@@ -203,7 +204,7 @@ export function verifyDenominator(artifactText, jsonPath) {
           reasons.push(msg);
         } else {
           // announce mode: report but do not block
-          reasons.push(`[ANNOUNCE] ${msg}`);
+          reasons.push(`${ANNOUNCE_PREFIX}${msg}`);
         }
       }
     }
@@ -322,8 +323,16 @@ export function verifyDenominator(artifactText, jsonPath) {
     }
   }
 
-  if (reasons.length === 0) return { ok: true };
-  return { ok: false, reason: reasons.join('; '), reasons };
+  // Separate announce-only findings (non-blocking) from genuinely blocking findings.
+  const blocking = reasons.filter(r => !r.startsWith(ANNOUNCE_PREFIX));
+  const announcements = reasons.filter(r => r.startsWith(ANNOUNCE_PREFIX));
+
+  if (blocking.length === 0 && announcements.length === 0) return { ok: true };
+  if (blocking.length === 0) {
+    // Announce findings are reported but do not block the verdict.
+    return { ok: true, announcements, reasons };
+  }
+  return { ok: false, reason: reasons.join('; '), reasons, announcements };
 }
 
 // ---- spotAudit -------------------------------------------------------------------------------

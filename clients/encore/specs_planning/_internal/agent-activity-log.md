@@ -1765,3 +1765,10 @@ Append-only audit trail per LR-028. Format: `| YYYY-MM-DDThh:mm | agent | status
 | 2026-08-15T21:05 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-evidence-fix2-0815.md — claude-opus-4.6 build ok=true |
 | 2026-08-15T21:10 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-merge-defend-0815.md — claude-opus-4.6 build ok=true |
 | 2026-08-15T21:15 | OWNER | done | plans/pending/PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK.md, clients/encore/specs_planning/_internal/old-site-baseline/service-charge-2026-08-11.md | Corrected a wrong report citation and an overclaim in the plan; restored the removal-diff and protection-parity sections the closure check requires; restored the old-site walk state the earlier edit had narrowed |
+| 2026-08-15T21:20 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-sc-livewalk-0815.md — claude-opus-4.6 walk ok=true |
+| 2026-08-15T23:13 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-inv-refresh-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T23:19 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-announce-fix-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T23:30 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-announce-visible-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T23:38 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-announce-attack-0815.md — gpt-5.5 review ok=true |
+| 2026-08-15T23:42 | CEO/copilot-worker | dispatch | (none) | [delegation] ticket-announce-defend-0815.md — claude-opus-4.6 build ok=true |
+| 2026-08-15T23:35 | OWNER | done | clients/encore/specs_planning/_internal/field-inventories/service-charge-basic-information-2026-08-10.md | Re-walked Service Charge on office 1604: environment healthy, all 79 percentage fields enabled, History tab shows 347 rows; removed a stale line still claiming the History tab was never walked and a conclusion drawn from a single observation |
