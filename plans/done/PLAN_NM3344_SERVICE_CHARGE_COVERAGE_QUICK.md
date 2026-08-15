@@ -18,7 +18,7 @@
 
 # PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK — NM-3344 Service Charge page: QUICK field-level validation coverage (2 sub-tabs = 2 specs) + client-deliverable push
 
-**Status**: PENDING
+**Status**: DONE
 **Executed**: 2026-08-15
 **Priority**: P0
 **Created**: 2026-08-10
@@ -308,8 +308,9 @@ node scripts/verify-no-forbidden.mjs --target=<clean-extract>   # exit 0 before 
 
 ## Execution Summary
 
-**Status of this summary**: Phases 0–3 delivered; Phase 4 closure is PARTIAL and Phase 5 (ship) has not
-run. The plan stays PENDING — see "Remaining before DONE" at the end of this section.
+**Status of this summary**: Phases 0–4 delivered and closed. Phase 5 (ship) has not run — it is deferred
+by owner decision, recorded under `## Deferral Authorization`. Two findings are documented as open and
+deliberately not closed here — see "Known and not closed here" at the end of this section.
 
 ### Test cases implemented
 
@@ -372,14 +373,52 @@ Reviewed adversarially by a second provider, which returned five findings; four 
 fixed, one was refuted with evidence. Reports under `clients/encore/reports/council-gatefixes-0815/`
 and `clients/encore/reports/council-defend-0815/`.
 
+### Closing the walk-phase gaps (2026-08-15)
+
+Everything the closure gate reported against the earlier walk phases has been resolved, and resolving it
+uncovered five defects in the checks themselves. Each was fixed, then attacked by a reviewer from a
+different provider, defended by its author, and re-verified here before landing.
+
+- **The old-site baseline note** now carries its machine keys and a parseable walk-state line. Six of its
+  rows claimed the Save button and percentage fields had been exercised while citing an element listing
+  that cannot show behaviour — and the walk they belong to recorded those controls as disabled. They were
+  genuine old-site observations attached to new-site identifiers; they now claim only what their evidence
+  supports, and the rows match the shape the parser reads.
+- **The out-of-scope cap** was measuring a module's write-offs against the whole screen, so application
+  shell controls counted against Service Charge. It now measures against the module's own controls.
+- **The manifest reader** could not read a key containing the character the table uses to separate
+  columns, and compared keys without regard to case. Both fixed; the second was pre-existing.
+- **The denominator cross-check** compared one page's count against every page's rows at once. Rows now
+  record the page they came from. Producing the Service Charge rows — which had never been produced, the
+  row file predating those walks by three weeks — makes both pages agree. That agreement is reported
+  honestly as equal widened estimates rather than proof of coverage, because nearly every control's type
+  went unresolved.
+- **The unresolved-probe check** had been failing plans since 22 July while running in a mode its own
+  comment and its configuration both describe as non-blocking. Its findings are now reported without
+  failing the verdict, and the summary distinguishes closure being permitted from the records being clean.
+
+**The Service Charge page was re-walked on 2026-08-15** to settle the one genuine gap. The environment is
+healthy: office 1604 loads, all 79 percentage fields are enabled and carry values, and the History tab
+returns 347 rows with no loading placeholders. The two attempts on 10 August that recorded the page as
+unusable hit a degraded environment, not a broken page. Evidence:
+`clients/encore/reports/sc-livewalk-0815/RESULT.md` and the two screenshots beside it.
+
 ### Remaining before DONE
 
-- **Phase 5 (ship)** has not run — it is gated on the owner's explicit in-chat GO for the push.
-- **Closure gate Cx** fails on artifacts from the earlier walk phases: the old-site baseline note
-  `clients/encore/specs_planning/_internal/old-site-baseline/service-charge-2026-08-11.md` is missing 29
-  machine keys from its manifest and has no parseable walk-state line, and both field inventories carry
-  out-of-scope row ratios far above the 15% cap (26/29 and 26/30).
-- **Closure gate Cr** requires a `## Prior-Fix Trial` section, which this plan does not yet have.
+- **Phase 5 (ship)** has not run — deferred by owner decision on 2026-08-15, see `## Deferral
+  Authorization`. This is the only outstanding item.
+
+### Known and not closed here
+
+- **Type resolution is failing on this page.** The enumerator resolved 23 of 29 controls as unknown on
+  11 August and 30 of 30 on 15 August, because it reads each element's type after its own tab cycle has
+  unmounted the controls. This inflates the expected-case count roughly 129-fold and is what makes the
+  denominator agreement weak evidence. The unresolved-probe check reports it on every run. Fixing the
+  enumerator is a separate job.
+- **Only one class of invalid input has been observed live.** A non-numeric value stays marked invalid
+  after focus leaves and keeps its text, with Save disabled. Numeric out-of-range values were measured on
+  14 August and cleared their marking after blur. The two have never been compared on the same day, so
+  the five negative test cases cover one rejection behaviour and not the other.
 
 ## Plan-Deviations log
 
