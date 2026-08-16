@@ -22,10 +22,12 @@ const APP_IDX = SC_SERVICE_TYPE_INDEX['APP Downloaded'] as number; // 0
 
 
 test.describe('Service Charge History', () => {
+  // Suite-wide ceiling: 120 s per test. TC-SVC-HIS-012 declares { timeout: 240_000 } to override.
+  test.describe.configure({ timeout: 120_000 });
+
   let sc: ServiceChargePage;
 
   test.beforeEach(async ({ authenticatedSession, config }) => {
-    test.setTimeout(120_000);
     sc = new ServiceChargePage(authenticatedSession.page, config);
     await sc.goto(SC_OFFICE);
   });
@@ -268,32 +270,41 @@ test.describe('Service Charge History', () => {
     expect(counts.size).toBeGreaterThan(1);
   });
 
-  test('TC-SVC-HIS-012: Clicking a History grid column header does not set aria-sort on the header', async ({
+  test('TC-SVC-HIS-012: Sorting the History grid by Modified On via the column header dropdown reorders rows', { timeout: 240_000 }, async ({
     dependencyGate,
-    authenticatedSession,
   }) => {
     dependencyGate([]);
+    // This test requires two slow grid sorts; override the suite-wide 120 s ceiling.
+    test.setTimeout(240_000);
 
     await sc.switchToHistoryTab();
     await sc.waitUntilHistoryLoaded();
 
-    const page = authenticatedSession.page;
-    const rowsBefore = await sc.getHistoryRows();
-    expect(rowsBefore.length).toBeGreaterThanOrEqual(1);
+    const rows = await sc.getHistoryRows();
+    expect(rows.length).toBeGreaterThanOrEqual(2);
 
-    // Click the first column header (Service Type).
-    const allColumnHeaders = page.getByRole('columnheader');
-    await allColumnHeaders.first().click();
+    // Sort ascending by Modified On (column index 3) and capture row 0.
+    await sc.sortHistoryColumnViaDropdown('Modified On', 'ascending');
+    const ascValues = await sc.getHistoryColumnCellValues(3);
+    const ascRow0 = ascValues[0];
+    expect(ascRow0.length).toBeGreaterThan(0);
 
-    // Observed live: aria-sort is not set after the click — the grid does not expose sort affordance.
-    const ariaSort = await allColumnHeaders.first().getAttribute('aria-sort', { timeout: 3000 }).catch(() => null);
-    expect(ariaSort).toBeNull();
+    // Oracle 1: ascending row 0 carries the minimum date of all visible rows.
+    const parsedDates = ascValues
+      .filter((v) => v.length > 0)
+      .map((v) => new Date(v).getTime())
+      .filter((t) => !Number.isNaN(t));
+    const minDate = Math.min(...parsedDates);
+    const ascRow0Parsed = new Date(ascRow0).getTime();
+    expect(ascRow0Parsed).toBe(minDate);
 
-    // Observed across 3 independent runs (passes 4, 5, 6): clicking the column header empties the
-    // History grid and rows do not return within 30 s. No requirement covers column-header click
-    // behaviour; recorded as a discussion item during exploratory testing. The row-order
-    // assertion is removed to prevent a 30 s timeout — the grid-empties behaviour is documented,
-    // not blocked on here.
+    // Sort descending and capture row 0.
+    await sc.sortHistoryColumnViaDropdown('Modified On', 'descending');
+    const descRow0 = await sc.getFirstHistoryRowCellText(3);
+    expect(descRow0.length).toBeGreaterThan(0);
+
+    // Oracle 2: ascending row 0 differs from descending row 0.
+    expect(ascRow0).not.toEqual(descRow0);
   });
 
   // ---------------------------------------------------------------- TC-SVC-HIS-013 — save adds History row

@@ -4,7 +4,7 @@
 **Submodule**: HIS
 **Page**: Location Settings → Service Charge → Service Charge History tab (`/settings/service-charge`)
 **Test Entity**: Office 1604 (Parker Palm Springs)
-**Updated**: 2026-08-11
+**Updated**: 2026-08-16
 **Total TCs**: 15
 **Coverage mode**: QUICK (L1)
 
@@ -297,21 +297,23 @@ The History section header renders `Service Charge History : Parker Palm Springs
 
 ---
 
-## TC-SVC-HIS-012: Clicking a column header does not set aria-sort on the header
+## TC-SVC-HIS-012: Sorting the History grid by Modified On via the column header dropdown reorders rows
 
 **Automatable**: Yes
-**Preconditions**: The History grid for office 1604 is fully loaded.
+**Preconditions**: The History grid for office 1604 is fully loaded (at least 2 rows).
 
 **Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
-| 1 | Record the first row's content | Row 0 shows the most recent record |
-| 2 | Click the **Service Type** column header button | No row reorder occurs; the first row remains unchanged |
-| 3 | Check the `aria-sort` attribute on the Service Type column header | `aria-sort` is not set — the header does not expose a sort affordance |
+| 1 | Click the **Modified On** column header to open its dropdown | A menu appears with "Sort ascending", "Sort descending", and "Hide column" items |
+| 2 | Click **Sort ascending** and wait for the grid to re-render | Row 0 now shows the oldest record |
+| 3 | Assert that row 0's Modified On date equals the minimum date of all visible rows | Ascending row 0 carries the minimum visible date |
+| 4 | Click the **Modified On** column header again and click **Sort descending** | Row 0 now shows the most recent record |
+| 5 | Assert that descending row 0 differs from ascending row 0 | The two row 0 values are not equal, proving the grid reordered |
 
-**Expected**: Column header clicks do not reorder the grid and no `aria-sort` attribute is set. The grid order is fixed by the application (Modified On descending by default). This test guards against a future change that silently introduces sorting behaviour.
+**Expected**: All four History column headers open a dropdown carrying Sort ascending, Sort descending, and Hide column. Sorting by Modified On ascending puts the oldest record first; descending reverses it. The grid never sets an `aria-sort` attribute — sorting is driven entirely through the dropdown.
 
-**Evidence**: Live probe 2026-08-11 on a 76-row populated grid — row 0 unchanged after Service Type header click; all headers: `aria-sort=null` before and after click.
+**Evidence**: Live walk 2026-08-16 on a 347-row populated grid (office 1604). Modified On ascending: row 0 = `06/09/2016` (oldest record). Modified On descending: row 0 differs from ascending row 0. All four headers confirmed to open the three-item dropdown. `aria-sort` is null on all headers before and after sort.
 
 **Surface_Family**: sorting (QUICK)
 

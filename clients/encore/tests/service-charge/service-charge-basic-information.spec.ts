@@ -25,6 +25,9 @@ const APP_IDX   = SC_SERVICE_TYPE_INDEX['APP Downloaded']     as number; // 0
 const EQ_IDX    = SC_SERVICE_TYPE_INDEX['Equipment Rental']   as number; // 23
 
 test.describe('Service Charge Basic Information', () => {
+  // Suite-wide ceiling: 120 s per test. TC-SVC-BAS-030 declares { timeout: 240_000 } to override.
+  test.describe.configure({ timeout: 120_000 });
+
   let sc: ServiceChargePage;
   // Per-test observed baselines — read in beforeEach so no test depends on a hardcoded constant.
   let baselineAudio: string;
@@ -38,7 +41,6 @@ test.describe('Service Charge Basic Information', () => {
   }
 
   test.beforeEach(async ({ authenticatedSession, config }) => {
-    test.setTimeout(120_000);
     sc = new ServiceChargePage(authenticatedSession.page, config);
     await sc.goto(SC_OFFICE);
 
@@ -216,7 +218,7 @@ test.describe('Service Charge Basic Information', () => {
     // aria-invalid is absent; the validator treats the rounded value as valid.
     // Save state is not asserted: the rounded result equals the original "24.00 %" for Audio
     // Conferencing, producing a net-zero edit that keeps Save disabled.
-    expect(await input.inputValue()).toContain('24.00');
+    expect(await input.inputValue()).toBe('24.00 %');
     expect(await input.getAttribute('aria-invalid')).not.toBe('true');
   });
 
@@ -287,7 +289,7 @@ test.describe('Service Charge Basic Information', () => {
 
     // Observed live: "024" is normalised to "24.00 %" — the leading zero is stripped and the
     // standard two-decimal format is applied. aria-invalid is absent; the value is accepted.
-    expect(await input.inputValue()).toContain('24.00');
+    expect(await input.inputValue()).toBe('24.00 %');
     expect(await input.getAttribute('aria-invalid')).not.toBe('true');
   });
 
@@ -323,7 +325,7 @@ test.describe('Service Charge Basic Information', () => {
     // does not remain empty when cleared via keyboard. aria-invalid is absent.
     // (The eval-injection probe showed value="" but that bypassed Angular's normalisation;
     // the keyboard path is the authoritative observation for this test.)
-    expect(await input.inputValue()).toContain('0.00');
+    expect(await input.inputValue()).toBe('0.00 %');
     expect(await input.getAttribute('aria-invalid')).not.toBe('true');
   });
 
@@ -585,7 +587,9 @@ test.describe('Service Charge Basic Information', () => {
     await authPage.getByRole('row').nth(APP_IDX + 1).getByRole('cell').first().click();
     expect(await sc.isSaveEnabled()).toBe(false);
 
-    expect(await authPage.locator('[role="dialog"], [role="alertdialog"]').first().isVisible().catch(() => false)).toBe(false);
+    // Wait over a bounded window to confirm no dialog appears — a point-in-time snapshot
+    // would miss a dialog that renders after a short delay.
+    await expect(authPage.locator('[role="dialog"], [role="alertdialog"]')).not.toBeVisible({ timeout: 3000 });
   });
 
   // ---------------------------------------------------------------- save button state
@@ -625,23 +629,31 @@ test.describe('Service Charge Basic Information', () => {
     authenticatedSession,
   }) => {
     dependencyGate([]);
-    const rowCount = await authenticatedSession.page
+    const authPage = authenticatedSession.page;
+
+    const rowCount = await authPage
       .locator('[data-testid^="service-charge-percentage-"]')
       .count();
     expect(rowCount).toBe(SC_ROW_COUNT);
 
-    // Confirm the method resolves without error for a named row.
-    await sc.getPercentageByIndex(AUDIO_IDX);
+    // Anchor on the row's own label content — not just its index — to confirm the row
+    // at AUDIO_IDX is actually "Audio Conferencing" and the percentage is readable.
+    const rowLabel = (await authPage.getByRole('row').nth(AUDIO_IDX + 1).getByRole('cell').first().textContent() ?? '').trim();
+    expect(rowLabel).toBe('Audio Conferencing');
 
-    // NEEDS-LIVE-CONFIRM: verify no pagination control or "load more" button is present
-    // when the environment is stable (all 79 rows shown at once without virtualization).
+    const percentageValue = await sc.getPercentageByIndex(AUDIO_IDX);
+    expect(percentageValue).toContain(' %');
+
+    // FIXME: verify no pagination control or "load more" button is present — unconfirmed
+    // against the live application; left unasserted as a known gap.
   });
 
   // ---------------------------------------------------------------- persistence (QUICK surface)
 
-  test('TC-SVC-BAS-030: A saved value persists after page reload (surface persistence)', async ({
+  test('TC-SVC-BAS-030: A saved value persists after page reload (surface persistence)', { timeout: 240_000 }, async ({
     dependencyGate,
   }) => {
+    test.setTimeout(240_000);
     dependencyGate([]);
 
     const editValue = differentPercentageFrom(baselineAudio);
@@ -655,8 +667,11 @@ test.describe('Service Charge Basic Information', () => {
       await sc.goto(SC_OFFICE);
       expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain(editValue);
 
-      // NEEDS-LIVE-CONFIRM: verify no column sort affordance (sortable column header) is present —
-      // row order is application-defined and fixed per inventory.
+      // Walk confirmed: the Basic Information grid has two plain <th> elements ("Service Type",
+      // "Service Charge Percentage") with no button or dropdown trigger inside them. Clicking
+      // either header opens no menu and does not reorder rows. Assert the absence of sort controls.
+      expect(await sc.page.locator('th button').count()).toBe(0);
+      expect(await sc.page.locator('th [data-slot="dropdown-menu-trigger"]').count()).toBe(0);
     } finally {
       await sc.setPercentageByIndex(AUDIO_IDX, baselineAudio);
       try {

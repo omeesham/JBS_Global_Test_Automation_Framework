@@ -5,7 +5,7 @@
 **Page**: Location Settings → Service Charge (`/settings/service-charge`) — Service Charge History tab
 **Test Entity**: Office 1604
 **Governing story**: NM-2210
-**Updated**: 2026-08-11
+**Updated**: 2026-08-16
 **Total Scenarios**: 15
 **Test Cases**: `service_charge_history_test_cases.md`
 
@@ -29,7 +29,7 @@ creates a history row).
 
 | Excluded | Reason |
 |---|---|
-| Column sorting (interactive) | Sort probe contaminated — grid empty at time of click; sort behaviour unconfirmed — NEEDS-LIVE-CONFIRM (TC-SVC-HIS-012 blocked) |
+| Sort exhaustive (asc/desc toggle per column, numeric vs lexical, sort persists across navigation) | Deferred to DEEP — basic sort confirmed; exhaustive coverage requires deeper coverage plan |
 | Empty-state text | No empty History grid available in test data; exact message not observed |
 | Error state on History load failure | No way to force an API failure in test today (NM-2210 AC8) |
 | All deep families (sort exhaustive, volume, combination, cross-tab dirty-state deep) | Deferred to DEEP per case file |
@@ -46,17 +46,15 @@ grid was unpopulated at probe time).
 Previous walk attempts on 2026-08-10 (`nm3344-histwalk-0810`, `nm3344-histwalk2-0810`) were
 defeated by a degraded e2e environment; those blockers are now resolved.
 
-## 4. Open Items — NEEDS-LIVE-CONFIRM (1 item)
+## 4. Open Items — NEEDS-LIVE-CONFIRM (0 items)
 
-| # | Item |
-|---|---|
-| NLC-HIS-04 | Whether clicking a column header button reorders grid rows (sort probe was contaminated — see TC-SVC-HIS-012) |
+All previously open items resolved as of 2026-08-16.
 
 ## 5. Risks
 
-No known open defects on this surface as of 2026-08-14 (re-verified manually).
+No known open defects on this surface as of 2026-08-16 (re-verified manually).
 
-1. TC-SVC-HIS-012 (column sorting) requires a clean sort probe on a fully populated grid before any sort assertion can be made.
+No blocked scenarios.
 
 ## 6. Scenarios
 
@@ -73,18 +71,14 @@ No known open defects on this surface as of 2026-08-14 (re-verified manually).
 | TC-SVC-HIS-009 | No filter, search, or date-range control is present on the History tab | Yes |
 | TC-SVC-HIS-010 | Modified By cells render a user identifier such as the automation user's email | Yes |
 | TC-SVC-HIS-011 | History data is scoped per office — different offices show different row sets | Yes |
-| TC-SVC-HIS-012 | Sorting by column header | Blocked: NEEDS-LIVE-CONFIRM |
+| TC-SVC-HIS-012 | Sorting the History grid by Modified On via the column header dropdown reorders rows | Yes |
 | TC-SVC-HIS-013 | A save on Basic Information adds a new row to History | Yes |
 | TC-SVC-HIS-014 | Navigating to History tab with unsaved Basic Information edits triggers an Unsaved Changes modal with Stay and Discard options | Yes |
 | TC-SVC-HIS-015 | Office context is preserved when switching from Basic Information to History tab | Yes |
 
 ## 7. Blocked scenarios
 
-1 of 15 scenarios is blocked:
-
-- **TC-SVC-HIS-012** — sort probe ran against an empty grid and timed out. Unblocked when a clean probe on a populated grid captures both before and after first-row values for at least one column.
-
-TC-SVC-HIS-013 is no longer blocked: the 2026-08-11 live probe confirmed a Basic Information save produces a new top History row with the automation user's email.
+None. All 15 scenarios are automatable as of 2026-08-16.
 
 ## 8. Bug-evidence cases
 
@@ -102,7 +96,7 @@ none
 | Bug-evidence / modal (unsaved-changes modal) | TC-SVC-HIS-014 | 1 |
 
 **Total: 15 cases.** Counted by listing TC-SVC-HIS-001 through TC-SVC-HIS-015 in the case file
-(15 `## TC-SVC-HIS-` headings). Automatable now: 14. Blocked: 1. Expected-to-fail: 0.
+(15 `## TC-SVC-HIS-` headings). Automatable now: 15. Blocked: 0. Expected-to-fail: 0.
 
 **Deferred to DEEP** (from case file):
 - Sort exhaustive — asc/desc toggle per column, sort-by-type (numeric vs lexical for Percentage), sort persists across navigation

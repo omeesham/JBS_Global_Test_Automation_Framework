@@ -570,6 +570,82 @@ export class ServiceChargePage extends BasePage {
    * Returns what is rendered; empty result means no rows loaded or tab not yet switched to.
    * NEEDS-LIVE-CONFIRM: that row cell content is accessible via textContent on this table.
    */
+  /**
+   * Sort a History grid column by opening its header dropdown and clicking
+   * "Sort ascending" or "Sort descending". The History grid uses a Radix dropdown
+   * menu on each column header — a click on the header opens the menu.
+   */
+  @step('Sort History column via dropdown')
+  async sortHistoryColumnViaDropdown(headerLabel: string, direction: 'ascending' | 'descending'): Promise<void> {
+    // Resolve which column index corresponds to the header so we can detect re-render.
+    const headerTexts = await this.page.getByRole('columnheader').allTextContents();
+    const colIndex = headerTexts.findIndex((h) => h.replace(/\s+/g, ' ').trim().includes(headerLabel));
+
+    // Capture the first data row's value in this column before the sort click.
+    let preSortValue: string | null = null;
+    if (colIndex >= 0) {
+      const rows = this.page.getByRole('row');
+      if ((await rows.count()) > 1) {
+        const cells = await rows.nth(1).getByRole('cell').allTextContents();
+        preSortValue = cells[colIndex]?.replace(/\s+/g, ' ').trim() ?? null;
+      }
+    }
+
+    const header = this.page.locator('th', { hasText: headerLabel }).first();
+    await header.click();
+    const menuLabel = direction === 'ascending' ? 'Sort ascending' : 'Sort descending';
+    const menuItem = this.page.getByRole('menuitem', { name: menuLabel }).first();
+    await menuItem.waitFor({ state: 'visible', timeout: 6_000 });
+    await menuItem.click();
+
+    // Wait for the grid to re-render by polling until the first data row's value changes.
+    // A fixed sleep wastes time on fast re-renders and misses genuinely slow ones.
+    if (colIndex >= 0 && preSortValue !== null) {
+      const SORT_SETTLE_TIMEOUT = 45_000;
+      const deadline = Date.now() + SORT_SETTLE_TIMEOUT;
+      let settled = false;
+      while (Date.now() < deadline) {
+        const rows = this.page.getByRole('row');
+        if ((await rows.count()) > 1) {
+          const cells = await rows.nth(1).getByRole('cell').allTextContents();
+          const current = cells[colIndex]?.replace(/\s+/g, ' ').trim() ?? '';
+          if (current !== preSortValue) {
+            settled = true;
+            break;
+          }
+        }
+        await this.page.waitForTimeout(300);
+      }
+      if (!settled) {
+        throw new Error(
+          `History grid first-row value did not change after ${direction} sort on "${headerLabel}" ` +
+          `within ${SORT_SETTLE_TIMEOUT / 1000} s. Pre-sort value: "${preSortValue}". ` +
+          `The ${direction} sort did not re-render the grid — possible application defect.`,
+        );
+      }
+    }
+  }
+
+  /**
+   * Read the cell text at a given column index for the first visible data row
+   * in the History grid (0-based column index).
+   */
+  @step('Get first History row cell text')
+  async getFirstHistoryRowCellText(colIndex: number): Promise<string> {
+    const rows = await this.getHistoryRows();
+    if (rows.length === 0) return '';
+    return rows[0][colIndex] ?? '';
+  }
+
+  /**
+   * Read all visible cell values for a given column index in the History grid.
+   */
+  @step('Get History column cell values')
+  async getHistoryColumnCellValues(colIndex: number): Promise<string[]> {
+    const rows = await this.getHistoryRows();
+    return rows.map((r) => r[colIndex] ?? '');
+  }
+
   @step('Read all rows from the Service Charge History table')
   async getHistoryRows(): Promise<string[][]> {
     const rows = this.page.getByRole('row');
