@@ -16,7 +16,6 @@ REM HOW IT WORKS:
 REM 1. Verifies Node.js 18+ is installed
 REM 2. Installs npm dependencies (package.json)
 REM 3. Installs Playwright browsers (chromium, firefox, webkit)
-REM 4. Creates .env from .env.example if not present
 REM
 REM USAGE: Double-click setup.bat or run from terminal
 REM ##############################################################################
@@ -35,35 +34,30 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo [1/4] Node.js detected
+echo [1/3] Node.js detected
 node --version
 echo.
 
 REM Install dependencies
-echo [2/4] Installing dependencies...
+echo [2/3] Installing dependencies...
 call npm install
 echo Dependencies installed successfully
 echo.
 
 REM Install Playwright browsers
-echo [3/4] Installing Playwright browsers...
+echo [3/3] Installing Playwright browsers...
 call npx playwright install chromium firefox webkit
 echo Playwright browsers installed successfully
 echo.
 
-REM Copy config/environments/.env.example to config/environments/.env.local
-echo [4/4] Setting up environment...
-if not exist config\environments\.env.local (
-    copy config\environments\.env.example config\environments\.env.local
-    echo Created config\environments\.env.local - please update it with your credentials
-) else (
-    echo config\environments\.env.local already exists
-)
 echo.
-
 echo ============================================
 echo Setup completed successfully!
 echo ============================================
+echo.
+echo NOTE: Each client has its own .env files under clients\^<id^>.
+echo       See the client README or clients\^<id^>\.env.e2e for the required keys.
+echo       Create a .env.local in the client directory for local credentials.
 echo.
 echo To run tests, use:
 echo     npm test

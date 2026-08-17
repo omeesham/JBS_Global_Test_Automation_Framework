@@ -146,7 +146,6 @@ function injectIntoAgentFile(filePath: string, newSection: string): { changed: b
 // remain so the sync functions can short-circuit cleanly when files are missing.
 
 const PIPELINE_INSTRUCTIONS = frameworkPath(path.join('.github', 'copilot-instructions.md')); // deleted file; functions short-circuit if absent
-const MCP_GUIDE = frameworkPath(path.join('docs', 'read_only_docs', 'MCP_BROWSER_GUIDE.md'));
 const PKG_JSON = frameworkPath('package.json');
 const SHARED_RULES = frameworkPath(path.join('docs', 'read_only_docs', 'AGENT_SHARED_RULES.md'));
 
@@ -163,7 +162,7 @@ const FEATURED_COMMANDS: [string, string | null, string][] = [
   ['CI_ENV=staging npm test', null, 'Environment switch'],
   ['npm run build', 'build', 'Compile src/ -> dist/'],
   ['npm run build:clean', 'build:clean', 'Clean + rebuild'],
-  ['npm run client:package', 'client:package', 'Package client deliverable'],
+  ['npm run client:ship', 'client:ship', 'Ship client deliverable'],
   ['npm run lint:testcases', 'lint:testcases', 'Lint test case markdown'],
   ['npm run pipeline:validate', 'pipeline:validate', 'Full validation (sync + queue integrity + lint)'],
   ['npm run planner:post-complete [id]', 'planner:post-complete', 'Rebuild XLSX + validate checklist (hard gate: selfAuditPassed)'],
@@ -210,29 +209,6 @@ function buildCommandsBlock(): string {
   lines.push('```');
   for (const w of warnings) console.log(w);
   return '\n' + lines.join('\n') + '\n';
-}
-
-/** Sync MCP_CRITICAL: canonical in MCP_BROWSER_GUIDE.md -> .github/copilot-instructions.md (deleted; no-op). */
-function syncMcpCritical(dryRun: boolean): string {
-  if (!fs.existsSync(MCP_GUIDE)) return '[WARN] MCP_CRITICAL: MCP_BROWSER_GUIDE.md not found';
-  if (!fs.existsSync(PIPELINE_INSTRUCTIONS)) return '[WARN] MCP_CRITICAL: copilot-instructions.md not found';
-
-  const canonical = fs.readFileSync(MCP_GUIDE, 'utf-8');
-  const srcBlock = extractSyncBlock(canonical, 'MCP_CRITICAL');
-  if (!srcBlock) return '[WARN] MCP_CRITICAL: no SYNC markers in MCP_BROWSER_GUIDE.md';
-
-  let target = fs.readFileSync(PIPELINE_INSTRUCTIONS, 'utf-8');
-  const tgtBlock = extractSyncBlock(target, 'MCP_CRITICAL');
-  if (tgtBlock === null) return '[WARN] MCP_CRITICAL: no SYNC markers in copilot-instructions.md';
-
-  if (srcBlock === tgtBlock) return '[ok] MCP_CRITICAL: copilot-instructions.md in sync';
-
-  if (!dryRun) {
-    target = replaceSyncBlock(target, 'MCP_CRITICAL', srcBlock);
-    fs.writeFileSync(PIPELINE_INSTRUCTIONS, target, 'utf-8');
-    return '[OK] MCP_CRITICAL: copilot-instructions.md synced from MCP_BROWSER_GUIDE.md';
-  }
-  return '[~] MCP_CRITICAL: drift detected (dry-run, would sync)';
 }
 
 /** Sync COMMANDS: generated from curated list -> .github/copilot-instructions.md (deleted; no-op). */
@@ -303,7 +279,6 @@ function syncContextLoad(dryRun: boolean): string[] {
 /** Run all marker syncs, return result messages */
 function syncAllMarkers(dryRun: boolean): string[] {
   return [
-    syncMcpCritical(dryRun),
     syncCommands(dryRun),
     // PIPELINE: canonical was .github/copilot-instructions.md (deleted) — no external targets, skip
     ...syncContextLoad(dryRun),
