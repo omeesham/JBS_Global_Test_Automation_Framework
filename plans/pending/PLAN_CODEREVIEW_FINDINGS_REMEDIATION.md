@@ -14,7 +14,7 @@ A senior Encore reviewer (CodeQL/Copilot-style automated review) flagged 6 code-
 an **older copy** of our deliverable — the pre-restructure version handed to a JBS colleague, who will
 put it up in the **next PR**. Yesterday's restructure means our *current* codebase diverged from that
 copy, so we must independently confirm every flagged pattern is satisfied **here** before the PR review
-runs. Source/design guide: `~/Downloads/instruction_codereview_fix_suggestion.md` — *fix the class not
+runs. Source/design guide: the local Downloads design guide (untracked by design; not repo evidence) — *fix the class not
 the line, dedupe into a shared helper at 3+ sites, reuse existing helpers, preserve intent (don't "fix"
 path/keyword heuristics), flag newly-dead code, don't commit unless asked.*
 

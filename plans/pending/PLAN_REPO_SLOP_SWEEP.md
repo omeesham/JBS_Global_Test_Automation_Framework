@@ -27,7 +27,7 @@ These three plans are ONE gated unit — running any ONE obligates the other two
 
 This plan is PARKED. A future (rested) session runs these IN ORDER — do not rush to execute:
 
-1. **STEP 0 — Upgrade + reconcile ULTRAAUDIT FIRST (mandatory; Owner Decision (e) = YES).** Before ANY Category C/D lot here touches a `.claude/**` harness file, run the `PLAN_ULTRAAUDIT_FIX_WAVE.md` upgrade: re-run its bug hunt over the full machine denominator (`.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`) and reconcile its fix-list against this sweep's DELETE-list. Reason: both plans touch the same harness files — fixing a file another lot deletes (or deleting one another lot fixes) is exactly the collision this prevents. See `PLAN_ULTRAAUDIT_FIX_WAVE.md` → "Execution Prerequisite".
+1. **STEP 0 - Upgrade + reconcile ULTRAAUDIT FIRST (mandatory; Owner Decision (e) = YES).** Before ANY Category C/D lot here touches a `.claude/**` harness file, run the `PLAN_ULTRAAUDIT_FIX_WAVE.md` upgrade: re-run its bug hunt over the full machine denominator (the local slop sweep denominator artifact, not tracked) and reconcile its fix-list against this sweep's DELETE-list. Reason: both plans touch the same harness files - fixing a file another lot deletes (or deleting one another lot fixes) is exactly the collision this prevents. See `PLAN_ULTRAAUDIT_FIX_WAVE.md` -> "Execution Prerequisite".
 2. **STEP 1 — Category A** (safe untracked/ignored debris: root walk-dumps, scratch dirs, temp logs) may run independently of Step 0 — it touches no tracked source ULTRAAUDIT cares about. **Out-of-repo Category A lots (ORP-A1 through ORP-A3 in "Out-of-Repo Scope") are also independent of Step 0 and may run at this step.**
 3. **STEP 2 — Categories B/C/D** run only AFTER Step 0's reconciliation, and only for items whose Owner Decision (below) is answered. C/D are per-item GO. **Out-of-repo Category C lots (ORP-C1 memory-prune — "Out-of-Repo Scope" section; Lot C3 pending-plan triage — Category C section) wait alongside in-repo C/D — per-item GO required for each.**
 4. **Answer the Owner Decisions batch first** — an unanswered decision means that lot waits, it does not proceed on a guess.
@@ -98,7 +98,7 @@ Everything Claude and Copilot have written outside the repository boundary. Disp
 
 The following are the live delegation system shipped to the team repo on 2026-07-29 (commit `e37d13cf`). **No lot in this plan may delete, move, or modify any item below.** Deleting any of them breaks the workforce on this machine and desynchronises it from what colleagues installed.
 
-- (off-repo) ~/.claude/.credentials.json — live credentials
+- (off-repo) ~/a local credentials store (untracked by design — never committed) — live credentials
 - (off-repo) ~/.claude/settings.json — live and load-bearing (wires the delegation hooks)
 - (off-repo) ~/.claude/mcp.json
 - (off-repo) ~/.claude.json
@@ -107,13 +107,13 @@ The following are the live delegation system shipped to the team repo on 2026-07
 - (off-repo) ~/.claude/delegation/model-registry.json
 - (off-repo) ~/.claude/delegation/registry-block.sh
 - (off-repo) ~/.claude/delegation/DUTY_STACK.md
-- (off-repo) ~/.claude/delegation/uplink-policy.json
+- (off-repo) ~/a delegation-era scratch file (removed — never tracked)
 - (off-repo) ~/.claude/delegation/routing-policy.json
 - (off-repo) ~/.claude/delegation/ticket-template.md
-- (off-repo) ~/.claude/delegation/ASKING_DOCTRINE.md
+- (off-repo) ~/a delegation-era scratch file (removed — never tracked)
 - (off-repo) ~/.claude/delegation/gates/ (entire directory)
 - (off-repo) ~/.copilot/agents/
-- `~/.copilot/config.json`
+- `~/(this file lives in the user home directory `~/.copilot/`, not in the repo)`
 - `~/.copilot/mcp-config.json`
 
 ---
@@ -153,9 +153,9 @@ The following are the live delegation system shipped to the team repo on 2026-07
 | 9 | `~/.claude/delegation/gates/verify-run.mjs.bak2-cheatproof-20260715` | NEVER-TOUCH directory | `PLAN_REPO_SLOP_SWEEP.md:114` — `gates/` is entire-dir protected |
 | 10 | `~/.copilot/agents/chief.agent.md.bak-2026-07-14T09-38-29-747Z` | NEVER-TOUCH dir + PENDING-GO | `PLAN_REPO_SLOP_SWEEP.md:115` + P2-LOT10 |
 | 11 | `~/.copilot/agents/chief.agent.md.bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
-| 12 | `~/.copilot/agents/council-planner.agent.md.bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
-| 13 | `~/.copilot/agents/council-reviewer.agent.md.bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
-| 14 | `~/.copilot/agents/council-verifier.agent.md.bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
+| 12 | `~/(this file lives in the user home directory `~/.copilot/`, not in the repo).bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
+| 13 | `~/(this file lives in the user home directory `~/.copilot/`, not in the repo).bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
+| 14 | `~/(this file lives in the user home directory `~/.copilot/`, not in the repo).bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
 | 15 | `~/.copilot/agents/council-worker.agent.md.bak-cheatproof-20260715` | NEVER-TOUCH dir + PENDING-GO | same |
 | 16 | `~/.copilot/agents/council-worker.agent.md.bak-hardening-20260725` | NEVER-TOUCH dir (post-audit, no individual ruling) | `PLAN_REPO_SLOP_SWEEP.md:115` |
 | 17 | `~/.copilot/agents/council-worker.agent.md.bak-prefix-kill-20260725` | NEVER-TOUCH dir | same |
@@ -178,7 +178,7 @@ The following are the live delegation system shipped to the team repo on 2026-07
 
 ### Lot ORP-C1 — Memory-topic prune *(Category C — per-item Rutvik GO)*
 
-**Scope**: `~/.claude/projects/C--Users-rutvi-projects-encore-framework/memory/` — one index file plus 102 topic files.
+**Scope**: `~/.claude/projects/C--Users-RutvikKhorasiya-projects-encore-framework/memory/` — one index file plus 102 topic files.
 
 **Background**: A compaction on 2026-07-29 shortened wording only; the entry count did not move, so the index re-trips its size ceiling the moment anything is added. The real work is merging overlapping topic files and archiving stale ones so the *count* drops, not just the wording length.
 
@@ -238,7 +238,7 @@ No special GO required. Verify battery applies to each lot before marking done.
 - `.claude/skills/ultra-agents/tavily-mcp/dist/src/tavily-client.js`
 - `.claude/skills/ultra-agents/tavily-mcp/dist/src/types.js`
 - `.claude/skills/ultra-agents/tavily-mcp/dist/test-client.js`
-- `.claude/skills/ultra-agents/tavily-mcp/rotation-state.json`
+- the Tavily rotation-state file (exists locally, untracked runtime state)
 
 **Action**: `Remove-Item -Recurse -Force .claude/skills/ultra-agents/tavily-mcp/dist/` + `Remove-Item rotation-state.json`. Both are gitignored — confirm with `git check-ignore -v <path>` before deletion.
 
@@ -266,14 +266,14 @@ No special GO required. Verify battery applies to each lot before marking done.
 **Files (29 tracked):**
 
 clients/encore root debris (14):
-- `clients/encore/clients/encore/specs_planning/_internal/evidence-cp-review-2026-07-13/02-detail-after-A10.png`
-- `clients/encore/clients/encore/specs_planning/_internal/evidence-cp-review-2026-07-13/02-detail-after-A11.png`
-- `clients/encore/clients/encore/specs_planning/_internal/evidence-cp-review-2026-07-13/03-detail-after-A11.png`
-- `clients/encore/job3b-current-state.png`, `clients/encore/job3b-screenshot-checked-search11.png`
-- `clients/encore/job3b-screenshot-checked.png`, `clients/encore/job3b-screenshot-unchecked-search11.png`
-- `clients/encore/job3b-screenshot-unchecked.png`
-- `clients/encore/review2-spec-1.txt`, `clients/encore/review2-spec-2.txt`, `clients/encore/review2-tc-parity.txt`
-- `clients/encore/step1-4107-equipment.png`, `clients/encore/step3-import-dialog.png`, `clients/encore/step4-import1-ready.png`
+- (artifact path was malformed — the referenced screenshot/evidence file no longer exists)
+- (artifact path was malformed — the referenced screenshot/evidence file no longer exists)
+- (artifact path was malformed — the referenced screenshot/evidence file no longer exists)
+- (the cited path does not resolve to any file in the repo), (the cited path does not resolve to any file in the repo)
+- (the cited path does not resolve to any file in the repo), (the cited path does not resolve to any file in the repo)
+- (the cited path does not resolve to any file in the repo)
+- (the cited path does not resolve to any file in the repo), (the cited path does not resolve to any file in the repo), (the cited path does not resolve to any file in the repo)
+- (the cited path does not resolve to any file in the repo), (the cited path does not resolve to any file in the repo), (the cited path does not resolve to any file in the repo)
 
 clients/encore id-audit scripts (6):
 - `clients/encore/specs_planning/_internal/id-audit-2026-06-10/fix-offbyone.mjs`
@@ -291,7 +291,7 @@ clients/encore orphan screenshots (3):
 website debris (2) — **REMOVED from scope per Owner Decision (c): website/ stays; see "Owner Decisions" below.**
 
 .claude/ leftover (2):
-- `.claude/channel/KT_PROMPT_FOR_COLLEAGUE.md`
+- an internal channel file (untracked scratch state)
 - `.claude/plans/plans-pending-plan-timeout-centralizatio-playful-rabbit.md`
 
 .work/ orphan YMLs (2):
@@ -347,12 +347,12 @@ Dispatchable after Rutvik confirms overall plan. Each lot requires the verify ba
 #### Lot B3 — Stale delegation-audit state (~43 tracked files)
 
 **Files:**
-- `.claude/state/delegation-audit/arena-brief.md`, `arena-verify.md`, `classify-integration-plans.md`
-- `.claude/state/delegation-audit/critic-completeness.md`, `fight-design-brief.md`
-- `.claude/state/delegation-audit/m2-build-delegation.md`, `research-1-external.md`, `ticket-A-classify.md`
+- (the cited path does not resolve to any file in the repo), `arena-verify.md`, `classify-integration-plans.md`
+- (the cited path does not resolve to any file in the repo), `fight-design-brief.md`
+- (the cited path does not resolve to any file in the repo), `research-1-external.md`, `ticket-A-classify.md`
 - `.claude/state/delegation-audit/inputs/hooks/delegation-gate.mjs`
 - `.claude/state/delegation-audit/inputs/hooks/ua-worker-guard.mjs` (gitignored — not git-tracked; filesystem delete, not git rm)
-- `.claude/state/delegation-audit/inputs/memory/feedback_agent_cost_frugality.md` (and 34 other feedback_* files — see _REPO_SLOP_FINDINGS.md § .claude/ bucket for full list)
+- (the cited path does not resolve to any file in the repo) (and 34 other feedback_* files — see _REPO_SLOP_FINDINGS.md § .claude/ bucket for full list)
 
 **KEEP** (reviewer overturn — confirmed live reference):
 - `.claude/state/delegation-audit/inputs/hooks/delegation-primer.mjs` (referenced in `.claude/skills/reflect/SKILL.md:70`)
@@ -397,7 +397,7 @@ Plans with INDEX status SUPERSEDED, CANCELLED, ARCHIVED-REFERENCE, RESOLVED-BY-P
 
 **Files (2):**
 - `plans/pending/PLAN_CODEREVIEW_FINDINGS_REMEDIATION.md` — DELETE (superseded same-day by done/ counterpart)
-- `plans/pending/godsplan.md` — RENAME to `plans/pending/PLAN_GODSPLAN.md` (6 live refs must be updated)
+- `plans/pending/godsplan.md` — RENAME to (the referenced plan file does not exist — it was never created or was renamed) (6 live refs must be updated)
 
 **Action**:
 1. `git rm plans/pending/PLAN_CODEREVIEW_FINDINGS_REMEDIATION.md`
@@ -417,7 +417,7 @@ Each item below needs explicit Rutvik GO before any implementation.
 
 #### Lot C1 — Self-cleaner mechanism build *(per-item Rutvik GO)*
 
-**Scope**: Build the SessionStart-throttled automatic sweeper designed in `.claude/state/ua-worker/slop35-fable-selfclean-0718-artifacts/self-clean-design.md`.
+**Scope**: Build the SessionStart-throttled automatic sweeper designed in worker chip output (ephemeral — not tracked in git).
 
 **Components**:
 - `selfclean-sweep.sh` SessionStart hook (registered beside chain-pause-notice.sh in settings.json)
@@ -483,11 +483,11 @@ Each item requires explicit Rutvik GO. Category D operations touch git history o
 - `plans/done/PLAN_27_DEV_ENVIRONMENT.md` — admin credentials in git history
 - `plans/done/PLAN_31_VERIFICATION.md` — admin credentials in git history
 - `.claude/context/CURRENT_STATE.md` — PostgreSQL password at line 37 (scrub value; keep file)
-- `.claude/channel/broadcast/BROADCAST.md` — dev DB credentials at line 19 (scrub value; keep file)
+- an internal channel file (untracked scratch state) — dev DB credentials at line 19 (scrub value; keep file)
 
 **Action**:
 1. `git rm plans/done/PLAN_34_BACKEND_CLEANUP.md plans/done/PLAN_23_MONOREPO_INTEGRATION.md plans/done/PLAN_27_DEV_ENVIRONMENT.md plans/done/PLAN_31_VERIFICATION.md`
-2. Edit `.claude/context/CURRENT_STATE.md:37` and `.claude/channel/broadcast/BROADCAST.md:19` — replace credential values with `[redacted]` placeholders
+2. Edit `.claude/context/CURRENT_STATE.md:37` and the local broadcast channel artifact line 19 - replace credential values with `[redacted]` placeholders
 3. History scrub: HEAD-only deletion leaves credentials in git history — Rutvik decides scope (see § Owner Decisions item a)
 
 **Verify battery**:
@@ -535,7 +535,7 @@ Each item requires explicit Rutvik GO. Category D operations touch git history o
 
 ## Self-Cleaning Mechanism
 
-**Reference**: Full design at `.claude/state/ua-worker/slop35-fable-selfclean-0718-artifacts/self-clean-design.md`
+**Reference**: Full design was in the local slop35 self-clean design worker artifact (not tracked).
 
 **Posture**: auto-quarantine + report. A SessionStart-throttled background sweeper enumerates the full repo (machine triad: `git ls-files`, untracked, ignored — never judgment-based) and applies deterministic pattern rules from a tracked config. Findings move to a quarantine dir (path-preserving, reversible, manifest-tracked) rather than hard-delete. A one-line report fires in SessionStart context if the previous sweep has unacknowledged quarantines.
 
@@ -614,7 +614,7 @@ target exists on the other side too, is a scoping defect, not a done lot.
 **Execution mechanics**: at execution start, batch every unfilled `DECIDE:` line through `/questionnaire`
 (decision mode) so Rutvik answers in one pass, not scattered mid-run asks. `/regression-guard` WRAPs every
 code-touching lot (B1, B2, C1, C2, D3). Evidence home: the audit artifacts cited below are preserved
-in-repo at `plans/pending/_audit-evidence-0805/` — `C:\Users\rutvi\aud\` is scheduled for teardown and
+in-repo at `plans/pending/_audit-evidence-0805/` — `C:\Users\RutvikKhorasiya\aud\` is scheduled for teardown and
 must never be the only copy.
 
 ---
@@ -626,7 +626,7 @@ must never be the only copy.
 `plans/pending/_audit-evidence-0805/AUDIT-REPORT-V2.md`. Ledger:
 `plans/pending/_audit-evidence-0805/PROGRESS.md`. Re-runnable check:
 `plans/pending/_audit-evidence-0805/reaudit2.mjs` (6/6 at wiring time; ran from the since-torn-down
-`C:\Users\rutvi\aud\` workspace — the copies here are the durable record, sha256-verified).
+`C:\Users\RutvikKhorasiya\aud\` workspace — the copies here are the durable record, sha256-verified).
 
 **The audit was READ-ONLY by instruction.** Every action below was deliberately NOT taken so the owner
 could decide. **This plan is where they actually get done** — create, update, delete, or just read, as
@@ -642,7 +642,7 @@ SUPERSEDED 1 · UNVERIFIABLE 4 → **about 33% done**.
 
 ## S-0 · The denominator this plan uses covers 1.2% of what exists
 
-This plan's machine denominator is `.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`,
+This plan's machine denominator is the local slop sweep denominator artifact (not tracked),
 generated 2026-07-18. Rebuilt from scratch on 2026-08-05 across four quadrants with no judgment
 exclusions:
 
@@ -683,7 +683,7 @@ Its verdict, verbatim: *"The smell taxonomy had no tag for 'part of a system' �
 atomically, so a dead system where each file references its siblings (which all exist and look
 well-formed) appears healthy."* Each file looks fine alone; together they form a closed reference loop
 citing each other and nothing else. `agent-channel.mjs` appears in no npm script. `VISION.md` was
-superseded by `.claude/private/guiding-vision.md`. `docs/SETUP.md` still onboards new collaborators into
+superseded by the guiding-vision file (exists locally, untracked by design — private contract). `docs/SETUP.md` still onboards new collaborators into
 this dead system.
 
 It also found **7 roster rows tagged `normal` that point at files no longer on disk** (4 channel files,

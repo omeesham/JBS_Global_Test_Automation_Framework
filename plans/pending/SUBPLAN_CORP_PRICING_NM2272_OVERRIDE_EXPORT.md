@@ -157,7 +157,7 @@ DO-NOW / APPEND with grep-verification. Bare deferral = HALT + ask.
 |---|---|---|---|
 | HUNTER | (none) | (none) | (none) |
 | GIVER | test-cases MD + test-plan MD + XLSX | `clients/encore/specs_planning/test-cases/corporate_pricing_override_test_cases.md` (export + import + Excel-drift + fixture TCs) | `npm run check:tc-parity` exit 0 |
-| BUILDER | corporate-override-nm2272.spec.ts + page object extensions | `clients/encore/tests/corporate-override/corporate-override-nm2272.spec.ts` (all Phase 1–6 TCs) | `npx playwright test --list` resolves new TC IDs; spec run green ×2 |
+| BUILDER | corporate-override-export.spec.ts + page object extensions | `clients/encore/tests/corporate-override/corporate-override-export.spec.ts` (all Phase 1–6 TCs) | `npx playwright test --list` resolves new TC IDs; spec run green ×2 |
 | HEALER | (none) | (none) | (none) |
 | WATCHDOG | (none) | (none) | (none) |
 | GARDENER | (none) | (none) | (none) |

@@ -5,15 +5,15 @@
 |---|---|---|---|---|---|
 | P2-LOT02-01 | ~/.claude/delegation/ASKING_DOCTRINE.md:30-33 | duplication | S1 | DELETE: sub-agent unknowns block verbatim in DUTY_STACK worker-rules-extract; silent drift on one-sided edit | exec-ua2-lot02-0718 |
 | P2-LOT02-02 | ~/.claude/delegation/ASKING_DOCTRINE.md:34-37 | slop-prose | S2 | COMPACT to 1-line pointer: Claude-tier ask guidance in a worker trip-time doc is wrong audience | exec-ua2-lot02-0718 |
-| P2-LOT02-03 | ~/.claude/delegation/session-continuity.md:10-12 | duplication | S3 | DELETE from preamble: restates §5 lines 92-96 verbatim; §5 is canonical home | exec-ua2-lot02-0718 |
-| P2-LOT02-04 | ~/.claude/delegation/session-continuity.md:100-108 | stale-ref | S2 | REWRITE (do NOT delete): PLAN_ASSISTANT_LAYER still pending on disk; stale BLOCKED notice misdirects workers | exec-ua2-lot02-0718 (reviewer correction: delete→rewrite) |
-| P2-LOT02-05 | ~/.claude/delegation/pruning-policy.md:5 | slop-prose | S3 | COMPACT: remove stale inline current-state count from policy threshold | exec-ua2-lot02-0718 |
-| P2-LOT02-06 | ~/.claude/delegation/pruning-policy.md:11 | slop-prose | S3 | COMPACT: remove stale memory count annotation | exec-ua2-lot02-0718 (reviewer line correction) |
+| P2-LOT02-03 | home delegation session-continuity note lines 10-12 | duplication | S3 | DELETE from preamble: restates §5 lines 92-96 verbatim; §5 is canonical home | exec-ua2-lot02-0718 |
+| P2-LOT02-04 | home delegation session-continuity note lines 100-108 | stale-ref | S2 | REWRITE (do NOT delete): PLAN_ASSISTANT_LAYER still pending on disk; stale BLOCKED notice misdirects workers | exec-ua2-lot02-0718 (reviewer correction: delete→rewrite) |
+| P2-LOT02-05 | home delegation pruning-policy note line 5 | slop-prose | S3 | COMPACT: remove stale inline current-state count from policy threshold | exec-ua2-lot02-0718 |
+| P2-LOT02-06 | home delegation pruning-policy note line 11 | slop-prose | S3 | COMPACT: remove stale memory count annotation | exec-ua2-lot02-0718 (reviewer line correction) |
 | P2-LOT02-07 | ~/.claude/delegation/UPLINK_DOCTRINE.md:7 | duplication | S3 | COMPACT: callout box duplicates LR-070 cross-ref; remove callout, keep §0 | exec-ua2-lot02-0718 |
 | P2-LOT02-08 | ~/.claude/delegation/UPLINK_DOCTRINE.md:114-115 | slop-prose | S3 | DELETE: tangential substrate management implementation detail | exec-ua2-lot02-0718 |
 | P2-LOT02-09 | ~/.claude/delegation/gap-hunt-checklist.md:3-13 | slop-prose | S3 | COMPACT: triple-blockquote prelude 11 lines → ≤3 lines | exec-ua2-lot02-0718 |
 | P2-LOT02-10 | ~/.claude/delegation/interrogation-bank.md:48-50 | duplication | S3 | DELETE third question only if another generic verify-command prompt remains | exec-ua2-lot02-0718 |
-| P2-LOT02-11 | ~/.claude/delegation/OUTCOMES-FORMAT.md:3-4 | duplication | S3 | COMPACT: two adjacent lines state same timing/ownership idea; consolidate to 1 sentence | rev-ua2-lot02-0718 |
+| P2-LOT02-11 | home delegation outcomes-format note lines 3-4 | duplication | S3 | COMPACT: two adjacent lines state same timing/ownership idea; consolidate to 1 sentence | rev-ua2-lot02-0718 |
 | P2-LOT02-12 | ~/.claude/delegation/weakness-map.md:3-5 | slop-prose | S3 | COMPACT: 3-line purpose preamble → 1 line without losing semantics | rev-ua2-lot02-0718 |
 
 ### Phase 2 — Lot 03 (MATERIAL_ISSUES / review: MATERIAL_ISSUES)
@@ -72,18 +72,18 @@
 
 | id | file:line | class | severity | proposed action | source |
 |---|---|---|---|---|---|
-| P2-LOT05-01 | ~/.claude/delegation/PROTECTED-SPLICE-PROPOSALS-0712.md:1-6 | stale-ref | S1 | REWRITE: add STATUS block per splice (APPLIED date / PENDING); header says DRAFT ONLY with no status field | exec-ua2-lot05-0718 |
-| P2-LOT05-02 | ~/.claude/delegation/PROTECTED-SPLICE-PROPOSALS-0712.md:76-340 | stale-ref | S1 | REWRITE: Splice 2 has landed-review ticket in same mirror but proposal still says DRAFT ONLY; mark APPLIED with citation | exec-ua2-lot05-0718 (reviewer confirmation) |
-| P2-LOT05-03 | ~/.claude/delegation/PROTECTED-SPLICE-PROPOSALS-0712.md:323-580 | stale-ref | S1 | REWRITE: Splices 3 and 4 also contain stale line anchors with no APPLIED/PENDING status | rev-ua2-lot05-0718 |
+| P2-LOT05-01 | home delegation protected-splice proposal lines 1-6 | stale-ref | S1 | REWRITE: add STATUS block per splice (APPLIED date / PENDING); header says DRAFT ONLY with no status field | exec-ua2-lot05-0718 |
+| P2-LOT05-02 | home delegation protected-splice proposal lines 76-340 | stale-ref | S1 | REWRITE: Splice 2 has landed-review ticket in same mirror but proposal still says DRAFT ONLY; mark APPLIED with citation | exec-ua2-lot05-0718 (reviewer confirmation) |
+| P2-LOT05-03 | home delegation protected-splice proposal lines 323-580 | stale-ref | S1 | REWRITE: Splices 3 and 4 also contain stale line anchors with no APPLIED/PENDING status | rev-ua2-lot05-0718 |
 | P2-LOT05-04 | ~/.claude/delegation/ticket-template.md:1-76 | copy-paste-drift | S1 | REWRITE: template missing MODEL, WORK-TYPE, REPO ROOT, EVIDENCE DIR, WRITE ALLOW-LIST fields present in all live tickets | exec-ua2-lot05-0718 |
 | P2-LOT05-05 | ~/.claude/delegation/dispatcher-lessons.md:1-18 | slop-prose | S2 | COMPACT: 17-line header restates SessionStart primer doctrine; reduce to 3-line summary | exec-ua2-lot05-0718 |
 | P2-LOT05-06 | ~/.claude/delegation/dispatcher-lessons.md:20-25 | copy-paste-drift | S2 | COMPACT: normalize to single YYYY-MM-DD|class|one-liner format | exec-ua2-lot05-0718 |
 | P2-LOT05-07 | ~/.claude/delegation/dispatcher-lessons.md:53 | stale-ref | S3 | COMPACT: canary cost floor is a CLI constant; move to config/docs not a dated lesson entry | exec-ua2-lot05-0718 |
 | P2-LOT05-08 | ~/.claude/delegation/wrapper-clear-waiter.sh:1-16 | dead-code | S2 | DELETE: zero runtime callers confirmed repo-wide; one-shot apply event reference | exec-ua2-lot05-0718 |
 | P2-LOT05-09 | ~/.claude/delegation/registry-block.sh:70 | stale-ref | S3 | COMPACT: remove stale "not yet exercised live" parenthetical | exec-ua2-lot05-0718 |
-| P2-LOT05-10 | ~/.claude/delegation/assistant-fight-gate-DESIGN.md:1-4 | stale-ref | S2 | REWRITE: no build-status field; add Build Status: UNBUILT|BUILT block | exec-ua2-lot05-0718 |
-| P2-LOT05-11 | ~/.claude/delegation/assistant-fight-gate-DESIGN.md:23,63 | contradiction | S2 | REWRITE: design says default mode=deny; LR-069 says S1/S2 always land announce-first; resolve ramp policy before implementation | rev-ua2-lot05-0718 |
-| P2-LOT05-12 | ~/.claude/delegation/worker-rules-extract.md:7 | stale-ref | S2 | REWRITE: says 8-duty cycle; current DUTY_STACK has 9 duties; injected doctrine teaches stale schema | rev-ua2-lot05-0718 |
+| P2-LOT05-10 | home delegation assistant-fight-gate design lines 1-4 | stale-ref | S2 | REWRITE: no build-status field; add Build Status: UNBUILT|BUILT block | exec-ua2-lot05-0718 |
+| P2-LOT05-11 | home delegation assistant-fight-gate design lines 23 and 63 | contradiction | S2 | REWRITE: design says default mode=deny; LR-069 says S1/S2 always land announce-first; resolve ramp policy before implementation | rev-ua2-lot05-0718 |
+| P2-LOT05-12 | home delegation worker-rules extract line 7 | stale-ref | S2 | REWRITE: says 8-duty cycle; current DUTY_STACK has 9 duties; injected doctrine teaches stale schema | rev-ua2-lot05-0718 |
 
 ### Phase 2 — Lot 06 (MATERIAL_ISSUES / review: MATERIAL_ISSUES)
 
@@ -153,8 +153,8 @@ NOTE: Executor's line counts were all wrong and diff-blocked claim was false. Al
 | P2-LOT09-02 | ~/.claude/delegation/grants-audit.log | log-quality | S3 | COMPACT: add rotation policy; log grows unboundedly | exec-ua2-lot09-0718 |
 | P2-LOT09-03 | ~/.claude/delegation/labor-gate-audit.log | log-quality | S2 | FLAG-for-Rutvik: full multi-line bash blobs verbatim; consider truncating to 500 chars + truncated:true flag | exec-ua2-lot09-0718 |
 | P2-LOT09-04 | ~/.claude/delegation/outcomes.jsonl:2-140 | format-quality | S2 | FLAG-for-Rutvik: ~70% entries have ts:"unknown"; inconsistent ticket_id formats | exec-ua2-lot09-0718 |
-| P2-LOT09-05 | ~/.claude/delegation/routing-changes.log | dead-log | S3 | FLAG-for-Rutvik: file is EMPTY (0 bytes); writer mechanism may be dark from day 1 | exec-ua2-lot09-0718 |
-| P2-LOT09-06 | ~/.claude/delegation/self_incidents.log:1 | format-quality | S3 | FLAG-for-Rutvik: line 1 is JSONL; lines 2-11 are freetext prose; two formats in one file | exec-ua2-lot09-0718 |
+| P2-LOT09-05 | home delegation routing changes log | dead-log | S3 | FLAG-for-Rutvik: file is EMPTY (0 bytes); writer mechanism may be dark from day 1 | exec-ua2-lot09-0718 |
+| P2-LOT09-06 | home delegation self-incidents log line 1 | format-quality | S3 | FLAG-for-Rutvik: line 1 is JSONL; lines 2-11 are freetext prose; two formats in one file | exec-ua2-lot09-0718 |
 | P2-LOT09-07 | ~/.claude/delegation/self_incidents.log:2-11 | pattern | S2 | FLAG-for-Rutvik: 4 of 11 entries are recurring self-work violations; un-gated recurrence class | exec-ua2-lot09-0718 |
 | P2-LOT09-08 | ~/.claude/delegation/labor-gate-audit.log:13-14 | schema-inconsistency | S2 | FIX: two rows missing session_id; backfill or null-tag legacy rows | rev-ua2-lot09-0718 |
 | P2-LOT09-09 | ~/.claude/delegation/outcomes.jsonl | data-inconsistency | S2 | FIX: 17 rows have outcome:"bounced-then-green" with bounces:0; contradictory metrics | rev-ua2-lot09-0718 |
@@ -248,12 +248,12 @@ NOTE: Executor declared all 6 bak files unauditable (false blocker; mirror had t
 
 | id | file:line | class | severity | proposed action | source |
 |---|---|---|---|---|---|
-| P2-15 | `questionnaire/SKILL.md:23` vs `:84` | contradiction | S2 | Choose one question-batch limit (10 or 5) and delete the contradictory line | ua2-lot14-0718-review |
+| P2-15 | `.claude/skills/questionnaire/SKILL.md:23` vs `:84` | contradiction | S2 | Choose one question-batch limit (10 or 5) and delete the contradictory line | ua2-lot14-0718-review |
 | P2-16 | `audit/SKILL.md:5` frontmatter vs `:25` | frontmatter-contradiction | S2 | Fix auto-calls: identity, reflect — /reflect only fires in review mode | ua2-lot14-0718-review |
 | P2-17 | `audit/SKILL.md:365-373` | missed-D23-instance | S2 | Add audit/SKILL.md to D23 compaction pass | ua2-lot14-0718-review |
 | P2-18 | `assistants/SKILL.md:43-45,61-62` vs `:18-21,80-85` | OFF-status-contradiction | S2 | Fix OFF status text: "direct council admin (legacy)" contradicts "no copilot dispatches" | ua2-lot14-0718-review |
 | P2-19 | `compile-learnings/SKILL.md:3` | wrong-rule-home | S2 | Fix description: graduation target is .claude/rules/ or LEARNED_RULES.md | ua2-lot14-0718-review |
-| P2-20 | `planning/SKILL.md:174` | auto-call-list-incomplete | S3 | Add /identity to auto-call list | ua2-lot14-0718-review |
+| P2-20 | `.claude/skills/planning/SKILL.md:174` | auto-call-list-incomplete | S3 | Add /identity to auto-call list | ua2-lot14-0718-review |
 | P2-21 | `delegation-temp/SKILL.md:156-160` | graduation-condition-met | S2 | DELETE: LCD_01/02/03 all done; skill's own graduation condition met | ua2-lot14-0718 |
 | P2-22 | `audit/SKILL.md:63-69` | stale-grep-example | S3 | Make grep example shell-neutral/PowerShell equivalent | ua2-lot14-0718 |
 | P2-23 | `compile-learnings/SKILL.md:192-199` | wrong-rule-home | S2 | Update graduation routing to .claude/rules/ per current rule homes | ua2-lot14-0718 |
@@ -468,7 +468,7 @@ All 76 items across lots A–E (TRIM_01–06, RCD_B/C, script deletions, comment
 | P25-LOT01-01..03, P25-LOT01-06..07, P25-LOT01-11..14 | browsertool-gate.sh / check-browsertool.mjs / test fixtures | Header and dead-design-doc compaction |
 | P25-LOT03-01..05 | CLAUDE.md / hooks-identity.md / guardrail-policy.md / specs.md | Duplication removal; stale section; coverage recount |
 | P25-LOT05-02..05 | check-per-test-baseline.mjs / check scripts | Header compact; ESM guard; flag-doc comments |
-| P25-M05, P25-M06 | encore-questions/SKILL.md / coverage+ultracoverage/SKILL.md | Protocol compact; shared authoring pointer |
+| P25-M05, P25-M06 | .claude/skills/encore-questions/SKILL.md / coverage+.claude/skills/ultracoverage/SKILL.md | Protocol compact; shared authoring pointer |
 | P25-M19 | validate-plan-closure.mjs | Update footprint-count estimate in plan |
 
 ### Category B — Live Machinery (staged + battery proof + council review)

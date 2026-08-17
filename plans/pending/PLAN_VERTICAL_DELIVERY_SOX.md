@@ -154,7 +154,7 @@ The cycle commands previously drafted here had a structural defect (`scripts/shi
 
 1. **Dry-run** on a throwaway feature branch in `Encore-Global` BEFORE first publication.
 2. **Confirmed shape (subject to Encore answers H1 repo URL + H2 directory layout)**: ship to `/tmp/encore-deliv-<date>/`, rsync contents (excluding `.git`) into the Encore-Global feature-branch checkout, `git add -A && git commit && git push`, `gh pr create --base develop`.
-3. **Re-author** this section with verified commands once H1+H2 are answered (H4+H5 dropped from question list 2026-05-07 — CI ownership = their problem; secrets = auto-user already given). Update [`SHIP_TO_ENCORE.md`](../../clients/encore/docs/read_only_docs/SHIP_TO_ENCORE.md) in the same change.
+3. **Re-author** this section with verified commands once H1+H2 are answered (H4+H5 dropped from question list 2026-05-07 — CI ownership = their problem; secrets = auto-user already given). Update [`SHIP_TO_ENCORE.md`](clients/encore/docs/read_only_docs/SHIP_TO_ENCORE.md) in the same change.
 
 Until then: NO cycle execution. NO branch creation in `Encore-Global`. Plan A's submodules sit ready-to-ship internally, in queue.
 
@@ -235,5 +235,5 @@ No file edits at the time this plan is saved. All work above is dormant until th
 - `clients/encore/CLAUDE.md` (existing LR-ENC-001).
 - `clients/encore/CLAUDE.md (was MODULE_REGISTRY.md, removed 2026-05-19 per unified-matsumoto plan)`.
 - `clients/encore/docs/read_only_docs/SHIP_TO_ENCORE.md`.
-- Existing plans: `plans/pending/PLAN_DELIVERABLE_LEAK_AUDIT.md`, `plans/pending/PLAN_DYNAMIC_WORKERS.md`, `plans/pending/PLAN_DEPENDENCY_AWARE_FAILURE.md` + 5 dep-aware subplans.
+- Existing deliverable-leak, dynamic-workers, and dependency-aware-failure plans, plus 5 dependency-aware subplans (the specific cited plan files are not all present here, so this remains an unverified plan-inventory claim).
 - Memory: `project_encore_deliverable_channel.md` (now stale post-D1; update only when execution begins, not at save-time).

@@ -152,7 +152,7 @@ folder is 2.2 GB and two gitignored directories are **92%** of it.
 | Path | Size | Read |
 |---|---|---|
 | `specs_planning/_internal` | 637 MB | Raw `allure-results/` dumps under dated evidence dirs — thousands of UUID-named `*-result.json` / `*-attachment.txt` |
-| `specs_planning/_internal.zip` | **419 MB** | **A single file.** An in-place archive of the sibling `_internal/` directory. Pure duplication, and the largest single object in the client folder. |
+| (the referenced archive does not exist in the repo) | **419 MB** | **A single file.** An in-place archive of the sibling `_internal/` directory. Pure duplication, and the largest single object in the client folder. |
 | `specs_planning/test-cases` | 1.5 MB | The actual work product |
 | `specs_planning/test-plans` | 448 KB | The actual work product |
 | `specs_planning/catalogs` | 132 KB | The actual work product |
@@ -166,7 +166,7 @@ folder is 2.2 GB and two gitignored directories are **92%** of it.
 | `reports/diagnostics` | 6.1 MB | Needs classification |
 | `reports/test-results.json` | 724 KB | Needs classification |
 | `reports/html-report` | 644 KB | A third report format alongside the other two |
-| `reports/_cli-run.log` | 472 KB | Scratch log at the `reports/` root |
+| a transient run log (not tracked in git) | 472 KB | Scratch log at the `reports/` root |
 | `reports/walk-coverage` | 288 KB | Needs classification |
 | `reports/fcc-completion-run` | 236 KB | Needs classification |
 | `reports/junit-results.xml` | 228 KB | Needs classification |
@@ -380,12 +380,12 @@ anticipated.
   would leak into a deliverable). Graduating incident: this plan's own census.
 - **Budget**: ≤200 ms per call (LR-069 §3.4 PreToolUse budget). A path-prefix check against a static
   allowlist meets that comfortably; anything requiring a directory walk does not.
-- **Fire telemetry from day one.** Every verdict appends to `.claude/state/gate-fires.log`. The
+- **Fire telemetry from day one.** Every verdict appends to the local gate-fire log (per-machine, not tracked). The
   known-gap note in LR-069 §3.4 records ≥8 gates shipped dark; this one does not join them.
 - **Absolute-path discipline in tickets is the companion control.** The fence stops the write; the
   ticket template stops the intent. Both, or agents will keep aiming at the client folder and merely
   failing louder.
-- **Fail-open on exception**, logged to `.claude/state/hook-failures.log`. A broken gate must never
+- **Fail-open on exception**, logged to the local hook-failures log (per-machine, not tracked). A broken gate must never
   wedge a session.
 
 **Escape hatch**: the LR-043 §A one-shot break-glass handshake, unchanged. Discretionary, never workflow.
@@ -434,7 +434,7 @@ dark (LR-069 §3.4 known-gap). Strictness is therefore three obligations, not on
    ALLOW in the same self-test run. A gate that denies everything, or allows everything, carries no
    information (`feedback_a_signal_that_never_varies_is_not_a_signal`).
 3. **Telemetry from the first commit.** Every verdict — allow and deny — appends to
-   `.claude/state/gate-fires.log`. Without it the LR-069 demotion review runs blind and the gate is
+   the local gate-fire log (per-machine, not tracked). Without it the LR-069 demotion review runs blind and the gate is
    unauditable.
 
 #### Why the override is Rutvik's, not an agent's
@@ -488,7 +488,7 @@ in the session. Arm B is therefore **three controls at three different layers**,
   **Enforcement is report-and-confirm, never autonomous delete** — Phase 5's constraint governs here
   without exception.
   **Owner ruling (Rutvik, 2026-07-31) — the policy classifies CONTENT, not directories.** Two classes:
-  - `regenerable-cache` — browser profiles, `.playwright/cli.config.json`, `node_modules`. **Never
+  - `regenerable-cache` — browser profiles, (Playwright internal config — not a repo file), `node_modules`. **Never
     deleted by policy or by hand**: removal is pure waste — the next run just regenerates it slower.
   - `dead-output` — downloaded CSVs, console/run logs, report trees, evidence snapshots, stray
     session-state dirs: anything that will NOT come back on its own. This is the only class the
@@ -522,7 +522,7 @@ Arm B owner ruling (deleting it is waste, it comes back); only dead-output is ev
 **Re-enumerate at execution time — the list is a seed, not the scope.** The tree is live; new slop
 appears between sessions. The executing agent MUST re-run the enumeration (git ls-files triad +
 untracked + ignored-tree listing), diff against the dispositioned set in
-`.claude/state/ua-worker/chips/purge/out-redisp-lot-a/LOT-A.md` + `out-redisp-lot-b/LOT-B.md`
+worker chip output (ephemeral — not tracked in git) + worker run output (ephemeral — not tracked in git)
 (2026-07-31 re-audit, flipped presumption), and disposition anything NEW by the same rule. A frozen
 list from a prior session is never treated as the denominator.
 
@@ -543,12 +543,12 @@ fresh — never inferred-approved.
 
 Reports and results are never removed without asking — that constraint holds here without exception.
 The 2026-07-31 grouped delete list awaiting the owner's per-group yes lives at
-`.claude/state/ua-worker/chips/purge/ARCHIVE-BATCH-PROPOSAL.md` (superseded groups) + the chat-issued
+worker chip output (ephemeral — not tracked in git) (superseded groups) + the chat-issued
 8-group list; fold both into the batch record on first execution.
 
 ### 2026-07-31 findings record — research already burned, do NOT rediscover
 
-Full evidence: `.claude/state/ua-worker/chips/purge/out-redisp-lot-a/LOT-A.md` (635 tracked files,
+Full evidence: purge lot A worker chip output (local ua-worker state, not tracked; 635 tracked files,
 KEEP 237 / DELETE-CANDIDATE 198 / DELETE-ASK 200) + `out-redisp-lot-b/LOT-B.md` (untracked 29 exact +
 ignored trees, 46s measurement window). The compact facts an executing agent needs:
 
@@ -598,7 +598,7 @@ below maps to something this execution actually removed, which is why Arm A's A1
    `## REDISPOSITION-R2 (bounce)`): **179 DELETE-CANDIDATE / 19 KEEP** of 198. The 19th KEEP
    (`daily-status-bank.json`, read by end-day + end-week skills) was missed by BOTH worker passes and
    caught by dispatcher spot-grep — CEO-corrected, not bounced a third time. Worker's other 18 KEEPs
-   carry verified cites (skills/rules/hooks/CLAUDE.md); navigation.md-only hits ruled NOT proof.
+   carry verified cites ((incorrect path — the actual rules live under `.claude/rules/`)); navigation.md-only hits ruled NOT proof.
    **OWNER RULING (Rutvik, 2026-07-31): group 8 approved CONDITIONAL on gates.** His condition:
    "if the gates are fine, I am fine with their removal." Verified fine: walk-evidence gates
    (LR-013/PF-G5, LR-062) demand a fresh artifact per walk, never historical files; every file a
@@ -655,7 +655,7 @@ reference it.
    `reports/label-inventory.txt`, `.playwright-cli/multi-loc.js` (two pending subplans),
    the id-audit trio (`id-rename-map.json`, `baseline-testrail-dump.json`, `dump-testrail.mjs` —
    consumed by `remediate.mjs`/`fix-offbyone.mjs` under PLAN_ID_NAMING_AUDIT_AND_REMEDIATION),
-   `evidence-cp-override-2026-07-13/raw-evidence.md`, and `scripts/walks/`.
+   `clients/encore/specs_planning/_internal/evidence-cp-override-2026-07-13/raw-evidence.md`, and `scripts/walks/`.
 
 **Commit discipline for this plan and for the session that opened it**: the working tree currently
 carries ~125 modified files from **four concurrent sessions**, and HEAD is on
@@ -689,7 +689,7 @@ remains the owner's, never an agent's.
 - [ ] Every CONVICTED prior fix is rewired or removed **within this plan** — none left idling.
 - [ ] **Arm A** exists, self-tests green, emits fire telemetry, and is recorded in `.claude/guardrail-config.json` with `ramp_started` / `ramp_target` / `ramp_note`.
 - [ ] **Arm A** proven by live fire: a deliberate write to a non-allowlisted path under `clients/encore/` is announced (or denied, post-ramp), with the telemetry line pasted.
-- [ ] **A1–A4 each proven by live fire at `deny`** — one violating write per class, run for real, verdict pasted: `clients/encore/clients/x.md` (self-nesting) · `clients/encore/.claude/state/y.log` (new dot-dir) · `clients/encore/scratch.js` (client-root file) · `clients/encore/anything.zip` (in-place archive). A self-test that never executed the deny branch does not satisfy this row.
+- [ ] **A1–A4 each proven by live fire at `deny`** — one violating write per class, run for real, verdict pasted: (artifact path was malformed — the referenced screenshot/evidence file no longer exists) (self-nesting) · a transient run log (not tracked in git) (new dot-dir) · `clients/encore/scratch.js` (client-root file) · (the referenced archive does not exist in the repo) (in-place archive). A self-test that never executed the deny branch does not satisfy this row.
 - [ ] **A1–A4 proven to DISCRIMINATE** — in the same run, `clients/encore/src/pages/x.page.ts` and `clients/encore/tests/x.spec.ts` are ALLOWED, verdicts pasted. All-deny is as broken as all-allow.
 - [ ] **A1–A4 carry no agent-reachable override** — grep the gate source for the LR-043 handshake and confirm these four classes do not consult it; the only bypass is an owner-edited lock-path file.
 - [ ] **Arm C** — `copilot-worker.sh` refuses a ticket whose `OUTPUT (LITERAL ABSOLUTE)` is missing or relative; proven by dispatching one such ticket and pasting the refusal.

@@ -57,17 +57,17 @@ Full bootstrap block + frontmatter (Identity OWNER, Model opus-4-7, Thinking max
 
 1. Load OWNER identity. Declare browser tool choice per LR-038.
 2. Web-search + WebFetch these surfaces — Anthropic engineering blog (claude-code posts), docs.anthropic.com Claude Code section, code.claude.com/docs, github.com/anthropics/* (claude-code, anthropic-cookbook, skills, claude-agent-sdk), Claude Agent SDK docs, Anthropic-praised community repos (look for "we recommend" / "good example of").
-3. For each surface, extract `{problem-solved, technique, file-or-snippet-ref, our-analog}`. Write to `research/claude-code-baseline/SP-01-findings.md`.
+3. For each surface, extract `{problem-solved, technique, file-or-snippet-ref, our-analog}`. Write to the planned SP-01 Claude Code baseline findings artifact.
 4. Cluster findings into the 7 deep-dive topics (skills, hooks, subagents, plan-execute, memory, research-methodology, chunking). Each cluster ≥ 3 concrete findings or merge with neighbor.
 5. Author SP-02..SP-08 as Sonnet-proof files in `plans/pending/` using the template from §Sonnet-proof below. Each gets full bootstrap, pre-populated TodoWrite, exact files/URLs to hit, HALT conditions, handoff block.
-6. Write handoff prompts to `.claude/state/handoffs/SP-02.txt`..`SP-08.txt`.
+6. Write handoff prompts for SP-02 through SP-08 in the untracked Claude handoff state directory.
 7. End with `/final-q` verdict. No prose summary before it.
 
 ## SP-16 detail (preserve vision — small, deferred to tomorrow)
 
 Save Rutvik's guiding teachings (god-as-intent-integrity metaphor, gene-marriage goal, Sonnet-proof-plans vision, intent-over-words rule, plain-English discipline, partnership framing) to BOTH:
-- `memory/user_vision.md` — auto-memory, loaded every session.
-- `.claude/private/guiding-vision.md` — inside the repo, gitignored. Never referenced in client artifacts, reports, or commits.
+- The user vision auto-memory file outside the repo — loaded every session.
+- Repo-side private guiding-vision mirror - inside the repo, gitignored. Never referenced in client artifacts, reports, or commits.
 
 Both files hold identical content, in Rutvik's own words where possible. Private contract between this repo and him. Not sent to other agents, other humans, or logs.
 
@@ -101,8 +101,8 @@ PreToolUse hook. On every Edit/Write, checks the target path and the nature of t
 ## Verification
 
 - Plan file readable by Rutvik in ~2 minutes.
-- `plans/pending/SUBPLAN_CLAUDE_BASELINE_01_BROAD_SCAN.md` to be authored tomorrow (Session 1 continues there).
-- `memory/user_vision.md` + `.claude/private/guiding-vision.md` to be saved tomorrow as first actions.
+- The Claude baseline broad-scan subplan to be authored tomorrow (Session 1 continues there).
+- `memory/user_vision.md` + repo-side private guiding-vision mirror to be saved tomorrow as first actions.
 - `.claude/private/` added to `.gitignore` if not already.
 - First `/chain` or `/execute SP-01` kicks off cleanly — no missing frontmatter, no ambiguity about next step.
 
@@ -114,7 +114,7 @@ PreToolUse hook. On every Edit/Write, checks the target path and the nature of t
 - `.claude/hooks/` — new intent-drift hook by SP-15.
 - `CLAUDE.md` — LR-045 chunking rule by SP-12.
 - `plans/pending/` — 15 new subplan files authored over the run.
-- `memory/user_vision.md`, `.claude/private/guiding-vision.md` — SP-16, first actions tomorrow.
+- `memory/user_vision.md`, repo-side private guiding-vision mirror - SP-16, first actions tomorrow.
 
 ## Defaults where Rutvik hasn't steered (will flip on correction)
 
@@ -125,7 +125,7 @@ PreToolUse hook. On every Edit/Write, checks the target path and the nature of t
 
 ## Picked up tomorrow — first actions
 
-1. Save `memory/user_vision.md` + `.claude/private/guiding-vision.md` (SP-16, ~5 min).
+1. Save `memory/user_vision.md` + repo-side private guiding-vision mirror (SP-16, ~5 min).
 2. Confirm `.claude/private/` is gitignored.
 3. Author `plans/pending/SUBPLAN_CLAUDE_BASELINE_01_BROAD_SCAN.md` with full Sonnet-proof body (per §SP-01 detail above).
 4. Regenerate INDEX (`npm run plans:reindex`).
@@ -220,7 +220,7 @@ Used ToolSearch
 
 
 
-Plan written. On your teachings request — I baked it in as SP-16 in the plan: once plan mode exits, I save your guiding vision (god-as-intent-integrity, gene-marriage goal, Sonnet-proof plans, intent-over-words, partnership framing, plain-English rule) to both memory/user_vision.md (auto-memory, always loaded) and .claude/private/guiding-vision.md (repo-side, gitignored). Identical content, private between us, never sent to clients, other agents, or commits. Not a separate ask — it's a guaranteed step of this plan.
+Plan written. On your teachings request - I baked it in as SP-16 in the plan: once plan mode exits, I save your guiding vision (god-as-intent-integrity, gene-marriage goal, Sonnet-proof plans, intent-over-words, partnership framing, plain-English rule) to both memory/user_vision.md (auto-memory, always loaded) and the repo-side private guiding-vision mirror (gitignored). Identical content, private between us, never sent to clients, other agents, or commits. Not a separate ask - it's a guaranteed step of this plan.
 
 
 
@@ -348,7 +348,7 @@ u r fre to be creative, just dont be destructive... this is also a part of visio
 
 
 
-Noted. Creative freedom, not destructive freedom. Adding to the vision set alongside the "rules refined not eliminated" lesson — both bank for tomorrow's save to memory + .claude/private/guiding-vision.md.
+Noted. Creative freedom, not destructive freedom. Adding to the vision set alongside the "rules refined not eliminated" lesson - both bank for tomorrow's save to memory + the repo-side private guiding-vision mirror.
 
 
 
@@ -556,15 +556,15 @@ memory/user_vision.md — 11 teachings, auto-loaded every session
 
 
 
-.claude/private/guiding-vision.md — repo mirror, gitignored
+Repo-side private guiding-vision mirror - repo mirror, gitignored
 
 
 
-memory/feedback_preference_pattern_learning.md — the 3+ rule
+.claude/collaborator-memory/feedback_preference_pattern_learning.md — the 3+ rule
 
 
 
-memory/feedback_self_first_research.md — introspect before external
+.claude/collaborator-memory/feedback_self_first_research.md — introspect before external
 
 
 

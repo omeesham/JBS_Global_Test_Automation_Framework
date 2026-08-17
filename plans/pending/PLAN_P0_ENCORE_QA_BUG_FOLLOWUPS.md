@@ -18,7 +18,7 @@ On 2026-05-11 we inventoried every potentially-buggy observation collected on th
 2. **Cat 2** = Some RCA done, not 100% sure it's a bug, needs more RCA or product-intent confirmation.
 3. **Cat 3** = RCA mostly done, confirmed from our end, just needs Encore disposition.
 
-Inventory: **17 filed** bugs (`reports/bugs/BUG-*.json` + `clients/encore/reports/bugs/BUG-MGH-001.json`), **4 catalog-stage candidates** (in `clients/encore/specs_planning/catalogs/`), **1 resolved** bug.
+Inventory: **17 filed** bugs (`reports/bugs/BUG-*.json` + (the referenced bug report file does not exist on disk)), **4 catalog-stage candidates** (in `clients/encore/specs_planning/catalogs/`), **1 resolved** bug.
 
 **Bucket counts**: Cat 1 = 1 filed + 3 catalog = 4 / Cat 2 = 5 filed + 1 catalog = 6 / Cat 3 = 10 filed / Resolved = 1.
 
@@ -46,7 +46,7 @@ Confirmed from our end. Shared with Encore QA via `bugs-for-encore-qa-2026-05-11
 | 10 | BUG-LS-001 | Shared components → missing data-testid (testability ask) | MEDIUM | awaiting-encore | `reports/bugs/BUG-LS-001.json` |
 | 11 | BUG-LOC-AAO-001 | Auto Add-On Unsaved-Changes → Discard dismisses dialog but does NOT navigate to /home | HIGH | awaiting-encore | `reports/bugs/BUG-LOC-AAO-001.json` |
 | 12 | BUG-LOS-BAS-065 | LOS Basic Info → Clear Return Date Offset + save + reload now leaves empty (was: coerced back to default '1' per 2026-05-08 baseline) | LOW | awaiting-encore | `reports/bugs/BUG-LOS-BAS-065.json` |
-| 13 | BUG-LOS-ECT-002 | LOS ECT Settings → all 3 editable parent classes (BM + HS + Labor Cost × 66 rows = 68 inputs) write ZERO rows to 42-col history despite HTTP 200 + `{success:true}` | HIGH | awaiting-encore | `reports/bugs/BUG-LOS-ECT-002.json` |
+| 13 | BUG-LOS-ECT-002 | LOS ECT Settings → all 3 editable parent classes (BM + HS + Labor Cost × 66 rows = 68 inputs) write ZERO rows to 42-col history despite HTTP 200 + `{success:true}` | HIGH | awaiting-encore | (the referenced bug report file does not exist on disk) |
 
 **Action**: Rutvik shares the CSV with Encore QA. We wait for disposition. On reply, flip each `BUG-*.json` status field to `confirmed`, `closed-as-intentional`, or `fixed` per their answer.
 
@@ -137,7 +137,7 @@ These are flagged here for the next-cycle plan; NOT filed in this subplan per us
 - **NA-3** — Fix worker-race interference (likely fix: per-worker office allocation, or serialize save-persist specs).
 - **NA-4** — Append new BUG-*.json rows to `bugs-for-encore-qa-2026-05-13.csv` (refresh of the 2026-05-12 CSV).
 
-**Source artifact**: full-suite log saved to background-task output `C:\Users\rutvi\AppData\Local\Temp\claude\...\tasks\b2x941fk2.output` (14901 lines). Captured 2026-05-13.
+**Source artifact**: full-suite log captured as a background-task output file in the session's temp directory (14901 lines), 2026-05-13. Per-session and per-machine, so it does not travel with the repo.
 
 **Status update 2026-05-14**: NEXT-ACTION GATE is **CLOSED** by §3.8 below. See §3.8 supersedes note and per-failure verdict matrix.
 
@@ -148,9 +148,9 @@ These are flagged here for the next-cycle plan; NOT filed in this subplan per us
 **Purpose**: Re-run the spec suite from §3.7 with workers reduced from 4 → 2 to isolate worker-race from real bugs (per §3.7 NA-1). User scope (2026-05-14 directive): classify each failure verbatim per LR-044, file bugs for confirmed app issues, defer R1–R6 + Cat 1 / Cat 2 deep RCA + CSV refresh to next session.
 
 **Source artifacts**:
-- Spec run log: `C:\Users\rutvi\AppData\Local\Temp\claude\C--Users-rutvi-projects-encore-framework\f03bca21-438c-4cb9-ab01-56a31fc6f5d6\tasks\bv7u06rio.output` (3943 lines, 26.2 min wall clock).
-- Failure summary: `clients/encore/reports/failure-summary.json` (timestamp 2026-05-14T08:29:13Z, ~2 MB).
-- Pre-run preserved: `clients/encore/reports/_failure-summary-2026-05-14T08-02-08.json` (the §3.7 4-worker run, preserved before clean per LR-024).
+- Spec run log: a background-task output file in the session's temp directory (3943 lines, 26.2 min wall clock). Per-session and per-machine, so it does not travel with the repo and is gone once the session ends.
+- Failure summary: local generated failure-summary report (timestamp 2026-05-14T08:29:13Z, ~2 MB; not tracked).
+- Pre-run preserved: (the referenced file no longer exists — it was transient or removed) (the §3.7 4-worker run, preserved before clean per LR-024).
 - New bug file: `reports/bugs/BUG-LOS-BAS-065.json`.
 
 **Run metrics**:
@@ -217,7 +217,7 @@ TC-LOS-HIS-001, TC-LOC-CUR-001, TC-LOC-CUR-027, TC-LOC-LGL-001, TC-LOC-LI-071, T
 - **NA-1** (workers=1 separation) — partially completed via §3.8's workers=2 split. 26 of 27 §3.7 hard failures did NOT reproduce → worker-race confirmed as root cause for those. Only TC-LOS-BAS-065 reproduced as real bug.
 - **NA-2** (/rca per real bug) — completed for TC-LOS-BAS-065 → filed `BUG-LOS-BAS-065.json`.
 - **NA-3** (fix worker-race interference) — acknowledged: workers=2 is now the de-facto investigation default until per-worker office allocation lands. No structural fix scoped this session.
-- **NA-4** (refresh CSV to `bugs-for-encore-qa-2026-05-14.csv`) — **addressed** — see PLAN_P0_EXPORT_REFRESH_2026_05_14 (executed 2026-05-14). New file at `clients/encore/test_cases_csv/bugs-for-encore-qa-2026-05-14.csv` contains all 12 Cat 3 bugs + Q1–Q9 + Q-NEW-1 questions section. Old CSV preserved unchanged.
+- **NA-4** (refresh CSV to `bugs-for-encore-qa-2026-05-14.csv`) — **addressed** — see PLAN_P0_EXPORT_REFRESH_2026_05_14 (executed 2026-05-14). New file at (the referenced file no longer exists — it was transient or removed) contains all 12 Cat 3 bugs + Q1–Q9 + Q-NEW-1 questions section. Old CSV preserved unchanged.
 
 ---
 
@@ -392,7 +392,7 @@ Every "needs Encore disposition / product-intent confirmation" item across all s
 
 ## §9 — Verification (definition of done)
 
-- [x] Cat 3 CSV at `clients/encore/test_cases_csv/bugs-for-encore-qa-2026-05-11.csv` with 10 rows + 6 columns (DONE 2026-05-11).
+- [x] Cat 3 CSV at (the referenced file no longer exists — it was transient or removed) with 10 rows + 6 columns (DONE 2026-05-11).
 - [x] `clients/encore/test_cases_csv/bugs-for-encore-qa-2026-05-14.csv` created with all 12 Cat 3 bugs + 10 questions (Q1–Q9 + Q-NEW-1) — refreshed 2026-05-14 per PLAN_P0_EXPORT_REFRESH_2026_05_14. Old CSV preserved unchanged.
 - [x] This plan at `plans/pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md` with `**Priority**: P0-CYCLE-1` (DONE 2026-05-11).
 - [ ] `npm run plans:reindex` ran successfully and INDEX.md shows this plan in the P0-CYCLE-1 section.

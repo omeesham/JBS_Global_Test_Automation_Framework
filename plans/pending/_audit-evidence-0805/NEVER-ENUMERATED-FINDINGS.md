@@ -4,7 +4,7 @@ START: filled; read the manifest and raw bucket lists, then wrote N1 before judg
 
 ## N1 -- the populations and my grouping
 
-Input manifest read from `_accounting-input\MANIFEST.txt`; raw line counts checked directly.
+Input manifest read from transient accounting input staging (scratch input, not tracked); raw line counts checked directly.
 
 Population totals:
 - Off-repo never-enumerated files: 17,088 total = `.copilot` 11,599 + `.claude` 5,489.

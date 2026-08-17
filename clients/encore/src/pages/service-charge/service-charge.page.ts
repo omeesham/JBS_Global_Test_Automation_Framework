@@ -4,7 +4,7 @@ import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
 import { serviceCharge as sc } from '../../selectors/service-charge/service-charge';
-import { SC_ROUTE, SC_SERVICE_TYPE_INDEX } from '../../data/service-charge/service-charge';
+import { SC_ROUTE, SC_ROW_COUNT, SC_SERVICE_TYPE_INDEX } from '../../data/service-charge/service-charge';
 
 /**
  * Service Charge setup page.
@@ -13,9 +13,9 @@ import { SC_ROUTE, SC_SERVICE_TYPE_INDEX } from '../../data/service-charge/servi
  * - Basic Information (default): 79-row table of decimal percentage inputs, one per service type.
  * - Service Charge History: read-only audit grid.
  *
- * Loading: the Basic Information tab renders 79 percentage inputs disabled for ~30 s after
- * navigation before enabling them all at once. waitUntilLoaded() waits for the first input
- * to become enabled — this is the reliable load gate for the Basic Information tab.
+ * Loading: the Basic Information tab renders 79 percentage inputs disabled before enabling
+ * them and filling their values. waitUntilLoaded() waits for the inputs to enable and for
+ * the grid to stop changing before tests interact with it.
  *
  * Tabs: located by accessible name (Radix ids shift between builds — never use them).
  *
@@ -23,9 +23,9 @@ import { SC_ROUTE, SC_SERVICE_TYPE_INDEX } from '../../data/service-charge/servi
  * is assumed; a custom dialog exists only if a live walk proves otherwise. Confirm
  * before authoring save-cycle assertions.
  *
- * RUNTIME VERIFICATION OUTSTANDING: the e2e environment was degraded at build time
- * (all inputs disabled, office header showing "Local Office : -"). Every method below
- * is authored against the application's DOM as observed on 2026-08-10; no live run has confirmed behaviour.
+ * Live runs confirmed the grid enables before final values arrive, and invalid
+ * percentage values are marked while the input is focused. The waits and
+ * negative tests use those observed behaviours.
  */
 export class ServiceChargePage extends BasePage {
   constructor(page: Page, config?: IConfig) {
@@ -64,19 +64,67 @@ export class ServiceChargePage extends BasePage {
   }
 
   /**
-   * Waits until the Basic Information tab's percentage inputs are enabled.
+   * Waits until the Basic Information tab's percentage inputs are ready.
    *
-   * After navigation the page renders all 79 percentage inputs in a disabled state for
-   * approximately 30 seconds before enabling them all at once. Waiting for skeleton
-   * disappearance alone returns too early — inputs are still disabled at that point.
-   * This gate waits for the first percentage input to become enabled, which confirms the
-   * page is ready to interact with. A 60-second timeout accommodates the observed ~30.5 s
-   * enable delay with comfortable headroom.
+   * After navigation the page enables the percentage inputs before it finishes updating
+   * the grid. Waiting for enablement alone can return during that gap, so this gate waits
+   * until the grid has stopped changing before any test interacts with it.
+   * A 60-second timeout accommodates the observed enable delay with comfortable headroom.
    */
   @step('Wait for the page to finish loading')
   async waitUntilLoaded(timeout = 60_000): Promise<void> {
-    await expect(this.page.locator(sc.percentageByIndex(0)).first()).toBeEnabled({ timeout });
+    await this.waitForPercentageValuesToSettle(timeout);
     await this.waitForAngularStable();
+  }
+
+  /**
+   * Waits until the percentage grid has finished changing.
+   *
+   * The grid enables its inputs before it fills them in, and a value typed in that gap is
+   * overwritten when the values arrive. The page is ready only after the percentage inputs
+   * themselves have stopped changing for a short quiet period.
+   */
+  private async waitForPercentageValuesToSettle(timeout = 30_000, quietMs = 2_500): Promise<void> {
+    const percentageInputs = this.page.locator(sc.allPercentageInputs);
+    const firstPercentageInput = percentageInputs.first();
+    await firstPercentageInput.waitFor({ state: 'attached', timeout });
+    await expect(percentageInputs).toHaveCount(SC_ROW_COUNT, { timeout });
+    await expect(firstPercentageInput).toBeEnabled({ timeout });
+
+    let previousSignature: string | undefined;
+    let stableSince = Date.now();
+
+    await expect
+      .poll(
+        async () => {
+          const signature = await percentageInputs.evaluateAll((elements) =>
+            elements
+              .map((element) => {
+                const input = element as HTMLInputElement;
+                return [
+                  input.getAttribute('data-testid') ?? '',
+                  input.disabled ? 'disabled' : 'enabled',
+                  input.value,
+                ].join('=');
+              })
+              .join('\n'),
+          );
+
+          const now = Date.now();
+          if (signature !== previousSignature) {
+            previousSignature = signature;
+            stableSince = now;
+          }
+
+          return now - stableSince;
+        },
+        {
+          timeout,
+          intervals: [100],
+          message: 'Service Charge percentage inputs should stop changing before interaction',
+        },
+      )
+      .toBeGreaterThanOrEqual(quietMs);
   }
 
   /**
@@ -108,15 +156,33 @@ export class ServiceChargePage extends BasePage {
   // ---------------------------------------------------------------- reading
 
   /**
-   * Returns the full office header text shown at the top of the page
-   * (e.g. "Local Office : Parker Palm Springs").
-   * The header element carries no data-testid; located by visible text pattern.
+   * Returns the full office header line shown on the Basic Information tab, including
+   * the office name (e.g. "Local Office : 1604 - Parker Palm Springs").
+   * The label "Local Office :" and the office name value live in separate child nodes;
+   * reading the parent element captures both. Verified 2026-08-14.
    */
   @step('Read the office header text')
   async getOfficeHeader(): Promise<string> {
     const raw = await this.page
       .getByText(/Local Office\s*:/, { exact: false })
       .first()
+      .locator('xpath=..')
+      .textContent();
+    return (raw ?? '').replace(/\s+/g, ' ').trim();
+  }
+
+  /**
+   * Returns the section header line shown on the Service Charge History tab, including
+   * the office name (e.g. "Service Charge History : Parker Palm Springs").
+   * The label and office name live in separate child nodes; reading the parent captures both.
+   * Verified 2026-08-14.
+   */
+  @step('Read the History section header text')
+  async getHistorySectionHeader(): Promise<string> {
+    const raw = await this.page
+      .getByText(/Service Charge History\s*:/, { exact: false })
+      .first()
+      .locator('xpath=..')
       .textContent();
     return (raw ?? '').replace(/\s+/g, ' ').trim();
   }
@@ -206,21 +272,94 @@ export class ServiceChargePage extends BasePage {
   /**
    * Sets the percentage value at the given row index. Waits for the field to be enabled
    * before interacting — percentage inputs are disabled for ~30 s after every navigation
-   * or reload. Clears the field, types the new value, and presses Tab to move focus away
-   * and trigger Angular change detection.
+   * or reload. Clears the field, types the new value, and presses Tab to trigger Angular
+   * change detection.
    *
-   * The 400 ms settle after Tab is intentionally kept as a fixed wait. A deterministic
-   * signal (e.g. Save button enabling) cannot be used here because restore paths set the
-   * value back to the saved default, which produces a net-zero change — Save stays
-   * disabled — making Save-enabled an unreliable gate for this method.
+   * For standard percentage values (finite, non-negative, at most two decimal places) the
+   * method confirms the written value was accepted by polling the input until it reflects
+   * the expected number. If the app reverts the value during a re-render, it re-applies
+   * the value up to three times. Throws if the value still has not landed after those
+   * attempts — a silent no-op is never tolerated for valid writes.
+   *
+   * Boundary and edge-case inputs (negative numbers, empty strings, whitespace, values
+   * with more than two decimal places) skip the postcondition check because the app may
+   * legitimately transform or reject them.
    */
   @step('Set a percentage value by row index')
   async setPercentageByIndex(index: number, value: string): Promise<void> {
     const field = await this.resolveEnabledPercentageField(index);
+    const expected = parseFloat(value);
+
+    const applyValue = async (): Promise<void> => {
+      await field.click();
+      await field.fill(value);
+      await this.page.keyboard.press('Tab');
+    };
+
+    const readNumericValue = async (): Promise<number> => {
+      const raw = await field.inputValue();
+      return parseFloat(raw.replace('%', ''));
+    };
+
+    // Only confirm the postcondition for values the app is expected to accept
+    // unchanged: finite, non-negative, and already at two-or-fewer decimal places.
+    const isConfirmable =
+      Number.isFinite(expected) &&
+      expected >= 0 &&
+      Math.round(expected * 100) / 100 === expected;
+
+    if (!isConfirmable) {
+      await applyValue();
+      await this.waitForAngularStable(2000);
+      return;
+    }
+
+    const maxAttempts = 3;
+    let actual = Number.NaN;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      await applyValue();
+
+      try {
+        await expect
+          .poll(readNumericValue, {
+            timeout: 2000,
+            message: `Percentage field at row ${index} should keep ${expected}`,
+          })
+          .toBe(expected);
+        return;
+      } catch {
+        actual = await readNumericValue();
+      }
+    }
+
+    throw new Error(
+      `Percentage field at row ${index}: wrote ${expected} but found ${actual} after ${maxAttempts} attempts`,
+    );
+  }
+
+  /**
+   * Types a percentage value and reads the field before focus leaves it.
+   * Some invalid values are marked only while the field is focused.
+   */
+  @step('Type a percentage value and keep focus')
+  async typePercentageAndReadFocused(
+    index: number,
+    value: string,
+  ): Promise<{ value: string; invalid: string | null }> {
+    const field = await this.resolveEnabledPercentageField(index);
     await field.click();
     await field.fill(value);
+    return {
+      value: await field.inputValue(),
+      invalid: await field.getAttribute('aria-invalid'),
+    };
+  }
+
+  /** Moves focus away from the current percentage field. */
+  @step('Move away from the percentage field')
+  async moveAwayFromPercentageField(): Promise<void> {
     await this.page.keyboard.press('Tab');
-    await this.page.waitForTimeout(400);
   }
 
   /**
@@ -247,6 +386,57 @@ export class ServiceChargePage extends BasePage {
     await this.page.locator(sc.save).first().click();
   }
 
+  // ---------------------------------------------------------------- baseline restore
+
+  /**
+   * Restores the given rows to their recorded default values before each test.
+   *
+   * For each row: reads the current value, skips if it already matches (numeric compare),
+   * sets and verifies if not. Saves once at the end only if anything changed, then re-reads
+   * to confirm. Up to 3 attempts; throws with row detail if restoration fails.
+   */
+  @step('Restore mutated rows to their recorded default values')
+  async ensureDefaultState(
+    defaults: { rowIndex: number; value: string }[],
+  ): Promise<void> {
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      let dirty = false;
+      for (const { rowIndex, value } of defaults) {
+        const current = parseFloat((await this.getPercentageByIndex(rowIndex)).replace('%', ''));
+        const expected = parseFloat(value);
+        if (current !== expected) {
+          await this.setPercentageByIndex(rowIndex, value);
+          dirty = true;
+        }
+      }
+      if (!dirty) return; // already at defaults
+      await this.waitForSaveActive();
+      await this.clickSave();
+      await this.waitUntilLoaded();
+      // Re-read and verify all rows after save
+      let allMatch = true;
+      for (const { rowIndex, value } of defaults) {
+        const after = parseFloat((await this.getPercentageByIndex(rowIndex)).replace('%', ''));
+        if (after !== parseFloat(value)) {
+          allMatch = false;
+          break;
+        }
+      }
+      if (allMatch) return;
+    }
+    // Build a diagnostic message with the first mismatched row
+    for (const { rowIndex, value } of defaults) {
+      const actual = await this.getPercentageByIndex(rowIndex);
+      const actualNum = parseFloat(actual.replace('%', ''));
+      if (actualNum !== parseFloat(value)) {
+        throw new Error(
+          `ensureDefaultState: row ${rowIndex} expected ${value} but found ${actual} after ${maxAttempts} attempts`,
+        );
+      }
+    }
+  }
+
   // ---------------------------------------------------------------- History tab
 
   /**
@@ -268,8 +458,8 @@ export class ServiceChargePage extends BasePage {
 
   /**
    * Returns the page `<h1>` heading text, trimmed and normalised.
-   * The heading reads "Service Charge" on both tabs; NM-3300 tracks a known defect where
-   * the office name is missing (expected: "Service Charge — Parker Palm Springs").
+   * The heading reads "Service Charge" on both tabs; office context is rendered separately
+   * per tab (Basic Information tab: "Local Office : <name>"; History tab: "Service Charge History : <name>").
    */
   @step('Read the page heading')
   async getPageHeading(): Promise<string> {
@@ -357,8 +547,7 @@ export class ServiceChargePage extends BasePage {
    *
    * Angular's dirty state does not reliably reset after save. When navigating from
    * Basic Information to History with unsaved edits, the app should present an alertdialog
-   * with Save Changes / Discard Changes / Cancel options (NM-3285). Use this method to
-   * assert whether the modal appeared.
+   * with Stay / Discard options. Use this method to assert whether the modal appeared.
    */
   @step('Check whether the Unsaved Changes modal is visible')
   async isUnsavedChangesModalVisible(): Promise<boolean> {
@@ -381,6 +570,82 @@ export class ServiceChargePage extends BasePage {
    * Returns what is rendered; empty result means no rows loaded or tab not yet switched to.
    * NEEDS-LIVE-CONFIRM: that row cell content is accessible via textContent on this table.
    */
+  /**
+   * Sort a History grid column by opening its header dropdown and clicking
+   * "Sort ascending" or "Sort descending". The History grid uses a Radix dropdown
+   * menu on each column header — a click on the header opens the menu.
+   */
+  @step('Sort History column via dropdown')
+  async sortHistoryColumnViaDropdown(headerLabel: string, direction: 'ascending' | 'descending'): Promise<void> {
+    // Resolve which column index corresponds to the header so we can detect re-render.
+    const headerTexts = await this.page.getByRole('columnheader').allTextContents();
+    const colIndex = headerTexts.findIndex((h) => h.replace(/\s+/g, ' ').trim().includes(headerLabel));
+
+    // Capture the first data row's value in this column before the sort click.
+    let preSortValue: string | null = null;
+    if (colIndex >= 0) {
+      const rows = this.page.getByRole('row');
+      if ((await rows.count()) > 1) {
+        const cells = await rows.nth(1).getByRole('cell').allTextContents();
+        preSortValue = cells[colIndex]?.replace(/\s+/g, ' ').trim() ?? null;
+      }
+    }
+
+    const header = this.page.locator('th', { hasText: headerLabel }).first();
+    await header.click();
+    const menuLabel = direction === 'ascending' ? 'Sort ascending' : 'Sort descending';
+    const menuItem = this.page.getByRole('menuitem', { name: menuLabel }).first();
+    await menuItem.waitFor({ state: 'visible', timeout: 6_000 });
+    await menuItem.click();
+
+    // Wait for the grid to re-render by polling until the first data row's value changes.
+    // A fixed sleep wastes time on fast re-renders and misses genuinely slow ones.
+    if (colIndex >= 0 && preSortValue !== null) {
+      const SORT_SETTLE_TIMEOUT = 45_000;
+      const deadline = Date.now() + SORT_SETTLE_TIMEOUT;
+      let settled = false;
+      while (Date.now() < deadline) {
+        const rows = this.page.getByRole('row');
+        if ((await rows.count()) > 1) {
+          const cells = await rows.nth(1).getByRole('cell').allTextContents();
+          const current = cells[colIndex]?.replace(/\s+/g, ' ').trim() ?? '';
+          if (current !== preSortValue) {
+            settled = true;
+            break;
+          }
+        }
+        await this.page.waitForTimeout(300);
+      }
+      if (!settled) {
+        throw new Error(
+          `History grid first-row value did not change after ${direction} sort on "${headerLabel}" ` +
+          `within ${SORT_SETTLE_TIMEOUT / 1000} s. Pre-sort value: "${preSortValue}". ` +
+          `The ${direction} sort did not re-render the grid — possible application defect.`,
+        );
+      }
+    }
+  }
+
+  /**
+   * Read the cell text at a given column index for the first visible data row
+   * in the History grid (0-based column index).
+   */
+  @step('Get first History row cell text')
+  async getFirstHistoryRowCellText(colIndex: number): Promise<string> {
+    const rows = await this.getHistoryRows();
+    if (rows.length === 0) return '';
+    return rows[0][colIndex] ?? '';
+  }
+
+  /**
+   * Read all visible cell values for a given column index in the History grid.
+   */
+  @step('Get History column cell values')
+  async getHistoryColumnCellValues(colIndex: number): Promise<string[]> {
+    const rows = await this.getHistoryRows();
+    return rows.map((r) => r[colIndex] ?? '');
+  }
+
   @step('Read all rows from the Service Charge History table')
   async getHistoryRows(): Promise<string[][]> {
     const rows = this.page.getByRole('row');

@@ -1,7 +1,7 @@
 # PLAN_PLANS_INDEX_AUTOREGEN
 
 **Status**: PENDING
-**Parent audit**: `C:\Users\rutvi\.claude\plans\expressive-booping-fountain.md` (Action H-6, Findings F-004 + GD-F1)
+**Parent audit**: `C:\Users\RutvikKhorasiya\.claude\plans\expressive-booping-fountain.md` (Action H-6, Findings F-004 + GD-F1)
 **Priority**: P2-CYCLE-3
 **Created**: 2026-04-15
 **Identity**: GARDENER (repo health) → BUILDER for the script

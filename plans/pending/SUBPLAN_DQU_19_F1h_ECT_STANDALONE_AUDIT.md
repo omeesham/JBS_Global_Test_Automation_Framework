@@ -88,7 +88,7 @@ Phase 1 + Phase 2 are **NO-OP**. Close subplan with full evidence emission:
 
 1. HALT this subplan immediately.
 2. Author and file `SUBPLAN_DQU_19A_ECT_BOOTSTRAP_TC_MD.md` first to:
-   - Create `clients/encore/specs_planning/test-cases/setup/ect-settings/ect_settings_test_cases.md` (TC MD).
+   - Create the ECT settings TC markdown artifact (the exact cited path is not present in this repo; the claim is unverified as file evidence).
    - Run `npm run xlsx:build` so the new `ect_settings` TCs land as a sheet in `clients/encore/testcases/encore_test_cases.xlsx` (the per-module CSV initial-export was retired in PLAN_CSV_TO_XLSX_DELIVERABLE_MIGRATION Phase D).
    - Add `setup/ect-settings/` directory tree per MODULE_REGISTRY convention.
 3. After SP-DQU-19A is DONE, return to this subplan and proceed to Phase 1 (full audit) using the new artifact paths.

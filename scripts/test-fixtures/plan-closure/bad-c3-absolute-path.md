@@ -22,7 +22,7 @@ Fixture that should FAIL C3 due to citing an absolute Windows path. The validato
 
 ## Walk Results
 
-- Evidence captured: C:\Users\rutvi\projects\encore_framework\nonexistent\file.png
+- Evidence captured: C:\Users\RutvikKhorasiya\projects\encore_framework\nonexistent\file.png
 - Surface fields reviewed against baseline
 
 ## Execution Summary
@@ -31,7 +31,7 @@ Walked target surface and recorded evidence using an absolute Windows file path.
 
 - Step 1: target surface accessed and fields inspected
 - Step 2: evidence path recorded with absolute Windows path above
-- Cited path: C:\Users\rutvi\projects\encore_framework\nonexistent\file.png
+- Cited path: C:\Users\RutvikKhorasiya\projects\encore_framework\nonexistent\file.png
 - After normalization: nonexistent/file.png (relative to repo root)
 - Post-normalization existence check should fail (directory and file do not exist)
 - C3 validator should handle absolute path stripping for the repo root prefix

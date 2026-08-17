@@ -152,7 +152,7 @@ author's defense is a protocol defect and goes back.
 contradict?
 
 - **Denominator**: user instructions extracted from the session transcript at
-  `C:\Users\rutvi\.claude\projects\C--Users-rutvi-projects-encore-framework\97fc2a8f-d682-49e5-ad02-431273e486b4.jsonl`
+  `C:\Users\RutvikKhorasiya\.claude\projects\C--Users-RutvikKhorasiya-projects-encore-framework\97fc2a8f-d682-49e5-ad02-431273e486b4.jsonl`
   (2933 lines), plus the pre-compaction instructions preserved in the summary block.
 - **L2 validation set** (the extractor must find all of these before its count is trusted):
   `abuse the council of copilot` · `there is also a sloppy shitty _unit file` · `we need to put
@@ -326,7 +326,7 @@ push is defensible.
 | GIVER | (none) — no test cases or plans authored | `(none)` | n/a |
 | BUILDER | (none) — diagnosis-only plan, zero code produced | `(none)` | n/a |
 | HEALER | (none) — no RCA-driven fixes in scope | `(none)` | n/a |
-| WATCHDOG | findings tables (all eight lots) | `.claude/state/ua-worker/chips/deliv-audit/SYNTHESIS.md`<br>`.claude/state/ua-worker/chips/deliv-audit/out-a1/A1-INSTRUCTION-COMPLIANCE.md`<br>`.claude/state/ua-worker/chips/deliv-audit/out-a2/A2-CLAIM-VERIFICATION.md`<br>`.claude/state/ua-worker/chips/deliv-audit/out-a3/A3-SCOPE-REDERIVATION.md`<br>`.claude/state/ua-worker/chips/deliv-audit/out-a4/A4-REVERSE-SLOP.md`<br>`.claude/state/ua-worker/chips/deliv-audit/out-a5/A5-FORWARD-SLOP.md`<br>`.claude/state/ua-worker/chips/deliv-audit/out-a6/A6-GATE-ATTACKS.md`<br>`.claude/state/ua-worker/chips/deliv-audit/out-a7/A7-BLAST-RADIUS.md`<br>`.claude/state/ua-worker/chips/deliv-audit/out-a8/A8-PREMISE-AUDIT.md` | every path resolves; `SYNTHESIS.md` carries a verdict line |
+| WATCHDOG | findings tables (all eight lots) | a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output)<br>a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output)<br>a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output)<br>a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output)<br>a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output)<br>a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output)<br>a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output)<br>a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output)<br>a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output) | every path resolves; `SYNTHESIS.md` carries a verdict line |
 | GARDENER | (none) — no refactor in scope | `(none)` | n/a |
 | OWNER | rule amendments from §2's convicted fixes | `plans/pending/PLAN_DELIVERY_SESSION_SELF_AUDIT.md` (this file, Phase 5 section appended at closure) | `grep -c "AUD-017 scope extension" plans/pending/PLAN_DELIVERY_SESSION_SELF_AUDIT.md` ≥ 1 |
 

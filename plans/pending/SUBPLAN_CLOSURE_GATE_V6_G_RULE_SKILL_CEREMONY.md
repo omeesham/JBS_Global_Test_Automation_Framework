@@ -84,7 +84,7 @@ Only after parent passes C2-C5 dry-run can `--enforce --write-manifest` succeed.
 node scripts/validate-plan-closure.mjs --plan plans/pending/PLAN_CLOSURE_GATE_V6_PARENT.md --enforce --write-manifest
 ```
 
-Manifest written at `plans/_closure_manifests/PLAN_CLOSURE_GATE_V6_PARENT.md.manifest.json`. Then:
+Manifest written by the closure validator (the artifact this cited is gone; the claim is unverified as file evidence). Then:
 
 ```bash
 git mv plans/pending/PLAN_CLOSURE_GATE_V6_PARENT.md plans/done/

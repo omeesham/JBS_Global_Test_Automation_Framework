@@ -81,6 +81,7 @@ const EXCLUDE = (p) =>
   /^scripts\/test-fixtures\//.test(p) ||
   /^scripts\/sp00-fixme-path\.test\.ts$/.test(p) || // test fixture: intentionally tests stale-path resolution
   /^\.claude\/hooks\/lib\/test-[^/]+\.mjs$/.test(p) || // hook test fixtures: intentionally contain path examples
+  /^\.claude\/skills\/graft\/classify-incoming\.sh$/.test(p) || // classifies files on INCOMING colleague branches, 18 of which still carry test_cases_xlsx/ — it must keep matching the pre-rename path or their work misclassifies
   /CURRENT_STATE\.md$/.test(p) ||
   /restructure-map-/.test(p) ||
   /verify-no-stale-live-refs\.mjs$/.test(p) ||

@@ -16,7 +16,7 @@ pipeline {
     }
 
     environment {
-        PROJECT_SRC = "C:\\Users\\rutvi\\projects\\encore_framework"
+        PROJECT_SRC = "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework"
         CI = "true"
         CI_ENV = "${params.ENVIRONMENT}"
         PLAYWRIGHT_BROWSERS_PATH = "${WORKSPACE}\\.browsers"

@@ -5,7 +5,7 @@
 //
 //   node scripts/walk-coverage/lib/test-coverage-manifest.mjs
 
-import { coverageVerdict, parseCoverageSignals, isGrandfathered } from './coverage-manifest.mjs';
+import { coverageVerdict, parseCoverageSignals, isGrandfathered, loadCrossModuleRegistry } from './coverage-manifest.mjs';
 
 const LANDING = '2026-06-19';
 const PRE_MANDATE_TRACKED_ARTIFACT = 'package.json';
@@ -124,7 +124,9 @@ ok('P5 covered-by-TC + provenance oracle → NOT complete + provenanceFail',
   v.applicable && !v.complete && v.provenanceFail && v.reasons.some(r => /contradicts provenance: oracle/.test(r)));
 
 // P6. out-of-scope is honest inference — oracle there is fine (F7: do not over-reject)
-v = coverageVerdict(provHeader('2026-06-25', P6_ROWS, '7/7 (100%)'), LANDING);
+// Cross-module registry confirms `testid:nav` is shared shell (appears in another module).
+const shellRegistry = new Map([['testid:nav', new Set(['other-module', 'yet-another'])]]);
+v = coverageVerdict(provHeader('2026-06-25', P6_ROWS, '7/7 (100%)'), LANDING, { crossModuleControls: shellRegistry });
 ok('P6 out-of-scope + oracle → complete (honest inference, not gated)', v.applicable && v.complete && !v.provenanceFail, JSON.stringify(v.reasons));
 
 // P7. THE no-false-positive guard (F1): a pre-2026-06-24 artifact with an oracle observation row is
@@ -148,6 +150,73 @@ ok('P8 covered-by-TC (no provenance) on gated artifact → complete', v.applicab
 const prows = parseCoverageSignals(provHeader('2026-06-25', ROW_LIVE_OK)).manifestRows;
 ok('P9 parser extracts manifest row provenance+evidence',
   prows.length === 1 && prows[0].disposition === 'affordance-probed' && prows[0].provenance === 'live' && prows[0].evidence === '.playwright-cli/net-x.json');
+
+// === Cross-module evidence gate (NM-3344 defence) ===
+// F1. Forged row: a real module control with outside-module prefix but NOT in any other module → REJECTED
+const FORGED_ROW = '| `testid:terms-conditions-save` | button | 2026-07-01 | `out-of-scope: outside-module — global navigation shell save button not part of Terms and Conditions module` |\n';
+const COVERED_ROW = '| `testid:btn-ok` | button | 2026-07-01 | covered-by-TC: TC-1 |\n';
+const forgedArtifact = header('2026-07-01', '2/2 (100%)', 'clean') + COVERED_ROW + FORGED_ROW;
+// Empty registry = no cross-module evidence for anything
+const emptyRegistry = new Map();
+v = coverageVerdict(forgedArtifact, LANDING, { crossModuleControls: emptyRegistry, artifactPath: 'clients/encore/specs_planning/_internal/field-inventories/terms-conditions-core-2026-06-20.md' });
+ok('F1 forged outside-module row (no cross-module evidence) → NOT complete',
+  v.applicable && !v.complete && v.reasons.some(r => /NOT evidenced as shared shell/.test(r)), JSON.stringify(v.reasons));
+
+// F2. Genuine shell row: control appears in another module's inventory → excluded from denominator
+const GENUINE_SHELL_ROW = '| `struct:a|Home|div/div/div/div/ul/li` | a | 2026-07-01 | `out-of-scope: outside-module — global navigation link, not a module element` |\n';
+const genuineArtifact = header('2026-07-01', '2/2 (100%)', 'clean', undefined, { completionRecord: '' }) + COVERED_ROW + GENUINE_SHELL_ROW;
+const registryWithHome = new Map([['struct:a', new Set(['service-charge-history', 'service-charge-basic-information'])]]);
+v = coverageVerdict(genuineArtifact, LANDING, { crossModuleControls: registryWithHome, artifactPath: POST_COVERAGE_PRE_MANDATE_TRACKED_ARTIFACT });
+ok('F2 genuine shell row (cross-module evidence) → complete (excluded from denominator)',
+  v.applicable && v.complete, JSON.stringify(v.reasons));
+
+// F3. Zero-module-denominator: all rows excluded AND evidenced → pass (genuine all-shell artifact)
+const allShellArtifact = header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + GENUINE_SHELL_ROW;
+v = coverageVerdict(allShellArtifact, LANDING, { crossModuleControls: registryWithHome, artifactPath: POST_COVERAGE_PRE_MANDATE_TRACKED_ARTIFACT });
+ok('F3 all rows are evidenced shell → complete (zero module-own denominator allowed when evidenced)',
+  v.applicable && v.complete, JSON.stringify(v.reasons));
+
+// F4. Zero-module-denominator WITHOUT evidence: all rows claim outside-module but none evidenced → FAIL
+const allForgedArtifact = header('2026-07-01', '1/1 (100%)', 'clean') + FORGED_ROW;
+v = coverageVerdict(allForgedArtifact, LANDING, { crossModuleControls: emptyRegistry, artifactPath: 'clients/encore/specs_planning/_internal/field-inventories/terms-conditions-core-2026-06-20.md' });
+ok('F4 all rows claim outside-module but no evidence → NOT complete',
+  v.applicable && !v.complete && v.reasons.some(r => /NOT evidenced/.test(r)), JSON.stringify(v.reasons));
+
+// === Escaped-bar key parsing (NM-3344 manifest reader defect) ===
+// E1. A key with escaped bars (\|) parses to the unescaped form
+const ESCAPED_BAR_ROW = '| `struct:a\\|Home\\|div/div/div/div/ul/li` | a | 2026-07-01 | `out-of-scope: outside-module — global navigation link, not a module element` |\n';
+const escapedRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + ESCAPED_BAR_ROW).manifestRows;
+ok('E1 escaped-bar key parses to unescaped form',
+  escapedRows.length === 1 && escapedRows[0].controlRef === 'struct:a|Home|div/div/div/div/ul/li',
+  `got: ${escapedRows[0]?.controlRef}`);
+
+// E2. An invented key (not in any enumeration) is still rejected by the cross-module gate
+const INVENTED_ROW = '| `testid:totally-invented-xyz` | button | 2026-07-01 | `out-of-scope: outside-module — invented element` |\n';
+const inventedArtifact = header('2026-07-01', '2/2 (100%)', 'clean') + COVERED_ROW + INVENTED_ROW;
+v = coverageVerdict(inventedArtifact, LANDING, { crossModuleControls: emptyRegistry, artifactPath: 'clients/encore/specs_planning/_internal/field-inventories/test-module-2026-07-01.md' });
+ok('E2 invented key still rejected (inflation check works)',
+  v.applicable && !v.complete && v.reasons.some(r => /NOT evidenced as shared shell/.test(r)), JSON.stringify(v.reasons));
+
+// E3. A case-mismatched key (STRUCT:A|HOME|DIV/DIV vs struct:a|Home|div/div) must NOT parse as equal
+const CASE_MISMATCH_ROW = '| `STRUCT:A\\|HOME\\|DIV/DIV` | a | 2026-07-01 | covered-by-TC: TC-99 |\n';
+const caseMismatchRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + CASE_MISMATCH_ROW).manifestRows;
+ok('E3 case-mismatched escaped key parses with original case preserved',
+  caseMismatchRows.length === 1 && caseMismatchRows[0].controlRef === 'STRUCT:A|HOME|DIV/DIV',
+  `got: ${caseMismatchRows[0]?.controlRef}`);
+
+// E4. Doubled backslash (\\|) should NOT unescape to a pipe — it is a literal backslash + delimiter
+const DOUBLED_BS_ROW = '| `struct:a\\\\|home` | a | 2026-07-01 | covered-by-TC: TC-100 |\n';
+const doubledBsRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + DOUBLED_BS_ROW).manifestRows;
+ok('E4 doubled backslash is literal backslash + cell delimiter (key truncates at delimiter)',
+  doubledBsRows.length === 1 && doubledBsRows[0].controlRef === 'struct:a\\\\',
+  `got: ${doubledBsRows[0]?.controlRef}`);
+
+// E5. Unicode look-alike bar (U+2502 BOX DRAWINGS LIGHT VERTICAL) is NOT a delimiter — stays in key
+const UNICODE_BAR_ROW = '| `struct:a\u2502Home\u2502div` | a | 2026-07-01 | covered-by-TC: TC-101 |\n';
+const unicodeBarRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + UNICODE_BAR_ROW).manifestRows;
+ok('E5 unicode look-alike bar stays in key (not a delimiter)',
+  unicodeBarRows.length === 1 && unicodeBarRows[0].controlRef === 'struct:a\u2502Home\u2502div',
+  `got: ${unicodeBarRows[0]?.controlRef}`);
 
 console.log(`\ncoverage-manifest fixtures: ${passed} passed, ${failed} failed, ${passed + failed} total`);
 process.exit(failed > 0 ? 1 : 0);

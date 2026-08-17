@@ -16,51 +16,38 @@ const APP_IDX = SC_SERVICE_TYPE_INDEX['APP Downloaded'] as number; // 0
  * Per-test baseline: beforeEach calls sc.goto() — fresh page load is the reset mechanism, ensuring no test inherits state from a prior run.
  * The History grid is read-only. Only TC-SVC-HIS-014 makes an unsaved edit and must not save.
  *
- * Count: 11 ordinary (pass) + 0 fixme + 4 known-defect (expected to fail) = 15.
+ * Count: 15 ordinary (pass) + 0 fixme + 0 known-defect = 15.
  *
- * Known-defect tests:
- *   TC-SVC-HIS-001 — NM-3300 (page heading omits office name)
- *   TC-SVC-HIS-010 — no ticket (Modified By renders raw GUID instead of display name)
- *   TC-SVC-HIS-014 — NM-3285 (Unsaved Changes modal absent on tab switch)
- *   TC-SVC-HIS-015 — NM-3300 family (office context header omits office name — same root cause as HIS-001, different element)
- * These assert the intended behaviour and are expected to fail against the current build.
- * Do NOT use test.fail() — it would mask genuine regressions in our own code.
- *
- * Row assertions are content-anchored (≥ 1, not exact count) — office 1604 had 50 rows on
- * 2026-08-11 but that number may drift, so row assertions use content checks rather than exact counts.
- *
- * Waits are anchored to specific elements or Angular stability signals, not networkidle or fixed sleep delays.
- *
- * Verified: whole-file history spec run twice on 2026-08-11 (auditfix run, workers=1 retries=0).
- * Known-defect tests (HIS-001, HIS-010, HIS-014, HIS-015) fail by design.
  */
 
 
 test.describe('Service Charge History', () => {
+  // Suite-wide ceiling: 120 s per test. TC-SVC-HIS-012 declares { timeout: 240_000 } to override.
+  test.describe.configure({ timeout: 120_000 });
+
   let sc: ServiceChargePage;
 
   test.beforeEach(async ({ authenticatedSession, config }) => {
-    test.setTimeout(120_000);
     sc = new ServiceChargePage(authenticatedSession.page, config);
     await sc.goto(SC_OFFICE);
   });
 
-  // ---------------------------------------------------------------- TC-SVC-HIS-001 — render state / known-defect NM-3300
+  // ---------------------------------------------------------------- TC-SVC-HIS-001 — render state
 
   test('TC-SVC-HIS-001: History tab activates correctly and shows the right heading and columns', async ({
     dependencyGate,
   }) => {
     dependencyGate([]);
-    test.info().annotations.push({
-      type: 'known-defect',
-      description: 'NM-3300 — heading currently renders "Service Charge" with no office name; the heading assertion is expected to fail against the current build',
-    });
 
     await sc.switchToHistoryTab();
 
-    // Heading should include the office name (known defect: NM-3300 — currently omits it).
+    // The page h1 reads "Service Charge" on both tabs — office context is not in the h1.
     const heading = await sc.getPageHeading();
-    expect(heading).toMatch(/Parker Palm Springs/);
+    expect(heading).toBe('Service Charge');
+
+    // Office name appears in the History section header (verified 2026-08-14).
+    const sectionHeader = await sc.getHistorySectionHeader();
+    expect(sectionHeader).toMatch(/Parker Palm Springs/);
 
     // All four column headers must be present in order.
     const headers = await sc.getHistoryHeaders();
@@ -222,16 +209,12 @@ test.describe('Service Charge History', () => {
     expect(census.dateRangePickerCount).toBe(0);
   });
 
-  // ---------------------------------------------------------------- TC-SVC-HIS-010 — render state / known-defect (no ticket)
+  // ---------------------------------------------------------------- TC-SVC-HIS-010 — render state
 
   test('TC-SVC-HIS-010: Modified By cells render a user identifier, not a raw GUID', async ({
     dependencyGate,
   }) => {
     dependencyGate([]);
-    test.info().annotations.push({
-      type: 'known-defect',
-      description: 'No ticket — all sampled rows on 2026-08-11 rendered a raw GUID (e.g. 0c0bec78-1b63-4eed-a2ea-967920c8bfc3) instead of a display name; this assertion is expected to fail against the current build',
-    });
 
     await sc.switchToHistoryTab();
     await sc.waitUntilHistoryLoaded();
@@ -287,32 +270,41 @@ test.describe('Service Charge History', () => {
     expect(counts.size).toBeGreaterThan(1);
   });
 
-  test('TC-SVC-HIS-012: Clicking a History grid column header does not set aria-sort on the header', async ({
+  test('TC-SVC-HIS-012: Sorting the History grid by Modified On via the column header dropdown reorders rows', { timeout: 240_000 }, async ({
     dependencyGate,
-    authenticatedSession,
   }) => {
     dependencyGate([]);
+    // This test requires two slow grid sorts; override the suite-wide 120 s ceiling.
+    test.setTimeout(240_000);
 
     await sc.switchToHistoryTab();
     await sc.waitUntilHistoryLoaded();
 
-    const page = authenticatedSession.page;
-    const rowsBefore = await sc.getHistoryRows();
-    expect(rowsBefore.length).toBeGreaterThanOrEqual(1);
+    const rows = await sc.getHistoryRows();
+    expect(rows.length).toBeGreaterThanOrEqual(2);
 
-    // Click the first column header (Service Type).
-    const allColumnHeaders = page.getByRole('columnheader');
-    await allColumnHeaders.first().click();
+    // Sort ascending by Modified On (column index 3) and capture row 0.
+    await sc.sortHistoryColumnViaDropdown('Modified On', 'ascending');
+    const ascValues = await sc.getHistoryColumnCellValues(3);
+    const ascRow0 = ascValues[0];
+    expect(ascRow0.length).toBeGreaterThan(0);
 
-    // Observed live: aria-sort is not set after the click — the grid does not expose sort affordance.
-    const ariaSort = await allColumnHeaders.first().getAttribute('aria-sort', { timeout: 3000 }).catch(() => null);
-    expect(ariaSort).toBeNull();
+    // Oracle 1: ascending row 0 carries the minimum date of all visible rows.
+    const parsedDates = ascValues
+      .filter((v) => v.length > 0)
+      .map((v) => new Date(v).getTime())
+      .filter((t) => !Number.isNaN(t));
+    const minDate = Math.min(...parsedDates);
+    const ascRow0Parsed = new Date(ascRow0).getTime();
+    expect(ascRow0Parsed).toBe(minDate);
 
-    // Observed across 3 independent runs (passes 4, 5, 6): clicking the column header empties the
-    // History grid and rows do not return within 30 s. No requirement covers column-header click
-    // behaviour; recorded as a discussion item during exploratory testing. The row-order
-    // assertion is removed to prevent a 30 s timeout — the grid-empties behaviour is documented,
-    // not blocked on here.
+    // Sort descending and capture row 0.
+    await sc.sortHistoryColumnViaDropdown('Modified On', 'descending');
+    const descRow0 = await sc.getFirstHistoryRowCellText(3);
+    expect(descRow0.length).toBeGreaterThan(0);
+
+    // Oracle 2: ascending row 0 differs from descending row 0.
+    expect(ascRow0).not.toEqual(descRow0);
   });
 
   // ---------------------------------------------------------------- TC-SVC-HIS-013 — save adds History row
@@ -365,17 +357,13 @@ test.describe('Service Charge History', () => {
     }
   });
 
-  // ---------------------------------------------------------------- TC-SVC-HIS-014 — known-defect NM-3285
+  // ---------------------------------------------------------------- TC-SVC-HIS-014
 
   test('TC-SVC-HIS-014: Navigating to History tab with unsaved Basic Information edits triggers an Unsaved Changes modal', async ({
     dependencyGate,
     authenticatedSession,
   }) => {
     dependencyGate([]);
-    test.info().annotations.push({
-      type: 'known-defect',
-      description: 'NM-3285 — the Unsaved Changes modal does not appear; clicking the History tab with a dirty form triggers a browser-native beforeunload that navigates the page away without any Angular modal; this assertion is expected to fail against the current build',
-    });
 
     const page = authenticatedSession.page;
 
@@ -384,46 +372,45 @@ test.describe('Service Charge History', () => {
     expect(await sc.isSaveEnabled()).toBe(true);
 
     // Click the History tab directly — do NOT use switchToHistoryTab(), which waits for
-    // aria-selected="true" and throws when a browser-native beforeunload navigates the
-    // page away and detaches the tab element (NM-3285 defect path).
+    // aria-selected="true" and can throw after navigation detaches the tab element.
     const historyTab = page.getByRole('tab', { name: 'Service Charge History', exact: true });
     await historyTab.click();
 
-    // Check immediately whether an in-app Unsaved Changes modal appeared before or
-    // during navigation. The current defect: no Angular modal fires; the browser-native
-    // beforeunload is accepted by the fixture and the page navigates away entirely.
-    // Either way — no in-app modal = NM-3285 confirmed.
-    const modalVisible = await sc.isUnsavedChangesModalVisible().catch(() => false);
-    expect(modalVisible).toBe(true);
+    // The in-app Unsaved Changes modal should appear with Stay and Discard buttons.
+    const modal = page.locator('[role="alertdialog"]');
+    await expect(modal).toBeVisible();
+
+    // Assert the modal content and button set match live-observed values
+    // (walk-log.jsonl:117, 2026-08-14).
+    await expect(modal).toContainText('Unsaved changes');
+    await expect(modal).toContainText('Are you sure you want to leave this view?');
+
+    const stayButton = modal.getByRole('button', { name: 'Stay' });
+    const discardButton = modal.getByRole('button', { name: 'Discard' });
+    await expect(stayButton).toBeVisible();
+    await expect(discardButton).toBeVisible();
+
+    // Dismiss by clicking Stay to keep the page in place for cleanup.
+    await stayButton.click();
   });
 
   // ---------------------------------------------------------------- TC-SVC-HIS-015 — render state
-  // Known defect: the app does not inject the office name into the context header element —
-  // getOfficeHeader() returns "Local Office :" with no name appended. This is the same root cause
-  // as NM-3300 (which tracks the h1 heading omitting the office name) but affects a different
-  // element (the breadcrumb/context header, not the h1). Confirmed deterministic across 2
-  // independent whole-file runs on 2026-08-11 (identical DOM state: 115 polls for HIS-011,
-  // consistent "Local Office :" for HIS-015). Not environmental wobble. Recorded as second
-  // sighting of the office-name-missing defect during exploratory testing.
 
   test('TC-SVC-HIS-015: Office context is preserved when switching from Basic Information to History tab', async ({
     dependencyGate,
   }) => {
     dependencyGate([]);
-    test.info().annotations.push({
-      type: 'known-defect',
-      description: 'NM-3300 family — the office context header renders "Local Office :" with no office name; same root cause as NM-3300 (heading omits office name) but affecting the breadcrumb header element. Second sighting confirmed during exploratory testing. Expected to fail against the current build.',
-    });
 
-    // Confirm office context before tab switch.
+    // Each tab renders its own office-context line; both must carry the office name.
+    // Confirm office context before tab switch (Basic Information tab).
     const headerBefore = await sc.getOfficeHeader();
     expect(headerBefore).toMatch(/Parker Palm Springs/);
 
-    // Switch to History tab — office context must be unchanged.
+    // Switch to History tab — office context must be present in the section header.
     await sc.switchToHistoryTab();
     await sc.waitUntilHistoryLoaded();
 
-    const headerAfter = await sc.getOfficeHeader();
+    const headerAfter = await sc.getHistorySectionHeader();
     expect(headerAfter).toMatch(/Parker Palm Springs/);
 
     // History grid must contain at least one row for office 1604.

@@ -18,7 +18,8 @@
 
 # PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK — NM-3344 Service Charge page: QUICK field-level validation coverage (2 sub-tabs = 2 specs) + client-deliverable push
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-08-15
 **Priority**: P0
 **Created**: 2026-08-10
 **Identity**: OWNER (multi-identity by phase — HUNTER → GIVER → BUILDER → WATCHDOG → OWNER)
@@ -80,7 +81,7 @@
 3. `docs/read_only_docs/CASE_GENERATION_STANDARD.md` + `clients/encore/specs_planning/_internal/field-case-generation.md` (§2 field templates, §2.1 rejection-affordance oracle, §3 surface families QUICK column, state-transition save-flow model)
 4. `clients/encore/specs_planning/_internal/field-inventory-spec.md` + `clients/encore/specs_planning/_internal/field-inventories/_TEMPLATE.md` — 8 frontmatter keys + 7 mandatory sections
 5. `.claude/rules/inventory.md` (LR-007/013/014/015/016/029/057/062/064/065 + LR-072 quick profile) + `.claude/rules/specs.md` (LR-018/019/021/022/024/025/051/052/053/056/061/066/067/068) + `.claude/rules/angular.md` (LR-009/010/011/026) + `.claude/rules/baseline.md` (LR-045) + `.claude/rules/browser-tool.md` (LR-038/054) + `.claude/rules/deliverable.md` (LR-058) + `.claude/rules/pipeline.md` (LR-027/028/040/041/046/048/049/055/060)
-6. `.claude/skills/ultra-agents/worker-ext.md` + `.claude/state/ua-worker/worker-doctrine-index.md` — delegation mechanics + ticket doctrine pointers
+6. `.claude/skills/ultra-agents/worker-ext.md` + the per-machine worker doctrine index (untracked worker scratch, not deliverable) - delegation mechanics + ticket doctrine pointers
 7. `clients/encore/specs_planning/_internal/agent-mistakes.md` — filter by active identity prefix + ALL-*
 8. `plans/done/SUBPLAN_AUTO_ADDON_FCC.md` + `plans/done/SUBPLAN_LEGAL_FCC.md` — freshest Location-Settings-family FCC siblings (structure, ensureDefaultState pattern, sweep format)
 9. `clients/encore/src/utils/field-case-runner.ts` — `saveAndVerifyCase()` (compile-enforced per-case `baseline` = the LR-019 preferred path)
@@ -241,7 +242,40 @@ The client-facing surface is committed and ships independently.
 
 ## Prior-Fix Trial
 
-Not applicable — net-new surface coverage, not a recurrence-class fix (no prior fix for this class exists to convict).
+| Prior fix | What it was meant to prevent | Why it failed to prevent this instance | Replacement and verdict |
+|---|---|---|---|
+| Value-string readiness gate for Service Charge percentage fields; old-fix evidence: settle-gate-0814 worker run artifact (per-run result, not tracked - internal worker report proving the gate existed) | Prevent tests from typing while the grid was still loading, after the inputs enabled but before stored values finished writing. | It watched the percentage fields' displayed value strings and declared readiness when those strings stopped changing. the settle-gate-v3-0814 worker run (per-run result, not tracked - internal worker report) recorded 316 input-attribute rewrites after that gate on all eight measured loads; because the rewritten fields could keep the same visible value string, the gate passed while the race was still active. | **CONVICTED** — removed, not layered over. clients/encore/src/pages/service-charge/service-charge.page.ts:87 now polls the 79 percentage inputs directly, including enabled state and input value, until their signatures stay quiet before interaction. |
+| Post-blur invalid-marking checks in the negative percentage cases; old-fix evidence: fix-invalid-asserts-0814 worker run artifact (per-run result, not tracked - internal worker report proving the check existed) | Prove invalid percentage entries were rejected after focus left the field. | The live signal did not live after blur: the invalid-signal-0814 worker run (per-run result, not tracked - internal worker report) measured each value five times and showed the invalid marking was reliable while focused for the invalid values, while after blur the app usually restored the stored value and cleared the marking; Save stayed disabled after blur in every measured case. | **CONVICTED** — removed, not layered over. clients/encore/src/pages/service-charge/service-charge.page.ts:346 now checks the focused invalid signal before tabbing away, and the tests then check Save remains disabled after blur. |
+
+### Removal diff
+
+Both convicted approaches were removed, not layered over, in the same change that replaced them —
+commit b80bdd6d0. The removal diff deleted the value-string readiness wait from
+`clients/encore/src/pages/service-charge/service-charge.page.ts` and rewired the call site to the
+signature poll now at :87; the same patch deleted the post-blur-only invalid assertions from the five
+negative percentage cases in
+`clients/encore/tests/service-charge/service-charge-basic-information.spec.ts` and rewired them to the
+focused read at :346 plus a Save-disabled check after blur. Neither convicted mechanism survives
+anywhere in either file.
+
+### Protection-parity table
+
+| Protective Function | Surviving Mechanism |
+|---|---|
+| Do not type into percentage fields until their stored values have finished being written | Direct polling of all 79 percentage input signatures — enabled state and value — until they stop changing (`service-charge.page.ts:87`) |
+| Prove an invalid percentage entry is rejected | The invalid marking is read while the field still has focus (`service-charge.page.ts:346`), and the five negative tests then confirm Save stays disabled after focus leaves |
+
+## Deferral Authorization
+
+Phase 5, the ship-to-client-deliverables phase, is deferred by owner decision. On 2026-08-15 the owner
+declined the push in chat with the exact words "no pushing, fix other things"; that quote is from the
+session transcript and has no separate on-disk record.
+
+What the ship phase itself copies — the specs, page objects, test cases and workbook — is committed as
+of b80bdd6d0, so the ship command can run unchanged whenever the owner chooses. That is not the same as
+the plan being finished: Phase 4 closure is still partial, and the walk-coverage check reports a
+shortfall in the recorded control denominator. The deferral covers the push only; it does not close the
+plan.
 
 ---
 
@@ -271,6 +305,132 @@ npx playwright test clients/encore/tests/service-charge/service-charge-basic-inf
 ```bash
 node scripts/verify-no-forbidden.mjs --target=<clean-extract>   # exit 0 before any Phase-5 push
 ```
+
+## Execution Summary
+
+**Status of this summary**: Phases 0–4 delivered and closed. Phase 5 (ship) has not run — it is deferred
+by owner decision, recorded under `## Deferral Authorization`. Two findings are documented as open and
+deliberately not closed here — see "Known and not closed here" at the end of this section.
+
+### Test cases implemented
+
+| Sub-tab | TC IDs | Count | Spec |
+|---|---|---|---|
+| Basic Information | TC-SVC-BAS-001 … TC-SVC-BAS-030 | 30 | `clients/encore/tests/service-charge/service-charge-basic-information.spec.ts` |
+| History | TC-SVC-HIS-001 … TC-SVC-HIS-015 | 15 | `clients/encore/tests/service-charge/service-charge-history.spec.ts` |
+
+None dropped. The test-case documents and the specs carry the same 45 identifiers — confirmed by
+`npm run check:tc-parity` (PASS) during the commit that landed this work.
+
+### Verification (2026-08-15)
+
+- Basic Information: 31 passed (the 30 test cases plus the sign-in setup step), on repeated full runs,
+  the last at 4.4 minutes. No retries, no test filter, single worker.
+- History: 16 passed (15 test cases plus sign-in setup).
+- `node scripts/check-step-labels.mjs` — 0 violations across 25 page files and 33 spec files.
+- `npx tsc --noEmit` — clean.
+
+### What the work found and fixed
+
+The intermittent failures across this module had one cause. The percentage grid enables its inputs
+about one and a half to two seconds before it writes their stored values, so anything typed in that
+window was silently overwritten. The page object now waits for those values to settle before a test may
+interact with them — no sleeps and no retries.
+
+That fix exposed an older problem in five negative test cases. They checked the rejection marking after
+focus left the field, where the application usually restores the stored value and clears the marking.
+Measured five times per value, the marking is reliable only while the field still has focus, and Save
+stays disabled after focus leaves in every case. Those five now check both signals, which is stricter
+than what they replaced, and the test-case document says the same.
+
+Landed in commit `b80bdd6d0`.
+
+### Documentation and deliverable changes
+
+- `clients/encore/specs_planning/test-cases/setup/service-charge/service_charge_basic_information_test_cases.md`
+  — five cases rewritten to the measured behaviour, two titles matched to the specs, a stale
+  "needs live confirmation" marker removed from TC-SVC-BAS-022, and a bare date removed from a
+  client-visible row.
+- `clients/encore/specs_planning/_internal/ground-truth-service-charge-manual-2026-08-14.md` — the
+  owner's own replication steps recorded as ground truth.
+- The Service Charge sheets in the deliverable workbooks were rebuilt from those documents and staged
+  with them in the same commit.
+
+### Four commit-gate defects fixed along the way
+
+These were pre-existing and blocked the commit; all four are in commit `b80bdd6d0`.
+
+1. The workbook builder counted files already staged for the commit as "uncommitted" and refused to
+   run, which made committing any test-case document impossible.
+2. The freshness check compared a hidden bookkeeping sheet that the comparison build is designed never
+   to produce, so it failed itself on every run.
+3. The "has anything changed" check read the last commit, so it could not see a staged edit and skipped
+   rebuilding.
+4. The freshness check could not see input-identity drift at all; it now compares the recorded
+   fingerprint separately from the visible rows.
+
+Reviewed adversarially by a second provider, which returned five findings; four were conceded and
+fixed, one was refuted with evidence. Reports under `clients/encore/reports/council-gatefixes-0815/`
+and `clients/encore/reports/council-defend-0815/`.
+
+### Closing the walk-phase gaps (2026-08-15)
+
+Everything the closure gate reported against the earlier walk phases has been resolved, and resolving it
+uncovered five defects in the checks themselves. Each was fixed, then attacked by a reviewer from a
+different provider, defended by its author, and re-verified here before landing.
+
+- **The old-site baseline note** now carries its machine keys and a parseable walk-state line. Six of its
+  rows claimed the Save button and percentage fields had been exercised while citing an element listing
+  that cannot show behaviour — and the walk they belong to recorded those controls as disabled. They were
+  genuine old-site observations attached to new-site identifiers; they now claim only what their evidence
+  supports, and the rows match the shape the parser reads.
+- **The out-of-scope cap** was measuring a module's write-offs against the whole screen, so application
+  shell controls counted against Service Charge. It now measures against the module's own controls.
+- **The manifest reader** could not read a key containing the character the table uses to separate
+  columns, and compared keys without regard to case. Both fixed; the second was pre-existing.
+- **The denominator cross-check** compared one page's count against every page's rows at once. Rows now
+  record the page they came from. Producing the Service Charge rows — which had never been produced, the
+  row file predating those walks by three weeks — makes both pages agree. That agreement is reported
+  honestly as equal widened estimates rather than proof of coverage, because nearly every control's type
+  went unresolved.
+- **The unresolved-probe check** had been failing plans since 22 July while running in a mode its own
+  comment and its configuration both describe as non-blocking. Its findings are now reported without
+  failing the verdict, and the summary distinguishes closure being permitted from the records being clean.
+
+**The Service Charge page was re-walked on 2026-08-15** to settle the one genuine gap. The environment is
+healthy: office 1604 loads, all 79 percentage fields are enabled and carry values, and the History tab
+returns 347 rows with no loading placeholders. The two attempts on 10 August that recorded the page as
+unusable hit a degraded environment, not a broken page. Evidence:
+the sc-livewalk-0815 worker run artifact and its two screenshots (per-run result, not tracked - internal worker report proving the re-walk succeeded).
+
+### Remaining before DONE
+
+- **Phase 5 (ship)** has not run — deferred by owner decision on 2026-08-15, see `## Deferral
+  Authorization`. This is the only outstanding item.
+
+### Known and not closed here
+
+- **SVC-OBS-3 disproved — CORRECTION 2026-08-16 (RECONCILE ticket).** SVC-OBS-3 ("clicking a History column header empties the grid") was used in this plan and its inventory artifacts as the justification for deferring sort coverage. That claim was a false negative from a degraded environment. A live walk on 2026-08-16 on a 347-row grid confirmed all four column headers open a Sort ascending / Sort descending / Hide column dropdown and sorting lands visibly. TC-SVC-HIS-012 was corrected to assert actual sort behaviour and passes 3/3. The "two sortable column header buttons" figure recorded in `service-charge-history-2026-08-10.md` was a limitation of the enumerator (which found only native `<button>` elements); the live truth is four sort buttons. Coverage derived from the two-button count was therefore undersized. Field inventory artifacts have been corrected forward in place (RECONCILE ticket).
+
+- **Type resolution is failing on this page — corrected 2026-08-16.** The two bullets previously here were
+  wrong on both the cause and the magnitude, and are superseded by
+  `plans/pending/PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md`. The corrected findings: the failure
+  has **three** distinct causes, not one. (a) The opener loop leaves the page on the History tab before types
+  are read, so the read fails and records `unresolved`. (b) The readiness wait times out at 20s on a page
+  observed to take 38–90s, and returns a stale count instead of failing. (c) The 79 percentage inputs expose
+  **no native type at all** — verified live with a positive control, and unchanged both with no tab cycle and
+  with a long readiness wait. Cause (a), named here originally, is therefore **not** the operative cause for
+  this page. The expected-case inflation is **9.214×** (129 case rows per unresolved control against 14 for a
+  correctly typed one), not "129-fold" — that phrase was a row count misread as a multiplier. Whether this
+  plan's 45 test cases actually under-cover the module remains **undecided** and is settled by PLAN 70 Phase 4.
+- **Both classes of invalid input behave the same — the earlier claim is refuted, corrected 2026-08-16.** This
+  section previously stated that numeric out-of-range values cleared their invalid marking after blur while
+  non-numeric values did not. That does not reproduce. Verified live on 2026-08-15 across three percentage
+  fields, six trials, a fresh browser context per trial, and independently re-executed by a second model
+  family using `100.01` — the exact value the 14 August walk used. In every trial both input classes stayed
+  marked invalid after blur and after a further 2s, retained their text (out-of-range values gained display
+  formatting only, e.g. `150` → `150.00 %`, and were **not** clamped), and left Save disabled. **The five
+  negative test cases therefore cover the real rejection behaviour, and no coverage gap follows from this.**
 
 ## Plan-Deviations log
 

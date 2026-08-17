@@ -83,6 +83,7 @@
     // from wrongly compiling ESM/bundler sub-projects.
     "website",
     "pipeline",
-    "clients"
+    "clients",
+    "scripts/walk-coverage/fixtures"
   ]
 }

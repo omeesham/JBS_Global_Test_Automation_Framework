@@ -45,7 +45,7 @@ Gate the mega plan to DONE. Verify each of the 8 user asks has evidence. Verify 
    - Verify every planned item is (a) MCP-proven with evidence, (b) grep-verifiable hand-off to another subplan, or (c) user-flagged discussion-item.
    - No phantom hand-offs permitted.
    - If any subplan fails gate → fix BEFORE flipping mega plan status to DONE.
-4. Produce `plans/done/AUDIT_REPORT_DQU_2026-04-NN.md` (date per completion):
+4. Produce (the referenced audit report was never created) (date per completion):
    - 8-asks diff table.
    - Per-subplan closure-gate results.
    - LR-040 findings.

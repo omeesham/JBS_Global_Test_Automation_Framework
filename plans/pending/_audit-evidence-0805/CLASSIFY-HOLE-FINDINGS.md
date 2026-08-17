@@ -70,7 +70,7 @@ Group counts (from BUCKET-2-by-dir.txt, 31 multi-file groups + 218 individual-fi
 | .claude/context | 6 | MIXED | `navigation.md` and `patterns.md` are LIVE (referenced by CLAUDE.md). 4 are DEAD/UNDETERMINED — see C3 |
 | src/utils | 4 | LIVE | Utility code imported by scripts and pipeline |
 | pipeline/worker | 4 | LIVE | Pipeline worker code — spawned by orchestrator |
-| .claude/channel | 4 | **FILES DO NOT EXIST ON DISK** | All 4 paths (KT_PROMPT_FOR_COLLEAGUE.md, broadcast/BROADCAST.md, inbox/COLLEAGUE_AGENT.md, inbox/RUTVIK_AGENT.md) return `Test-Path: False`. Roster is stale for these entries. Part of the dead agent-school message channel. |
+| .claude/channel | 4 | **FILES DO NOT EXIST ON DISK** | All 4 channel roster entries returned `Test-Path: False`. Roster is stale for these entries. Part of the dead agent-school message channel. |
 | website/.claude | 2 | LIVE | Website-specific Claude settings |
 | src/framework-contracts | 2 | LIVE | TypeScript contracts imported by pipeline and scripts |
 | scripts/setup | 2 | LIVE | Setup scripts referenced by SETUP.md |
@@ -111,7 +111,7 @@ Group counts (from BUCKET-2-by-dir.txt, 31 multi-file groups + 218 individual-fi
 - **Last change**: Wed May 27 2026
 - **References**: 11 hits — `.claude/AGENT_SCHOOL.md` (dead), `docs/SETUP.md` (onboarding step for agent-school), done plans, pending plans
 - **What it was**: Agent definition for the "colleague" in the two-agent collaboration system
-- **Evidence**: `docs/SETUP.md` tells new collaborators to copy this file, but the system it belongs to (agent-school) is dead. Not loaded by `.claude/settings.json`, not in any hook, not in skills/INDEX.md. The SETUP.md reference is itself stale instruction for a dead system. **Dead agent definition.**
+- **Evidence**: `docs/SETUP.md` tells new collaborators to copy this file, but the system it belongs to (agent-school) is dead. Not loaded by `.claude/settings.json`, not in any hook, not in .claude/skills/INDEX.md. The SETUP.md reference is itself stale instruction for a dead system. **Dead agent definition.**
 
 ### 4. `.claude/agents/RUTVIK.agent.md`
 - **Last change**: Fri Jun 5 2026
@@ -123,13 +123,13 @@ Group counts (from BUCKET-2-by-dir.txt, 31 multi-file groups + 218 individual-fi
 - **Last change**: Fri Mar 20 2026
 - **References**: 6 hits — `.claude/AGENT_SCHOOL.md` (dead), `.claude/context/WORKFLOW.md` (dead — see below), `.claude/skills/deploy/SKILL.md`, done plans, `scripts/agent-channel.mjs` (dead)
 - **What it was**: Tracked which agent currently "owned" the conversation in the two-agent system
-- **Evidence**: Only non-dead reference is `deploy/SKILL.md`, which reads it for context but deploy is an explicit-invoke-only skill that doesn't depend on this file's accuracy. The file's purpose (agent ownership tracking) is defunct. **Dead context file.**
+- **Evidence**: Only non-dead reference is `.claude/skills/deploy/SKILL.md`, which reads it for context but deploy is an explicit-invoke-only skill that doesn't depend on this file's accuracy. The file's purpose (agent ownership tracking) is defunct. **Dead context file.**
 
 ### 6. `.claude/context/VISION.md`
 - **Last change**: Fri Mar 20 2026
 - **References**: 6 hits — `.claude/AGENT_SCHOOL.md` (dead), `.claude/agents/COLLEAGUE.agent.md` (dead), done plans, `scripts/agent-channel.mjs` (dead), one activity-log mention
 - **What it was**: Vision/goals context for the two-agent system
-- **Evidence**: Not in CLAUDE.md's @-references table. Not in skills/INDEX.md. Not loaded by any hook. The guiding vision is now at `.claude/private/guiding-vision.md` (different file, referenced by CLAUDE.md). **Dead — superseded by guiding-vision.md.**
+- **Evidence**: Not in CLAUDE.md's @-references table. Not in skills/INDEX.md. Not loaded by any hook. The guiding vision is now in the repo-side private guiding-vision mirror (gitignored, different file, referenced by CLAUDE.md). **Dead - superseded by guiding-vision.md.**
 
 ### 7. `.claude/context/WORKFLOW.md`
 - **Last change**: Fri Apr 3 2026

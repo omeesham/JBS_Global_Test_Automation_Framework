@@ -143,37 +143,6 @@ export const MODULE_CONFIG = {
     excludeOptionRoles: true,
     ...MC_DATA['corporate-pricing-new-pricebook'],
   },
-  // ===========================================================================================
-  // Discount Optimization Settings — 2 tabs.
-  // Tabs carry auto-generated Radix IDs (no data-testid) — activated via activateTabsByRoleText.
-  // contentMarker: 'tbody tr' — an actual grid row, genuinely absent until virtual scroll
-  // renders data (~22 s after navigation). The container testid exists pre-load, so it cannot
-  // serve as the marker; a real tbody row proves data has painted. Same pattern as
-  // corporate-pricing-search. Tab 2 (Special Rate Exemptions) is activated via
-  // openerRoleTextPatterns so its elements enter the denominator under the tab branch.
-  // ===========================================================================================
-  'discount-optimization': {
-    path: (office) => `${BASE}/locations/${office}/settings/discount-optimization-settings`,
-    // Tab 1 is the default; clicking it (already selected, aria-selected=true) forces
-    // activateTabByRoleText to enter the contentMarker-wait path immediately.
-    activateTabsByRoleText: [
-      { role: 'tab', text: 'Discount Optimization' },
-    ],
-    // tbody tr — only resolves after virtual scroll paints at least one data row.
-    contentMarker: 'tbody tr',
-    openerTestidPatterns: [],
-    // Tab 2 activated as an opener so its columns enter the denominator on cycle 1.
-    // Add button opens an "Add Location" right-panel (Cancel/Update buttons); the
-    // Change Local Office modal is a nested picker inside that panel, not the direct
-    // target of the Add click. Confirmed live DOM 2026-08-11 (see spec comment above TC-DOP-OPT-091).
-    openerRoleTextPatterns: [
-      { role: 'tab',    text: 'Special Rate Exemptions by Service Type', branch: 'tab:service-type-exemptions' },
-      { role: 'button', text: 'Add', branch: 'panel:add-location' },
-    ],
-    excludeOptionRoles: true,
-    ...MC_DATA['discount-optimization'],
-  },
-
   // Service Charge — History tab. The tab has no data-testid (Radix-generated id only, not stable).
   // Reached via role=tab, name="Service Charge History" (confirmed live DOM 2026-08-11).
   // contentMarker anchors on "Modified By" column header — unique to the History panel, last-to-render.
@@ -182,7 +151,11 @@ export const MODULE_CONFIG = {
     contentMarker: 'text=Modified By',
     openerTestidPatterns: [],
     openerRoleTextPatterns: [
-      { role: 'tab', text: 'Service Charge History', branch: 'tab:history' },
+      // contentGate: true � History is a data grid with no data-testid attributes.
+      // waitReady's testid threshold (calibrated for forms) can never be satisfied here.
+      // Instead, waitReadyContent waits for the Modified By column header (last-to-render)
+      // and at least one data row, throwing loudly if neither appears within the timeout.
+      { role: 'tab', text: 'Service Charge History', branch: 'tab:history', contentGate: true },
     ],
     excludeOptionRoles: true,
     ...MC_DATA['service-charge'],
@@ -210,28 +183,97 @@ export const MODULE_CONFIG = {
   },
 };
 
-// ---- readiness gate (O1): poll a shadow-pierced testid count until stable (LR-052 poll-not-sleep,
-//      LR-023 no-networkidle). Standard short poll interval is a poll cadence, not a fixed sleep. ----
-async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300, timeout = 20000 } = {}) {
-  let last = -1, stable = 0, waited = 0;
+// ---- readiness gate (O1, rebuilt by PLAN_76): stability contract, no testid floor ----
+// (LR-052 poll-not-sleep, LR-023 no-networkidle. Poll interval is a cadence, not a fixed sleep.)
+//
+// WHAT "READY" MEANS NOW (plain English — a new label-poor surface needs NO configuration):
+//   The page is ready when the things a walk actually enumerates have arrived and stopped
+//   changing: the interactive-element census (buttons, inputs, links, combo/tab roles) is at
+//   least 1 and identical across consecutive polls, AND the total DOM element count has
+//   settled (small tolerance absorbs spinner churn), AND a minimum time has elapsed.
+//   A page rich in data-testids (>= 8, stable) is declared ready early — that is only a
+//   fast-path accelerator, never a requirement. The old rule REQUIRED >= 8 testids, a floor
+//   with no derivation that permanently blocked label-poor pages (live: a settings page
+//   holding 135 buttons + 37 inputs renders exactly 1 testid — and 0 on its second tab).
+//   Per LR-062 there is deliberately NO per-surface readiness knob here or in MODULE_CONFIG.
+//
+// The `minTestids` parameter is retained for signature compatibility (branch overrides at the
+// :786 call site and older unit tests) but is INERT — the fast-path threshold is a hard
+// constant so no configuration can weaken readiness into a false-small denominator.
+// Cause-2 posture kept: throws loudly on timeout; a silent partial corrupts the denominator.
+// Exported for unit testing.
+const FAST_PATH_TESTIDS = 8;   // accelerator only — never a gate
+const CENSUS_STABLE_READS = 3; // consecutive identical census polls required
+const DOM_NODE_TOLERANCE = 2;  // absorbs spinner/animation churn; structural growth resets
+
+export async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300, timeout = 120000 } = {}) {
+  void minTestids; // inert (see header note) — kept so existing callers/tests need no signature change
+  let lastT = -1, lastC = -1, lastN = -1, fastStable = 0, censusStable = 0, waited = 0, lastError = '';
   while (waited < timeout) {
-    let c = 0;
+    let snap = null;
     try {
-      c = await page.evaluate(() => {
-        function deep(root) {
-          let n = 0; const k = root.querySelectorAll('*');
-          for (const e of k) { if (e.getAttribute && e.getAttribute('data-testid')) n++; if (e.shadowRoot) n += deep(e.shadowRoot); }
-          return n;
-        }
-        return deep(document);
-      });
-    } catch { /* mid-navigation; retry */ }
-    if (c >= minTestids && c === last) { if (++stable >= stableReads) return c; } else stable = 0;
-    last = c;
+      // Single source of truth: uses inPageEnumerate scoped to <main> — the SAME function,
+      // scope, and kind predicate that enumerateState uses for the denominator. No second
+      // selector list can drift. CONTAINER_NOT_FOUND (no <main> yet) is caught and retried.
+      snap = await page.evaluate(inPageEnumerate, 'main');
+    } catch (err) {
+      // LR-003: distinguish expected retry conditions from genuine errors.
+      const msg = err && err.message || '';
+      if (msg.includes('CONTAINER_NOT_FOUND') || msg.includes('Execution context was destroyed') ||
+          msg.includes('frame was detached') || msg.includes('navigation')) {
+        // Expected during page load — retry silently.
+      } else {
+        // Genuine error (syntax, serialization, unexpected) — surface in timeout message.
+        lastError = msg;
+      }
+    }
+    if (snap != null) {
+      // Normalize result shape: inPageEnumerate returns {entries, stats}, legacy mocks return {t,c,n} or a number.
+      if (typeof snap === 'number') snap = { t: snap, c: snap, n: snap };
+      else if (snap.entries && snap.stats) {
+        // Real inPageEnumerate result — derive t/c/n from the same data the denominator uses.
+        const t = snap.entries.filter(e => e.key && e.key.startsWith('testid:')).length;
+        snap = { t, c: snap.stats.uniqueKeys, n: snap.stats.scanned };
+      }
+      const { t, c, n } = snap;
+      // Fast path: label-rich page, same stability rule the old gate used — hard constant.
+      if (t >= FAST_PATH_TESTIDS && t === lastT) { if (++fastStable >= stableReads) return t; } else fastStable = 0;
+      // Stability contract: census present and identical, DOM settled within tolerance,
+      // minimum elapsed time (implied by the consecutive-poll requirement, asserted anyway).
+      const censusSame = c === lastC;
+      const domSettled = lastN >= 0 && Math.abs(n - lastN) <= DOM_NODE_TOLERANCE;
+      if (c >= 1 && censusSame && domSettled) { censusStable++; } else censusStable = 0;
+      if (censusStable >= CENSUS_STABLE_READS && waited >= 2 * interval) return t;
+      lastT = t; lastC = c; lastN = n;
+    }
     await page.waitForTimeout(interval);
     waited += interval;
   }
-  return last;
+  // Loud failure: a silently wrong denominator built on a partial load is worse than a crash.
+  throw new Error(`[WAIT_READY_TIMEOUT] waitReady timed out after ${timeout}ms (last testid count=${lastT}, interactive census=${lastC}, dom nodes=${lastN}${lastError ? `, lastError: ${lastError}` : ''}). Refusing to continue with a partial page load.`);
+}
+
+// History-specific content gate: waits for the Modified By column header (unique to the
+// History panel, last-to-render) and at least one data row, then throws loudly on timeout.
+// Exported for unit testing. Do NOT use for form surfaces � those use waitReady.
+export async function waitReadyContent(page, { timeout = 120000 } = {}) {
+  try {
+    await page.waitForSelector('text=Modified By', { timeout });
+  } catch {
+    throw new Error(`[WAIT_READY_CONTENT_TIMEOUT] History content gate timed out after ${timeout}ms: "Modified By" header never appeared. Refusing to enumerate.`);
+  }
+  try {
+    await page.waitForSelector('tbody tr', { timeout });
+  } catch {
+    throw new Error(`[WAIT_READY_CONTENT_TIMEOUT] History content gate timed out after ${timeout}ms: "Modified By" header found but no data rows appeared. Refusing to enumerate � denominator cannot be trusted.`);
+  }
+}
+
+// Cause-1 fix: after the opener loop the page may be on a different panel.
+// Extracted as an export so unit tests can verify the re-navigation is present.
+export async function renavigateToOrigin(page, url) {
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await waitReady(page);
 }
 
 // Broadened 2026-08-10: the original regex matched only external IdP URLs.
@@ -259,25 +301,6 @@ function writeHaltedRecord(args, state, elementCount, rawCount, reason) {
   };
   writeFileSync(jsonPath, JSON.stringify({ completion_record: record }, null, 2) + '\n', 'utf-8');
   return jsonPath;
-}
-
-// Activate a tab by accessible role + visible text when no stable data-testid is available.
-// Click → verify aria-selected flips → retry. Waits for contentMarker with a longer timeout
-// (35 s) to accommodate surfaces whose grid takes ~22 s to paint after navigation.
-async function activateTabByRoleText(page, role, text, contentMarker) {
-  const loc = page.getByRole(role, { name: text, exact: true });
-  for (let attempt = 1; attempt <= 5; attempt++) {
-    if (!(await loc.count())) { await page.waitForTimeout(700); continue; }
-    try { await loc.first().click({ timeout: 8000 }); } catch { /* not actionable yet */ }
-    const sel = await loc.first().getAttribute('aria-selected').catch(() => null);
-    if (sel === 'true') {
-      if (contentMarker) { try { await page.waitForSelector(contentMarker, { timeout: 35000 }); } catch { /* marker absent in this data state */ } }
-      await waitReady(page);
-      return { ok: true, attempts: attempt };
-    }
-    await page.waitForTimeout(900);
-  }
-  return { ok: false, attempts: 5 };
 }
 
 // Robust Radix tab activation by TESTID (the pilot proved getByRole-by-name does not flip the
@@ -339,15 +362,19 @@ async function cdpG1Recovery(page, candidates, cap = 80) {
 }
 
 // ---- one enumeration of the current state (Pass A + Pass B + candidates), per frame ----
-async function enumerateState(page) {
+// Cause-4 fix: scope enumeration to <main> so app-shell chrome (sidebar anchors etc.) is excluded.
+export async function enumerateState(page) {
   const out = { entries: [], candidates: [], stats: { scanned: 0, shadowHosts: 0 } };
-  // Frame walk (G5) is the outer loop. The main frame holds the pricing surface; iframe scanning is
-  // by-construction insurance (not pricing-exercised — pilot §7.3).
   for (const frame of page.frames()) {
     let r;
-    try { r = await frame.evaluate(inPageEnumerate); } catch { continue; }
+    try { r = await frame.evaluate(inPageEnumerate, 'main'); } catch (err) {
+      // CONTAINER_NOT_FOUND means the page genuinely has no <main>; a silent skip would produce
+      // an empty denominator that reads as a clean pass — the exact failure mode we are fixing.
+      // All other per-frame errors (frame detached, navigation, etc.) are tolerated as before.
+      if (err.message && err.message.includes('CONTAINER_NOT_FOUND')) throw err;
+      continue;
+    }
     out.entries.push(...r.entries);
-    // candidates index into THAT frame's window.__wcCands; CDP G1 below resolves them on the main frame
     if (frame === page.mainFrame()) out.candidates = r.candidates;
     out.stats.scanned += r.stats.scanned;
     out.stats.shadowHosts += r.stats.shadowHosts;
@@ -402,8 +429,8 @@ async function scanPortalElements(page) {
 // Convert an entry key to a Playwright-compatible CSS selector, or null if unresolvable.
 // Item 4: struct: keys resolve via their recorded DOM ancestor path. Where a key genuinely
 // cannot resolve (e.g. ambiguous ancestor path), it is recorded with disposition 'unresolvable'.
-function entryKeyToSelector(key) {
-  const clean = key.replace(/\s*\[archetype×\d+\]$/, '');
+export function entryKeyToSelector(key) {
+  const clean = key.replace(/\s*\[archetype\u00D7\d+\]$/, '');
   if (clean.startsWith('testid:')) return `[data-testid="${clean.slice(7)}"]`;
   if (clean.startsWith('id:')) return `[id="${clean.slice(3)}"]`;
   if (clean.startsWith('name:')) return `[name="${clean.slice(5).split('|')[0]}"]`;
@@ -472,12 +499,21 @@ const CLICK_DENYLIST_PATTERN = /\b(save|submit|apply|confirm|delete|remove|disca
 // Tags/roles that are plausibly editable cells or input triggers (safe to click for probing).
 // A bare <button> that is not a click-to-edit cell should never be probed.
 const PROBEABLE_TAGS = new Set(['INPUT', 'SELECT', 'TEXTAREA', 'TD', 'TH', 'SPAN', 'DIV', 'A']);
+// Cause-1 fix: 'tab' removed — tab triggers are navigation controls; clicking one unmounts the
+// panel being measured, causing all subsequent $eval calls to fail (testids 80→0 in production).
+// Tab triggers classified as non_probeable; ordering property: no probe changes mount state.
 const PROBEABLE_ROLES = new Set([
   'cell', 'gridcell', 'textbox', 'combobox', 'listbox', 'spinbutton',
-  'checkbox', 'switch', 'option', 'tab', 'menuitem', 'treeitem',
+  'checkbox', 'switch', 'option', 'menuitem', 'treeitem',
 ]);
 
+// Navigation roles: clicking these swaps the mounted panel — must never be click-probed regardless
+// of tag (a tab trigger may be a DIV which is in PROBEABLE_TAGS, so we guard by role first).
+const NAVIGATION_ROLES = new Set(['tab', 'tablist']);
+
 function isProbeableByClikc(tag, role) {
+  // Navigation roles override tag membership — they swap the mounted panel when clicked.
+  if (role && NAVIGATION_ROLES.has(role)) return false;
   if (PROBEABLE_TAGS.has(tag)) return true;
   if (role && PROBEABLE_ROLES.has(role)) return true;
   return false;
@@ -497,6 +533,9 @@ async function readAccessibleName(page, selector) {
 // to search the runtime-loaded legal type names. No hardcoded type strings — the taxonomy
 // (field-case-generation.md) loaded via loadFieldCaseTaxonomy() is the single source of truth.
 // Evaluation: ALL rules are tested; resolve only on a unique match (Defect 2 fix).
+// Cause-3 fix: bare `INPUT` catch-all removed — it incorrectly classified type-less numeric inputs
+// as "Plain text". A control matching no rule must remain `unresolved`; an honest unknown is
+// better than a confident wrong type propagated into a closed plan.
 const TYPE_SIGNAL_RULES = [
   { match: o => o.role === 'spinbutton',  pattern: /numeric|spinbutton/i },
   { match: o => o.role === 'checkbox',    pattern: /checkbox/i },
@@ -504,11 +543,13 @@ const TYPE_SIGNAL_RULES = [
   { match: o => o.role === 'combobox',    pattern: /dropdown|combobox/i },
   { match: o => o.role === 'listbox',     pattern: /dropdown|combobox|listbox/i },
   { match: o => o.tag === 'INPUT' && o.type === 'number',  pattern: /numeric|spinbutton/i },
+  // Cause-3 fix: type-less decimal inputs (the 79 percentage inputs). Confirmed signals:
+  // tagName=INPUT, type=null, inputmode=decimal. No formcontrolname/id/name on these elements.
+  { match: o => o.tag === 'INPUT' && o.type === '' && o.inputmode === 'decimal', pattern: /numeric|spinbutton/i },
   { match: o => o.tag === 'INPUT' && o.type === 'checkbox', pattern: /checkbox/i },
   { match: o => o.tag === 'INPUT' && o.type === 'password', pattern: /password/i },
   { match: o => o.tag === 'INPUT' && (o.type === 'date' || o.type === 'datetime-local'), pattern: /date/i },
   { match: o => o.tag === 'INPUT' && o.type === 'file',    pattern: /file/i },
-  { match: o => o.tag === 'INPUT',        pattern: /plain.text/i },
   { match: o => o.tag === 'SELECT',       pattern: /dropdown|combobox/i },
   { match: o => o.tag === 'TEXTAREA',     pattern: /plain.text/i },
 ];
@@ -518,6 +559,7 @@ export function deriveFieldType(observation, legalTypes) {
     tag: (observation.tag || '').toUpperCase(),
     type: (observation.type || '').toLowerCase(),
     role: (observation.role || '').toLowerCase(),
+    inputmode: (observation.inputmode || '').toLowerCase(),
   };
   const matchedTypes = new Set();
   for (const rule of TYPE_SIGNAL_RULES) {
@@ -531,11 +573,148 @@ export function deriveFieldType(observation, legalTypes) {
   return matchedTypes.size >= 2 ? { ambiguous: [...matchedTypes] } : null;
 }
 
+// Exported seam: resolves an --branch value to its matching openerRoleTextPatterns entry.
+// Throws loudly if the value is unrecognised so the caller can exit(2) immediately.
+export function resolveBranchOpener(cfg, branchArg) {
+  const patterns = (cfg && cfg.openerRoleTextPatterns) || [];
+  const match = patterns.find(p => p.branch === branchArg);
+  if (!match) {
+    const known = patterns.map(p => p.branch).filter(Boolean).join(', ') || '(none configured)';
+    throw new Error(
+      `[FATAL] --branch="${branchArg}" is not a recognised branch value for this module.\n` +
+      `Known branches: ${known}\n` +
+      'An unrecognised --branch value must fail loudly; silently ignoring it would reintroduce the original bug.'
+    );
+  }
+  return match;
+}
+// Cause-1 seam: exported so tests can drive the production ordering
+// (renavigate must precede every Phase 2.2 DOM read).
+// main() calls this after the opener loop; the seam lets a unit test inject
+// mock collaborators and assert goto fires before $eval — no browser required.
+export async function deriveAllFieldTypes(page, url, entries, rawEntries, legalTypes) {
+  await renavigateToOrigin(page, url);
+
+  // --- Phase 2.2: derive field types from DOM observation ---
+  const archetypeRepKeys = new Map();
+  for (const raw of rawEntries) {
+    const tk = templateKey(raw.key);
+    if (!archetypeRepKeys.has(tk)) archetypeRepKeys.set(tk, raw.key);
+  }
+
+  const derivedTypes = {};
+  for (const entry of entries) {
+    const controlKey = entry.key;
+    let selectorKey = controlKey;
+    if (entry.archetype) {
+      const tk = controlKey.replace(/\s*\[archetype\u00D7\d+\]$/, '');
+      selectorKey = archetypeRepKeys.get(tk) || controlKey;
+    }
+    const selector = entryKeyToSelector(selectorKey);
+    if (!selector) {
+      const keyPrefix = selectorKey.split(':')[0];
+      derivedTypes[controlKey] = classifyUnresolvableKey(controlKey, `${keyPrefix}: key has no resolvable CSS selector from ancestor path`);
+      continue;
+    }
+    let obs;
+    try {
+      obs = await readElementObservation(page, selector);
+    } catch (err) {
+      console.warn(`[derive-type] read failed for ${controlKey}: ${String(err).slice(0, 80)}`);
+      derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
+      continue;
+    }
+    if (!obs) {
+      derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
+      continue;
+    }
+    if (isRestingConclusive(obs)) {
+      const fieldType = deriveFieldType(obs, legalTypes);
+      if (fieldType && typeof fieldType === 'object' && fieldType.ambiguous) {
+        derivedTypes[controlKey] = {
+          type: null,
+          resolved: false,
+          evidence: `${formatEvidence(obs)}; ambiguous_candidates=${fieldType.ambiguous.join(',')}`,
+          probe: 'unresolved',
+        };
+      } else {
+        derivedTypes[controlKey] = {
+          type: fieldType,
+          resolved: fieldType !== null,
+          evidence: formatEvidence(obs),
+          probe: 'resting',
+        };
+      }
+    } else {
+      const accessibleName = await readAccessibleName(page, selector);
+      const keyText = controlKey.replace(/^(testid:|id:|name:)/, '');
+      if (CLICK_DENYLIST_PATTERN.test(keyText) || CLICK_DENYLIST_PATTERN.test(accessibleName)) {
+        derivedTypes[controlKey] = {
+          type: null,
+          resolved: false,
+          evidence: `denylist_hit: key="${keyText}" accessibleName="${accessibleName}"`,
+          probe: 'unresolved',
+        };
+        continue;
+      }
+      const obsTag = (obs.tag || '').toUpperCase();
+      const obsRole = (obs.role || '').toLowerCase();
+      if (!isProbeableByClikc(obsTag, obsRole)) {
+        derivedTypes[controlKey] = {
+          type: null,
+          resolved: false,
+          evidence: `non_probeable: tag=${obsTag} role=${obsRole}`,
+          probe: 'unresolved',
+        };
+        continue;
+      }
+      let activeObs = null;
+      let clickPerformed = false;
+      try {
+        await page.click(selector, { timeout: 3000 });
+        clickPerformed = true;
+        await page.waitForTimeout(300);
+        activeObs = await readActiveElementObservation(page);
+      } catch (err) {
+        console.warn(`[derive-type] click-probe failed for ${controlKey}: ${String(err).slice(0, 80)}`);
+      } finally {
+        if (clickPerformed) {
+          try {
+            await page.keyboard.press('Escape');
+            await page.waitForTimeout(200);
+          } catch (escErr) {
+            console.warn(`[derive-type] Escape failed for ${controlKey}: ${String(escErr).slice(0, 80)}`);
+          }
+        }
+      }
+      const effectiveObs = activeObs || obs;
+      const fieldType = deriveFieldType(effectiveObs, legalTypes);
+      if (fieldType && typeof fieldType === 'object' && fieldType.ambiguous) {
+        derivedTypes[controlKey] = {
+          type: null,
+          resolved: false,
+          evidence: `${formatEvidence(effectiveObs)}; ambiguous_candidates=${fieldType.ambiguous.join(',')}`,
+          probe: 'unresolved',
+        };
+      } else {
+        derivedTypes[controlKey] = {
+          type: fieldType,
+          resolved: fieldType !== null,
+          evidence: formatEvidence(effectiveObs),
+          probe: activeObs ? 'edit-mode-click' : 'resting',
+        };
+      }
+    }
+  }
+  return derivedTypes;
+}
+
 async function readElementObservation(page, selector) {
   return page.$eval(selector, el => ({
     tag: el.tagName.toUpperCase(),
     type: el.getAttribute('type') || '',
     role: el.getAttribute('role') || '',
+    inputmode: el.getAttribute('inputmode') || '',
   }));
 }
 
@@ -557,11 +736,16 @@ async function main() {
   const cfg = MODULE_CONFIG[moduleName];
   if (!cfg && !args.url) { console.error(`No config for module "${moduleName}" and no --url given.`); process.exit(2); }
   const url = args.url || cfg.path(office);
-  const state = args.state || `${office}-${moduleName}`;
+  const state = (args.state || `${office}-${moduleName}`) + (args.branch ? `--${args.branch.replace(/[^a-z0-9:]+/g, '-')}` : '');
   const authPath = args.auth || (existsSync(DEFAULT_AUTH) ? DEFAULT_AUTH : FALLBACK_AUTH);
   const maxCycles = parseInt(args['max-cycles'] || '6', 10);
   const useCdp = !args['no-cdp'];
   const headed = !!args.headed;
+
+  if (args.branch) {
+    if (!cfg) { console.error(`[FATAL] --branch requires a module config; none found for "${moduleName}".`); process.exit(2); }
+    try { resolveBranchOpener(cfg, args.branch); } catch (err) { console.error(err.message); process.exit(2); }
+  }
 
   if (!existsSync(authPath)) {
     console.error(`[FATAL] auth state not found: ${authPath}. Refresh via: playwright-cli open --persistent --profile=.auth\\e2e-profile`);
@@ -620,16 +804,6 @@ async function main() {
       }
     }
 
-    // --- activate configured tabs by role+text (for surfaces with no stable data-testid on tabs) ---
-    if (cfg && cfg.activateTabsByRoleText) {
-      report.tabActivateRoleText = [];
-      for (const { role, text } of cfg.activateTabsByRoleText) {
-        const res = await activateTabByRoleText(page, role, text, cfg.contentMarker);
-        report.tabActivateRoleText.push({ role, text, ...res });
-        if (!res.ok) report.tabActivateNote = `failed to activate tab role=${role} text="${text}" after ${res.attempts} attempts`;
-      }
-    }
-
     if (args.debug) {
       const sel = await page.locator('[data-testid="location-settings-sub-tab-pricing"]').first().getAttribute('aria-selected').catch(() => '?');
       const gridCount = await page.locator('[data-testid="location-settings-table-secondary-pricing"]').count().catch(() => -1);
@@ -638,7 +812,25 @@ async function main() {
       console.error(`[debug] pre-enumerate: pricing aria-selected=${sel} gridCount=${gridCount} colIsAltCount=${altCount} frames=${frames} url=${page.url()}`);
     }
 
-    // --- resting-state enumeration + CDP G1 on its candidates (Pay To Address lives here) ---
+    let g1hits = [];
+    if (args.branch) {
+      // Branch-only path: click the single named opener, enumerate that surface only.
+      // resolveBranchOpener was already called above to validate � safe to call again.
+      const branchPattern = resolveBranchOpener(cfg, args.branch);
+      const loc = branchPattern.selector
+        ? page.locator(branchPattern.selector)
+        : page.getByRole(branchPattern.role, { name: branchPattern.text, exact: true });
+      await loc.first().click({ timeout: 5000 });
+      // Content-gated branches (e.g. History) wait for rendered DOM markers, not testid counts.
+      if (branchPattern.contentGate) {
+        await waitReadyContent(page);
+      } else {
+        await waitReady(page, branchPattern.minTestids != null ? { minTestids: branchPattern.minTestids } : {});
+      }
+      const branchState = await enumerateState(page);
+      mergeEntries(accum, branchState.entries, args.branch, excludeOptions);
+      report.branches.push({ branch: args.branch, openerText: branchPattern.text, addedKeys: branchState.entries.length, ok: true });
+    } else {    // --- resting-state enumeration + CDP G1 on its candidates (Pay To Address lives here) ---
     // Item 1(a): detect whether the page is genuinely at rest (no open dialogs/modals/popovers).
     // Only mark resting as observed when no overlay is blocking the base surface.
     const hasOpenOverlay = await page.evaluate(() => {
@@ -909,6 +1101,8 @@ async function main() {
       }
     }
 
+    }
+
     // --- archetype-collapse (F3/G8) + set algebra (M4) ---
     const rawEntries = [...accum.values()];
     const entries = collapseArchetypes(rawEntries, parseInt(args['archetype-threshold'] || '4', 10));
@@ -931,125 +1125,11 @@ async function main() {
       process.exit(3);
     }
 
-    // --- Phase 2.2: derive field types from DOM observation ---
+    // Cause-1 fix: the opener loop may have left the page on a History tab or other mounted panel.
+    // Navigate back to the originating URL so Phase 2.2 reads DOM from the correct mounted panel.
     const taxonomy = loadFieldCaseTaxonomy();
     const legalTypes = taxonomy.fieldTypes.map(ft => ft.type);
-
-    const archetypeRepKeys = new Map();
-    for (const raw of rawEntries) {
-      const tk = templateKey(raw.key);
-      if (!archetypeRepKeys.has(tk)) archetypeRepKeys.set(tk, raw.key);
-    }
-
-    const derivedTypes = {};
-    for (const entry of entries) {
-      const controlKey = entry.key;
-      let selectorKey = controlKey;
-      if (entry.archetype) {
-        const tk = controlKey.replace(/\s*\[archetype×\d+\]$/, '');
-        selectorKey = archetypeRepKeys.get(tk) || controlKey;
-      }
-      const selector = entryKeyToSelector(selectorKey);
-      if (!selector) {
-        // Item 4: struct:/role: keys that cannot resolve get explicit unresolvable disposition
-        const keyPrefix = selectorKey.split(':')[0];
-        derivedTypes[controlKey] = classifyUnresolvableKey(controlKey, `${keyPrefix}: key has no resolvable CSS selector from ancestor path`);
-        continue;
-      }
-      let obs;
-      try {
-        obs = await readElementObservation(page, selector);
-      } catch (err) {
-        console.warn(`[derive-type] read failed for ${controlKey}: ${String(err).slice(0, 80)}`);
-        derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
-        continue;
-      }
-      if (!obs) {
-        derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
-        continue;
-      }
-      if (isRestingConclusive(obs)) {
-        const fieldType = deriveFieldType(obs, legalTypes);
-        if (fieldType && typeof fieldType === 'object' && fieldType.ambiguous) {
-          derivedTypes[controlKey] = {
-            type: null,
-            resolved: false,
-            evidence: `${formatEvidence(obs)}; ambiguous_candidates=${fieldType.ambiguous.join(',')}`,
-            probe: 'unresolved',
-          };
-        } else {
-          derivedTypes[controlKey] = {
-            type: fieldType,
-            resolved: fieldType !== null,
-            evidence: formatEvidence(obs),
-            probe: 'resting',
-          };
-        }
-      } else {
-        // DEFECT 1 FIX: denylist check — never click destructive/mutating controls
-        const accessibleName = await readAccessibleName(page, selector);
-        const keyText = controlKey.replace(/^(testid:|id:|name:)/, '');
-        if (CLICK_DENYLIST_PATTERN.test(keyText) || CLICK_DENYLIST_PATTERN.test(accessibleName)) {
-          derivedTypes[controlKey] = {
-            type: null,
-            resolved: false,
-            evidence: `denylist_hit: key="${keyText}" accessibleName="${accessibleName}"`,
-            probe: 'unresolved',
-          };
-          continue;
-        }
-        // Only click elements whose role/tag is plausibly an editable cell or input trigger
-        const obsTag = (obs.tag || '').toUpperCase();
-        const obsRole = (obs.role || '').toLowerCase();
-        if (!isProbeableByClikc(obsTag, obsRole)) {
-          derivedTypes[controlKey] = {
-            type: null,
-            resolved: false,
-            evidence: `non_probeable: tag=${obsTag} role=${obsRole}`,
-            probe: 'unresolved',
-          };
-          continue;
-        }
-        // DEFECT 3 FIX: Escape in finally — always dismiss edit mode even on throw
-        let activeObs = null;
-        let clickPerformed = false;
-        try {
-          await page.click(selector, { timeout: 3000 });
-          clickPerformed = true;
-          await page.waitForTimeout(300);
-          activeObs = await readActiveElementObservation(page);
-        } catch (err) {
-          console.warn(`[derive-type] click-probe failed for ${controlKey}: ${String(err).slice(0, 80)}`);
-        } finally {
-          if (clickPerformed) {
-            try {
-              await page.keyboard.press('Escape');
-              await page.waitForTimeout(200);
-            } catch (escErr) {
-              console.warn(`[derive-type] Escape failed for ${controlKey}: ${String(escErr).slice(0, 80)}`);
-            }
-          }
-        }
-        const effectiveObs = activeObs || obs;
-        const fieldType = deriveFieldType(effectiveObs, legalTypes);
-        if (fieldType && typeof fieldType === 'object' && fieldType.ambiguous) {
-          derivedTypes[controlKey] = {
-            type: null,
-            resolved: false,
-            evidence: `${formatEvidence(effectiveObs)}; ambiguous_candidates=${fieldType.ambiguous.join(',')}`,
-            probe: 'unresolved',
-          };
-        } else {
-          derivedTypes[controlKey] = {
-            type: fieldType,
-            resolved: fieldType !== null,
-            evidence: formatEvidence(effectiveObs),
-            probe: activeObs ? 'edit-mode-click' : 'resting',
-          };
-        }
-      }
-    }
-    report.derived_types = derivedTypes;
+    report.derived_types = await deriveAllFieldTypes(page, url, entries, rawEntries, legalTypes);
 
     // --- completion_record: attach before JSON write; self-hash for anti-tamper ---
     // Build the record first (without content_sha256), serialize, compute sha256 over that,
@@ -1115,3 +1195,4 @@ async function main() {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) { main(); }
+

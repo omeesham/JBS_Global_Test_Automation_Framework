@@ -61,6 +61,29 @@ plan or the activity-log row, not the file.
 **Trigger**: every Edit/Write to a file under `clients/<id>/` that ships (per the deny-globs).
 Enforced by: [WIRED: .claude/hooks/lib/check-jargon.mjs] (write-time PreToolUse deny) + [WIRED: scripts/verify-no-forbidden.mjs] (pre-commit + ship-time gates) + [AGENT-DISCIPLINE] GENERATOR HARD STOP #12 / HEALER HARD STOP #7 / MAINTAINER HARD STOP #6 (prose instructions agents follow; no independent hook).
 
+## LR-073: Structural names on shippable paths must be feature-based — ticket IDs are content, not names
+
+File and directory basenames under client-shippable paths (`clients/<id>/tests/`, `testcases/`, `src/`,
+`config/`, `specs_planning/test-cases/`), plus registry keys and values that propagate into shipped
+file names (`module-codes.json` submodule keys and `mdBasename` values; `SPLIT_FILE_MAP` stem values;
+`SHEET_NAMES` keys in `to-xlsx.ts`), **must be feature-based**. Examples: `corporate-override-core`,
+`location-pricing`.
+
+Ticket IDs (`nm####` / `NM-####`) are legal **only as content** — inside file bodies for traceability,
+in plan files, and in internal artifacts under `specs_planning/_internal/`.
+
+**Trigger**: authoring or renaming any file/directory under a shippable client path, or editing the
+three named registry structures.
+**Enforced by**: [WIRED: scripts/lib/check-structural-names.mjs] (pre-commit --staged, ship-time,
+npm run check:structural-names) — severity S0, deny on first occurrence.
+
+**Graduated from**: 2026-07-28 (commit `a544dcd72`) — six client-facing workbooks shipped named
+`corporate-override-nm2268.xlsx` through `-nm2273.xlsx` because no file-naming rule existed and no
+gate scanned path names (only file content). S0 class: internal-vocabulary leak onto a client-facing
+surface is trust-destroying and gates on first occurrence.
+
+---
+
 **Graduated from**: 2026-06-11 — 25 internal-jargon comment lines reintroduced across 9 shippable
 files by two Opus build sessions **<24h after** the 2026-06-10 source-comment scrub. Root cause: the
 scrub installed only a commit/ship-time gate; nothing existed at the AUTHORING layer (no rule, no

@@ -15,7 +15,7 @@ Read in order, nothing else:
 1. .claude/skills/ultra-agents/worker-ext.md lines 1-120
 2. This plan, in full
 3. .claude/state/ua-worker/chips/fdle/CEO-CORRECTIONS.md §5 (root cause, evidenced)
-Repo root: C:\Users\rutvi\projects\encore_framework
+Repo root: C:\Users\RutvikKhorasiya\projects\encore_framework
 NOTE: .claude/skills/ultra-agents/copilot-worker.sh is NOT tracked by git.
       Back it up before every edit; .bak files are the only rollback.
 Git Bash is C:\Program Files\Git\bin\bash.exe — plain `bash` from PowerShell hits WSL and fails.
@@ -379,8 +379,7 @@ The user's standing requirement: no new surface beyond what the goal needs.
 
 ## VERIFIED STATE — 2026-07-25 16:42 (CEO-run, machine evidence)
 
-Evidence: `.claude/state/ua-worker/chips/fdle/out-p1-verify/ceo-probes.verify.txt`,
-`out-p1-verify/c5-archive.verify.txt`, and ledger rows for runs `c8d371ba` / `a4d69d10`.
+Evidence: worker chip fdle CEO probe and C5 archive logs (scratch; not tracked), and ledger rows for runs `c8d371ba` / `a4d69d10`.
 
 | item | state | proof |
 |---|---|---|
@@ -698,7 +697,7 @@ as this one did.
 
 ### GPT adversarial verification: RETURNED. P2 is UNBLOCKED but AMENDED.
 `fdle-slop-verify-r1` (gpt-5.5, council-reviewer) completed. Full evidence:
-`.claude/state/ua-worker/chips/fdle/out-slop-verify/SLOP-VERIFICATION.md` + 13 tee'd probes.
+Worker chip fdle slop-verification notes (scratch; not tracked) + 13 tee'd probes.
 Verdicts: **5 PARTIALLY-CONFIRMED, 1 CONFIRMED-with-caveat, 0 rubber stamps.** It refuted the
 CEO's reasoning on five of six items while agreeing with most dispositions. Corrections binding:
 
@@ -739,7 +738,7 @@ stall-bounce queueing, ledger-truth A1/A2/A4, report-section/ASK detection).
   fixtures at `.claude/state/ua-worker/dlv-c2/scrubbed/`), **C6** (6 bug-class→oracle→fixture
   maps), **C7** (generator SUPERSET proof), **C8** (`domain-invariants.json` — needs read-only Jira).
   Phase 2 blind pilot ACCEPTED and rediscovered the 1222 class unaided (10 visible rows of 2,652).
-- Both remain `Status: PENDING`. CEO dispositions: `.claude/state/ua-worker/chips/fdle/CEO-CORRECTIONS.md` §1-8.
+- Both remain `Status: PENDING`. CEO dispositions: worker chip fdle correction notes (scratch; not tracked) sections 1-8.
 
 ### Unverified / owed
 - 3 CONTENT-MISMATCH citations from the a0b audit — flagged, never CEO-verified. Do not act on them yet.
@@ -758,3 +757,21 @@ one-liners unless depth is requested.
 
 Execution is delegated. P2 does not start until the CEO has read `fdle-slop-verify-r1`.
 Deletions beyond P2's named files require Rutvik's explicit GO.
+
+---
+
+## Inherited obligation — LR-074 dispatch visibility (S1)
+
+This subplan is the doctrine-ledger recipient for **LR-074**, so closing it must close this gap.
+
+Today LR-074 has no blocking enforcement. Its only call site is the detective Stop hook
+`.claude/hooks/lib/check-visibility-reconcile.mjs:516`, which writes an `[INVISIBLE-DISPATCH WARN]`
+line and nothing more — that file contains no `process.exit`, no deny, and no non-zero return path.
+The preventive PreToolUse gate that would have blocked a detachment primitive was built and then
+removed by owner directive in commit `f2e51bebd`, recorded in `.claude/rules/guardrail-policy.md`
+section 74.2. A warn-only gate is disarmed, not un-gateable — the same reasoning that re-classified
+LR-014 to S2 in `.claude/doctrine-ledger.json`.
+
+So an invisible dispatch is currently detected after the session, never prevented during it.
+Any gating work this subplan lands should say plainly whether it restores a preventive layer or
+deliberately keeps detection-only, and the ledger entry for LR-074 should be updated to match.

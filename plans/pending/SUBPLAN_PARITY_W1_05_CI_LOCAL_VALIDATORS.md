@@ -81,8 +81,8 @@ Author `clients/encore/scripts/ci/check-md-header-count.mjs`:
 - Exit 1 if mismatch
 
 Unit-test fixtures:
-- `clients/encore/scripts/ci/fixtures/header-count-good.md` (matching count)
-- `clients/encore/scripts/ci/fixtures/header-count-bad.md` (mismatching count)
+- a test fixture file (path does not resolve — never committed) (matching count)
+- a test fixture file (path does not resolve — never committed) (mismatching count)
 
 ### Phase 3 — D4: MD `Automation File:` resolver
 
@@ -162,7 +162,7 @@ For each script: author known-good fixture + known-bad fixture. Run script again
 
 ### Phase 13 — Document in README
 
-Author `clients/encore/scripts/ci/README.md` listing every script + its purpose + how to invoke + what triggers it.
+Author a CI scripts README (path does not resolve — never committed) listing every script + its purpose + how to invoke + what triggers it.
 
 **BANNED in W1-05**:
 - No `.husky/pre-commit` edits (W2-09 owns)

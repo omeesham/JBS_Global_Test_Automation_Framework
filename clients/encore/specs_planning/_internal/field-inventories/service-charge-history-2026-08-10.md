@@ -9,7 +9,7 @@
 **Test_Entity**: Office 1604 (Parker Palm Springs)
 **Walk_Mode**: quick
 **Coverage_Ratio**: 30/30 (100%)
-**Walk_State**: office=1604 module=service-charge walked=[resting,tab:history]
+Walk_State: office=1604 module=service-charge walked=[resting,tab:history]
 **CrossCheck**: clean
 **Completion_Record**: reports/walk-coverage/service-charge-history.json (status=complete, elements=30)
 **Walk_Evidence**: reports/walk-coverage/service-charge-history.json (enumerated 2026-08-11 via enumerate-page.mjs run-id nm3344-histdenom-0811; resting + tab:history states; History tab activated via role=tab text="Service Charge History")
@@ -124,9 +124,13 @@ The LR-062 machine denominator captures only interactive HTML elements. The Hist
 
 **Implication:** The machine denominator of 30 is accurate for what it measures (interactive elements). The grid's data rows and non-interactive column headers are outside LR-062 scope by construction. Grid surface behavior cases (sort, pagination, empty-state, render) are `deferred-to-DEEP` per LR-065/LR-072 pending SVC-OBS-3 resolution.
 
+**CORRECTION 2026-08-16 (RECONCILE ticket):** SVC-OBS-3 — "clicking empties the grid" — was disproved by a live walk on 2026-08-16 on a 347-row grid (WALK.md). All four column headers open a dropdown (Sort ascending / Sort descending / Hide column); clicking "Sort ascending" on "Modified On" produced oldest-record-first order (row0 date 06/09/2016). The grid was never empty after a header click — the five blank rows observed previously were the loading skeleton, not an empty state. SVC-OBS-3 was used as the reason to defer sort coverage; that reason is gone. Sort behavior is now covered by TC-SVC-HIS-012 (passing 3/3 as of 2026-08-16).
+
 ## Coverage Manifest (machine-enumerated)
 
 Machine denominator: **30** element(s). Resting state: **29** elements. History tab state: **30** elements (1 net new: `id:radix-_r_10_-content-History` tabpanel + 2 sortable column header buttons `id:radix-_r_1a_` / `id:radix-_r_1c_`). Provenance JSON: `reports/walk-coverage/service-charge-history.json` (enumerated 2026-08-11, enumerate-page.mjs, run-id nm3344-histdenom-0811).
+
+**CORRECTION 2026-08-16 (RECONCILE ticket):** The "2 sortable column header buttons" figure was a limitation of the 2026-08-11 enumerator, which captured only native `<button>` elements. A live walk on 2026-08-16 (WALK.md, 347-row grid) confirmed that **all four** column headers contain `<button data-slot="dropdown-menu-trigger">` elements and all four open a working sort dropdown. The correct sort-button count is **four** (Service Type, Service Charge Percentage, Modified By, Modified On). The denominator of 30 is unchanged — the enumerator's count reflects what it found given its contract; the correction is to the sort-button count claimed in this paragraph.
 
 Element counts side-by-side: resting=29, tab:history=30. **They differ — History tab was successfully activated and enumerated.**
 
@@ -172,8 +176,8 @@ which is where that coverage lives.
 | `testid:service-charge-save` _(A∖B — disabled)_ | button | 2026-08-11 | `out-of-scope: outside-module — Basic Information tab save button; same-page element, not a History-tab data element` |
 | `testid:service-charge-percentage-# [archetype×79]` | input | 2026-08-11 | `out-of-scope: outside-module — Basic Information tab percentage inputs; covered in the basic-information inventory by TC-SVC-BAS-001` |
 | `struct:section\|Notifications alt+T\|html/body` _(A∖B)_ | section | 2026-08-11 | `out-of-scope: outside-module — global notification overlay, not a history-tab element` |
-| `id:radix-_r_10_-content-History` | tabpanel | 2026-08-11 | `covered-by-TC: TC-SVC-HIS-001` · `behavior-cases: deferred-to-DEEP: History grid is a read-only data surface; sort/pagination/empty-state/render behaviors require DEEP coverage phase after requirements confirmed (header-click-empties-grid SVC-OBS-3 is an unresolved discussion item)` |
-| `id:radix-_r_1a_` (button, name="Modified By") | button | 2026-08-11 | `deferred-to-DEEP: id:radix-_r_1a_ (column header button; probe:unresolved in enumeration — cycle-2 openersClicked=0; affordance-click deferred because clicking History column headers empties the grid per SVC-OBS-3)` |
-| `id:radix-_r_1c_` (button, name="Modified On") | button | 2026-08-11 | `deferred-to-DEEP: id:radix-_r_1c_ (column header button; probe:unresolved in enumeration — cycle-2 openersClicked=0; affordance-click deferred because clicking History column headers empties the grid per SVC-OBS-3)` |
+| `id:radix-_r_10_-content-History` | tabpanel | 2026-08-11 | `covered-by-TC: TC-SVC-HIS-001` · `behavior-cases: deferred-to-DEEP: History grid is a read-only data surface; sort/pagination/empty-state/render behaviors require DEEP coverage phase after requirements confirmed (header-click-empties-grid SVC-OBS-3 is an unresolved discussion item)` **CORRECTION 2026-08-16 (RECONCILE ticket): SVC-OBS-3 disproved — grid does not empty on header click; sort confirmed working on all 4 columns (WALK.md). Sort coverage now active via TC-SVC-HIS-012.** |
+| `id:radix-_r_1a_` (button, name="Modified By") | button | 2026-08-11 | `deferred-to-DEEP: id:radix-_r_1a_ (column header button; probe:unresolved in enumeration — cycle-2 openersClicked=0; affordance-click deferred because clicking History column headers empties the grid per SVC-OBS-3)` **CORRECTION 2026-08-16 (RECONCILE ticket): SVC-OBS-3 disproved. Live walk 2026-08-16 confirmed this header opens Sort ascending / Sort descending / Hide column dropdown and sort lands. Covered by TC-SVC-HIS-012.** |
+| `id:radix-_r_1c_` (button, name="Modified On") | button | 2026-08-11 | `deferred-to-DEEP: id:radix-_r_1c_ (column header button; probe:unresolved in enumeration — cycle-2 openersClicked=0; affordance-click deferred because clicking History column headers empties the grid per SVC-OBS-3)` **CORRECTION 2026-08-16 (RECONCILE ticket): SVC-OBS-3 disproved. Live walk 2026-08-16 confirmed this header opens Sort ascending / Sort descending / Hide column dropdown; "Modified On" ASC put oldest record first (row0 date 06/09/2016). Covered by TC-SVC-HIS-012.** |
 
 **True History coverage ratio: 30/30 (100%).** All 30 machine-enumerated elements dispositioned. The 22 global-nav/chrome elements are out-of-scope (consistent with prior run). The 8 History-specific or module-level elements are fully classified above.

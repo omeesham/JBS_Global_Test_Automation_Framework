@@ -98,7 +98,7 @@ const ENFORCED = [
   {
     // Labor Override save-cycle — split from the former monolithic corporate-pricing-override.spec.ts.
     // Drives real saves through the field-case runner whose `baseline` is required per case.
-    specPath: 'clients/encore/tests/corporate-override/corporate-override-nm2271.spec.ts',
+    specPath: 'clients/encore/tests/corporate-override/corporate-override-labor-grid.spec.ts',
     describes: [
       { title: 'Corporate Pricing — Product Group Override: Labor save-cycle (mutation, fixture-restored)', mechanism: 'fcc' },
     ],

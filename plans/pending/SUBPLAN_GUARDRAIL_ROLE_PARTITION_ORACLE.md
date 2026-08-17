@@ -147,7 +147,7 @@ Phase 2 should fixture from this table rather than inventing cases.
 `NavigatorCloud.Pricing.ManagePricing`. The per-office lookup was performed and found no variation
 anywhere, so this is an `/encore-questions` escalation with the cheaper alternative already ruled out
 by measurement. Evidence:
-`.claude/state/ua-worker/chips/close2/out-rolesweep/ROLES.json` — 19 keys × 13 offices, all
+a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output) — 19 keys × 13 offices, all
 `FullAccess`, `variesAcross` reports zero varying keys.
 
 Phases 1 and 3 are buildable without the credentials; Phase 2 is not.

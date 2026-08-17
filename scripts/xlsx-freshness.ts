@@ -14,11 +14,10 @@
  * must equal the committed workbook. Two checks enforce it.
  *
  *   Check A (staleness) — rebuild the workbook from the working-tree source to a temp
- *     file and diff the module-sheet DATA rows against the committed workbook. The
- *     Overview sheet and every SUMMARY row are skipped (they carry the build date — the
- *     only non-deterministic cells); module data rows have no timestamps, so the compare
- *     is deterministic. Any cell diff ⇒ the committed workbook does not reflect current
- *     source ⇒ FAIL (rebuild + restage).
+ *     file and diff the module-sheet DATA rows (including SUMMARY rows) against the
+ *     committed workbook. SUMMARY rows now carry deterministic content-change dates
+ *     derived from git history, so they must be compared. Any cell diff ⇒ the
+ *     committed workbook does not reflect current source ⇒ FAIL (rebuild + restage).
  *
  *   Check B (reproducibility) — the workbook's generator sources (the builder + the
  *     export_test_cases pipeline it imports + blocked-reasons.json) must have NO
@@ -36,11 +35,13 @@ import * as os from 'os';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
 import ExcelJS from 'exceljs';
-import { buildWorkbook } from '../export_test_cases/to-xlsx';
+import { buildWorkbook, FINGERPRINT_SHEET } from '../export_test_cases/to-xlsx';
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const XLSX_PATH = path.join(REPO_ROOT, 'clients', 'encore', 'testcases', 'encore_test_cases.xlsx');
 const MODULE_COL_COUNT = 13; // merged TestRail step-expanded schema width
+
+const FINGERPRINT_SHEET_NAME = FINGERPRINT_SHEET;
 
 // Generator sources the committed workbook is built from. An uncommitted change to any
 // of these means the committed workbook cannot be reproduced from committed source.
@@ -56,8 +57,8 @@ const GENERATOR_SOURCES = [
 
 /**
  * Read a workbook's module sheets into Map<sheetName, rows>, where each row is a fixed
- * 13-cell string array. Includes the header row (catches a column-order drift); skips the
- * Overview sheet, SUMMARY rows, and the blank separator rows.
+ * 13-cell string array. Includes the header row and SUMMARY rows; skips the Overview sheet,
+ * the workbook metadata sheet, and blank separator rows.
  */
 async function readModuleRows(file: string): Promise<Map<string, string[][]>> {
   const wb = new ExcelJS.Workbook();
@@ -65,6 +66,7 @@ async function readModuleRows(file: string): Promise<Map<string, string[][]>> {
   const out = new Map<string, string[][]>();
   for (const ws of wb.worksheets) {
     if (ws.name === 'Overview') continue;
+    if (ws.name === FINGERPRINT_SHEET_NAME) continue;
     const rows: string[][] = [];
     ws.eachRow((row) => {
       const cells: string[] = [];
@@ -75,8 +77,9 @@ async function readModuleRows(file: string): Promise<Map<string, string[][]>> {
         }
         cells.push(v == null ? '' : String(v).trim());
       }
-      if (cells[0] === 'SUMMARY') return;       // carries Last Updated: <date>
       if (cells.every((x) => x === '')) return; // blank separator row
+      // SUMMARY rows now carry deterministic content-change dates (not build dates)
+      // and must be compared. A stale "Last Updated:" date is a real freshness failure.
       rows.push(cells);
     });
     out.set(ws.name, rows);
@@ -105,8 +108,14 @@ export function diffRows(committed: Map<string, string[][]>, rebuilt: Map<string
     }
     for (let i = 0; i < a.length; i++) {
       const ra = a[i]!, rb = b[i]!;
+      // SUMMARY rows store "Last Updated: YYYY-MM-DD" in col 13 (index 12), which is
+      // the same index as the per-TC "Notes / Reason" execution column. SUMMARY dates
+      // are deterministic (derived from git history), so they MUST be compared. Exempt
+      // SUMMARY rows from the execution-dependent skip so stale client-visible dates
+      // are caught; per-TC execution columns remain skipped as designed.
+      const isSummaryRow = ra[0] === 'SUMMARY' || rb[0] === 'SUMMARY';
       for (let c = 0; c < MODULE_COL_COUNT; c++) {
-        if (EXECUTION_DEPENDENT_COLS.has(c)) continue;
+        if (EXECUTION_DEPENDENT_COLS.has(c) && !isSummaryRow) continue;
         if ((ra[c] ?? '') !== (rb[c] ?? '')) {
           const tcId = ra[0] || rb[0] || `row ${i + 1}`;
           diffs.push(`sheet '${sheet}' ${tcId} col ${c + 1}: committed="${(ra[c] ?? '').slice(0, 50)}" rebuilt="${(rb[c] ?? '').slice(0, 50)}"`);
@@ -149,7 +158,7 @@ async function main(): Promise<number> {
   // ── Check A — rebuild from working-tree source to a temp file, diff module rows ──
   const tmp = path.join(os.tmpdir(), `encore-xlsx-freshness-${process.pid}.xlsx`);
   try {
-    await buildWorkbook({ mode: 'list-only', outPath: tmp, selfCheck: false });
+    const rebuiltResult = await buildWorkbook({ mode: 'list-only', outPath: tmp, selfCheck: false });
     const [committed, rebuilt] = await Promise.all([readModuleRows(XLSX_PATH), readModuleRows(tmp)]);
     const diffs = diffRows(committed, rebuilt);
     if (diffs.length > 0) {
@@ -161,6 +170,50 @@ async function main(): Promise<number> {
     } else {
       console.log('[xlsx-freshness] Check A OK — committed workbook matches a fresh rebuild (all module rows).');
     }
+
+    // Check A-fp: compare input-identity fingerprints separately from visible rows.
+    // The fingerprint sheet is excluded from the row comparison (it is hidden metadata),
+    // but a fingerprint mismatch means the workbook's recorded input identity is stale
+    // even when visible rows happen to match.
+    if (rebuiltResult.fingerprint) {
+      let committedFp: string | null = null;
+      try {
+        const cwb = new ExcelJS.Workbook();
+        await cwb.xlsx.readFile(XLSX_PATH);
+        const fpSheet = cwb.getWorksheet(FINGERPRINT_SHEET_NAME);
+        if (fpSheet) {
+          const val = fpSheet.getCell('A1').value;
+          committedFp = typeof val === 'string' && val.length > 0 ? val : null;
+        }
+      } catch { /* fail toward rebuild — a read error here is not fatal */ }
+      if (committedFp && committedFp !== rebuiltResult.fingerprint) {
+        ok = false;
+        console.error('[xlsx-freshness] Check A-fp FAIL — committed workbook fingerprint does not match current inputs (input-identity drift). Rebuild required.');
+      } else if (committedFp) {
+        console.log('[xlsx-freshness] Check A-fp OK — committed workbook fingerprint matches current inputs.');
+      }
+      // If committedFp is null the workbook predates fingerprinting — no comparison possible.
+    }
+
+    // Check A1: every module sheet must have a SUMMARY row with a valid ISO date
+    // in its "Last Updated:" field. An absent or malformed date is a build defect.
+    const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+    for (const [sheetName, rows] of committed) {
+      const summaryRow = rows.find(r => r[0] === 'SUMMARY');
+      if (!summaryRow) {
+        ok = false;
+        console.error(`[xlsx-freshness] Check A1 FAIL — sheet '${sheetName}' has no SUMMARY row.`);
+        continue;
+      }
+      const lastUpdated = summaryRow[12] ?? ''; // Notes / Reason col
+      const dateMatch = lastUpdated.match(/Last Updated:\s*(.+)/);
+      const dateStr = dateMatch?.[1]?.trim() ?? '';
+      if (!ISO_DATE_RE.test(dateStr)) {
+        ok = false;
+        console.error(`[xlsx-freshness] Check A1 FAIL — sheet '${sheetName}' SUMMARY has invalid Last Updated: "${lastUpdated}" (expected "Last Updated: YYYY-MM-DD").`);
+      }
+    }
+    if (ok) console.log('[xlsx-freshness] Check A1 OK — all SUMMARY rows have valid content-change dates.');
   } finally {
     try { fs.unlinkSync(tmp); } catch { /* best effort */ }
   }

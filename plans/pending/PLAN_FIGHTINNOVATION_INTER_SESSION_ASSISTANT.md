@@ -64,7 +64,7 @@ Canonical design: **`.claude/state/fightinnovation/session-comms/verdict.md`** (
 - **OQ-C6 — existing `.claude/channel/` (broadcast/ + inbox/)**: reuse/extend vs keep the session-bus separate. Verified present; not yet reconciled.
 
 ## Sibling awareness (do not re-solve)
-- **Task 2 — clash-free parallelism** (`plans/pending/PLAN_FIGHTINNOVATION_CLASH_FREE_PARALLELISM.md` + `.claude/state/fightinnovation/clash-isolation/verdict.md`) designs the DISK isolation + gated merge. THIS plan is the COMMUNICATION/CONTROL layer over those isolated sessions. Note the merge-surfacing seam; do not redesign the merge.
+- **Task 2 — clash-free parallelism** (`plans/done/PLAN_FIGHTINNOVATION_CLASH_FREE_PARALLELISM.md` + `.claude/state/fightinnovation/clash-isolation/verdict.md`) designs the DISK isolation + gated merge. THIS plan is the COMMUNICATION/CONTROL layer over those isolated sessions. Note the merge-surfacing seam; do not redesign the merge.
 - **Copilot-worker fleet** (`.claude/skills/ultra-agents/worker-ext.md`) = intra-session Claude→worker delegation. THIS is inter-SESSION (peer Claude Code sessions). Distinct.
 
 ## Acceptance criteria (for THIS fight plan — all met)

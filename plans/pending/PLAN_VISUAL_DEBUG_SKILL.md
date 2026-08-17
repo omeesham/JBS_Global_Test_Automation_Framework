@@ -230,7 +230,7 @@ Add VIS-001 through VIS-005:
 
 | Action | File | Lines | What |
 |--------|------|-------|------|
-| CREATE | `.claude/skills/visual-debug/SKILL.md` | ~250 | Full skill definition with 4-tier protocol |
+| CREATE | a skill file (path does not resolve — the skill was never created or was removed) | ~250 | Full skill definition with 4-tier protocol |
 | CREATE | `scripts/trace-extract.ts` | ~150 | Trace.zip extraction utility |
 | MODIFY | `CLAUDE.md` | +5 | Routing row #18 + dependency graph update |
 | MODIFY | `docs/read_only_docs/AGENT_SHARED_RULES.md` | ~10 | Replace ALL-014 with usage guidelines |
@@ -255,7 +255,7 @@ Add VIS-001 through VIS-005:
 ## Verification
 
 1. **Skill invocation**: Run `/visual-debug` in Claude Code → skill loads → protocol steps visible
-2. **Trace extraction**: Run `npm run trace:extract -- reports/test-results/some-trace.zip` → JSON output with action sequence + extracted screenshots
+2. **Trace extraction**: Run `npm run trace:extract -- a session-local file that is not tracked in git` → JSON output with action sequence + extracted screenshots
 3. **End-to-end**: Deliberately fail a test (wrong selector), then:
    - Agent reads failure-summary.json (Tier 1) → identifies selector issue from error message
    - If unclear: extracts trace (Tier 2) → sees DOM snapshot shows element missing

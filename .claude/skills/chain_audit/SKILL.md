@@ -17,7 +17,7 @@ tools: Read, Glob, Grep, Write, Edit, Bash, TodoWrite, TaskCreate, TaskUpdate, T
 > **Archive-on-GREEN (LR-042)**: when an audit passes GREEN *and* the user explicitly approves during the session, ALL the plan's headless-session artifacts are **moved** to `.claude/state/chain-sessions-green/` (sibling of `chain-sessions/` and `chain-archive/`). The move set:
 > - `.claude/state/chain-sessions/<plan>.log` → `.claude/state/chain-sessions-green/<plan>.log`
 > - `.claude/state/chain-sessions/<plan>.pid` → `.claude/state/chain-sessions-green/<plan>.pid`
-> - `~/.claude/projects/c--Users-rutvi-projects-encore-framework/<uuid>.jsonl` → `.claude/state/chain-sessions-green/<plan>.<uuid>.jsonl` (renamed to carry the plan name)
+> - `~/.claude/projects/C--Users-RutvikKhorasiya-projects-encore-framework/<uuid>.jsonl` → `.claude/state/chain-sessions-green/<plan>.<uuid>.jsonl` (renamed to carry the plan name)
 >
 > YELLOW / RED → nothing moves. Artifacts stay in `chain-sessions/` until the user fixes and re-audits to GREEN. Per LR-042: no other path (manual cleanup, `/chain reset`, agent tidy-up) may touch `chain-sessions/*.log|*.pid` — only a GREEN `/chain_audit` approval may move them.
 
@@ -88,7 +88,7 @@ Triggered by:
      2. Move the headless-run log + pid (present by candidate filter):
         - `mv .claude/state/chain-sessions/<picked>.log .claude/state/chain-sessions-green/<picked>.log`
         - `mv .claude/state/chain-sessions/<picked>.pid .claude/state/chain-sessions-green/<picked>.pid` (if exists; skip silently otherwise)
-     3. Find the matching transcript: enumerate `~/.claude/projects/c--Users-rutvi-projects-encore-framework/*.jsonl`, read each line as JSON, scan content (`.message.content[].text` or `.content`) for the plan's filename. Pick the newest match.
+     3. Find the matching transcript: enumerate `~/.claude/projects/C--Users-RutvikKhorasiya-projects-encore-framework/*.jsonl`, read each line as JSON, scan content (`.message.content[].text` or `.content`) for the plan's filename. Pick the newest match.
         - If match: `mv <match> .claude/state/chain-sessions-green/<picked>.<uuid>.jsonl` (rename to embed plan name for self-identification).
      4. Update the state entry with `archivedTo` = the destination folder.
    - On **no** or artifacts already moved → skip, record `archivedTo: null`. Not an error.

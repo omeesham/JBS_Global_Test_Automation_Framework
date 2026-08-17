@@ -372,6 +372,6 @@ Sequential — stop and HALT-to-user on any phase failure:
 
 ## Open out-of-scope items (track separately, NOT in this plan)
 
-1. **TC-LOS-ECT-014 root cause** — Next.js client-side exception on retry. File a bug against the Encore app team with the `failure-summary.json` evidence (`net::ERR_ABORTED` on `/api/auth/session` at the 1.1-min mark, "Application error" screenshot from `retry1/test-failed-1.png`). Framework will not attempt to mask the crash.
+1. **TC-LOS-ECT-014 root cause** — Next.js client-side exception on retry. File a bug against the Encore app team with the `failure-summary.json` evidence (`net::ERR_ABORTED` on `/api/auth/session` at the 1.1-min mark, "Application error" screenshot artifact is gone; that screenshot claim is unverified). Framework will not attempt to mask the crash.
 2. **TC-029/TC-030 intermittent Notes-empty issue** — auditor flagged a separate concurrent-save pollution (`sinceMs` window timing) affecting non-multiline payloads. Track separately.
 3. **Dedicated read-only audit office** — `OFFICE_NO_READONLY = '1605'` was considered. **Not needed once Fix 1 lands** — self-contained tests don't need office isolation because they only read their own writes. Revisit only if a new history audit pattern emerges that genuinely cannot be made self-contained.

@@ -103,7 +103,7 @@ CLI is **not a replacement** for MCP — Microsoft maintains both in parallel. C
 
 ### Steps
 
-1. Create CLI variant: `.github/agents/playwright-requirements-cli.agent.md`
+1. Create a CLI variant of the Playwright requirements agent definition (the exact file path is not present in this repo; the claim is unverified as file evidence)
    - Replace MCP server config with Bash tool access to `playwright-cli` commands
    - Map all MCP tool references to CLI commands
    - Add skills reference for syntax training

@@ -201,8 +201,8 @@ DO-NOW / APPEND with grep-verification. Bare deferral = HALT + ask.
 | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
 | HUNTER | (none) | (none) | (none) |
-| GIVER | test-cases MD + test-plan MD + XLSX | `clients/encore/specs_planning/test-cases/corporate_pricing_override_test_cases.md` (Labor + save-cycle + dirty-guard + pagination + NM-1932 + volume + a11y + integration TCs) | `npm run check:tc-parity` exit 0 |
-| BUILDER | corporate-override-nm2271.spec.ts + page object extensions | `clients/encore/tests/corporate-override/corporate-override-nm2271.spec.ts` (all Phase 1–9 TCs) | `npx playwright test --list` resolves new TC IDs; spec run green ×2 |
+| GIVER | test-cases MD + test-plan MD + XLSX | `clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_override_test_cases.md` (Labor + save-cycle + dirty-guard + pagination + NM-1932 + volume + a11y + integration TCs) | `npm run check:tc-parity` exit 0 |
+| BUILDER | corporate-override-labor-grid.spec.ts + page object extensions | `clients/encore/tests/corporate-override/corporate-override-labor-grid.spec.ts` (all Phase 1–9 TCs) | `npx playwright test --list` resolves new TC IDs; spec run green ×2 |
 | HEALER | (none) | (none) | (none) |
 | WATCHDOG | (none) | (none) | (none) |
 | GARDENER | (none) | (none) | (none) |

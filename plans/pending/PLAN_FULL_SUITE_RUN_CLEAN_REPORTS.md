@@ -73,7 +73,7 @@ Get-Location
 
 If not in `clients/encore`, navigate there:
 ```powershell
-Set-Location C:\Users\rutvi\projects\encore_framework\clients\encore
+Set-Location C:\Users\RutvikKhorasiya\projects\encore_framework\clients\encore
 ```
 
 ### Phase 2 — Clean report outputs only (zero contamination, nothing important lost)

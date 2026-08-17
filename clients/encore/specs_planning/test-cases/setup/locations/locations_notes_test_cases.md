@@ -1332,6 +1332,16 @@ The entry recorded `Save dialog | Cancel + Save buttons` and `Total fields found
 
 ---
 
+## Validation Rules
+
+| Rule | Behaviour |
+|---|---|
+| Note textarea — soft 4000-character limit | `Validators.maxLength(4000)` is enforced via JavaScript only; there is NO HTML `maxlength` attribute. Paste can push the counter above 4000 — the counter shows the overage (e.g. `4001/4000`) but the field does not block input. (Source: `notes-2026-05-11.md` §Field Inventory row "Note textarea (row 0)" Validation Rules column; MCP_VERIFICATION_LOG row "Boundary behaviors") |
+| Notes are entirely optional | No field is required; no `aria-invalid` is ever triggered; no error messages are displayed. (Source: `notes-2026-05-11.md` §Field Inventory; MCP_VERIFICATION_LOG row "Validation error patterns": "None — notes are entirely optional") |
+| All character types stored as plain text | XSS payloads, SQL injection strings, emoji, and Unicode are all accepted and stored verbatim — no sanitization or rejection observed. (Source: MCP_VERIFICATION_LOG row "Boundary behaviors") |
+
+---
+
 ## TC-LOC-NTS-058: Edit append
 | Priority | Status | Type | Automatable |
 |----------|--------|------|-------------|

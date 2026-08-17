@@ -233,7 +233,7 @@ function write(filePath, force) {
     },
     {
       role: 'historical_spec',
-      path: 'clients/encore/tests/corporate-override/corporate-override-nm2271.spec.ts',
+      path: 'clients/encore/tests/corporate-override/corporate-override-labor-grid.spec.ts',
       resolvePath: HISTORICAL_SPEC_RESOLVE,
       note: 'NM-2271 shipped monolithic spec (pre-split path used for git resolution; current path for reference)',
     },

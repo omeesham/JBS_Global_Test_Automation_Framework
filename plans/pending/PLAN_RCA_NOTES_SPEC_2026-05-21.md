@@ -203,7 +203,7 @@ Per `/rca` SKILL.md REJECT bucket:
 - **Class 3 (standard hides)**: no `test.skip()` / `test.fixme()` without `BUG-LOC-NTS-NNN` cite (hook-enforced too); no `try/catch` swallowing the failing action; no timeout bumps > 2× without recorded justification; no retry loops in test code to mask a race; no hardcoded waits without DOM-state reason.
 
 **Branches**:
-- **APP bug (new, not BUG-LOC-NTS-001/002/003)** → file `reports/bugs/BUG-LOC-NTS-NNN.json` per LR-034 protocol. Do NOT fix test code. Verify uniqueness via dedup grep against existing bug files.
+- **APP bug (new, not BUG-LOC-NTS-001/002/003)** → file a bug report file (path does not resolve — file was never committed) per LR-034 protocol. Do NOT fix test code. Verify uniqueness via dedup grep against existing bug files.
 - **APP bug (matches existing)** → verify via LR-044 protocol (`stepsToReproduceOriginal` capture, append to `verificationLog`). Confirm workaround in spec is still effective; if not, propose workaround upgrade.
 - **Test-code bug** → propose minimal edit. Surface in chat with diff preview. Wait for user approval before Edit.
 - **Env / auth / infra** → escalate, do not patch in code.

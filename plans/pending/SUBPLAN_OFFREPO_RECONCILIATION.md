@@ -25,7 +25,7 @@ inside the repo, and whose deletions require explicit batch approval.
 - **Identity**: OWNER (all 95 touch the owner's machine)
 - **Skills**: `/questionnaire` (per-item approval gates)
 - **Context files**: `_TRIPLAN_RECONCILIATION.md`, `.claude/rules/plan-closure.md` (LR-055),
-  `.claude/rules/pipeline.md` (LR-048, LR-041), `.claude/state/ua-worker/chips/q123/out-merge-final/OFF-REPO-TRANSFER-MANIFEST.md`
+  `.claude/rules/pipeline.md` (LR-048, LR-041), worker chip output (ephemeral — not tracked in git)
 
 ---
 
@@ -154,8 +154,8 @@ Three sub-batches by target tree, presented one at a time for owner GO/SKIP/DEFE
 |---|---|
 | P2-LOT09-01 | DELETE `~/.claude/delegation/private/gates.sha256.tmp-backup` (byte-identical to live) |
 | P2-LOT10-07 | KEEP `~/.claude/delegation/assistant-state.json` (no action; tracked for denominator) |
-| P2-LOT10-08 | KEEP `~/.claude/delegation/candidates.txt` (no action; tracked for denominator) |
-| P2-LOT10-09 | FLAG `~/.claude/delegation/cli-version.txt` (no live reader; owner decides keep/delete) |
+| P2-LOT10-08 | KEEP `~/a delegation-era scratch file (removed — never tracked)` (no action; tracked for denominator) |
+| P2-LOT10-09 | FLAG `~/a delegation-era scratch file (removed — never tracked)` (no live reader; owner decides keep/delete) |
 
 ---
 

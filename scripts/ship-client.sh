@@ -75,6 +75,9 @@ done
 # Prune empty directories left after file removal so they never appear in the payload.
 find "$STAGING" -mindepth 1 -type d -empty -delete 2>/dev/null || true
 
+# LR-073: structural-names gate (S0) — no ticket IDs as file/directory names.
+node scripts/lib/check-structural-names.mjs --target="$STAGING" || { echo "ERR: LR-073 structural-names gate failed — rename using feature-based names." >&2; exit 10; }
+
 # Authoritative gate: verify staged payload contains zero deny-listed files.
 node scripts/verify-no-forbidden.mjs --target="$STAGING"
 

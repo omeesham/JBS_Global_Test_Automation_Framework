@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_ONELINERS_AUTO_RELEARN.md",
+  "plan_basename": "SUBPLAN_ONELINERS_AUTO_RELEARN.md",
+  "plan_sha256": "5472ffb05015f78cd1f7e83188aaa3c24458c60c1e189c56fae5628a8b683100",
+  "passed_at": "2026-07-26T08:40:42.520Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "745bcdf719004e94544fadcf24ba988b462469a7f91fd76f26d2f36e04af8e9c",
+  "validator_invocation_id": "1785055242519-6bd626273c81a83b3e2e62fb1a100b53-5472ffb05015f78c",
+  "artifacts": [],
+  "provisional": false
+}

@@ -15,25 +15,53 @@
 //
 // Refs: LR-062 (denominator discipline), LR-065 (case-generation taxonomy).
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, appendFileSync } from 'node:fs';
 import { join, dirname, resolve, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
 import { extractManifestRows } from './lib/coverage-manifest.mjs';
 import { MODULE_CONFIG as MODULE_REQUIRED_STATES } from './lib/module-config.mjs';
 import { loadFieldCaseTaxonomy } from './lib/field-case-parser.mjs';
-import { computePathA, computePathB, reconcile } from './lib/case-parity.mjs';
+import { computePathA, computePathB, reconcile, partitionControls, gridUnits } from './lib/case-parity.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
+const ANNOUNCE_PREFIX = '[ANNOUNCE] ';
 
 // ---- normalize -------------------------------------------------------------------------------
-// Lowercase + trim only. Prefix (testid:|id:|…) is PRESERVED so two distinct machine keys that
-// differ only by prefix (e.g. testid:save vs id:save) map to distinct Set entries and each
-// requires its own manifest row. extractManifestRows also returns controlRef with the prefix,
-// so both sides compare prefixed strings and the match is still exact.
+// Trim only — case is SIGNIFICANT. The enumerator produces mixed-case keys (e.g. `struct:a|Home|…`)
+// and the manifest must reproduce that case exactly. Prefix (testid:|id:|…) is PRESERVED so two
+// distinct machine keys that differ only by prefix (e.g. testid:save vs id:save) map to distinct
+// Set entries and each requires its own manifest row.
 function normalize(key) {
-  return (key || '').toLowerCase().trim();
+  return (key || '').trim();
+}
+
+function dispositionPayload(row, token) {
+  const rx = new RegExp(`${token}\\s*:\\s*([^|\`\\n]+)`, 'i');
+  return (row.raw.match(rx)?.[1] || '').trim();
+}
+
+function validManifestDisposition(row, walkMode) {
+  if (!row.controlRef) return false;
+  switch (row.disposition) {
+    case 'covered-by-TC':
+      return /\bTC-[A-Z0-9]+-[A-Z0-9]+-\d{3}\b/.test(row.raw);
+    case 'affordance-probed':
+      return dispositionPayload(row, 'affordance-probed').length > 0;
+    case 'read-only-verified':
+    case 'DIFFERENTIAL-DATA-REQUIRED':
+      return true;
+    case 'out-of-scope':
+      return dispositionPayload(row, 'out-of-scope').length >= 20;
+    case 'deferred-to-DEEP': {
+      if (walkMode !== 'quick') return false;
+      const m = row.raw.match(/deferred-to-DEEP\s*:\s*(\S+)\s+\(([^)]*)\)/i);
+      return !!m && m[1].trim().length > 0 && m[2].trim().length >= 20;
+    }
+    default:
+      return false;
+  }
 }
 
 // ---- unreachable exemptions ------------------------------------------------------------------
@@ -49,6 +77,51 @@ function loadUnreachableExemptions() {
     }
   } catch { /* no valid exemptions */ }
   return keys;
+}
+
+// ---- unresolved allowlist (PLAN_70 Phase 5) -------------------------------------------------
+// Not agent-writable. Fails closed on unreadable/malformed/stale entries.
+function loadUnresolvedAllowlist() {
+  const allowlistPath = join(REPO_ROOT, '.claude', 'walk-unresolved-allowlist.json');
+  const keys = new Set();
+  try {
+    if (!existsSync(allowlistPath)) return keys;
+    const data = JSON.parse(readFileSync(allowlistPath, 'utf-8'));
+    if (!Array.isArray(data.exemptions)) return keys;
+    for (const entry of data.exemptions) {
+      // Fail closed: skip malformed, unreviewed, or stale entries
+      if (!entry || typeof entry.key !== 'string' || !entry.key.trim()) continue;
+      if (!entry.reviewer || typeof entry.reviewer !== 'string') continue;
+      if (!entry.date || typeof entry.date !== 'string') continue;
+      if (!entry.exemption_class || typeof entry.exemption_class !== 'string') continue;
+      if (!entry.reason || typeof entry.reason !== 'string') continue;
+      if (!entry.evidence || typeof entry.evidence !== 'string') continue;
+      if (entry.reviewed !== true) continue;
+      keys.add(entry.key.trim());
+    }
+  } catch { /* fail closed — unreadable means no exemptions */ }
+  return keys;
+}
+
+// ---- read unresolved_probe_mode from guardrail-config ----------------------------------------
+function readUnresolvedProbeMode() {
+  try {
+    const gcPath = join(REPO_ROOT, '.claude', 'guardrail-config.json');
+    if (existsSync(gcPath)) {
+      const gc = JSON.parse(readFileSync(gcPath, 'utf-8'));
+      if (gc.unresolved_probe_mode === 'deny') return 'deny';
+    }
+  } catch { /* fail-safe to announce */ }
+  return 'announce';
+}
+
+// ---- fire telemetry for the unresolved-probe gate -------------------------------------------
+function fireDenominatorGateTelemetry(verdict, target) {
+  try {
+    const logPath = join(REPO_ROOT, '.claude', 'state', 'gate-fires.log');
+    const line = `unresolved-probe-gate, ${new Date().toISOString()}, ${verdict}, ${target}\n`;
+    appendFileSync(logPath, line, 'utf-8');
+  } catch { /* telemetry is best-effort */ }
 }
 
 // ---- spec file finder -----------------------------------------------------------------------
@@ -109,6 +182,13 @@ export function verifyDenominator(artifactText, jsonPath) {
   const machineKeys = new Set(data.entries.map(e => normalize(e.key)));
   const manifestRows = extractManifestRows(artifactText);
   const manifestKeys = new Set(manifestRows.map(r => normalize(r.controlRef)));
+  const walkMode = (artifactText.match(/(?:\*\*)?Walk_Mode(?:\*\*)?\s*:\s*(quick|deep)\b/i)?.[1] || 'deep').toLowerCase();
+  const dispositionedManifestKeys = new Set(
+    manifestRows
+      .filter(row => validManifestDisposition(row, walkMode))
+      .map(row => normalize(row.controlRef))
+      .filter(Boolean)
+  );
 
   // 4a. missing = machineKeys \ manifestKeys → any non-empty → FAIL.
   const missing = [...machineKeys].filter(k => !manifestKeys.has(k));
@@ -116,11 +196,11 @@ export function verifyDenominator(artifactText, jsonPath) {
     reasons.push(`${missing.length} machine key(s) missing from manifest: ${missing.slice(0, 10).join(', ')}`);
   }
 
-  // 4b. inflation = manifestKeys \ machineKeys → if > 5% of |machineKeys| → FAIL.
+  // 4b. inflation = manifestKeys \ machineKeys → any non-zero → FAIL (zero tolerance).
   if (machineKeys.size > 0) {
     const inflation = [...manifestKeys].filter(k => !machineKeys.has(k));
-    if (inflation.length / machineKeys.size > 0.05) {
-      reasons.push(`manifest inflation ${inflation.length}/${machineKeys.size} (${Math.round(inflation.length / machineKeys.size * 100)}% > 5%): ${inflation.slice(0, 5).join(', ')}`);
+    if (inflation.length > 0) {
+      reasons.push(`manifest inflation ${inflation.length}/${machineKeys.size}: ${inflation.slice(0, 10).join(', ')}`);
     }
   }
 
@@ -172,39 +252,40 @@ export function verifyDenominator(artifactText, jsonPath) {
     }
   }
 
-  // Item 3: Unresolved-probe ratio becomes a failing condition.
-  // Reads unresolved_probe_mode from .claude/guardrail-config.json (announce-first per LR-069 §3.3).
-  if (data.derived_types) {
+  // Item 3: Unresolved-probe gate (PLAN_70 Phase 5 — replaces convicted ratio check).
+  // Deny when: !derived_types || total === 0 || unresolvedCount > 0 (after allowlist).
+  // No ratio. No threshold. Reads unresolved_probe_mode from guardrail-config (announce-first per LR-069 §3.3).
+  if (!data.derived_types) {
+    const msg = 'UNRESOLVED-PROBE-GATE: derived_types missing — denominator has no type resolution data';
+    const mode = readUnresolvedProbeMode();
+    fireDenominatorGateTelemetry(mode === 'deny' ? 'deny' : 'announce', jsonPath);
+    if (mode === 'deny') reasons.push(msg);
+    else reasons.push(`${ANNOUNCE_PREFIX}${msg}`);
+  } else {
     const allKeys = Object.keys(data.derived_types);
-    const unresolvedKeys = allKeys.filter(k => {
-      const dt = data.derived_types[k];
-      return dt.probe === 'unresolved' || dt.probe === 'unresolvable';
-    });
     const total = allKeys.length;
-    const unresolvedCount = unresolvedKeys.length;
-    if (total > 0) {
-      const fraction = unresolvedCount / total;
-      // Read threshold from guardrail-config; default 0.5 (50%)
-      let unresolvedThreshold = 0.5;
-      let unresolvedMode = 'announce';
-      try {
-        const gcPath = join(REPO_ROOT, '.claude', 'guardrail-config.json');
-        if (existsSync(gcPath)) {
-          const gc = JSON.parse(readFileSync(gcPath, 'utf-8'));
-          if (gc.unresolved_probe_mode) unresolvedMode = gc.unresolved_probe_mode;
-          if (typeof gc.unresolved_probe_threshold === 'number') unresolvedThreshold = gc.unresolved_probe_threshold;
-        }
-      } catch { /* fail-safe to defaults */ }
-      if (fraction > unresolvedThreshold) {
-        const pct = Math.round(fraction * 100);
+    if (total === 0) {
+      const msg = 'UNRESOLVED-PROBE-GATE: derived_types is empty (total === 0) — no controls to verify';
+      const mode = readUnresolvedProbeMode();
+      fireDenominatorGateTelemetry(mode === 'deny' ? 'deny' : 'announce', jsonPath);
+      if (mode === 'deny') reasons.push(msg);
+      else reasons.push(`${ANNOUNCE_PREFIX}${msg}`);
+    } else {
+      const allowlist = loadUnresolvedAllowlist();
+      const unresolvedKeys = allKeys.filter(k => {
+        const dt = data.derived_types[k];
+        return (dt.probe === 'unresolved' || dt.probe === 'unresolvable')
+          && !allowlist.has(k)
+          && !dispositionedManifestKeys.has(normalize(k));
+      });
+      const unresolvedCount = unresolvedKeys.length;
+      if (unresolvedCount > 0) {
         const sample = unresolvedKeys.slice(0, 10).join(', ');
-        const msg = `UNRESOLVED-PROBE-RATIO: ${unresolvedCount}/${total} (${pct}%) exceeds threshold ${Math.round(unresolvedThreshold * 100)}%. Offending keys: ${sample}`;
-        if (unresolvedMode === 'deny') {
-          reasons.push(msg);
-        } else {
-          // announce mode: report but do not block
-          reasons.push(`[ANNOUNCE] ${msg}`);
-        }
+        const msg = `UNRESOLVED-PROBE-GATE: ${unresolvedCount}/${total} control(s) unresolved after allowlist/manifest dispositions. Keys: ${sample}`;
+        const mode = readUnresolvedProbeMode();
+        fireDenominatorGateTelemetry(mode === 'deny' ? 'deny' : 'announce', jsonPath);
+        if (mode === 'deny') reasons.push(msg);
+        else reasons.push(`${ANNOUNCE_PREFIX}${msg}`);
       }
     }
   }
@@ -229,9 +310,74 @@ export function verifyDenominator(artifactText, jsonPath) {
         );
       } else {
         const raw = JSON.parse(readFileSync(rowsPath, 'utf-8'));
-        const rows = Array.isArray(raw) ? raw : (raw.rows || raw.case_rows || []);
+        const allRows = Array.isArray(raw) ? raw : (raw.rows || raw.case_rows || []);
+
+        // Scope Path B to the artifact under check. Prefer source_artifact provenance when
+        // rows carry it (exact page-level scoping). Fall back to field_key membership for
+        // legacy rows that predate the provenance field — but warn that this is coarser.
+        const artifactLabel = jsonPath.replace(/^.*[/\\]/, '').replace(/\.json$/i, '');
+        const artifactFieldKeys = new Set(Object.keys(data.derived_types));
+        const { gridRowKeys: artGridKeys } = partitionControls(data.derived_types);
+        for (const [unit] of gridUnits(artGridKeys)) {
+          artifactFieldKeys.add(`grid:${unit}`);
+        }
+
+        const hasProvenance = allRows.some(r => r.source_artifact != null);
+        let rows;
+        let scopeMethod;
+        if (hasProvenance) {
+          rows = allRows.filter(r => r.source_artifact === artifactLabel);
+          scopeMethod = 'source_artifact';
+          // Fallback: if this artifact has no provenance-tagged rows yet, scope by field_key
+          // (legacy rows predate the provenance field).
+          if (rows.length === 0) {
+            rows = allRows.filter(r => r.source_artifact == null && artifactFieldKeys.has(r.field_key));
+            scopeMethod = 'field_key (fallback — legacy rows without source_artifact)';
+          }
+        } else {
+          rows = allRows.filter(r => artifactFieldKeys.has(r.field_key));
+          scopeMethod = 'field_key (coarser — shared keys across artifacts match identically)';
+        }
+
         const parity = reconcile(pathA, computePathB(rows));
-        console.log(parity.report);
+
+        // Row-membership validation (Finding CA-002): each row's field_key must exist in the
+        // page record, and its field_type must match the record's resolved type (or 'UNRESOLVED'
+        // when the control is unresolved). This is a THIRD check — it does NOT feed into Path A
+        // or Path B computation, so it cannot collapse the two independent sides.
+        const membershipErrors = [];
+        for (const row of rows) {
+          if (!row.field_key) continue;
+          const entry = data.derived_types[row.field_key];
+          if (!entry) {
+            membershipErrors.push(`row field_key "${row.field_key}" not found in page record`);
+            continue;
+          }
+          const expectedType = (!entry.resolved || entry.type === null) ? 'UNRESOLVED' : entry.type;
+          if (row.field_type && row.field_type !== expectedType) {
+            membershipErrors.push(
+              `row "${row.field_key}" has field_type="${row.field_type}" but page record says "${expectedType}"`
+            );
+          }
+        }
+        if (membershipErrors.length > 0) {
+          const sample = membershipErrors.slice(0, 5).join('; ');
+          const more = membershipErrors.length > 5 ? ` (+${membershipErrors.length - 5} more)` : '';
+          reasons.push(`ROW-MEMBERSHIP: ${membershipErrors.length} row(s) fail page-record validation: ${sample}${more}`);
+        }
+
+        // Compute unresolved ratio for the success message
+        const dtKeys = Object.keys(data.derived_types);
+        const { controlKeys: ckForMsg } = partitionControls(data.derived_types);
+        const unresolvedForMsg = ckForMsg.filter(k => {
+          const e = data.derived_types[k];
+          return !e?.resolved || e?.type === null;
+        }).length;
+        const unresolvedNote = ckForMsg.length > 0 && unresolvedForMsg > 0
+          ? ` NOTE: ${unresolvedForMsg}/${ckForMsg.length} controls unresolved — parity confirms equal widened estimates, not resolved coverage.`
+          : '';
+
+        console.error(`${parity.report} (artifact: ${artifactLabel}, scope: ${scopeMethod}, ${rows.length}/${allRows.length} rows matched)${unresolvedNote}`);
         reasons.push(...parity.reasons);
       }
     } catch (err) {
@@ -257,8 +403,16 @@ export function verifyDenominator(artifactText, jsonPath) {
     }
   }
 
-  if (reasons.length === 0) return { ok: true };
-  return { ok: false, reason: reasons.join('; '), reasons };
+  // Separate announce-only findings (non-blocking) from genuinely blocking findings.
+  const blocking = reasons.filter(r => !r.startsWith(ANNOUNCE_PREFIX));
+  const announcements = reasons.filter(r => r.startsWith(ANNOUNCE_PREFIX));
+
+  if (blocking.length === 0 && announcements.length === 0) return { ok: true };
+  if (blocking.length === 0) {
+    // Announce findings are reported but do not block the verdict.
+    return { ok: true, announcements, reasons };
+  }
+  return { ok: false, reason: reasons.join('; '), reasons, announcements };
 }
 
 // ---- spotAudit -------------------------------------------------------------------------------

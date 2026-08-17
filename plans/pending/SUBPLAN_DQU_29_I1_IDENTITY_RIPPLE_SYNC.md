@@ -45,7 +45,7 @@ Each identity owns specific artifacts. After this plan's changes (CSV renames, M
    - Verify owned artifacts match current state.
    - Update any stale task list.
    - File activity-log row per identity.
-4. Produce `clients/encore/specs_planning/_internal/identity-ripple-sync-2026-04-22.md` with per-identity outcomes.
+4. Produce a dated internal identity-ripple sync artifact (planned; not present yet) with per-identity outcomes.
 5. Final activity-log row (OWNER summary).
 
 ## Acceptance criteria

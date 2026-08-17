@@ -56,12 +56,12 @@
     },
     "COR": {
       "CORE": { "name": "override", "display": "Core", "sheet": "corporate_override_core", "mdBasename": "corporate_override_core_test_cases", "idModule": "CPR", "idSubmodule": "OVR", "$comment": "No idRenames entries added — TC-CPR-OVR-* IDs are not renumbered (D7). idModule+idSubmodule fields tell C8 that these sheets own TC-CPR-OVR-* IDs even though the sheet group is now COR (D10)." },
-      "N268": { "name": "override", "display": "Location Picker", "sheet": "corporate_override_loc_picker", "mdBasename": "corporate_override_nm2268_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
-      "N269": { "name": "override", "display": "Active and Currency Filters", "sheet": "corporate_override_filters", "mdBasename": "corporate_override_nm2269_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
-      "N270": { "name": "override", "display": "Grid Text Filter and Sort", "sheet": "corporate_override_grid_sort", "mdBasename": "corporate_override_nm2270_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
-      "N271": { "name": "override", "display": "Labor Grid", "sheet": "corporate_override_labor_grid", "mdBasename": "corporate_override_nm2271_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
-      "N272": { "name": "override", "display": "Export", "sheet": "corporate_override_export", "mdBasename": "corporate_override_nm2272_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
-      "N273": { "name": "override", "display": "Import", "sheet": "corporate_override_import", "mdBasename": "corporate_override_nm2273_test_cases", "idModule": "CPR", "idSubmodule": "OVR" }
+      "LPK": { "name": "override", "display": "Location Picker", "sheet": "corporate_override_loc_picker", "mdBasename": "corporate_override_location_picker_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
+      "FLT": { "name": "override", "display": "Active and Currency Filters", "sheet": "corporate_override_filters", "mdBasename": "corporate_override_filters_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
+      "GSR": { "name": "override", "display": "Grid Text Filter and Sort", "sheet": "corporate_override_grid_sort", "mdBasename": "corporate_override_grid_sort_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
+      "LGR": { "name": "override", "display": "Labor Grid", "sheet": "corporate_override_labor_grid", "mdBasename": "corporate_override_labor_grid_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
+      "EXP": { "name": "override", "display": "Export", "sheet": "corporate_override_export", "mdBasename": "corporate_override_export_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
+      "IMP": { "name": "override", "display": "Import", "sheet": "corporate_override_import", "mdBasename": "corporate_override_import_test_cases", "idModule": "CPR", "idSubmodule": "OVR" }
     }
   },
   "sheetNameNotes": {

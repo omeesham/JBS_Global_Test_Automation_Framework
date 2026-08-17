@@ -106,9 +106,9 @@ RECON-A3 (accepted). Design authority: PLAN_59 D7 (no TC ID renumbering), D9 (st
 
 ---
 
-## Phase 2 — `clients/encore/specs_planning/_internal/test-id-registry.json`
+## Phase 2 - internal test-id registry file
 
-**File**: `clients/encore/specs_planning/_internal/test-id-registry.json`
+**File**: internal test-id registry file (gitignored planning artifact; path not portable)
 
 1. Read the file. Find the existing CPR module-level entry — use it as the shape template.
 2. Add a new module-level entry for `<MODULE_CODE>` / `corporate-override` matching the same schema.
@@ -216,10 +216,10 @@ literally `**Module**:` or `Module:`, then apply the same edit pattern to all. I
 
 **Files — leave entirely unchanged (superseded versions, historical evidence, narrative logs):**
 
-- `field-inventories/corporate-pricing-override-2026-07-09.md`, `-2026-06-19.md`, `-2026-06-09.md`, `-2026-06-08.md` — SUPERSEDED per RECON-A3; not the live oracle
-- `old-site-baseline/corporate-pricing-override-2026-06-08.md` — historical baseline; no live tooling keys on it; rename would falsify date-provenance
-- `field-case-catalogs/override-2026-06-09.md` — historical catalog; not a live oracle
-- `testid-live-dumps-2026-07-06/pg-override.json` — point-in-time dump; if it has a `module` JSON key, update it only if a live tool actively reads it; otherwise leave
+- `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-override-2026-07-09.md`, `-2026-06-19.md`, `-2026-06-09.md`, `-2026-06-08.md` — SUPERSEDED per RECON-A3; not the live oracle
+- `clients/encore/specs_planning/_internal/old-site-baseline/corporate-pricing-override-2026-06-08.md` — historical baseline; no live tooling keys on it; rename would falsify date-provenance
+- `clients/encore/specs_planning/_internal/field-case-catalogs/override-2026-06-09.md` — historical catalog; not a live oracle
+- `clients/encore/specs_planning/_internal/testid-live-dumps-2026-07-06/pg-override.json` — point-in-time dump; if it has a `module` JSON key, update it only if a live tool actively reads it; otherwise leave
 - `evidence-cp-override-2026-07-13/` — historical defect evidence directory; no live tool keys on it
 - `agent-activity-log.md`, `agent-mistakes.md`, `REMEDIATION_PROGRESS.md`, `jira-defect-crossref-2026-06-09.md` — narrative logs; NO-ACTION per RECON-A3 §3
 
@@ -369,7 +369,7 @@ changes to files outside the declared scope.
 | BUILDER | (none) | (none) | (none) |
 | HEALER | (none) | (none) | (none) |
 | WATCHDOG | (none) | (none) | (none) |
-| GARDENER | Registry files, internal planning artifact frontmatter, pending plans, client docs | `export_test_cases/module-codes.json`<br>`clients/encore/specs_planning/_internal/test-id-registry.json`<br>`scripts/walk-coverage/lib/module-config.mjs`<br>`scripts/xlsx-lint-rules.mjs`<br>`clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-override-2026-07-22.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-READ-ME-FIRST.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-A.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-B.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-C.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-D.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-E.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-F.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-20-SAVE.md`<br>`clients/encore/specs_planning/_internal/corporate-pricing-override-dependency-map-2026-07-18.md`<br>`plans/pending/SUBPLAN_CORP_PRICING_NM2272_OVERRIDE_EXPORT.md`<br>`plans/pending/SUBPLAN_CORP_PRICING_NM2273_OVERRIDE_IMPORT.md`<br>`plans/pending/PLAN_ENCORE_NM2272_NM2273_GRAFT_AND_SHIP.md`<br>`plans/pending/SUBPLAN_OPI_G_MIGRATE_CORP_PRICING.md`<br>`plans/pending/SUBPLAN_CORP_PRICING_NM2265_IMPORT_ALL.md`<br>`clients/encore/docs/MODULE_REGISTRY.md`<br>`clients/encore/docs/REQUIREMENTS.md` | `npm run verify:no-stale-refs` exit 0 |
+| GARDENER | Registry files, internal planning artifact frontmatter, pending plans, client docs | `export_test_cases/module-codes.json`<br>internal test-id registry file (gitignored planning artifact)<br>`scripts/walk-coverage/lib/module-config.mjs`<br>`scripts/xlsx-lint-rules.mjs`<br>`clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-override-2026-07-22.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-READ-ME-FIRST.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-A.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-B.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-C.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-D.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-E.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-17-F.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-override-2026-07-20-SAVE.md`<br>`clients/encore/specs_planning/_internal/corporate-pricing-override-dependency-map-2026-07-18.md`<br>`plans/pending/SUBPLAN_CORP_PRICING_NM2272_OVERRIDE_EXPORT.md`<br>`plans/pending/SUBPLAN_CORP_PRICING_NM2273_OVERRIDE_IMPORT.md`<br>`plans/pending/PLAN_ENCORE_NM2272_NM2273_GRAFT_AND_SHIP.md`<br>`plans/pending/SUBPLAN_OPI_G_MIGRATE_CORP_PRICING.md`<br>`plans/pending/SUBPLAN_CORP_PRICING_NM2265_IMPORT_ALL.md`<br>`clients/encore/docs/MODULE_REGISTRY.md`<br>`clients/encore/docs/REQUIREMENTS.md` | `npm run verify:no-stale-refs` exit 0 |
 
 ---
 
@@ -377,7 +377,7 @@ changes to files outside the declared scope.
 
 - [ ] `export_test_cases/module-codes.json` — new `<MODULE_CODE>` entry in `modules`; submodule entries in `submodules.<MODULE_CODE>` for each NM submodule 59C created; each entry has `name`, `display`, `sheet`, `mdBasename`
 - [ ] Zero `idRenames` entries added for this restructure — TC IDs `TC-CPR-OVR-*` are NOT renumbered (PLAN_59 D7); a reader MUST NOT add them
-- [ ] `clients/encore/specs_planning/_internal/test-id-registry.json` — new module-level entry for `<MODULE_CODE>` / `corporate-override`
+- [ ] internal test-id registry file - new module-level entry for `<MODULE_CODE>` / `corporate-override`
 - [ ] `scripts/walk-coverage/lib/module-config.mjs` — key `'corporate-pricing-override'` renamed to `'corporate-override'`; `override-price` and `max-discount` field names unchanged
 - [ ] `scripts/xlsx-lint-rules.mjs` line 274 — unchanged (historical comment, not an active pin); any active sheet-name map entries updated if found in lines 241, 303, 317
 - [ ] `blocked-reasons.json` — grep for `corporate_pricing_override` exits 1 (zero matches)
@@ -418,7 +418,7 @@ _Placeholder — executor fills this in._
 | Deliverable | Status | Path |
 |---|---|---|
 | `module-codes.json` — `<MODULE_CODE>` module + submodules added | | `export_test_cases/module-codes.json` |
-| `test-id-registry.json` — `<MODULE_CODE>` entry added | | `clients/encore/specs_planning/_internal/test-id-registry.json` |
+| `test-id-registry.json` - `<MODULE_CODE>` entry added | | internal test-id registry file (gitignored planning artifact) |
 | `module-config.mjs` — key renamed to `corporate-override` | | `scripts/walk-coverage/lib/module-config.mjs` |
 | `xlsx-lint-rules.mjs` — confirmed / updated per Phase 4 | | `scripts/xlsx-lint-rules.mjs` |
 | Spot-checks (blocked-reasons, domain-invariants, package.json) | | (no file change expected) |

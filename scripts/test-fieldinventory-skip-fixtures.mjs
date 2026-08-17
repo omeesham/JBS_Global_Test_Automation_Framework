@@ -47,7 +47,7 @@ function baseToken(overrides = {}) {
     authorising_quote: 'i would like the gate to be changed into if i say skip the walk personally (not claude) then that gate is skippable',
     session_id: 'd79157a6-8e2f-4b4d-8dac-48af24387ba5',
     issued: TODAY,
-    modules: ['corporate-override-core', 'corporate-override-nm2270'],
+    modules: ['corporate-override-core', 'corporate-override-grid-sort'],
     reason: 'Deliverables push blocked; owner-authorised skip for this commit',
     ...overrides,
   };
@@ -85,7 +85,7 @@ function makeFixtureJson(tmpDir, tcPaths) {
 }
 
 const CORE_TC = 'clients/encore/specs_planning/test-cases/setup/co/corporate_override_core_test_cases.md';
-const NM2270_TC = 'clients/encore/specs_planning/test-cases/setup/co/corporate_override_nm2270_test_cases.md';
+const NM2270_TC = 'clients/encore/specs_planning/test-cases/setup/co/corporate_override_grid_sort_test_cases.md';
 const BOTH_TCS = [CORE_TC, NM2270_TC];
 
 /** Run the gate script, return { status, stdout, stderr } */
@@ -129,7 +129,7 @@ test('Fixture 2: valid token (both modules) → passes, banner, audit log, token
   if (r.status !== 0) throw new Error(`expected exit 0, got ${r.status}\n${r.output}`);
   if (!r.stderr.includes('FIELD-INVENTORY GATE SKIPPED')) throw new Error(`banner missing\n${r.stderr}`);
   if (!r.stderr.includes('corporate-override-core')) throw new Error(`core module not in banner\n${r.stderr}`);
-  if (!r.stderr.includes('corporate-override-nm2270')) throw new Error(`nm2270 module not in banner\n${r.stderr}`);
+  if (!r.stderr.includes('corporate-override-grid-sort')) throw new Error(`nm2270 module not in banner\n${r.stderr}`);
 
   // Audit log must exist and contain a row
   const logPath = path.join(tmp, 'reports', 'diagnostics', 'fieldinventory-skips.log');
@@ -156,7 +156,7 @@ test('Fixture 3: token names only corporate-override-core → still blocks on nm
   const fp = makeFixtureJson(tmp, BOTH_TCS);
   const r = runGate(tmp, fp);
   if (r.status !== 1) throw new Error(`expected exit 1 (scope holds), got ${r.status}\n${r.output}`);
-  if (!r.output.includes('corporate-override-nm2270')) throw new Error(`nm2270 not mentioned in block output\n${r.output}`);
+  if (!r.output.includes('corporate-override-grid-sort')) throw new Error(`nm2270 not mentioned in block output\n${r.output}`);
 });
 
 // ── Fixture 4: modules ["*"] → blocks ─────────────────────────────────────────

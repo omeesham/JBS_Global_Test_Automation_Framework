@@ -76,9 +76,30 @@ export function augmentByTcId(
     result.set(id, { coverageStatus: '', automationExecution: '', ifFailedReason: '' });
   }
 
+  // Guard 1 — S0 pre-condition: auth state must exist before listing.
+  if (!authStateExists(opts.clientRoot)) {
+    const stateFile = path.join(opts.clientRoot, '.auth', 'encore-state.json');
+    process.stderr.write(
+      `[xlsx:build] ABORT (S0) — auth state missing: ${stateFile}\n` +
+      `  Consequence: listing would mark every test skipped, poisoning the workbook.\n` +
+      `  Fix: run auth setup first (e.g. npx playwright test auth.setup.ts).\n`
+    );
+    process.exit(1);
+  }
+
   // Run playwright (sole augment source post-2026-05-27 audit cleanup).
   try {
     const tests = listPlaywrightTests(opts.clientRoot);
+
+    // Guard 2 — S0 all-skip poison check: abort if every listed test is skip-annotated.
+    if (isAllSkipListing(tests)) {
+      process.stderr.write(
+        `[xlsx:build] ABORT (S0) — all-skip listing detected: ${tests.length} test(s), every one skip-annotated.\n` +
+        `  This exact signature poisoned 1970 workbook rows on 2026-08-13/14 (PLAN_66).\n` +
+        `  A legitimate suite never has every test skipped. Check auth state and Playwright config.\n`
+      );
+      process.exit(1);
+    }
     // with-run: read ACTUAL outcomes — either from supplied JSON files or by executing the suite.
     const runOutcomes = opts.mode === 'with-run'
       ? (opts.runJsonPaths && opts.runJsonPaths.length > 0
@@ -191,6 +212,37 @@ export function scanSpecRuntimeFixmes(clientRoot: string): Map<string, string> {
     }
   }
   return out;
+}
+
+// ────────────────────────── S0 Tripwire guards ──────────────────────────
+//
+// TRIPWIRE — S0 client-deliverable corruption guard.
+// Graduating incident: 2026-08-13/14, a build shell missing
+// clients/encore/.auth/encore-state.json caused every Playwright project to
+// declare its storageState absent, annotating all 1970 collected tests as
+// skipped and writing "Skipped" into every workbook row (PLAN_66).
+// Severity S0 per guardrail-policy.md §3.1 — deny on first occurrence.
+
+/**
+ * Guard 1 pure predicate — returns true iff the Playwright auth state file
+ * `<clientRoot>/.auth/encore-state.json` exists. A missing file causes every
+ * test to carry a `skip` annotation on listing, silently poisoning all
+ * Coverage/Automation columns. Exported for unit testing without side effects.
+ */
+export function authStateExists(clientRoot: string): boolean {
+  return fs.existsSync(path.join(clientRoot, '.auth', 'encore-state.json'));
+}
+
+/**
+ * Guard 2 pure predicate — returns true iff the listing contains ≥1 test AND
+ * every test carries a `skip` annotation. This exact signature is impossible
+ * for a legitimate suite export and was the precise poisoning pattern of the
+ * 2026-08-13/14 incident. The empty-listing case (zero tests) is a separate
+ * failure already surfaced by the exporter; this guard must not misfire on it.
+ * Exported for unit testing without side effects.
+ */
+export function isAllSkipListing(tests: ListedTest[]): boolean {
+  return tests.length >= 1 && tests.every(t => t.kind === 'skip');
 }
 
 /** List playwright tests via --list --reporter=json. */

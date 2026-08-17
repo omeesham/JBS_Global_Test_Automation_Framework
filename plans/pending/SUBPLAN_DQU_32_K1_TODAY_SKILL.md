@@ -21,7 +21,7 @@
 **Dependency gate**: SP-DQU-01 `Status: DONE`
 **Context files**:
 - `.claude/skills/standup/SKILL.md` (structural template — copy frontmatter + vocabulary discipline)
-- `.claude/skills/end-day/SKILL.md` (private-skill pattern reference)
+- Private end-day skill pattern (gitignored; path not portable)
 - `plans/INDEX.md` (source of priority data)
 - `clients/encore/specs_planning/_internal/daily-status-bank.json` (continuity signal)
 

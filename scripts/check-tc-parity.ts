@@ -28,6 +28,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as XLSX from 'xlsx';
 import { SHARED_PATHS } from './shared-types';
+import { FINGERPRINT_SHEET } from '../export_test_cases/to-xlsx';
 
 const TC_PATTERN = /TC-[A-Z]+-[A-Z]+-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/g;
 
@@ -275,6 +276,9 @@ assertContentMismatchDetectorWorks();
 // segment) passed guardrails 1-5, C1-C7, and shipped Module="locations" to the
 // client workbook. Guardrail 6 makes the MEANING checkable.
 
+// Use the exported constant from the generator (shared single source of truth).
+const FINGERPRINT_SHEET_NAME = FINGERPRINT_SHEET;
+
 interface ModuleRegistry {
   modules: Record<string, { name: string; display: string; dir: string }>;
   submodules: Record<string, Record<string, { name: string; display: string; sheet: string; mdBasename: string }>>;
@@ -386,6 +390,7 @@ function runGuardrail6and7(reg: ModuleRegistry, mdIdsBySheetExpectation: Set<str
     const wb = XLSX.readFile(workbookPath, { cellDates: false, cellNF: false });
     for (const sheetName of wb.SheetNames) {
       if (sheetName === 'Overview') continue;
+      if (sheetName === FINGERPRINT_SHEET_NAME) continue;
       const owner = sheetOwner.get(sheetName);
       if (!owner) { failures.push(`[G6e] workbook sheet "${sheetName}" is not registered to any submodule in module-codes.json`); continue; }
       const expectModuleCell = reg.modules[owner.mod]!.name;

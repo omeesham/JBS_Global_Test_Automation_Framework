@@ -68,14 +68,14 @@ For each module, in Chrome Claude (LR-038 v2 row "auth-heavy + exploration"):
    - Discount Exemptions — toggle behavior.
    - Save dialog — exact text + button labels.
    - Unsaved Changes dialog — exact text + Stay/Discard.
-6. Emit `clients/encore/specs_planning/_internal/old-site-baseline/local-office-settings-2026-04-29.md` per LR-045 free-form format. Frontmatter: `baselineScope: baseline-partial` (BAS covered; ECT + History tabs are baseline-absent per LR-ENC-001).
+6. Emit an old-site baseline artifact (path does not resolve — file was never committed) per LR-045 free-form format. Frontmatter: `baselineScope: baseline-partial` (BAS covered; ECT + History tabs are baseline-absent per LR-ENC-001).
 
 ### Module 2: Local Information
 
 1. Same Chrome session — switch to Local Information equivalent tab.
 2. Walk every field per `clients/encore/specs_planning/test-cases/setup/locations/locations_local_information_test_cases.md` field inventory header (54 total: 8 inputs + 41 checkboxes + 2 comboboxes + 2 radios + 1 button).
 3. Priority focus: Oracle Product/Dept/Org dependency, SkipBilling cascade, BillingCycle, EnableIDCBilling, DisplayTax auto-set, Threshold dual-dependency, Service Charge children (BUG-LI-002), Allow C&C/ETS/Resort Tax % reset.
-4. Emit `clients/encore/specs_planning/_internal/old-site-baseline/local-information-2026-04-29.md`. Frontmatter: `baselineScope: full` (LI is on baseline).
+4. Emit an old-site baseline artifact (path does not resolve — file was never committed). Frontmatter: `baselineScope: full` (LI is on baseline).
 
 ### Baseline diff classification (both modules)
 
@@ -96,7 +96,7 @@ For each module's field inventory × required-TC grid (per `_TEMPLATE.md` §Cove
 2. For every COVERED row, cite the existing TC ID (e.g., `TC-LOS-BAS-002`).
 3. For every GAP row, draft a 1-line proposed TC title (will be authored in Phase 3).
 4. For every N-A row, justify (e.g., "field is read-only display only, no validation TCs apply").
-5. Emit `clients/encore/specs_planning/_internal/coverage-audits/los-li-depth-coverage-2026-04-29.md` with sections:
+5. Emit a coverage audit artifact (path does not resolve — file was never committed) with sections:
    - `## LOS coverage matrix` (table)
    - `## LI coverage matrix` (table)
    - `## GAP list` (every uncovered field × required-TC, ranked by field criticality)
@@ -137,8 +137,8 @@ Switch identity: `/identity HEALER`.
 
 ## Acceptance criteria (LR-040 closure gate — every item classified (a)/(b)/(c))
 
-- [ ] 2 baseline artifacts emitted: `old-site-baseline/local-office-settings-2026-04-29.md` (`baselineScope: baseline-partial`) + `old-site-baseline/local-information-2026-04-29.md` (`baselineScope: full`).
-- [ ] Coverage audit doc emitted at `_internal/coverage-audits/los-li-depth-coverage-2026-04-29.md` with all 4 mandatory sections.
+- [ ] 2 baseline artifacts emitted: an old-site baseline artifact (path does not resolve — file was never committed) (`baselineScope: baseline-partial`) + an old-site baseline artifact (path does not resolve — file was never committed) (`baselineScope: full`).
+- [ ] Coverage audit doc emitted at a coverage audit artifact (path does not resolve — file was never committed) with all 4 mandatory sections.
 - [ ] Every GAP from Phase 2 → either new TC authored (path a) OR documented N-A with explicit justification (path c).
 - [ ] Every `regression-from-baseline` from Phase 1 → BUG-*.json filed with `baselineComparison: regression-from-baseline` (path a) OR user-flagged discussion-item per `feedback_discussion_item_not_bug.md` (path c).
 - [ ] Every `intentional-UX-change` → REQUIREMENTS.md updated under HUNTER identity (path a).

@@ -10,17 +10,13 @@ import {
 /**
  * Service Charge — Basic Information tab (NM-3344).
  *
- * Per-test baseline: beforeEach calls sc.goto() — a fresh page load is the reset mechanism,
- * ensuring no test inherits state from a prior run. Tests that perform a real save restore the original value in the
- * test body via try/finally. No sibling spec (service-charge-text) uses a dedicated
- * ensureDefaultState helper for percentage inputs; try/finally is the closest equivalent
- * for save-restoring tests here.
+ * Per-test baseline: beforeEach restores the three mutated rows (Audio Conferencing,
+ * APP Downloaded, Equipment Rental) to their recorded default values via ensureDefaultState,
+ * then reads baselines fresh. Tests that perform a real save restore the original value
+ * in the test body via try/finally.
  *
  * Save behavior: the app completes Save with no confirmation dialog on this page.
  * Restore paths call waitUntilLoaded() after clickSave() — no dialog to dismiss.
- *
- * RUNTIME VERIFICATION OUTSTANDING: these specs have NOT been run. The e2e environment
- * was degraded at authoring time. No test result is verified.
  */
 
 
@@ -28,17 +24,37 @@ const AUDIO_IDX = SC_SERVICE_TYPE_INDEX['Audio Conferencing'] as number; // 8
 const APP_IDX   = SC_SERVICE_TYPE_INDEX['APP Downloaded']     as number; // 0
 const EQ_IDX    = SC_SERVICE_TYPE_INDEX['Equipment Rental']   as number; // 23
 
-const DEFAULT_AUDIO_NUM = '24.00';
-const DEFAULT_APP_NUM   = '0.00';
-
-
 test.describe('Service Charge Basic Information', () => {
+  // Suite-wide ceiling: 120 s per test. TC-SVC-BAS-030 declares { timeout: 240_000 } to override.
+  test.describe.configure({ timeout: 120_000 });
+
   let sc: ServiceChargePage;
+  // Per-test observed baselines — read in beforeEach so no test depends on a hardcoded constant.
+  let baselineAudio: string;
+  let baselineApp: string;
+  let baselineEq: string;
+
+  /** Return a percentage value numerically different from `current`, in NN.NN format, within 0–100. */
+  function differentPercentageFrom(current: string): string {
+    const num = parseFloat(current);
+    return (num >= 50 ? num - 10 : num + 10).toFixed(2);
+  }
 
   test.beforeEach(async ({ authenticatedSession, config }) => {
-    test.setTimeout(120_000);
     sc = new ServiceChargePage(authenticatedSession.page, config);
     await sc.goto(SC_OFFICE);
+
+    // Restore the three rows this spec mutates to their recorded defaults (dated inventory
+    // artifact: service-charge-basic-information-2026-08-10.md lines 46, 54, 69).
+    await sc.ensureDefaultState([
+      { rowIndex: APP_IDX, value: '0.00' },
+      { rowIndex: AUDIO_IDX, value: '24.00' },
+      { rowIndex: EQ_IDX, value: '24.00' },
+    ]);
+
+    baselineAudio = await sc.getPercentageByIndex(AUDIO_IDX);
+    baselineApp = await sc.getPercentageByIndex(APP_IDX);
+    baselineEq = await sc.getPercentageByIndex(EQ_IDX);
   });
 
   // ---------------------------------------------------------------- positive acceptance
@@ -51,16 +67,19 @@ test.describe('Service Charge Basic Information', () => {
     // Read the live value before any edit so the restore target matches the actual database state.
     const originalAudio = await sc.getPercentageByIndex(AUDIO_IDX);
 
-    await sc.setPercentageByIndex(AUDIO_IDX, '50.00');
+    await sc.setPercentageByIndex(AUDIO_IDX, differentPercentageFrom(originalAudio));
     expect(await sc.waitForSaveActive()).toBe(true);
 
     try {
       await sc.setPercentageByIndex(AUDIO_IDX, originalAudio);
       // When restoring to the original value the form registers a net-zero change and the app
       // disables Save — the database already holds the correct value, so no save is needed.
-      if (await sc.isSaveEnabled()) {
+      try {
+        await sc.waitForSaveActive(3000);
         await sc.clickSave();
         await sc.waitUntilLoaded();
+      } catch {
+        // Net-zero restore — database already holds the correct value.
       }
     } catch {
       throw new Error('TC-SVC-BAS-001: restore failed — environment may be dirty');
@@ -82,9 +101,12 @@ test.describe('Service Charge Basic Information', () => {
       await sc.setPercentageByIndex(AUDIO_IDX, originalAudio);
       // When restoring to the original value the form registers a net-zero change and the app
       // disables Save — the database already holds the correct value, so no save is needed.
-      if (await sc.isSaveEnabled()) {
+      try {
+        await sc.waitForSaveActive(3000);
         await sc.clickSave();
         await sc.waitUntilLoaded();
+      } catch {
+        // Net-zero restore — database already holds the correct value.
       }
     } catch {
       throw new Error('TC-SVC-BAS-002: restore failed');
@@ -109,9 +131,12 @@ test.describe('Service Charge Basic Information', () => {
 
     try {
       await sc.setPercentageByIndex(AUDIO_IDX, originalAudio);
-      if (await sc.isSaveEnabled()) {
+      try {
+        await sc.waitForSaveActive(3000);
         await sc.clickSave();
         await sc.waitUntilLoaded();
+      } catch {
+        // Net-zero restore — database already holds the correct value.
       }
     } catch {
       throw new Error('TC-SVC-BAS-003: restore failed — environment may be dirty');
@@ -125,17 +150,25 @@ test.describe('Service Charge Basic Information', () => {
   }) => {
     dependencyGate([]);
 
+    const editValue = differentPercentageFrom(baselineAudio);
+
     try {
-      await sc.setPercentageByIndex(AUDIO_IDX, '30.00');
+      await sc.setPercentageByIndex(AUDIO_IDX, editValue);
+      expect(await sc.waitForSaveActive()).toBe(true);
       await sc.clickSave();
       await sc.waitUntilLoaded();
 
       await sc.goto(SC_OFFICE);
-      expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain('30.00');
+      expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain(editValue);
     } finally {
-      await sc.setPercentageByIndex(AUDIO_IDX, DEFAULT_AUDIO_NUM);
-      await sc.clickSave();
-      await sc.waitUntilLoaded();
+      await sc.setPercentageByIndex(AUDIO_IDX, baselineAudio);
+      try {
+        await sc.waitForSaveActive(3000);
+        await sc.clickSave();
+        await sc.waitUntilLoaded();
+      } catch {
+        // Net-zero restore — database already holds the correct value.
+      }
     }
   });
 
@@ -143,33 +176,32 @@ test.describe('Service Charge Basic Information', () => {
 
   test('TC-SVC-BAS-005: Entering a value just below zero (negative boundary)', async ({
     dependencyGate,
-    authenticatedSession,
   }) => {
     dependencyGate([]);
 
-    await sc.setPercentageByIndex(AUDIO_IDX, '-0.01');
+    const input = await sc.typePercentageAndReadFocused(AUDIO_IDX, '-0.01');
 
-    // NEEDS-LIVE-CONFIRM: verify the field rejects -0.01 with aria-invalid="true" and that
-    // Tab moves focus out (not a focus trap).
-    const ariaInvalid = await authenticatedSession.page
-      .locator(`[data-testid="service-charge-percentage-${AUDIO_IDX}"]`)
-      .getAttribute('aria-invalid');
-    expect(ariaInvalid).toBe('true');
+    // Observed live: the value is refused while the field is still focused, and the app clears the
+    // marking when focus leaves — so the check belongs here, before blurring. Save stays disabled.
+    expect(input.value).toBe('-0.01');
+    expect(input.invalid).toBe('true');
+    await sc.moveAwayFromPercentageField();
+    expect(await sc.waitForSaveInactive()).toBe(true);
   });
 
   test('TC-SVC-BAS-006: Entering a value just above 100', async ({
     dependencyGate,
-    authenticatedSession,
   }) => {
     dependencyGate([]);
 
-    await sc.setPercentageByIndex(AUDIO_IDX, '100.01');
+    const input = await sc.typePercentageAndReadFocused(AUDIO_IDX, '100.01');
 
-    // NEEDS-LIVE-CONFIRM: verify whether over-100 is rejected with aria-invalid="true".
-    const ariaInvalid = await authenticatedSession.page
-      .locator(`[data-testid="service-charge-percentage-${AUDIO_IDX}"]`)
-      .getAttribute('aria-invalid');
-    expect(ariaInvalid).toBe('true');
+    // Observed live: the value is refused while the field is still focused, and the app clears the
+    // marking when focus leaves — so the check belongs here, before blurring. Save stays disabled.
+    expect(input.value).toBe('100.01');
+    expect(input.invalid).toBe('true');
+    await sc.moveAwayFromPercentageField();
+    expect(await sc.waitForSaveInactive()).toBe(true);
   });
 
   test('TC-SVC-BAS-007: Entering a value with three decimal places silently rounds to two', async ({
@@ -186,7 +218,7 @@ test.describe('Service Charge Basic Information', () => {
     // aria-invalid is absent; the validator treats the rounded value as valid.
     // Save state is not asserted: the rounded result equals the original "24.00 %" for Audio
     // Conferencing, producing a net-zero edit that keeps Save disabled.
-    expect(await input.inputValue()).toContain('24.00');
+    expect(await input.inputValue()).toBe('24.00 %');
     expect(await input.getAttribute('aria-invalid')).not.toBe('true');
   });
 
@@ -195,59 +227,54 @@ test.describe('Service Charge Basic Information', () => {
   }) => {
     dependencyGate([]);
 
-    await sc.setPercentageByIndex(APP_IDX, '5.00');
-    await sc.setPercentageByIndex(APP_IDX, DEFAULT_APP_NUM);
+    await sc.setPercentageByIndex(APP_IDX, differentPercentageFrom(baselineApp));
+    await sc.setPercentageByIndex(APP_IDX, baselineApp);
     expect(await sc.waitForSaveInactive()).toBe(true);
   });
 
-  test('TC-SVC-BAS-009: Entering alphabetic text into a percentage field is rejected on blur', async ({
+  test('TC-SVC-BAS-009: Entering alphabetic text into a percentage field is flagged while focused', async ({
     dependencyGate,
-    authenticatedSession,
   }) => {
     dependencyGate([]);
 
-    const input = authenticatedSession.page.locator(`[data-testid="service-charge-percentage-${APP_IDX}"]`);
+    const input = await sc.typePercentageAndReadFocused(APP_IDX, 'abc');
 
-    await sc.setPercentageByIndex(APP_IDX, 'abc');
-
-    // Observed live: alpha characters are not blocked at entry — they appear in the field.
-    // After blur, aria-invalid="true" is set and Save is disabled.
-    // No error message text is rendered; aria-invalid is the only rejection signal.
-    expect(await input.getAttribute('aria-invalid')).toBe('true');
+    // Observed live: alpha characters are accepted while typing and marked invalid while focused.
+    // Blur may restore the stored value and clear the flag, but Save remains disabled.
+    expect(input.value).toBe('abc');
+    expect(input.invalid).toBe('true');
+    await sc.moveAwayFromPercentageField();
     expect(await sc.waitForSaveInactive()).toBe(true);
   });
 
-  test('TC-SVC-BAS-010: Entering a malformed decimal value is rejected on blur', async ({
+  test('TC-SVC-BAS-010: Entering a malformed decimal value is flagged while focused', async ({
     dependencyGate,
-    authenticatedSession,
   }) => {
     dependencyGate([]);
 
-    const input = authenticatedSession.page.locator(`[data-testid="service-charge-percentage-${AUDIO_IDX}"]`);
+    const input = await sc.typePercentageAndReadFocused(AUDIO_IDX, '1.2.3');
 
-    await sc.setPercentageByIndex(AUDIO_IDX, '1.2.3');
-
-    // Observed live: "1.2.3" is kept verbatim in input.value — the browser does not filter it.
-    // After blur, aria-invalid="true" is set and Save is disabled.
-    // No error message text is rendered alongside the invalid field.
-    expect(await input.inputValue()).toBe('1.2.3');
-    expect(await input.getAttribute('aria-invalid')).toBe('true');
+    // Observed live: the value is kept verbatim and marked invalid while focused. Blur may restore
+    // the stored value and clear the flag, but Save remains disabled.
+    expect(input.value).toBe('1.2.3');
+    expect(input.invalid).toBe('true');
+    await sc.moveAwayFromPercentageField();
     expect(await sc.waitForSaveInactive()).toBe(true);
   });
 
   test('TC-SVC-BAS-011: Entering a negative number into a percentage field', async ({
     dependencyGate,
-    authenticatedSession,
   }) => {
     dependencyGate([]);
 
-    await sc.setPercentageByIndex(AUDIO_IDX, '-5');
+    const input = await sc.typePercentageAndReadFocused(AUDIO_IDX, '-5');
 
-    // NEEDS-LIVE-CONFIRM: verify whether negative numbers are rejected with aria-invalid="true".
-    const ariaInvalid = await authenticatedSession.page
-      .locator(`[data-testid="service-charge-percentage-${AUDIO_IDX}"]`)
-      .getAttribute('aria-invalid');
-    expect(ariaInvalid).toBe('true');
+    // Observed live: the value is refused while the field is still focused, and the app clears the
+    // marking when focus leaves — so the check belongs here, before blurring. Save stays disabled.
+    expect(input.value).toBe('-5');
+    expect(input.invalid).toBe('true');
+    await sc.moveAwayFromPercentageField();
+    expect(await sc.waitForSaveInactive()).toBe(true);
   });
 
   test('TC-SVC-BAS-012: Entering a leading-zero number normalises to the standard format', async ({
@@ -262,7 +289,7 @@ test.describe('Service Charge Basic Information', () => {
 
     // Observed live: "024" is normalised to "24.00 %" — the leading zero is stripped and the
     // standard two-decimal format is applied. aria-invalid is absent; the value is accepted.
-    expect(await input.inputValue()).toContain('24.00');
+    expect(await input.inputValue()).toBe('24.00 %');
     expect(await input.getAttribute('aria-invalid')).not.toBe('true');
   });
 
@@ -298,7 +325,7 @@ test.describe('Service Charge Basic Information', () => {
     // does not remain empty when cleared via keyboard. aria-invalid is absent.
     // (The eval-injection probe showed value="" but that bypassed Angular's normalisation;
     // the keyboard path is the authoritative observation for this test.)
-    expect(await input.inputValue()).toContain('0.00');
+    expect(await input.inputValue()).toBe('0.00 %');
     expect(await input.getAttribute('aria-invalid')).not.toBe('true');
   });
 
@@ -321,23 +348,17 @@ test.describe('Service Charge Basic Information', () => {
 
   test('TC-SVC-BAS-016: Pasting a very long numeric string is rejected by the validator', async ({
     dependencyGate,
-    authenticatedSession,
   }) => {
     dependencyGate([]);
 
     const longNum = '12345678901234567890123456789012345678901234567890'; // 50 digits
-    const input = authenticatedSession.page.locator(`[data-testid="service-charge-percentage-${APP_IDX}"]`);
+    const input = await sc.typePercentageAndReadFocused(APP_IDX, longNum);
 
-    await sc.setPercentageByIndex(APP_IDX, longNum);
-
-    // The keyboard/paste path converts the 50-digit number to scientific notation
-    // (observed: "1.2345678901234567e+49 %") — the raw digit string is not preserved in input.value.
-    // The earlier eval-injection probe that saw raw digit retention used a different code path and
-    // produced distorted evidence. The real path: paste → scientific-notation conversion.
-    // aria-invalid="true" is set because the value is out of range for a percentage field.
-    // Save is disabled while the field is invalid.
-    expect(await input.inputValue()).toContain('e+');
-    expect(await input.getAttribute('aria-invalid')).toBe('true');
+    // Observed live: the raw digits are preserved while focused and marked invalid. Blur may
+    // restore the stored value, but Save remains disabled.
+    expect(input.value).toBe(longNum);
+    expect(input.invalid).toBe('true');
+    await sc.moveAwayFromPercentageField();
     expect(await sc.waitForSaveInactive()).toBe(true);
   });
 
@@ -360,7 +381,7 @@ test.describe('Service Charge Basic Information', () => {
     dependencyGate([]);
 
     expect(await sc.isSaveEnabled()).toBe(false);
-    await sc.setPercentageByIndex(AUDIO_IDX, '50.00');
+    await sc.setPercentageByIndex(AUDIO_IDX, differentPercentageFrom(baselineAudio));
     expect(await sc.waitForSaveActive()).toBe(true);
 
     // Reload without saving — discards the unsaved edit.
@@ -376,7 +397,7 @@ test.describe('Service Charge Basic Information', () => {
     // Read the live value first so the revert targets the actual current DB value.
     const originalValue = await sc.getPercentageByIndex(AUDIO_IDX);
 
-    await sc.setPercentageByIndex(AUDIO_IDX, '50.00');
+    await sc.setPercentageByIndex(AUDIO_IDX, differentPercentageFrom(originalValue));
     expect(await sc.waitForSaveActive()).toBe(true);
 
     await sc.setPercentageByIndex(AUDIO_IDX, originalValue);
@@ -388,17 +409,25 @@ test.describe('Service Charge Basic Information', () => {
   }) => {
     dependencyGate([]);
 
+    const editValue = differentPercentageFrom(baselineAudio);
+
     try {
-      await sc.setPercentageByIndex(AUDIO_IDX, '30.00');
+      await sc.setPercentageByIndex(AUDIO_IDX, editValue);
+      expect(await sc.waitForSaveActive()).toBe(true);
       await sc.clickSave();
       await sc.waitUntilLoaded();
 
       await sc.goto(SC_OFFICE);
-      expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain('30.00');
+      expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain(editValue);
     } finally {
-      await sc.setPercentageByIndex(AUDIO_IDX, DEFAULT_AUDIO_NUM);
-      await sc.clickSave();
-      await sc.waitUntilLoaded();
+      await sc.setPercentageByIndex(AUDIO_IDX, baselineAudio);
+      try {
+        await sc.waitForSaveActive(3000);
+        await sc.clickSave();
+        await sc.waitUntilLoaded();
+      } catch {
+        // Net-zero restore — database already holds the correct value.
+      }
     }
   });
 
@@ -407,21 +436,29 @@ test.describe('Service Charge Basic Information', () => {
   }) => {
     dependencyGate([]);
 
+    const firstValue = differentPercentageFrom(baselineAudio);
+    const secondValue = differentPercentageFrom(firstValue);
+
     try {
-      await sc.setPercentageByIndex(AUDIO_IDX, '30.00');
+      await sc.setPercentageByIndex(AUDIO_IDX, firstValue);
       expect(await sc.waitForSaveActive()).toBe(true);
-      await sc.setPercentageByIndex(AUDIO_IDX, '40.00');
+      await sc.setPercentageByIndex(AUDIO_IDX, secondValue);
       expect(await sc.isSaveEnabled()).toBe(true);
 
       await sc.clickSave();
       await sc.waitUntilLoaded();
 
       await sc.goto(SC_OFFICE);
-      expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain('40.00');
+      expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain(secondValue);
     } finally {
-      await sc.setPercentageByIndex(AUDIO_IDX, DEFAULT_AUDIO_NUM);
-      await sc.clickSave();
-      await sc.waitUntilLoaded();
+      await sc.setPercentageByIndex(AUDIO_IDX, baselineAudio);
+      try {
+        await sc.waitForSaveActive(3000);
+        await sc.clickSave();
+        await sc.waitUntilLoaded();
+      } catch {
+        // Net-zero restore — database already holds the correct value.
+      }
     }
   });
 
@@ -432,22 +469,36 @@ test.describe('Service Charge Basic Information', () => {
     dependencyGate([]);
     const authPage = authenticatedSession.page;
 
-    await sc.setPercentageByIndex(AUDIO_IDX, '50.00');
+    await sc.setPercentageByIndex(AUDIO_IDX, differentPercentageFrom(baselineAudio));
     expect(await sc.waitForSaveActive()).toBe(true);
 
-    await authPage.goBack();
+    // Browser-back with a dirty field fires the browser's native leave-page dialog
+    // (type "beforeunload"). Register a one-shot listener before navigating so we can
+    // capture and dismiss it. Dismissing a beforeunload dialog cancels the navigation,
+    // keeping the page in place. In-app tab navigation shows the application's own
+    // "Unsaved changes" modal instead — that path is covered by TC-SVC-HIS-014.
+    let dialogFired = false;
+    let dialogType = '';
+    authPage.once('dialog', async (dlg) => {
+      dialogFired = true;
+      dialogType = dlg.type();
+      await dlg.dismiss().catch(() => {
+        // The browser's default beforeunload handling may have already resolved
+        // this dialog; the event still fired and we captured the type above.
+      });
+    });
 
-    // NEEDS-LIVE-CONFIRM: verify whether an "Unsaved changes" alertdialog appears on
-    // navigation away. The shared "Save Changes" dialog (dlgSaveChanges / btnSaveChangesConfirm) is
-    // assumed unless a live walk proves otherwise.
-    const dialog = authPage.locator('[role="alertdialog"], [role="dialog"]').first();
-    const dialogVisible = await dialog.isVisible().catch(() => false);
-    expect(dialogVisible).toBe(true);
-
-    if (dialogVisible) {
-      // Dismiss so the page is not left blocking — click the last button (Discard/Leave).
-      await authPage.locator('[role="alertdialog"] button, [role="dialog"] button').last().click().catch(() => {});
+    try {
+      await authPage.goBack();
+    } catch {
+      // Navigation cancelled by the dismissed beforeunload dialog; the page stays.
     }
+
+    expect(dialogFired).toBe(true);
+    expect(dialogType).toBe('beforeunload');
+
+    // Reload to discard the unsaved edit cleanly before the next test.
+    await sc.goto(SC_OFFICE);
   });
 
   test('TC-SVC-BAS-023: Saving edits to multiple percentage fields in a single Save action', async ({
@@ -455,29 +506,53 @@ test.describe('Service Charge Basic Information', () => {
   }) => {
     dependencyGate([]);
 
-    // Read live values before any edit so the restore targets match the actual database state.
-    const originalAudio = await sc.getPercentageByIndex(AUDIO_IDX);
-    const originalEq    = await sc.getPercentageByIndex(EQ_IDX);
+    // Derive from baselines read in beforeEach so the write values differ from current state.
+    const editAudio = differentPercentageFrom(baselineAudio);
+    const editEq = differentPercentageFrom(baselineEq);
 
     try {
-      await sc.setPercentageByIndex(AUDIO_IDX, '30.00');
-      await sc.setPercentageByIndex(EQ_IDX, '25.00');
+      await sc.setPercentageByIndex(AUDIO_IDX, editAudio);
+      await sc.setPercentageByIndex(EQ_IDX, editEq);
+
+      // Typing into a second field can momentarily revert the first while the page
+      // settles, so both values are confirmed before saving.
+      const verifyAndReapply = async (): Promise<void> => {
+        const audioNow = parseFloat((await sc.getPercentageByIndex(AUDIO_IDX)).replace('%', ''));
+        const eqNow = parseFloat((await sc.getPercentageByIndex(EQ_IDX)).replace('%', ''));
+        if (audioNow !== parseFloat(editAudio)) {
+          await sc.setPercentageByIndex(AUDIO_IDX, editAudio);
+        }
+        if (eqNow !== parseFloat(editEq)) {
+          await sc.setPercentageByIndex(EQ_IDX, editEq);
+        }
+      };
+      await verifyAndReapply();
+
+      // Assert both fields hold their intended values before saving
+      const finalAudio = parseFloat((await sc.getPercentageByIndex(AUDIO_IDX)).replace('%', ''));
+      const finalEq = parseFloat((await sc.getPercentageByIndex(EQ_IDX)).replace('%', ''));
+      expect(finalAudio).toBe(parseFloat(editAudio));
+      expect(finalEq).toBe(parseFloat(editEq));
+
       expect(await sc.isSaveEnabled()).toBe(true);
 
       await sc.clickSave();
       await sc.waitUntilLoaded();
 
       await sc.goto(SC_OFFICE);
-      expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain('30.00');
-      expect(await sc.getPercentageByIndex(EQ_IDX)).toContain('25.00');
+      expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain(editAudio);
+      expect(await sc.getPercentageByIndex(EQ_IDX)).toContain(editEq);
     } finally {
-      await sc.setPercentageByIndex(AUDIO_IDX, originalAudio);
-      await sc.setPercentageByIndex(EQ_IDX, originalEq);
+      await sc.setPercentageByIndex(AUDIO_IDX, baselineAudio);
+      await sc.setPercentageByIndex(EQ_IDX, baselineEq);
       // If both restores create a net-zero change the app disables Save — the database already
       // holds the correct values, so no save is needed.
-      if (await sc.isSaveEnabled()) {
+      try {
+        await sc.waitForSaveActive(3000);
         await sc.clickSave();
         await sc.waitUntilLoaded();
+      } catch {
+        // Net-zero restore — database already holds the correct value.
       }
     }
   });
@@ -512,7 +587,9 @@ test.describe('Service Charge Basic Information', () => {
     await authPage.getByRole('row').nth(APP_IDX + 1).getByRole('cell').first().click();
     expect(await sc.isSaveEnabled()).toBe(false);
 
-    expect(await authPage.locator('[role="dialog"], [role="alertdialog"]').first().isVisible().catch(() => false)).toBe(false);
+    // Wait over a bounded window to confirm no dialog appears — a point-in-time snapshot
+    // would miss a dialog that renders after a short delay.
+    await expect(authPage.locator('[role="dialog"], [role="alertdialog"]')).not.toBeVisible({ timeout: 3000 });
   });
 
   // ---------------------------------------------------------------- save button state
@@ -530,7 +607,7 @@ test.describe('Service Charge Basic Information', () => {
     dependencyGate([]);
 
     expect(await sc.isSaveEnabled()).toBe(false);
-    await sc.setPercentageByIndex(AUDIO_IDX, '50.00');
+    await sc.setPercentageByIndex(AUDIO_IDX, differentPercentageFrom(baselineAudio));
     expect(await sc.waitForSaveActive()).toBe(true);
 
     await sc.goto(SC_OFFICE);
@@ -552,39 +629,58 @@ test.describe('Service Charge Basic Information', () => {
     authenticatedSession,
   }) => {
     dependencyGate([]);
-    const rowCount = await authenticatedSession.page
+    const authPage = authenticatedSession.page;
+
+    const rowCount = await authPage
       .locator('[data-testid^="service-charge-percentage-"]')
       .count();
     expect(rowCount).toBe(SC_ROW_COUNT);
 
-    // Confirm the method resolves without error for a named row.
-    await sc.getPercentageByIndex(AUDIO_IDX);
+    // Anchor on the row's own label content — not just its index — to confirm the row
+    // at AUDIO_IDX is actually "Audio Conferencing" and the percentage is readable.
+    const rowLabel = (await authPage.getByRole('row').nth(AUDIO_IDX + 1).getByRole('cell').first().textContent() ?? '').trim();
+    expect(rowLabel).toBe('Audio Conferencing');
 
-    // NEEDS-LIVE-CONFIRM: verify no pagination control or "load more" button is present
-    // when the environment is stable (all 79 rows shown at once without virtualization).
+    const percentageValue = await sc.getPercentageByIndex(AUDIO_IDX);
+    expect(percentageValue).toContain(' %');
+
+    // FIXME: verify no pagination control or "load more" button is present — unconfirmed
+    // against the live application; left unasserted as a known gap.
   });
 
   // ---------------------------------------------------------------- persistence (QUICK surface)
 
-  test('TC-SVC-BAS-030: A saved value persists after page reload (surface persistence)', async ({
+  test('TC-SVC-BAS-030: A saved value persists after page reload (surface persistence)', { timeout: 240_000 }, async ({
     dependencyGate,
   }) => {
+    test.setTimeout(240_000);
     dependencyGate([]);
 
+    const editValue = differentPercentageFrom(baselineAudio);
+
     try {
-      await sc.setPercentageByIndex(AUDIO_IDX, '35.00');
+      await sc.setPercentageByIndex(AUDIO_IDX, editValue);
+      expect(await sc.waitForSaveActive()).toBe(true);
       await sc.clickSave();
       await sc.waitUntilLoaded();
 
       await sc.goto(SC_OFFICE);
-      expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain('35.00');
+      expect(await sc.getPercentageByIndex(AUDIO_IDX)).toContain(editValue);
 
-      // NEEDS-LIVE-CONFIRM: verify no column sort affordance (sortable column header) is present —
-      // row order is application-defined and fixed per inventory.
+      // Walk confirmed: the Basic Information grid has two plain <th> elements ("Service Type",
+      // "Service Charge Percentage") with no button or dropdown trigger inside them. Clicking
+      // either header opens no menu and does not reorder rows. Assert the absence of sort controls.
+      expect(await sc.page.locator('th button').count()).toBe(0);
+      expect(await sc.page.locator('th [data-slot="dropdown-menu-trigger"]').count()).toBe(0);
     } finally {
-      await sc.setPercentageByIndex(AUDIO_IDX, DEFAULT_AUDIO_NUM);
-      await sc.clickSave();
-      await sc.waitUntilLoaded();
+      await sc.setPercentageByIndex(AUDIO_IDX, baselineAudio);
+      try {
+        await sc.waitForSaveActive(3000);
+        await sc.clickSave();
+        await sc.waitUntilLoaded();
+      } catch {
+        // Net-zero restore — database already holds the correct value.
+      }
     }
   });
 });

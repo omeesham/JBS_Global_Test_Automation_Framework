@@ -203,7 +203,7 @@ Update `clients/encore/CLAUDE.md` + root `CLAUDE.md` likewise (paths only — co
 
 ### A6. Plan-file path patches (prevents Phase B breakage)
 
-Mass-find-replace in `plans/pending/PLAN_BIG_PIVOT_FCC_MASTER.md` + `plans/pending/SUBPLAN_NOTES_FCC_PILOT.md`:
+Mass-find-replace in `plans/pending/PLAN_BIG_PIVOT_FCC_MASTER.md` + a pilot subplan (path does not resolve — plan was never finalized):
 - `tests/specs/setup/<m>/` → `specs/<m>/`
 - `tests/test-data/setup/<m>/` → `src/data/testdata/<m>/`
 - `tests/infra/` → `src/infra/`
@@ -223,11 +223,11 @@ Sequence (`npm run clean` between runs per LR-024):
 7. `npm run clean`
 8. `npx playwright test --project=encore-local-office --project=encore-locations` — combined CI-shape run, all green
 9. **Report-generation gates (F6 fix)** — verify after step 8:
-   - `clients/encore/reports/html-report/index.html` exists and opens
+   - generated HTML report exists and opens (local reports output, not tracked)
    - `clients/encore/reports/allure-results/` non-empty (≥1 result file)
-   - `clients/encore/reports/failure-summary.json` exists (even if zero failures — agent-reporter writes empty list)
-   - `clients/encore/reports/junit-results.xml` exists
-   - `clients/encore/reports/test-results.json` exists
+   - generated failure summary exists (even if zero failures - agent-reporter writes empty list)
+   - a local report artifact (untracked — generated per-run) exists
+   - generated test results JSON exists
 10. `npm run allure:generate` — confirm `reports/allure-report/index.html` exists post-generate
 
 If ANY fails, RCA per LR-018 + LR-024 (artifact-first); do NOT proceed to A8.

@@ -352,4 +352,30 @@ if git diff --cached --name-only --diff-filter=ACMR \
   fi
 fi
 
+# --- LR-073: structural-names gate (S0 — deny on first occurrence).
+# Fires on staged added/renamed paths in shippable client scopes — catches ticket IDs
+# used as file/directory basenames before they reach the repo.
+if git diff --cached --name-only --diff-filter=AR \
+     | grep -qE '^clients/[^/]+/(tests|testcases|src|config|specs_planning/test-cases)/'; then
+  echo "[pre-commit] shippable path added/renamed → running structural-names gate (LR-073)..." >&2
+  if ! node scripts/lib/check-structural-names.mjs --staged; then
+    echo "[pre-commit] HALT: LR-073 — rename using a feature-based name, not a ticket ID." >&2
+    exit 1
+  fi
+fi
+
+# --- LR-073: structural-names gate — registry/exporter files (any staged status).
+# Catches ticket IDs added to module-codes.json keys/mdBasename or to-xlsx.ts SPLIT_FILE_MAP/
+# SHEET_NAMES/SHEET_DISPLAY_NAMES — the source of the original incident. These files live outside
+# clients/ and are Modified, not Added/Renamed, so the client-path trigger above never fires for them.
+if git diff --cached --name-only \
+     | grep -qE '^export_test_cases/(module-codes\.json|to-xlsx\.ts)$'; then
+  echo "[pre-commit] registry/exporter file staged → running structural-names gate (LR-073)..." >&2
+  if ! node scripts/lib/check-structural-names.mjs --staged; then
+    echo "[pre-commit] HALT: LR-073 — rename using a feature-based name, not a ticket ID." >&2
+    exit 1
+  fi
+fi
+
 exit 0
+

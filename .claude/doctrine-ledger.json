@@ -85,6 +85,12 @@
       "enforced_by": ".claude/hooks/lib/check-jargon.mjs:102"
     },
     {
+      "id": "LR-073",
+      "file": ".claude/rules/deliverable.md",
+      "line": 64,
+      "enforced_by": "scripts/lib/check-structural-names.mjs:198"
+    },
+    {
       "id": "LR-069",
       "file": ".claude/rules/guardrail-policy.md",
       "line": 15,
@@ -501,6 +507,15 @@
       "unenforced": "reason-string emitters exist verbatim (scripts/check-interaction-coverage.mjs:264 and :815) but the script is not reachable from any entrypoint — not wired into package.json scripts, .githooks, or settings hooks, so the contracts fire only on manual invocation",
       "severity": "S1",
       "recipient": "plans/pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md"
+    },
+    {
+      "id": "LR-074",
+      "file": ".claude/rules/guardrail-policy.md",
+      "line": 186,
+      "unenforced": "The only call site is the warn-only detective Stop hook check-visibility-reconcile.mjs:516 (process.stdout.write — never exits non-zero or denies); the preventive PreToolUse gate was built and then removed by owner directive in commit f2e51bebd (recorded in guardrail-policy.md §74.2). No enforcement blocks a dispatch-invisible run.",
+      "severity": "S1",
+      "recipient": "plans/pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md",
+      "covers": ["74-1-the-law"]
     },
     {
       "id": "LR-072",

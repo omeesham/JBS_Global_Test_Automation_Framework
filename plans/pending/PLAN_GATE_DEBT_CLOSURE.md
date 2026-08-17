@@ -35,7 +35,7 @@ any order but share a dependency on the telemetry wiring landed by TICKET-fix-b.
 ## Acceptance Criteria
 
 1. Each gate (A–D) has a dedicated `check-*.mjs` in `.claude/hooks/lib/` with `--self-test` passing.
-2. Each gate fires telemetry to `.claude/state/gate-fires.log` on every deny/announce.
+2. Each gate fires telemetry to the local gate-fire log (per-machine, not tracked) on every deny/announce.
 3. Each gate lands at `announce` in `.claude/guardrail-config.json` with `ramp_started` date.
 4. Item E: `check-enforcement-claims.mjs` exits 1 on any unresolved claim when mode=`deny`.
 5. Item F: census spreadsheet/log updated; no phantom rows; R11 marked REAL.

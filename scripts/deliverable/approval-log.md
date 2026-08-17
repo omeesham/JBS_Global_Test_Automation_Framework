@@ -41,3 +41,13 @@ Future rows should ideally cite something external and durable — a Jira approv
 a signed-off plan — rather than a session transcript. A transcribed instruction is honest evidence
 of what was said; it is not independent of the person transcribing it. Stating that limitation is
 the point of this note.
+
+
+---
+
+**Migration note (2026-08-13):** The corporate-override submodule codes were renamed as part of a structural naming remediation. Old ticket-ID codes map to new feature-based codes as follows: N268 -> LPK (Location Picker), N269 -> FLT (Filters), N270 -> GSR (Grid Sort), N271 -> LGR (Labor Grid), N272 -> EXP (Export), N273 -> IMP (Import). Approvals recorded in the rows above under the old codes carry forward to the new codes. Any reference to a COR.N26x or COR.N27x code from a session on or before 2026-08-12 refers to the same submodule now identified by the corresponding new code.
+| 2026-08-14 | Rutvik (owner) | COR.LGR | approved-next — carries forward approval recorded at line 18 (COR.N271); code renamed N271→LGR under PLAN_65 structural remediation 2026-08-13 | Migration: COR.N271 approval row line 18; PLAN_65 code rename 2026-08-13 |
+| 2026-08-14 | Rutvik (owner) | COR.EXP | approved-next — carries forward approval recorded at line 19 (COR.N272); code renamed N272→EXP under PLAN_65 structural remediation 2026-08-13 | Migration: COR.N272 approval row line 19; PLAN_65 code rename 2026-08-13 |
+| 2026-08-14 | Rutvik (owner) | COR.IMP | approved-next — carries forward approval recorded at line 20 (COR.N273); code renamed N273→IMP under PLAN_65 structural remediation 2026-08-13 | Migration: COR.N273 approval row line 20; PLAN_65 code rename 2026-08-13 |
+| 2026-08-14 | Rutvik (owner) | SVC.BAS | approved-next — owner approval given directly in chat 2026-08-14 (PLAN_66 C3 residual: status was set 4b542701c with no log row; owner confirmed "YES") | Rutvik chat approval 2026-08-14; PLAN_66_DELIVERABLE_TRUTH_SWEEP |
+| 2026-08-14 | Rutvik (owner) | SVC.HIS | approved-next — owner approval given directly in chat 2026-08-14 (PLAN_66 C3 residual: status was set 4b542701c with no log row; owner confirmed "YES") | Rutvik chat approval 2026-08-14; PLAN_66_DELIVERABLE_TRUTH_SWEEP |

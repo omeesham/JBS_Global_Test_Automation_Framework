@@ -163,3 +163,8 @@ only on a filed grid bug or an incidental re-walk. New framework rule: **LR-065*
 Cross-refs: client instance `field-case-generation.md` (§2 field + §3 surface); `.claude/rules/inventory.md`
 (LR-062 completeness gate, LR-064 Tiered Delegated Walk, LR-065 surface mandate, LR-057 affordance/no-taxonomy);
 skills `/coverage` (QUICK) + `/ultracoverage` (DEEP); `/find-bugs` (SFDPOT adversarial pass).
+
+**File-naming rule**: structural names on shippable paths (file/directory basenames, registry keys,
+`mdBasename` values, `SPLIT_FILE_MAP` stems) must be feature-based. Ticket IDs are legal only as
+content for traceability — never as names. See `.claude/rules/deliverable.md` LR-073 and gate
+`scripts/lib/check-structural-names.mjs`.

@@ -173,7 +173,39 @@ Machine denominator (Basic Information resting state): **29** element(s). Proven
 
 Note: the old-site baseline covers both Basic Information and History tab behaviors as observed on nav2 (office 1101). The machine enumeration here covers the new-site resting state (Basic Information tab default). The History tab content was not machine-enumerated (see history inventory gap note). Coverage_Ratio for this baseline artifact reflects the new-site resting-state denominator only.
 
-**Walk_State**: office=1604 module=service-charge walked=[resting]
-**Coverage_Ratio**: 29/29 (100%)
-**CrossCheck**: clean
-**Completion_Record**: reports/walk-coverage/service-charge-basic-info.json (status=complete, elements=29)
+Walk_State: office=1101 module=service-charge walked=[resting,tab:history] (this is the old-site walk this artifact records — both tabs were reached on nav2, see §3 and §4; the machine manifest below is a separate new-site office-1604 resting enumeration, as the note above explains)
+Coverage_Ratio: 29/29 (100%)
+CrossCheck: clean
+Completion_Record: reports/walk-coverage/service-charge-basic-info.json (status=complete, elements=29)
+
+| element-key | role | machine-found (date) | disposition |
+|---|---|---|---|
+| `id:radix-_r_0_` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation button, not a service charge baseline element` |
+| `id:radix-_r_4_` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation button, not a service charge baseline element` |
+| `id:radix-_r_7_` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation button, not a service charge baseline element` |
+| `struct:a\|Home\|div/div/div/div/ul/li` | a | 2026-08-11 | `out-of-scope: outside-module — global navigation link, not a service charge baseline element` |
+| `struct:a\|Inbox\|div/div/div/div/ul/li` | a | 2026-08-11 | `out-of-scope: outside-module — global navigation link, not a service charge baseline element` |
+| `id:radix-_r_a_` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation button, not a service charge baseline element` |
+| `id:radix-_r_d_` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation button, not a service charge baseline element` |
+| `id:radix-_r_g_` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation button, not a service charge baseline element` |
+| `struct:button\|Order Search\|div/div/div/div/ul/li` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation search button, not a service charge baseline element` |
+| `struct:a\|Job Search\|div/div/div/div/ul/li` | a | 2026-08-11 | `out-of-scope: outside-module — global navigation link, not a service charge baseline element` |
+| `struct:a\|Asset Search\|div/div/div/div/ul/li` | a | 2026-08-11 | `out-of-scope: outside-module — global navigation link, not a service charge baseline element` |
+| `struct:a\|Customer Search\|div/div/div/div/ul/li` | a | 2026-08-11 | `out-of-scope: outside-module — global navigation link, not a service charge baseline element` |
+| `struct:button\|DRO Search\|div/div/div/div/ul/li` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation search button, not a service charge baseline element` |
+| `struct:button\|Payment Search\|div/div/div/div/ul/li` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation search button, not a service charge baseline element` |
+| `struct:a\|Item Search\|div/div/div/div/ul/li` | a | 2026-08-11 | `out-of-scope: outside-module — global navigation link, not a service charge baseline element` |
+| `struct:button\|ECT Search\|div/div/div/div/ul/li` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation search button, not a service charge baseline element` |
+| `struct:button\|Event Agendas\|div/div/div/div/ul/li` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation button, not a service charge baseline element` |
+| `struct:button\|Navigator Assistant\|div/div/div/div/ul/li` | button | 2026-08-11 | `out-of-scope: outside-module — global AI assistant button, not a service charge baseline element` |
+| `id:radix-_r_t_` | button | 2026-08-11 | `out-of-scope: outside-module — global navigation utility button, not a service charge baseline element` |
+| `struct:button\|Click to restore sidebar\|body/div/div/div/div/div` | button | 2026-08-11 | `out-of-scope: outside-module — global sidebar restore control, not a service charge baseline element` |
+| `struct:button\|trigger-button\|skip/div/div/div/div/div` | button | 2026-08-11 | `out-of-scope: outside-module — global UI chrome trigger button, not a service charge baseline element` |
+| `struct:button\|More information\|div/div/div/div/div/div` | button | 2026-08-11 | `out-of-scope: outside-module — global info button, not a service charge baseline element` |
+| `struct:tablist\|Basic InformationService Charge History\|skip/div/div/div/div/div` | tablist | 2026-08-11 | `read-only-verified: tab container element present in new-site enumeration` · provenance: live · evidence: reports/walk-coverage/service-charge-basic-info.json |
+| `id:radix-_r_10_-trigger-Basic Information` | tab | 2026-08-11 | `read-only-verified: Basic Information tab element present in new-site enumeration` · provenance: live · evidence: reports/walk-coverage/service-charge-basic-info.json |
+| `id:radix-_r_10_-trigger-History` | tab | 2026-08-11 | `read-only-verified: History tab element present in new-site enumeration` · provenance: live · evidence: reports/walk-coverage/service-charge-basic-info.json |
+| `id:radix-_r_10_-content-Basic Information` | tabpanel | 2026-08-11 | `read-only-verified: tabpanel element present in new-site enumeration; percentage fields and column headers contained within` · provenance: live · evidence: reports/walk-coverage/service-charge-basic-info.json |
+| `testid:service-charge-save` | button | 2026-08-11 | `read-only-verified: save button element present in new-site enumeration; behavioral observations (disabled-until-edit, no confirmation dialog, immediate commit) are old-site-only — see §3, §5` · provenance: live · evidence: reports/walk-coverage/service-charge-basic-info.json |
+| `testid:service-charge-percentage-# [archetype×79]` | input | 2026-08-11 | `read-only-verified: 79 percentage input elements present in new-site enumeration; behavioral observations (click-to-edit, validation, decimal format) are old-site-only — see §3` · provenance: live · evidence: reports/walk-coverage/service-charge-basic-info.json |
+| `struct:section\|Notifications alt+T\|html/body` | section | 2026-08-11 | `out-of-scope: outside-module — global notification overlay, not a service charge baseline element` |

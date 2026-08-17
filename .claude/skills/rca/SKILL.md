@@ -165,7 +165,7 @@ Mama spawns A and B with explicit, narrow goals (e.g., "characterize the breakag
 
 Per-agent shape:
 
-- **Subagent A (artifact)** — `evidenceChain[].source` is always a file path. `variationsExplored[]` may be `[]` (A doesn't run live).
+- **Subagent A (artifact)** — `evidenceChain[].source` is always a file path. `variationsExplored[]` may be `[]` (A doesn't run live). **A is an extraction seat, not a theorist**: its `rootCauseTheory` may only restate what the record directly shows, and its `classification` MUST be `unclear` whenever any load-bearing fact for a mechanism claim sits in its own `blindSpots`. Mechanism and final classification are mama's synthesis from both seats — never A's alone. (Graduated 2026-08-14: seat A's blindSpots admitted the pre-blur field value was unrecorded, yet its headline asserted a strip-on-blur mechanism — refuted by the owner's manual replication and an 11-case live walk.)
 - **Subagent B (live CLI HEADED)** — `evidenceChain[].source` is always a live URL + DOM/network capture. `variationsExplored[]` MUST have entries — that's B's whole job. `workarounds[]` SHOULD have entries unless B genuinely tried obvious workaround directions and none worked (B's `selfAssessment` must say so).
 - **Both** — `selfAssessment` is mandatory. Mama reads it first to judge honesty.
 
@@ -212,6 +212,10 @@ This trail is what makes mama's judgment auditable — a future reader (the user
 ### Don't exploit "honest stuck" as a loophole
 
 "Honest + stuck → cry for help" is the escape hatch. It can be abused: declare stuck early, cry, end. Mama's check before each cry: would a manual tester with one more hour ALSO be stuck here? If no, mama is the bias point — re-spawn with sharper goal instead of crying.
+
+### Headline-vs-blindSpots gate (2026-08-14)
+
+Before mama relays or acts on any seat's `rootCauseTheory`, mama re-reads that seat's own `blindSpots`. If a blind spot covers a fact the theory depends on, the theory is downgraded to `unclear` on the spot, and it may never be relayed without the blind spot quoted beside it. A confident headline sitting on an admitted evidence gap is the exact mechanism by which false bugs are manufactured — the 2026-08-14 percentage-field RCA is the graduating incident (seat A: confident strip-on-blur theory over a blindSpots entry admitting the deciding fact was unobserved).
 
 ### Prior-Fix Trial — MANDATORY on every recurrence-class RCA (owner law 2026-07-17, LR-069 §3.5)
 

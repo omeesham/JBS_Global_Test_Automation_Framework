@@ -36,7 +36,7 @@ Assemble the 4 client deliverables in priority order: **XLSX workbook (1) > spec
    - `test-cases/` → the `encore_test_cases.xlsx` workbook from `clients/encore/testcases/` (one sheet per module).
    - `allure-report/` → full allure output.
    - `bugs/` → `CLIENT_PACKAGE-*.md` + `INDEX-*.md`.
-3. Write `deliverables/2026-04-22/README.md`:
+3. Write (the referenced deliverable path was never committed to the repo):
    - What this package contains.
    - How to read the workbook (one sheet per module; explain the Tags column).
    - How to open the Allure report (static HTML).

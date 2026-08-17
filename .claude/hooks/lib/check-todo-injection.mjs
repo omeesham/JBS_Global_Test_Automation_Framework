@@ -1151,7 +1151,7 @@ function runSelfTest() {
   ]);
   cases.push([
     "evidence-dir positive: Windows backslash .playwright-cli\\",
-    () => isEvidenceDirTarget("C:\\Users\\rutvi\\projects\\encore_framework\\.playwright-cli\\snap.yml"),
+    () => isEvidenceDirTarget("C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\.playwright-cli\\snap.yml"),
   ]);
   cases.push([
     "evidence-dir NEGATIVE: walk-evidence MD is NOT blocked (F5 — LR-064 authoring preserved)",
@@ -1176,7 +1176,7 @@ function runSelfTest() {
   ]);
   cases.push([
     "walk-exemptions positive: Windows backslash",
-    () => isWalkExemptionsTarget("C:\\Users\\rutvi\\projects\\encore_framework\\.claude\\walk-exemptions.json"),
+    () => isWalkExemptionsTarget("C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\.claude\\walk-exemptions.json"),
   ]);
   cases.push([
     "walk-exemptions NEGATIVE: a different .claude json",

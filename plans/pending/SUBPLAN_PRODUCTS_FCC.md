@@ -87,7 +87,7 @@ Confirm Foundation's baseline + field-inventory + jira-crossref ≤14d; reuse pe
 - **Step 1 — Jira enrichment (PLN-051)**: every Jira AC/validation from the crossref becomes a TC candidate;
   DOM-vs-Jira contradictions classified (intentional / app-bug / stale).
 - Emit field-case-catalog `clients/encore/specs_planning/_internal/field-case-catalogs/products-<DATE>.md`.
-- Append the FCC block to `clients/encore/specs_planning/test-cases/setup/locations/locations_products_test_cases.md`.
+- Append the FCC block to a test-case file (path does not resolve — file was never committed).
 - Add Scenarios to the locations test-plan.
 - `npm run planner:post-complete <id>` (root) — confirm `[OK] XLSX workbook fresh:` + rows == MD count.
 - `npm run check:tc-parity` (root) exit 0.

@@ -58,7 +58,7 @@ Per user directive: "verify a set of items, larger the better, then check if any
 
 **Per iteration**
 
-- Log to `clients/encore/specs_planning/_internal/reqs-sampling-verification-2026-04-22.md`:
+- Log to the requirements sampling verification artifact dated 2026-04-22 (the artifact this cited is gone; the claim is unverified as file evidence):
   - Iteration number.
   - Sample indices + claims.
   - PASS/DEFECT per claim.
@@ -66,7 +66,7 @@ Per user directive: "verify a set of items, larger the better, then check if any
 
 ## Acceptance criteria
 
-- [ ] Verification log exists at `_internal/reqs-sampling-verification-2026-04-22.md`.
+- [ ] Verification log exists for the requirements sampling verification artifact dated 2026-04-22 (the artifact this cited is gone; the claim is unverified as file evidence).
 - [ ] Two consecutive clean sample rounds recorded (sample sizes 10 and 20, or larger).
 - [ ] All defects found were fixed inline in REQUIREMENTS.md with evidence.
 - [ ] Activity-log row appended.

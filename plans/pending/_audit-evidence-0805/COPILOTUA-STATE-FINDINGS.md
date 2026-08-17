@@ -5,7 +5,7 @@ START: filled 2026-08-05T17:58:56+05:30 by v--gpt-5.5--council-worker.
 ## C1 — the item roster, machine-built
 
 Commands used:
-- `Select-String -Path _planstate-input\PLAN_COPILOT_INTEGRATION_ULTRAAUDIT.md -Pattern '^(## |[0-9]+\.[0-9]|- \[ \])'` to enumerate plan phases, phase subitems, acceptance criteria, and pending decisions.
+- `Select-String -Path a plan-state input file (ephemeral audit scratch — not tracked) -Pattern '^(## |[0-9]+\.[0-9]|- \[ \])'` to enumerate plan phases, phase subitems, acceptance criteria, and pending decisions.
 - `Select-String -Path plans\pending\_ULTRAAUDIT_FINDINGS.md -Pattern 'Coverage Reconciliation|Per-Lot Imported Row Counts|Totals'` plus direct reads of lines 537-583 to enumerate executed lot rows and counts.
 - `git ls-files`, `git log --oneline -- <path>`, `git status --short`, and targeted `Select-String`/`rg` checks to decide clone-visible evidence.
 
@@ -111,5 +111,5 @@ C5: filled.
 
 ASSUMPTIONS-MADE:
 1. I treated the staged `_planstate-input/PLAN_COPILOT_INTEGRATION_ULTRAAUDIT.md` as the source plan, because no tracked `PLAN_COPILOT_INTEGRATION_ULTRAAUDIT.md` exists in the clone and the ticket says the input copy is the staged plan.
-2. I treated `plans/pending/_TRIPLAN_RECONCILIATION.md` as the repository copy of the staged reconciliation artifact because it is tracked, has the same 3,417-line size as `_planstate-input/_TRIPLAN_RECONCILIATION.md`, and contains the same consumed-by header.
+2. I treated `plans/pending/_TRIPLAN_RECONCILIATION.md` as the repository copy of the staged reconciliation artifact because it is tracked, has the same 3,417-line size as a plan-state input file (ephemeral audit scratch — not tracked), and contains the same consumed-by header.
 3. I did not inspect off-repo home paths (`C:\Users\rutvi\.claude\`, `C:\Users\rutvi\.copilot\`) because the ticket says clone-only unverified paths should be named as UNVERIFIABLE-FROM-CLONE, not rounded to DONE/NOT-STARTED.

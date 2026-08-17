@@ -20,7 +20,7 @@ This is a STUB. Open via `/planning SUBPLAN_CLOSURE_GATE_V6_F_WRAPPER_PRECOMMIT_
 
 ## Scope hint (from parent matrix)
 
-- `.claude/hooks/plan-closure-gate.sh` — full rewrite. Wrapper is universally fail-CLOSED. Three failure paths each emit a deny JSON to stdout with reason captured to `.claude/state/hook-failures.log`:
+- `.claude/hooks/plan-closure-gate.sh` - full rewrite. Wrapper is universally fail-CLOSED. Three failure paths each emit a deny JSON to stdout with reason captured to the local hook-failures log (per-machine, not tracked):
   - Missing mode (argv[1] empty) → deny
   - Missing lib file at lib_path → deny
   - Node validator threw / non-zero exit → deny with stderr captured

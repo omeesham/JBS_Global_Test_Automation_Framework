@@ -23,7 +23,7 @@ This is a STUB. Open via `/planning SUBPLAN_CLOSURE_GATE_V6_A_OVERRIDES_FOUNDATI
 - `.claude/closure-overrides.schema.json` (full JSON Schema, `additionalProperties: false` at root + every nested object)
 - `.claude/closure-overrides.json` (initial seed — empty `overrides: []` + `meta_plans: [PLAN_CLOSURE_GATE_V6_PARENT.md, ...subplan basenames]`)
 - `.claude/closure-overrides-authors.txt` (best-effort attribution allowlist; V2 caveat documented)
-- `.claude/closure-overrides.schema.hash.txt` (NEW — known-good SHA-256 of the schema file; verified at validator load time)
+- a schema hash file (path does not resolve — file was never committed) (NEW — known-good SHA-256 of the schema file; verified at validator load time)
 - `scripts/validate-overrides.mjs` (loadSchema() actually called against schema; schema-hash integrity check; staged-blob mode `git show :path` for pre-commit; self-tests prove schema rejects wildcards / missing expiry / < 40-char reason / `closure_circular_ok` / unknown keys / tampered-schema)
 
 ## Defects this chunk resolves (Preservation Matrix Layer 2)

@@ -16,7 +16,7 @@ Maintained manually — update when creating or modifying skills.
 | /bugfix | fix, broken, not working, error, crash | DIRECT | identity, regression-guard, reflect |
 | /rca | RCA, root cause, why is this failing, analyze failure | DIRECT | identity |
 | /cleanup | clean up, dead code, remove unused, orphaned | DIRECT | identity, regression-guard |
-| /graft | graft, splice, integrate from branch, port code — hand-port colleague code, verify vs source, prove with a real E2E, sync git index to the tested worktree so the disk never lies (NM-2265 stale-index prevention) | DIRECT | identity |
+| /graft | graft, splice, integrate from branch, port code — classify an incoming colleague ref into Tier D (their ticket work product, taken as-is) vs Tier F (framework behaviour: hooks/gates/rules/learnings/config, tried per-hunk guilty-until-proven-right), then splice, verify vs source, prove with a real E2E, sync git index to the tested worktree so the disk never lies (NM-2265 stale-index prevention) | DIRECT | identity |
 | /review | review, check this code, code review, PR | VERIFY | identity |
 | /research | research, best practices, how do others, unfamiliar API | INFORM | identity |
 | /find-bugs | find bugs, QA, break it, stress test, what could go wrong | DIRECT | identity |

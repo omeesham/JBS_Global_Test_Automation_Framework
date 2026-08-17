@@ -1,6 +1,6 @@
 # PLAN — Staged per-ticket delivery of NM-2268 / NM-2269 / NM-2270 to the Encore deliverables repo
 
-**Status**: Pending
+**Status**: SUPERSEDED (2026-08-14 — per-ticket delivery branches retired by Rutvik 2026-08-13; only `main` ships via `/push-encore-deliverables`. The `--branch=nm2268/69/70` instructions below describe a retired mechanism and must not be executed. Superseding context: PLAN_65_TICKET_ID_STRUCTURAL_NAMING_REMEDIATION + PLAN_66_DELIVERABLE_TRUTH_SWEEP; flagged by audit p66-p4-audit2-0814 defect 2.)
 **Model**: Opus · **Thinking**: ultrathink · **PermissionMode**: default
 **Owner identity**: OWNER (delivery ceremony + publishing are CLAUDE-ONLY)
 **Depends on**: `plans/done/SUBPLAN_CORP_PRICING_NM2268_LOC_SEARCH.md`, `..._NM2269_OVERRIDE_FILTERS.md`, `..._NM2270_GRID_FILTERS.md` (all DONE, green ×2, pushed to `origin/main` 2026-07-20)
@@ -82,7 +82,7 @@ Sources: `.claude/state/ua-worker/dlv-r{1,2,3a,3b,4,5,6,7}/`.
 | ID | Surface | Action |
 |---|---|---|
 | L-1 | `describe` block titles literally contain `(NM-2269)` and `(NM-2270)` | Strip the ticket ref from any describe that survives into an earlier branch |
-| L-2 | `WALK_SORT_ORACLES` in `src/data/corporate-override/override.ts` is commented `(NM-2270)` and used only by TC-046/047/049 | Remove from branches that don't carry those tests (confirm against `.claude/state/ua-worker/dlv-r3b/depgraph.md`) |
+| L-2 | `WALK_SORT_ORACLES` in `src/data/corporate-override/override.ts` is commented `(NM-2270)` and used only by TC-046/047/049 | Remove from branches that don't carry those tests; the dependency graph was in worker state and is not portable evidence |
 | L-3 | TC-041's skip reason cites `NM-2126` | **Keep** — NM-2126 is the client's own Jira ID and TC-041 is in NM-2268's scope. Legitimate cross-reference, matches existing `NM-####` refs already shipped in other specs. |
 | L-4 | Untracked junk in `clients/encore/` root — nested `clients/` dir, `*.png`, `review2-*.txt` | Delete or ignore before any ship; would ship if ever staged |
 

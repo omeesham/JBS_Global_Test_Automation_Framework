@@ -24,7 +24,7 @@ These three plans are ONE gated unit — running any ONE obligates the other two
 
 This plan is PARKED and its findings are INCOMPLETE-BY-CONSTRUCTION: they came from a **model-guessed denominator (~197 files)** — the same blind spot the later whole-repo slop sweep exposed and fixed. Do NOT start fixing on the assumption this list is complete. Before executing ANY fix here, a future (rested) session does two things IN ORDER:
 
-1. **Re-run the bug hunt over the FULL machine denominator.** Scope = the machine roster the slop sweep built (`.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md` — `git ls-files` + on-disk walk, 1,853 in-scope entries), NOT the old 197-file manifest. **Staleness note (2026-07-30)**: this roster was enumerated 2026-07-18. The file is 1,937 total lines / 1,901 non-blank — the 1,901 figure is a NON-BLANK count and must not be used as a line offset (doing so silently drops the final ~36 rows, including website/frontend entries such as website/frontend/src/data/jiraconfig.txt). Commits have landed since enumeration. Re-run the enumerator and diff against this roster before certifying any sweep complete. Cross-provider council (gpt-5.5 + claude-opus-4.6), guilty-until-proven, so harness **correctness** gets the same 100% coverage that file-**existence** already got. Fold any new S0/S1 bugs into the Fix Lots below.
+1. **Re-run the bug hunt over the FULL machine denominator.** Scope = the machine roster the slop sweep built (the local slop0 denominator artifact from `git ls-files` + on-disk walk, 1,853 in-scope entries; not tracked), NOT the old 197-file manifest. **Staleness note (2026-07-30)**: this roster was enumerated 2026-07-18. The file is 1,937 total lines / 1,901 non-blank - the 1,901 figure is a NON-BLANK count and must not be used as a line offset (doing so silently drops the final ~36 rows, including website/frontend entries such as website/frontend/src/data/jiraconfig.txt). Commits have landed since enumeration. Re-run the enumerator and diff against this roster before certifying any sweep complete. Cross-provider council (gpt-5.5 + claude-opus-4.6), guilty-until-proven, so harness **correctness** gets the same 100% coverage that file-**existence** already got. Fold any new S0/S1 bugs into the Fix Lots below.
 2. **Reconcile against the slop sweep's DELETE-list.** Cross-check every fix here against `plans/pending/_REPO_SLOP_FINDINGS.md`: if a file this plan fixes is on that sweep's DELETE/RELOCATE list (or vice-versa), resolve the conflict before touching it. Never fix-then-delete, never delete-mid-fix.
 
 Only after 1 + 2 do the Fix Lots below run. Coupled with `plans/pending/PLAN_REPO_SLOP_SWEEP.md` → "Execution Order" (STEP 0). If unclear at run time: STOP and re-read — do not improvise.
@@ -73,7 +73,7 @@ Only after 1 + 2 do the Fix Lots below run. Coupled with `plans/pending/PLAN_REP
 
 ### Lot FW-B2 — S1/S2 Ship/Score/Gate Fixes
 **Category B** | **Findings**: P2-LOT17-06, P2-LOT17-07, P2-LOT04-05..07, P2-LOT04-20, P2-LOT04-15, P2-LOT04-21, P2-LOT04-23
-**Files**: `scripts/ship-client.ps1` (lines 39-40, 53-55), (off-repo) ~/.claude/delegation/gates-config.json (G0/G1/G2/G3), (off-repo) ~/.claude/delegation/scorecard.mjs (lines 193-194, 114)
+**Files**: `scripts/ship-client.ps1` (lines 39-40, 53-55), (off-repo) ~/a delegation-era scratch file (removed — never tracked) (G0/G1/G2/G3), (off-repo) ~/.claude/delegation/scorecard.mjs (lines 193-194, 114)
 **Change**: Add $LASTEXITCODE checks after npm/tar/playwright in ship script; fix G0/G1/G2/G3 sev=S0 mode=announce contradiction; fix VERIFY_OUTPUT→VERIFY_ARTIFACTS in scorecard D12; fix error handling for missing model-costs.json
 **Pre-battery**: LCD_04 battery (43 probes) green
 **Verification**: `grep 'VERIFY_ARTIFACTS' ~/.claude/delegation/scorecard.mjs` ≥ 1 (off-repo); `grep 'LASTEXITCODE' scripts/ship-client.ps1` ≥ 3
@@ -87,10 +87,10 @@ Only after 1 + 2 do the Fix Lots below run. Coupled with `plans/pending/PLAN_REP
 
 ### Lot FW-B4 — Dark Gate Telemetry
 **Category B** | **Findings**: P1-M13, P3-01..11, P2-LOT09-08..10, P2-LOT12-05..07
-**Files**: All 10 dark gate libs (check-plan-closure, check-todo-injection, check-no-verify, check-graft-ship, check-identity-switch, check-bug-baseline, check-rca-verdict, check-jargon, check-execution-completion + labor-gate), (off-repo) ~/.claude/delegation/labor-gate-audit.log, (off-repo) ~/.claude/delegation/outcomes.jsonl, (off-repo) ~/.claude/delegation/grants-audit.log
+**Files**: All 10 dark gate libs (check-plan-closure, check-todo-injection, check-no-verify, check-graft-ship, check-identity-switch, check-bug-baseline, check-rca-verdict, check-jargon, check-execution-completion + labor-gate), (off-repo) ~/a delegation-era scratch file (removed — never tracked), (off-repo) ~/.claude/delegation/outcomes.jsonl, (off-repo) ~/a delegation-era scratch file (removed — never tracked)
 **Change**: Add shared fireTelemetry() call to every deny/announce branch in all 10 dark gates; merge delegation-nudge + delegation-primer into single gate; fix log data quality (missing session_id, contradictory metrics, fixture contamination)
 **Pre-battery**: LCD_03 (8 checks) + LCD_04 (43 probes) + LCD_05 (35) + LCD_06 (49) green
-**Verification**: `grep -c 'fireTelemetry' .claude/hooks/lib/check-plan-closure.mjs` ≥ 1; `cat ~/.claude/delegation/gate-fires.log | tail -3` shows rows after test fire
+**Verification**: `grep -c 'fireTelemetry' .claude/hooks/lib/check-plan-closure.mjs` ≥ 1; `cat ~/a delegation-era scratch file (removed — never tracked) | tail -3` shows rows after test fire
 
 ### Lot FW-B5 — Script Dead Code + Logic Fixes
 **Category B** | **Findings**: P2-LOT11-09..10, P2-LOT12-02..03, P2-LOT12-09..10, P2-LOT13-09..18, P2-LOT13-21, P2-LOT13-23, P2-LOT15-01, P2-LOT15-05, P2-LOT16-01..06, P2-LOT16-08..09, P2-LOT18-01, P2-LOT18-03..04, P2-LOT18-05, P2-LOT18-07..08, P25-M01..03, P25-M09..11, P25-M12..14, P25-M15..18, P25-M20, P25-LOT03-04..06, P25-LOT05-01, P25-LOT05-06
@@ -151,7 +151,7 @@ Items requiring Rutvik input before any action:
 2. **C lot delegation-gate.mjs.lcd07r2** (P1-M05): 25KB staged unapplied patch. Apply now or park until after this fix wave?
 3. **D lot hook bak files** (P2-LOT08-01..07): bak-lcd07 must NOT be deleted (unique v4/v5 content P2-LOT08-03); confirm delete-vs-archive for remaining 6.
 4. **D lot agent bak files** (P2-LOT10-01..06): quarantine confirmed; ready to batch-delete on your GO.
-5. **D lot delegation-temp/SKILL.md** (P2-21): graduation conditions are NOT met. The skill retires at queue item 10 (PLAN_LAZY_CEO_DELEGATOR) subject to its OWNER-LAW-3 absorption gate; the full 12-item queue must be DONE and structural enforcement proven firing live before retirement (§Graduation, .claude/skills/delegation-temp/SKILL.md). Do NOT delete this skill in this wave.
+5. **D lot .claude/skills/delegation-temp/SKILL.md** (P2-21): graduation conditions are NOT met. The skill retires at queue item 10 (PLAN_LAZY_CEO_DELEGATOR) subject to its OWNER-LAW-3 absorption gate; the full 12-item queue must be DONE and structural enforcement proven firing live before retirement (§Graduation, .claude/skills/delegation-temp/SKILL.md). Do NOT delete this skill in this wave.
 6. **D lot PLAN_AUDIT_COPILOT.md** (P1-M18, 2816L): TRIM candidate; prune-check run required first; confirm on GO.
 7. **Stale ship-plan references** (Phase 4 QUESTIONS_FOR_OWNER): 2 ship plans in plans/pending/ cite deleted verify-vendor-fresh.mjs — update or retire those plans.
 8. **Orphaned untracked PNGs**: git-clean nod required to remove.
@@ -187,7 +187,7 @@ labor-gate shape) is a scoping defect, not a done lot.
 **Execution mechanics**: at execution start, batch every unfilled `DECIDE:` line through `/questionnaire`
 (decision mode). `/regression-guard` fingerprints are taken before the first apply and diffed after the
 last (see F-8). Evidence home: the audit artifacts cited below are preserved in-repo at
-`plans/pending/_audit-evidence-0805/` — `C:\Users\rutvi\aud\` is scheduled for teardown and must never be
+`plans/pending/_audit-evidence-0805/` — `C:\Users\RutvikKhorasiya\aud\` is scheduled for teardown and must never be
 the only copy.
 
 ---
@@ -198,7 +198,7 @@ the only copy.
 2026-08-05. Full report: `plans/pending/_audit-evidence-0805/AUDIT-REPORT-V2.md`. Ledger:
 `plans/pending/_audit-evidence-0805/PROGRESS.md`. Re-runnable check:
 `plans/pending/_audit-evidence-0805/reaudit2.mjs` (6/6 at wiring time; preserved in-repo before the
-`C:\Users\rutvi\aud\` workspace teardown).
+`C:\Users\RutvikKhorasiya\aud\` workspace teardown).
 
 **The audit was READ-ONLY by instruction.** Nothing below was fixed. **This plan is where the fixing
 happens.** Every block ends in a `DECIDE:` line; fill it, then execute it as a fix lot.
@@ -212,7 +212,7 @@ one item in-repo done / off-repo unverifiable → **about 20–25% done**. Large
 ## F-0 · This plan's own prerequisite is unsatisfiable against the current denominator
 
 PREREQ-1 demands a cross-provider re-hunt over "the full 1,853 denominator". That roster
-(`.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`, generated 2026-07-18) was rebuilt
+(the local slop0 denominator artifact, generated 2026-07-18 and not tracked) was rebuilt
 from scratch on 2026-08-05 and measured against what exists:
 
 - **156,018 files exist** across the repository and the two off-repo roots.

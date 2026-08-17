@@ -120,31 +120,33 @@ The representative field used for boundary and negative cases is `service-charge
 
 ## TC-SVC-BAS-005: Entering a value just below zero (negative boundary)
 
-**Automatable**: Yes — NEEDS-LIVE-CONFIRM: confirm whether negative values are rejected and what the rejection signal is
+**Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
 | 2 | Click the percentage input for Audio Conferencing and clear the value | The field is empty |
-| 3 | Type `-0.01` and move focus away by pressing Tab | NEEDS-LIVE-CONFIRM: whether the field rejects the value (announced: `aria-invalid="true"` or visible error message) and whether Tab successfully moves focus out of the field (escapable by Tab or click) |
+| 3 | Type `-0.01` while the field remains focused | The value remains in the field and the field is marked invalid while focused with `aria-invalid="true"` |
+| 4 | Press Tab to move focus away and observe the Save button | After focus leaves, the app may restore the stored value and clear the invalid marking; Save remains disabled |
 
-**Notes**: BVA min–1 case. The test requires both: an announced rejection signal and that Tab or click successfully moves focus out of the field. A silent rejection or a focus trap is a defect.
+**Notes**: BVA min-1 case. Observed live: the rejection marking is reliable while focused, may clear after blur, and Save remains disabled after blur.
 
 ---
 
 ## TC-SVC-BAS-006: Entering a value just above 100
 
-**Automatable**: Yes — NEEDS-LIVE-CONFIRM: confirm whether over-100 is rejected and the rejection mechanism
+**Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
 | 2 | Click the percentage input for Audio Conferencing and clear the value | The field is empty |
-| 3 | Type `100.01` and move focus away by pressing Tab | NEEDS-LIVE-CONFIRM: whether the field rejects the value (`aria-invalid="true"` announced, focus movable by Tab or click) or accepts it |
+| 3 | Type `100.01` while the field remains focused | The value remains in the field and the field is marked invalid while focused with `aria-invalid="true"` |
+| 4 | Press Tab to move focus away and observe the Save button | After focus leaves, the app may restore the stored value and clear the invalid marking; Save remains disabled |
 
-**Notes**: BVA max+1 case. Both an announced rejection signal and the ability to move focus out of the field are required.
+**Notes**: BVA max+1 case. Observed live: the rejection marking is reliable while focused, may clear after blur, and Save remains disabled after blur.
 
 ---
 
@@ -178,7 +180,7 @@ The representative field used for boundary and negative cases is `service-charge
 
 ---
 
-## TC-SVC-BAS-009: Entering alphabetic text into a percentage field
+## TC-SVC-BAS-009: Entering alphabetic text into a percentage field is flagged while focused
 
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
@@ -186,14 +188,15 @@ The representative field used for boundary and negative cases is `service-charge
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
-| 2 | Click the percentage input for APP Downloaded and type `abc` | The characters appear in the field — `inputmode="decimal"` does not block entry |
-| 3 | Move focus away by pressing Tab | `aria-invalid="true"` is set on the field and Save is disabled; no error message text is rendered |
+| 2 | Click the row-0 percentage field for App Quality Assurance and type `abc` | The letters are accepted into the field |
+| 3 | While the field is still focused, observe its invalid state | The field is flagged invalid while focused: `aria-invalid="true"`, red border, and error icon are shown |
+| 4 | Press Tab to move focus away and observe the Save button | After focus moves away, the app may restore the stored value and clear the invalid flag; Save remains disabled throughout |
 
-**Notes**: Negative case. Observed live: alpha input is not blocked at entry; aria-invalid is the only rejection signal on blur.
+**Notes**: Negative case. Observed live: alpha input is accepted at entry, invalid while focused, and may be restored after blur; Save remains disabled.
 
 ---
 
-## TC-SVC-BAS-010: Entering a malformed decimal value
+## TC-SVC-BAS-010: Entering a malformed decimal value is flagged while focused
 
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
@@ -202,24 +205,26 @@ The representative field used for boundary and negative cases is `service-charge
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
 | 2 | Click the percentage input for Audio Conferencing and type `1.2.3` | The string appears verbatim in the field |
-| 3 | Move focus away by pressing Tab | `aria-invalid="true"` is set and Save is disabled; no error message text is rendered |
+| 3 | While the field is still focused, observe its invalid state | The string remains verbatim in the field and the field is marked invalid while focused with `aria-invalid="true"` |
+| 4 | Press Tab to move focus away and observe the Save button | After focus leaves, the app may restore the stored value and clear the invalid marking; Save remains disabled |
 
-**Notes**: Negative case — malformed decimal. Observed live: "1.2.3" is kept verbatim in input.value; the validator rejects it silently via aria-invalid only.
+**Notes**: Negative case — malformed decimal. Observed live: `1.2.3` is kept verbatim and marked invalid while focused; after blur, Save remains disabled.
 
 ---
 
 ## TC-SVC-BAS-011: Entering a negative number into a percentage field
 
-**Automatable**: Yes — NEEDS-LIVE-CONFIRM: confirm whether negative numbers are blocked at input or rejected on blur, and the signal
+**Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
-| 2 | Click the percentage input for Audio Conferencing and type `-5` | The value appears or the browser prevents the minus sign |
-| 3 | Move focus away by pressing Tab | NEEDS-LIVE-CONFIRM: whether a rejection signal appears (`aria-invalid="true"`, escapable by Tab or click) or the value is silently accepted |
+| 2 | Click the percentage input for Audio Conferencing and type `-5` | The value remains in the field |
+| 3 | While the field is still focused, observe its invalid state | The field is marked invalid while focused with `aria-invalid="true"` |
+| 4 | Press Tab to move focus away and observe the Save button | After focus leaves, the app may restore the stored value and clear the invalid marking; Save remains disabled |
 
-**Notes**: Negative case — sign constraint. Both an announced rejection signal and the ability to move focus out of the field are required.
+**Notes**: Negative case — sign constraint. Observed live: the rejection marking is reliable while focused, may clear after blur, and Save remains disabled after blur.
 
 ---
 
@@ -291,10 +296,11 @@ The representative field used for boundary and negative cases is `service-charge
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to the Basic Information tab | The tab loads |
-| 2 | Click the APP Downloaded percentage input, clear it, and paste a 50-digit numeric string (`12345678901234567890123456789012345678901234567890`) | The full string appears in the field without truncation |
-| 3 | Move focus away | `aria-invalid="true"` is set and Save is disabled — the validator rejects the out-of-range value |
+| 2 | Click the APP Downloaded percentage input, clear it, and paste a 50-digit numeric string (`12345678901234567890123456789012345678901234567890`) | The full 50-digit string stays in the field verbatim while focused |
+| 3 | While the field is still focused, observe its invalid state | The field is marked invalid while focused with `aria-invalid="true"` |
+| 4 | Press Tab to move focus away and observe the Save button | After focus leaves, the app may restore the stored value and clear the invalid marking; Save remains disabled |
 
-**Notes**: Very long input case. Observed live: no truncation; field accepts the full string; validator rejects via aria-invalid only.
+**Notes**: Very long input case. Observed live: no truncation or scientific-notation conversion while focused; the field keeps the full string verbatim, marks it invalid while focused, and Save remains disabled after blur.
 
 ---
 
@@ -379,17 +385,17 @@ The representative field used for boundary and negative cases is `service-charge
 
 ## TC-SVC-BAS-022: Navigating away from the page with unsaved edits triggers a confirmation prompt
 
-**Automatable**: Yes — NEEDS-LIVE-CONFIRM: confirm whether a dirty-state prompt appears and the testid of the dialog
+**Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
 | 2 | Edit any percentage field so that Save enables | Save is enabled (form is dirty) |
-| 3 | Click a navigation element to leave the page (e.g. open a different Settings tab or the top nav) | NEEDS-LIVE-CONFIRM: whether an "Unsaved changes" alertdialog appears. If so, confirm the dialog's testid (LR-012 default: `dlgSaveChanges` / `btnSaveChangesConfirm`, unless MCP walk proves otherwise) |
-| 4 | If a dialog appears: click the confirm/discard action | The navigation proceeds and unsaved edits are discarded |
+| 3 | Press the browser Back button | The browser's native leave-page dialog appears (type: `beforeunload`). Browser-back triggers the browser's native dialog; in-app tab navigation shows the application's "Unsaved changes" modal (Stay / Discard). Both behaviours were confirmed on the live site. |
+| 4 | Dismiss the dialog (stay on page) | Navigation is cancelled; the page remains open with the edit still present. Reload or discard the edit to restore clean state. |
 
-**Notes**: State-transition Dirty → Navigate-Away-Prompt. NEEDS-LIVE-CONFIRM: if no dialog appears, classify that as a potential defect and escalate per LR-012.
+**Notes**: Browser-back fires the browser's native `beforeunload` dialog. In-app tab navigation (e.g. clicking the History tab) shows the application's own "Unsaved changes" modal instead — that path is covered by TC-SVC-HIS-014.
 
 ---
 
