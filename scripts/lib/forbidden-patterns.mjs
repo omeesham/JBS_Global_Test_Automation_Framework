@@ -62,7 +62,7 @@ export const DENY_GLOBS = [
   // Internal bug reports — full of selectors, test-case IDs, network traces, blast-radius
   // analysis. Tracked in the team repo for colleague visibility; must never reach the client
   // deliverable. Added 2026-08-18 per TICKET-g77.
-  /\/reports\/bugs\//,
+  /\/reports\/bugs\//i,
 ];
 
 // ── Repo-wide markers (sentinels that should never appear anywhere) ───────────
