@@ -479,3 +479,51 @@ motivated it is decoration.
 | # | Deviation | Reason | Disposition |
 |---|---|---|---|
 | — | none yet | — | — |
+
+## §10 Links 6 + 7 — FIXES LANDED 2026-08-17 in `1bbcd592c` (review still owed)
+
+Both defects this plan documented were fixed ahead of the rest of the plan, because they were
+blocking a collaborator's commits and the owner set a 30-minute ceiling.
+
+- **Link 6 (scope)** — fixed in `scripts/validate-plan-closure.mjs`. `Cx` now evaluates a plan
+  against a walk artifact **only when the plan declares ownership** of it: the path appears in a
+  Per-Identity Satisfaction deliverable cell, or in a checklist item declaring emission/authorship.
+  Design chosen deliberately from this plan's three candidates (option 2), with blast radius
+  machine-measured across 648 plans, not estimated. Evasion is closed by the existing C6 interlock.
+- **Link 7 (sync)** — fixed in `scripts/walk-coverage/verify-denominator.mjs`. The unresolved-probe
+  count now subtracts keys the markdown Coverage Manifest already dispositions with a **valid**
+  token, instead of reading `derived_types[k].probe` alone. Only valid dispositions subtract;
+  malformed rows and short `out-of-scope` reasons do not.
+- **The debt this plan feared was measured and is zero.** Per-key analysis of `PLAN_NM3344`'s three
+  artifacts found 23 of 23 and 24 of 24 unresolved keys already dispositioned in markdown, with
+  **zero** genuinely undispositioned controls. This plan's Link 7 text says correcting the artifact
+  would expose "genuine coverage debt that honesty exposes" — measurement says there is none for
+  these artifacts. The artifact's `Coverage_Ratio: 29/29` / `CrossCheck: clean` header is therefore
+  consistent with its own data once the reader is fixed; the header is not a fake green.
+- **Link 8 was already fixed** before this session — the parity line now goes to stderr and
+  `--json` stdout parses cleanly. Verified 2026-08-17. Do not re-fix it.
+
+**Cross-family review — COMPLETE, verdict ACCEPT** (`p76-cxreview-0817b`, opus-4.6, 2026-08-17; first attempt died on a GitHub 503 and was retried).
+
+The reviewer was told to attack the laundering path directly, and did. Its strongest attempt: a plan
+owns artifact X; X carries 5 unresolved controls whose manifest rows say `affordance-probed: none`
+with **no** `provenance: live` token. Change B does subtract those 5 (they satisfy
+`validManifestDisposition`), so the unresolved-probe count goes clean — **but the plan still fails**,
+because `Cx` aggregates two independent findings (`validate-plan-closure.mjs:863,878`): the coarse
+"is this control addressed at all" count, and `coverageVerdict` (`coverage-manifest.mjs:567-572`),
+which independently sets `provenanceFail` on an observation-claiming row lacking provenance. The
+gates are layered — a fabricated observation passes the subtraction and dies at the provenance
+sub-gate. **No laundering path reaches green.** This answers the condition-5 question that was open
+when the fixes were pushed.
+
+**Residual, accepted knowingly**: `isArtifactOwner` detects checklist ownership via the verbs
+`Emit|Update|Author|Produce`. A plan using "Generate" / "Create" / "Write", or declaring ownership
+in prose, is not detected by that function. The C6 interlock covers it — a genuinely-owned artifact
+must appear in the Per-Identity matrix as a concrete deliverable, and dropping it there to dodge Cx
+trips C6 instead (proven by the `evasion-c6-plan.md` fixture). Worth widening the verb set if a real
+plan ever slips through; not worth a gate change on speculation.
+
+Owner verification that also happened, so the review was a second opinion rather than the only net:
+   per-plan re-runs, the guard fixture (15/15, including a real-data case where 4 undispositioned
+   sort buttons still fire the gate), validator self-test 72/72, and a settled-tree re-measure
+   after an earlier measurement was invalidated for being taken mid-write.
