@@ -758,3 +758,21 @@ one-liners unless depth is requested.
 
 Execution is delegated. P2 does not start until the CEO has read `fdle-slop-verify-r1`.
 Deletions beyond P2's named files require Rutvik's explicit GO.
+
+---
+
+## Inherited obligation — LR-074 dispatch visibility (S1)
+
+This subplan is the doctrine-ledger recipient for **LR-074**, so closing it must close this gap.
+
+Today LR-074 has no blocking enforcement. Its only call site is the detective Stop hook
+`.claude/hooks/lib/check-visibility-reconcile.mjs:516`, which writes an `[INVISIBLE-DISPATCH WARN]`
+line and nothing more — that file contains no `process.exit`, no deny, and no non-zero return path.
+The preventive PreToolUse gate that would have blocked a detachment primitive was built and then
+removed by owner directive in commit `f2e51bebd`, recorded in `.claude/rules/guardrail-policy.md`
+section 74.2. A warn-only gate is disarmed, not un-gateable — the same reasoning that re-classified
+LR-014 to S2 in `.claude/doctrine-ledger.json`.
+
+So an invisible dispatch is currently detected after the session, never prevented during it.
+Any gating work this subplan lands should say plainly whether it restores a preventive layer or
+deliberately keeps detection-only, and the ledger entry for LR-074 should be updated to match.

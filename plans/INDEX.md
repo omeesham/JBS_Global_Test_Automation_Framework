@@ -264,7 +264,7 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 111 | [PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md](pending/PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md) | PLAN 70: Enumerator type resolution + NM-3344 record correction | High | — (ready) | PENDING | opus | xhi | auto | cli | 2026-08-16 |
 | 112 | [PLAN_73_FAKE_GREEN_FLEET_SWEEP.md](pending/PLAN_73_FAKE_GREEN_FLEET_SWEEP.md) | PLAN 73: Fleet sweep — find and prove every fake green in the remaining 31 spec files | High | — (ready) | PENDING | opus | xhi | auto | none | 2026-08-16 |
 | 113 | [PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md](pending/PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md) | PLAN 74: Why every existing defence let the fake greens through — and the gate that would have stopped them | High | — (ready) | PENDING | opus | max | auto | none | 2026-08-16 |
-| 114 | [PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md](pending/PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md) | PLAN 75: Cut Claude's own burn without losing a single point of quality | High | — (ready) | PENDING | opus | xhi | auto | none | 2026-08-16 |
+| 114 | [PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md](pending/PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md) | PLAN 75: Cut Claude's own burn without losing a single point of quality | High | — (ready) | PENDING | Opus | xhi | auto | none | 2026-08-16 |
 | 115 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | PENDING | — | — | — | — | 2026-07-16 |
 | 116 | [PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE.md](pending/PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE.md) | PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE | HIGH | — (ready) | PENDING | Opus | xhi | auto | none (no live UI work in this plan) | 2026-07-30 |
 | 117 | [PLAN_DELEGATION_LEDGER_TRUTH.md](pending/PLAN_DELEGATION_LEDGER_TRUTH.md) | PLAN: Delegation Ledger Truth — `ok`/`exit_reason` must key on the work, not the exit code | High | — (ready) | PENDING | opus | xhi | acceptEdits | none | 2026-07-23 |
@@ -287,7 +287,7 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 134 | [PLAN_GRAFT_NM3345_3346_TAKEOVER.md](pending/PLAN_GRAFT_NM3345_3346_TAKEOVER.md) | PLAN_GRAFT_NM3345_3346_TAKEOVER | — | — (ready) | PENDING | opus | xhi | auto | cli | 2026-08-06 |
 | 135 | [PLAN_ULTRAAUDIT_FIX_WAVE.md](pending/PLAN_ULTRAAUDIT_FIX_WAVE.md) | PLAN_ULTRAAUDIT_FIX_WAVE.md | HIGH | — (ready) | PENDING | — | — | default | — | 2026-08-14 |
 | 136 | [PLAN_WALK_STATE_CONTRACT_REALIGN.md](pending/PLAN_WALK_STATE_CONTRACT_REALIGN.md) | PLAN_WALK_STATE_CONTRACT_REALIGN | — | — (ready) | PENDING | opus | xhi | auto | cli | 2026-08-06 |
-| 137 | [SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md](pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md) | SUBPLAN_DISPATCH_INTEGRITY_PERMANENT | — | — (ready) | PENDING | — | — | acceptEdits | — | 2026-08-14 |
+| 137 | [SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md](pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md) | SUBPLAN_DISPATCH_INTEGRITY_PERMANENT | — | — (ready) | PENDING | — | — | acceptEdits | — | 2026-08-17 |
 | 138 | [SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md](pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md) | SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS | Medium — calendar-gated custodian for every in-flight LR-069 announce→deny ramp | — (ready) | PENDING | Opus | hi | auto | none | 2026-07-29 |
 | 139 | [SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md](pending/SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md) | SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE | High — closes the one coverage class the generative oracle structurally cannot derive | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-07-29 |
 | 140 | [SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH.md](pending/SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH.md) | SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH | — | — (ready) | PENDING | — | — | — | — | 2026-08-11 |
@@ -826,10 +826,11 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
+| 2026-08-17 | pending | [PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md](pending/PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md) | PENDING |
+| 2026-08-17 | pending | [SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md](pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md) | PENDING |
 | 2026-08-16 | pending | [PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md](pending/PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md) | PENDING |
 | 2026-08-16 | pending | [PLAN_73_FAKE_GREEN_FLEET_SWEEP.md](pending/PLAN_73_FAKE_GREEN_FLEET_SWEEP.md) | PENDING |
 | 2026-08-16 | pending | [PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md](pending/PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md) | PENDING |
-| 2026-08-16 | pending | [PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md](pending/PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md) | PENDING |
 | 2026-08-16 | pending | [PLAN_HIS012_EXTERNAL_AUDIT.md](pending/PLAN_HIS012_EXTERNAL_AUDIT.md) | PENDING |
 | 2026-08-16 | pending | [worker-report.md](pending/worker-report.md) | — |
 | 2026-08-16 | done | [PLAN_71_HISTORY_SORT_TRUTH_AND_TAUTOLOGY_TEST.md](done/PLAN_71_HISTORY_SORT_TRUTH_AND_TAUTOLOGY_TEST.md) | DONE |
@@ -854,7 +855,6 @@ When completing a plan:
 | 2026-08-14 | pending | [SUBPLAN_CORP_PRICING_NM2271_GRID_EQUIPMENT_LABOR.md](pending/SUBPLAN_CORP_PRICING_NM2271_GRID_EQUIPMENT_LABOR.md) | PENDING |
 | 2026-08-14 | pending | [SUBPLAN_CORP_PRICING_NM2272_OVERRIDE_EXPORT.md](pending/SUBPLAN_CORP_PRICING_NM2272_OVERRIDE_EXPORT.md) | PENDING |
 | 2026-08-14 | pending | [SUBPLAN_CORP_PRICING_NM2273_OVERRIDE_IMPORT.md](pending/SUBPLAN_CORP_PRICING_NM2273_OVERRIDE_IMPORT.md) | PENDING |
-| 2026-08-14 | pending | [SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md](pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md) | PENDING |
 | 2026-08-14 | pending | [_TRIPLAN_RECONCILIATION.md](pending/_TRIPLAN_RECONCILIATION.md) | REFERENCE-ARTIFACT |
 | 2026-08-14 | done | [PLAN_67_DISPATCH_VISIBILITY_AND_COUNCIL_HARDENED_FIXES.md](done/PLAN_67_DISPATCH_VISIBILITY_AND_COUNCIL_HARDENED_FIXES.md) | DONE |
 | 2026-08-14 | done | [PLAN_69_GATE_MODULE_DEAD_CODE_REMOVAL.md](done/PLAN_69_GATE_MODULE_DEAD_CODE_REMOVAL.md) | DONE |
