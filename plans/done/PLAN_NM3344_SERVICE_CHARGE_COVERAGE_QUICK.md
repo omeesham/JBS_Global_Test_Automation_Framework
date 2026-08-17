@@ -410,15 +410,27 @@ unusable hit a degraded environment, not a broken page. Evidence:
 
 ### Known and not closed here
 
-- **Type resolution is failing on this page.** The enumerator resolved 23 of 29 controls as unknown on
-  11 August and 30 of 30 on 15 August, because it reads each element's type after its own tab cycle has
-  unmounted the controls. This inflates the expected-case count roughly 129-fold and is what makes the
-  denominator agreement weak evidence. The unresolved-probe check reports it on every run. Fixing the
-  enumerator is a separate job.
-- **Only one class of invalid input has been observed live.** A non-numeric value stays marked invalid
-  after focus leaves and keeps its text, with Save disabled. Numeric out-of-range values were measured on
-  14 August and cleared their marking after blur. The two have never been compared on the same day, so
-  the five negative test cases cover one rejection behaviour and not the other.
+- **SVC-OBS-3 disproved — CORRECTION 2026-08-16 (RECONCILE ticket).** SVC-OBS-3 ("clicking a History column header empties the grid") was used in this plan and its inventory artifacts as the justification for deferring sort coverage. That claim was a false negative from a degraded environment. A live walk on 2026-08-16 on a 347-row grid confirmed all four column headers open a Sort ascending / Sort descending / Hide column dropdown and sorting lands visibly. TC-SVC-HIS-012 was corrected to assert actual sort behaviour and passes 3/3. The "two sortable column header buttons" figure recorded in `service-charge-history-2026-08-10.md` was a limitation of the enumerator (which found only native `<button>` elements); the live truth is four sort buttons. Coverage derived from the two-button count was therefore undersized. Field inventory artifacts have been corrected forward in place (RECONCILE ticket).
+
+- **Type resolution is failing on this page — corrected 2026-08-16.** The two bullets previously here were
+  wrong on both the cause and the magnitude, and are superseded by
+  `plans/pending/PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md`. The corrected findings: the failure
+  has **three** distinct causes, not one. (a) The opener loop leaves the page on the History tab before types
+  are read, so the read fails and records `unresolved`. (b) The readiness wait times out at 20s on a page
+  observed to take 38–90s, and returns a stale count instead of failing. (c) The 79 percentage inputs expose
+  **no native type at all** — verified live with a positive control, and unchanged both with no tab cycle and
+  with a long readiness wait. Cause (a), named here originally, is therefore **not** the operative cause for
+  this page. The expected-case inflation is **9.214×** (129 case rows per unresolved control against 14 for a
+  correctly typed one), not "129-fold" — that phrase was a row count misread as a multiplier. Whether this
+  plan's 45 test cases actually under-cover the module remains **undecided** and is settled by PLAN 70 Phase 4.
+- **Both classes of invalid input behave the same — the earlier claim is refuted, corrected 2026-08-16.** This
+  section previously stated that numeric out-of-range values cleared their invalid marking after blur while
+  non-numeric values did not. That does not reproduce. Verified live on 2026-08-15 across three percentage
+  fields, six trials, a fresh browser context per trial, and independently re-executed by a second model
+  family using `100.01` — the exact value the 14 August walk used. In every trial both input classes stayed
+  marked invalid after blur and after a further 2s, retained their text (out-of-range values gained display
+  formatting only, e.g. `150` → `150.00 %`, and were **not** clamped), and left Save disabled. **The five
+  negative test cases therefore cover the real rejection behaviour, and no coverage gap follows from this.**
 
 ## Plan-Deviations log
 
