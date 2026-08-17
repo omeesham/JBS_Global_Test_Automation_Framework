@@ -57,7 +57,7 @@ Recon facts (verified 2026-08-14):
 
 ## Phase R — Rename-gate fix, council-hardened (no loosening)
 
-- **R1 (council r1, opus)**: read `scripts/check-tc-has-fieldinventory.mjs` (gitOldContent ~L274 reads `HEAD:<newPath>` — empty for renames → false "all content new") + its test file + incident (commit 594de2d7c blocked; owner skip token consumed, audit row in `reports/diagnostics/fieldinventory-skips.log`). Position paper on the fix: resolve rename pairs via `git diff --cached --name-status -M`, read old content from `HEAD:<oldPath>` for R entries. MUST answer the loosening question explicitly: does pass-on-R100 create ANY laundering path (rename+edit same commit R<100, rename commit then edit commit, copy-then-delete instead of rename, case-only renames on Windows, whitespace-only deltas, module-name transfer losing inventory pairing)?
+- **R1 (council r1, opus)**: read `scripts/check-tc-has-fieldinventory.mjs` (gitOldContent ~L274 reads `HEAD:<newPath>` — empty for renames → false "all content new") + its test file + incident (commit 594de2d7c blocked; owner skip token consumed, audit row in the fieldinventory-skips log under `reports/diagnostics/` — a per-run diagnostic output, not tracked). Position paper on the fix: resolve rename pairs via `git diff --cached --name-status -M`, read old content from `HEAD:<oldPath>` for R entries. MUST answer the loosening question explicitly: does pass-on-R100 create ANY laundering path (rename+edit same commit R<100, rename commit then edit commit, copy-then-delete instead of rename, case-only renames on Windows, whitespace-only deltas, module-name transfer losing inventory pairing)?
 - **R2 (gpt attack)**: hunt gate-loosening + bypasses; freshness windows and deny posture MUST remain untouched.
 - **R3**: converge → hardened spec.
 - **R4 (build, sonnet)**: implement + extend `scripts/check-tc-has-fieldinventory.test.mjs` with ≥3 new classes: pure-R100 → pass; rename+content-block edit → violation under NEW module name; plain-A new TC md → violation (unchanged). Full existing test file stays green. Zero changes to skip-token logic, freshness, or deny default.
@@ -67,7 +67,7 @@ Recon facts (verified 2026-08-14):
 
 - **B1 (council r1, opus)**: ground in `to-xlsx.ts:529/708/743` + `sp00-augment-logic.ts` + one committed workbook's actual cells. What does each date-consuming cell MEAN to the client? Options to weigh: (1) write-if-content-equal (skip writing a workbook whose non-volatile content is unchanged), (2) deterministic date derived from source content (e.g. the TC md's own last-change date — arguably the honest "Last Updated" semantic), (3) keep build-date but isolate it so diffs are reviewable, (4) drop the stamp (client-facing semantic change — flag). Constraint: "pass = as per previous deliveries" doctrine — no client-visible semantic break without flagging to Rutvik.
 - **B2 (gpt attack)** → **B3**: converge; if the winning design changes client-visible semantics → HALT + one-liner to Rutvik BEFORE build.
-- **B4 (build, sonnet)**: implement at source (no wrapper). Prefer unit-level determinism proof (pure-function test) over live rebuilds. If ANY workbook rebuild is required for verification: ticket MUST state the `.auth/encore-state.json` prerequisite (poison mechanism, PLAN_66) and the owner verifies resolved-cell distribution (103 Pass / 1 Skipped TC-CPR-OVR-040 / 0 Blocked) before accepting.
+- **B4 (build, sonnet)**: implement at source (no wrapper). Prefer unit-level determinism proof (pure-function test) over live rebuilds. If ANY workbook rebuild is required for verification: ticket MUST state the `.auth/` storage-state prerequisite (poison mechanism, PLAN_66) and the owner verifies resolved-cell distribution (103 Pass / 1 Skipped TC-CPR-OVR-040 / 0 Blocked) before accepting.
 - **B5 (review, gpt)** → **B6 (owner)**: double-build byte-stability (or design-equivalent) proof recorded.
 
 ## Phase C — Closure
@@ -142,7 +142,7 @@ Two of the four were genuinely untested before this plan. The `S0-BIND` guard is
 
 ### What is NOT done — read this before trusting the gate
 
-1. **`.claude/settings.json` is NOT wired.** The gate is built, tested, and correct, but it is not switched on. The exact four-edit JSON diff is staged at `.claude/state/ua-worker/chips/p67-visibility-0814/SETTINGS-WIRING-PENDING-APPROVAL.md` awaiting Rutvik's separate GO. Acceptance criterion 3 (PowerShell matcher entry) is therefore **unmet in effect** — the entry is authored, not applied. Until wiring lands, both layers are dormant.
+1. **`.claude/settings.json` is NOT wired.** The gate is built, tested, and correct, but it is not switched on. The exact four-edit JSON diff is staged in worker chip `p67-visibility-0814` — a local control file on the machine that produced it, never tracked — awaiting Rutvik's separate GO. Acceptance criterion 3 (PowerShell matcher entry) is therefore **unmet in effect** — the entry is authored, not applied. Until wiring lands, both layers are dormant.
 2. **The residual is permanent.** A process launched outside the wrapper whose command is assembled at runtime from character codes or base64 writes no ledger row and carries no readable name. Neither layer sees it. LR-074 §74.4 states this outright and no artifact from this plan may claim the class is closed.
 3. **Orphan detection is detection, not prevention.** It makes a surviving worker visible after the fact; it does not stop one being created.
 
@@ -214,12 +214,12 @@ Every protection the deleted whole-command scan provided, and where it lives now
 | Incidentally denied a heredoc writing a spawner script | Retained — heredoc bodies remain an unmodeled context under LR-074 §74.3 | Owner-run probe: heredoc writing a spawner DENY; running it afterwards ALLOW, the documented §74.4 residual |
 | Incidentally denied ordinary prose mentioning these APIs | **Deliberately dropped** — this was the defect, not a protection | PROSE-01..31 assert those commands must ALLOW |
 
-The convicted labor-gate splitter has a tested patch and fixtures at `.claude/state/ua-worker/chips/p67-visibility-0814/C1-LABOR-GATE.md`; it is a control file and is **not** applied, so that conviction remains open and is recorded in `### Still not done` below rather than claimed as fixed.
+The convicted labor-gate splitter has a tested patch and fixtures in worker chip `p67-visibility-0814` (a local control file on the machine that produced it, never tracked); it is **not** applied, so that conviction remains open and is recorded in `### Still not done` below rather than claimed as fixed.
 
 ### Still not done
 
 1. **`.claude/settings.json` remains unwired.** The owner gave an in-chat GO on 2026-08-14. The second factor is absent: `~/.claude/delegation/SELF_GRANT` expired at 13:34:41, is scoped to `.claude/rules/guardrail-policy.md`, and its own reason line excludes settings wiring. Claude cannot author its own grant (LR-074 §74.1), so the gate stays dormant.
-2. **A labor-gate defect of the same class is diagnosed but unpatched.** `~/.claude/hooks/labor-gate.mjs` splits commands on newlines and semicolons without tracking quote state, so a multi-line commit message whose body contains a command shape is read as that command — reproduced against the real module on this session's own blocked commit. A tested patch and fixtures exist at `.claude/state/ua-worker/chips/p67-visibility-0814/C1-LABOR-GATE.md`; it is a control file and waits on the same grant.
+2. **A labor-gate defect of the same class is diagnosed but unpatched.** `~/.claude/hooks/labor-gate.mjs` splits commands on newlines and semicolons without tracking quote state, so a multi-line commit message whose body contains a command shape is read as that command — reproduced against the real module on this session's own blocked commit. A tested patch and fixtures exist in worker chip `p67-visibility-0814` — a local control file on the machine that produced it, never tracked — and it waits on the same grant.
 3. **The residual is unchanged.** LR-074 §74.4 still holds: a script written to disk and then run carries no readable token. Writing such a script by heredoc is refused; running it afterwards is not.
 
 ### Updated verification artifact

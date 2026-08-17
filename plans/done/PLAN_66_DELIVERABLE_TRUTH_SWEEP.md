@@ -65,8 +65,8 @@ PLAN_65 D6 recorded · scorecard rows (W1 undercount; A2/A3 poison provenance pe
 | HUNTER | — | (none) | (none) |
 | GIVER | testcases workbooks (content correctness) | `clients/encore/testcases/corporate-override/corporate-override-labor-grid.xlsx`<br>`clients/encore/testcases/corporate-override/corporate-override-location-picker.xlsx`<br>`clients/encore/testcases/corporate-override/corporate-override-filters.xlsx`<br>`clients/encore/testcases/corporate-override/corporate-override-grid-sort.xlsx`<br>`clients/encore/testcases/corporate-override/corporate-override-export.xlsx`<br>`clients/encore/testcases/corporate-override/corporate-override-import.xlsx` | `npm run check:tc-parity` exit 0 |
 | BUILDER | — (specs untouched this plan) | (none) | (none) |
-| HEALER | RCA artifact | `.claude/state/ua-worker/chips/p66-truth-0814/RCA.md` | file exists + names file:line + env delta |
-| WATCHDOG | re-audit verdict | `.claude/state/ua-worker/chips/p66-truth-0814/AUDIT2.md` | `VERDICT:` line present |
+| HEALER | RCA artifact | RCA output of worker chip `p66-truth-0814` — produced, but a per-run worker artifact that was never tracked and does not travel with the repo | file exists + names file:line + env delta |
+| WATCHDOG | re-audit verdict | audit verdict of worker chip `p66-truth-0814` — produced, but a per-run worker artifact that was never tracked and does not travel with the repo | `VERDICT:` line present |
 | GARDENER | tripwire check + ship-branch retirement | `scripts/xlsx-tripwire.test.ts`<br>`scripts/ship-branch.sh` | `bash -n scripts/ship-branch.sh` exit 0; `npm run test:xlsx-tripwire` exit 0 (guards live in `export_test_cases/sp00-augment-logic.ts` per D1 seam) |
 
 ## What becomes stale (LR-050)
@@ -84,7 +84,7 @@ PLAN_65 D6 recorded · scorecard rows (W1 undercount; A2/A3 poison provenance pe
 
 ## Execution Summary
 - **P0**: 28 poisoned workbooks reverted to HEAD (`git checkout`), verified 6 A + 6 D only.
-- **P1**: RCA `p66-rca-0814` — mechanism: missing `.auth/encore-state.json` at collection ⇒ Playwright annotates every test skip (projects declare storageState + setup dependency) ⇒ exporter writes "Skipped". CEO corrections recorded: the report's "separate Aug-14 rebuild" is unsupported (ticket wording artifact); its distribution table was approximate — P2 re-derived from source. Fault: env + dispatcher (auth prerequisite absent from A2/A3 tickets).
+- **P1**: RCA `p66-rca-0814` — mechanism: missing Playwright storage-state under `.auth/` at collection ⇒ Playwright annotates every test skip (projects declare storageState + setup dependency) ⇒ exporter writes "Skipped". CEO corrections recorded: the report's "separate Aug-14 rebuild" is unsupported (ticket wording artifact); its distribution table was approximate — P2 re-derived from source. Fault: env + dispatcher (auth prerequisite absent from A2/A3 tickets).
 - **P2**: `p66-p2-rebuild-0814` — six workbooks rebuilt with auth verified; expected table derived from md+spec sources FIRST; cell-resolved EXACT match (103 Pass, 1 Skipped = TC-CPR-OVR-040, 0 Blocked); CEO re-measured independently, identical. All other xlsx surgically restored; tc-parity exit 0.
 - **P3**: `p66-p3-tripwire-0814` — two S0 guards at exporter source (auth-state abort + all-skip abort) as tested pure functions; `test:xlsx-tripwire` + typecheck exit 0 (CEO re-run). Seam per D1.
 - **Phase C**: C2 ship-branch presets retired (review REJECT overruled — dispatcher-stale constraint, all substantive items VERIFIED; its real finding fixed under Rutvik's granted skill edit). C3 manifest: 6/8 fixed with commit provenance, 2 refused pending owner approval — Rutvik approved in chat; rows 52–53 appended; blob pins refreshed per validator's documented recovery; **`validate-delivery-manifest` exit 0 (34 modules)**. C3 review's provenance defect was report-narrative only (artifacts cite original approval lines correctly).
@@ -93,7 +93,7 @@ PLAN_65 D6 recorded · scorecard rows (W1 undercount; A2/A3 poison provenance pe
 - **TCs**: none authored, none dropped — this plan corrects generated artifacts and gates; TC content untouched.
 - **Docs**: `.claude/skills/push-encore-deliverables/SKILL.md` example modernized under Rutvik's granted SELF_GRANT; `.claude/context/navigation.md` row 74 updated by C2; `plans/pending/PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md` superseded.
 - **Verification battery (closure)**: structural-names exit 0 · delivery-manifest exit 0 · pre-commit parse exit 0 · ship-branch parse exit 0 · 18-case harness exit 0 · tc-parity exit 0 (P2 + CEO re-run) · xlsx-tripwire exit 0 (CEO run post-P3).
-- **Battery artifacts**: `.claude/state/ua-worker/chips/p66-truth-0814/closure-battery.txt` and `.claude/state/ua-worker/chips/p66-truth-0814/AFTER-git-status.txt`.
+- **Battery artifacts**: the closure-battery and AFTER-git-status outputs of worker chip `p66-truth-0814` — per-run worker artifacts on the machine that ran them; never tracked, so they do not travel with the repo.
 - **NO PUSH performed**; shipping remains Rutvik's explicit `/push-encore-deliverables` invocation.
 
 ## Constraints (inherited, load-bearing)
