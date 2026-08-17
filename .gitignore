@@ -111,8 +111,6 @@ tmp/
 .playwright-mcp/
 
 # Private skills (never commit)
-.claude/skills/end-day/
-.claude/skills/end-week/
 specs_planning/_internal/daily-status-bank.json
 
 # Agent audit reports (internal only - proprietary)
@@ -306,13 +304,4 @@ plans/pending/PLAN_REPO_MARKER_AND_PAIRING_REMEDIATION.md
 .claude/state/delegation-audit/
 
 # Delegation plans stay local — the working mechanism ships, its planning history does not
-plans/pending/PLAN_ULTRA_AGENTS_COPILOT_WORKER.md
 # PLAN_UPLINK_PROTOCOL.md ships as of 2026-08-03 (Rutvik GO): the doctrine ledger names it as the LR-063 recipient, so it must exist on every clone.
-plans/pending/SUBPLAN_UPLINK_WAVE2.md
-plans/pending/PLAN_LAZY_CEO_DELEGATOR.md
-plans/pending/PLAN_COPILOT_INTEGRATION_ULTRAAUDIT.md
-plans/pending/PLAN_COPILOT_HARNESS_PARITY_GAPS.md
-plans/done/PLAN_AUDIT_COPILOT.md
-plans/done/PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY.md
-plans/done/SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md
-plans/done/SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md
