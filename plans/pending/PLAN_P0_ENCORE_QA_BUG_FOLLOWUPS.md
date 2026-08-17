@@ -137,7 +137,7 @@ These are flagged here for the next-cycle plan; NOT filed in this subplan per us
 - **NA-3** — Fix worker-race interference (likely fix: per-worker office allocation, or serialize save-persist specs).
 - **NA-4** — Append new BUG-*.json rows to `bugs-for-encore-qa-2026-05-13.csv` (refresh of the 2026-05-12 CSV).
 
-**Source artifact**: full-suite log saved to background-task output `C:\Users\RutvikKhorasiya\AppData\Local\Temp\claude\...\tasks\b2x941fk2.output` (14901 lines). Captured 2026-05-13.
+**Source artifact**: full-suite log captured as a background-task output file in the session's temp directory (14901 lines), 2026-05-13. Per-session and per-machine, so it does not travel with the repo.
 
 **Status update 2026-05-14**: NEXT-ACTION GATE is **CLOSED** by §3.8 below. See §3.8 supersedes note and per-failure verdict matrix.
 
@@ -148,7 +148,7 @@ These are flagged here for the next-cycle plan; NOT filed in this subplan per us
 **Purpose**: Re-run the spec suite from §3.7 with workers reduced from 4 → 2 to isolate worker-race from real bugs (per §3.7 NA-1). User scope (2026-05-14 directive): classify each failure verbatim per LR-044, file bugs for confirmed app issues, defer R1–R6 + Cat 1 / Cat 2 deep RCA + CSV refresh to next session.
 
 **Source artifacts**:
-- Spec run log: `C:\Users\RutvikKhorasiya\AppData\Local\Temp\claude\C--Users-RutvikKhorasiya-projects-encore-framework\f03bca21-438c-4cb9-ab01-56a31fc6f5d6\tasks\bv7u06rio.output` (3943 lines, 26.2 min wall clock).
+- Spec run log: a background-task output file in the session's temp directory (3943 lines, 26.2 min wall clock). Per-session and per-machine, so it does not travel with the repo and is gone once the session ends.
 - Failure summary: local generated failure-summary report (timestamp 2026-05-14T08:29:13Z, ~2 MB; not tracked).
 - Pre-run preserved: (the referenced file no longer exists — it was transient or removed) (the §3.7 4-worker run, preserved before clean per LR-024).
 - New bug file: `reports/bugs/BUG-LOS-BAS-065.json`.
