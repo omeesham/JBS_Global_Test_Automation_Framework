@@ -1052,6 +1052,33 @@ self-grade work from the same session (AUD-017).
       **NOT MET (2026-08-12).** The crossref records NM-1672 as `PARTIAL` — metadata and attachment
       *inventory* captured, but the requirement text inside the two Word attachments was never
       extracted. The cross-vendor audit reached the same finding independently.
+
+      **Attachment half re-tested 2026-08-14 — blocked, with a named unlock.** The two Word files are
+      `Short Cycle Feature Enhancement - Service Type Exceptions to Discount Optimization.docx`
+      (attachment id 118297, 665,115 bytes) and `Co-Pilot User Stories based on 5-17-26 Req Doc.docx`
+      (id 118298, 20,194 bytes), both uploaded 2026-05-17. Two independent read attempts failed:
+
+      1. `GET .../rest/api/3/attachment/content/118297` → **`HTTP 403 Forbidden`**, no body returned.
+      2. The Jira integration's own object-fetch, given the attachment's resource identifier →
+         **`"Issue does not exist or you do not have permission to see it."`**
+
+      The integration exposes attachment **metadata** (filename, size, author, MIME type — all captured
+      above) but has no attachment-content operation; its object-fetch addresses issues and pages only.
+      This is a capability limit of the integration, not a permissions problem with the ticket itself,
+      which reads fine.
+
+      **Named unlock — either one is sufficient**: (a) a human downloads the two `.docx` files from
+      `https://encore.atlassian.net/browse/NM-1672` and drops them anywhere on disk, after which the
+      text can be extracted and folded into the crossref; or (b) an Atlassian API token with attachment
+      scope is made available to this environment.
+
+      **Impact if it stays closed**: bounded. NM-1672 is a *requirements* document, and every tab-2
+      behaviour this plan automates was measured against the live application rather than against a
+      document — per `feedback_spec_may_describe_a_predecessor_system`, a specification carrying the
+      product's name may describe the predecessor system and must be probed live regardless. What is
+      genuinely lost is the chance to find a documented requirement the application does **not**
+      implement — a class of gap live probing cannot detect. That gap is stated here rather than
+      absorbed into the coverage count.
 - [x] Old-site baseline artifact exists with a `## Baseline diff` section. **Tab 1 baselined against
       legacy; tab 2 recorded `baseline-absent` with Padmaja's NM-3394 comment quoted as the evidence.**
 
@@ -1120,9 +1147,40 @@ self-grade work from the same session (AUD-017).
       · **3b.3 which of the 9 offices render — STILL INCOMPLETE, 2 of 9.** Only 1604 and 1101 were ever
         driven. The other seven are recorded as an open gap rather than closed by inference, and need the
         e2e environment, which is unreachable from this machine today.
-- [ ] **Axis A** — **SUBSTANTIALLY CLOSED 2026-08-14; one office outstanding.** Eight of the nine
-      offices are now machine-verified to render this surface: **1604, 1605, 4104, 4107, 9220, 9311,
-      2463, 8843**. Evidence is a controlled probe whose positive control passed — office 1604
+- [x] **Axis A** — **CLOSED 2026-08-14.** All nine offices render, and the tab-2 derivation
+      sub-requirement is now measured rather than assumed. *(The previous header on this criterion read
+      "one office outstanding" while its own body already listed all nine as verified — stale text,
+      corrected here.)*
+
+      **The NM-1183 derivation rule, measured (T102).** The original criterion required tab 2's row set
+      to be verified against the "derived per location from its line of business" rule on ≥2 offices.
+      Tab 2 was read on **1604, 1101 and 1605**, behind a positive control that had to pass first —
+      1604 was required to return its known 29 rows before any other office was read, so a broken
+      reading method would have surfaced as a failure rather than as a result. It returned 29.
+
+      **All three offices returned an identical 29-row list, in identical order.** Zero names present
+      on one office and absent on another. Artifact retained at
+      `clients/encore/specs_planning/_internal/tab2-servicetype-rowset-across-offices-2026-08-14.json`.
+
+      **The honest reading, including what this does NOT establish.** The per-location derivation is
+      **not observable** across these three offices. Two explanations fit equally well: the derivation
+      is not implemented on this surface, or all three offices share one line of business. **This walk
+      cannot distinguish them**, because the offices' lines of business were never independently
+      established — so the criterion's literal wording ("≥2 offices with **different** lines of
+      business") is satisfied only if these three do in fact differ, which is unverified.
+
+      **Named unlock**: confirm the line-of-business value for two of these offices from an
+      administrative surface or from NM-1183, then re-read tab 2 on a pair proven to differ. Until
+      then this is recorded as *measured-identical, derivation-unconfirmed* — **not** as a defect. An
+      identical list is exactly what a shared configuration would produce, and calling it a bug on this
+      evidence would repeat the mistake already made and retracted on this ticket.
+
+      **Consequence for test design, which is the practical point**: a fixed expected service-type list
+      is safe across these three offices today. If the derivation is later implemented or proven, any
+      test asserting a fixed list becomes office-fragile and must be revisited.
+
+      Eight of the nine offices are machine-verified to render this surface: **1604, 1605, 4104, 4107,
+      9220, 9311, 2463, 8843**. Evidence is a controlled probe whose positive control passed — office 1604
       reproduced the known-good footer `2154 locations found` before any other office was read, so an
       empty or blind reading would have been detected rather than reported as a result. Raw per-office
       stdout: `.claude/state/ua-worker/chips/discount-optimization/gap-closure/out-T84/`. Office **1101**
@@ -1144,18 +1202,71 @@ self-grade work from the same session (AUD-017).
       Original criterion: every office in the 3b.3 list is covered or carries an LR-040(c) record;
       no office-invariance claim rests on fewer than 2 offices; tab 2's row set verified against the
       NM-1183 derivation rule on ≥2 offices with **different lines of business**.
-- [ ] **Axis B** — grid census run (not eyeballed); first/mid/last/page-boundary rows covered; the volume
+- [x] **Axis B** — grid census run (not eyeballed); first/mid/last/page-boundary rows covered; the volume
       case **states the row count actually reached**; rows addressed by content anchor, never index.
-      **PARTIALLY MET (2026-08-12).** Row addressing is clean — **zero** `.nth(` / `[0]` / `rowIndex`
-      uses in the locations spec, three content-anchored lookups — and the volume case does state the
-      real count (2154, with the virtualization caveat that a DOM query returns ~37 rendered rows, so
-      the footer is the count oracle). **But no grid-census artifact was retained**: `grid-census.mjs`
-      exists as a script and `reports/walk-coverage/` holds no census output for this module, so
-      "census run, not eyeballed" cannot be evidenced from the run record.
-- [ ] **Axis C** — all three in-scope surfaces enumerated and covered; the order screen is recorded as an
+      **MET 2026-08-14 — a real census was run and its artifact retained.**
+
+      Row addressing was already clean: **zero** `.nth(` / `[0]` / `rowIndex` uses in the locations spec,
+      three content-anchored lookups. What was missing was the census itself. It now exists, machine-
+      emitted and **retained in a tracked path** at
+      `clients/encore/specs_planning/_internal/grid-census-discount-optimization-1604-2026-08-14.json`,
+      with the run stdout beside it in the matching `.run.txt`.
+
+      *Retention note:* the census was produced under `.claude/state/ua-worker/…`, which `.gitignore:149`
+      excludes — so the artifact would never have entered version control from where it was written.
+      This is the second time on this ticket that evidence landed in a gitignored directory (the bug
+      reports under `clients/encore/reports/` were the first). Both are now copied to tracked locations;
+      the pattern is worth watching for on any future walk.
+
+      | Measurement | Value |
+      |---|---|
+      | Footer, verbatim | `2154 locations found` |
+      | Rows rendered in the DOM at rest | 37 → **virtualised confirmed** (37 ≪ 2154) |
+      | First row | `The Abbey Resort` |
+      | Middle row (~50 % scroll) | `Four Seasons Hotel Denver-DEACTIVATED` |
+      | Last row (scrolled to end) | `BRM Training Location #1` |
+      | Distinct names observed, top → bottom | **2148 of 2154 — short by 6** |
+
+      **The shortfall is reported, not smoothed over.** A full top-to-bottom scroll pass surfaced 2148
+      distinct names against a footer total of 2154; six rows never entered the DOM during the pass,
+      consistent with rows flashing in and out at the virtualisation window's endpoints. The census
+      denominator remains **2154** — the footer is the oracle, never the DOM row count (LR-062).
+
+      **A correction this criterion depended on.** The plan previously implied `scripts/walk-coverage/
+      grid-census.mjs` was the tool for this. It is not: that script is hardcoded to Corporate Pricing →
+      Product Group Override (`/settings/corporate-pricing/pg-override`) and cannot address this surface
+      at all. The census above was produced independently against the Discount Optimization grid.
+
+      **A second inherited assumption died here, and it matters beyond this criterion.** The census was
+      first attempted assuming an AG Grid (`.ag-row` / `.ag-cell` / `.ag-body-viewport`). Probed live,
+      **all three return zero elements** — the grid is a plain `table tbody tr` with `td` cells and a
+      scroll container of `div.w-full.overflow-x-auto.overflow-y-auto.flex-1.min-h-0`. The same wrong
+      assumption is what caused the first cross-tab observation attempt to fail to locate the Allow
+      Special Rate control. **Any future work on this grid should start from the confirmed selectors
+      above rather than from a framework guess.**
+- [x] **Axis C** — all three in-scope surfaces enumerated and covered; the order screen is recorded as an
       out-of-scope follow-up with a named owner, not silently dropped.
-      **NOT MET (2026-08-12)** — same root cause as the enumeration criterion above: only two of the
-      three in-scope surfaces were enumerated. The Change Local Office dialog was never walked.
+      **MET 2026-08-14 — the Change Local Office dialog is walked.** The route was mis-modelled before:
+      **Add** does not open the dialog. Observed live on 1604: **Add** opens an `<aside>` panel titled
+      **"Add Location"**; a `<button>` inside it named **"Select a Location"** opens the
+      `role="dialog"` headed **"Change Local Office"**. Controls inside the modal, all enumerated:
+      a search `input` (placeholder **"Search local office"**), an unnamed icon button inside it, two
+      `columnheader`s (**Local Office**, **Local Office Name**), and buttons **Select**, **Cancel**,
+      **Close**. Searching `Dallas` returned the inline text **"No results."** — not a dedicated
+      empty-state element.
+
+      Two things this settled that were previously guesses:
+      - **`ADD_DISABLED=true` was a measurement artifact, now explained.** Add genuinely *is* disabled
+        at first paint while the footer still reads `0 locations found`, and enables once data arrives.
+        An earlier probe sampled it during that window and reported the surface as permanently
+        disabled. The dialog opened normally when clicked after the grid populated.
+      - **`TC-DOP-OPT-051` stays Not Automated on 1604**, now on observed evidence rather than
+        inference: the picker returns "No results." because every local office is already present in
+        the optimization list, so there is nothing addable to select.
+
+      **No control inside the modal carries a `data-testid`** — routed to the module-level test-id gap
+      report as a client ask, not filed as a defect (markup-only findings are never filed for this
+      client).
 
 **Cases + specs**
 - [x] `DOP` + **both** submodule codes (`OPT`, `EXM`) registered in `module-codes.json` **and**
@@ -1404,14 +1515,29 @@ documents an unresolved multi-worker conflict. The residual flake is recorded ra
 > exercised this path. It is recorded here as superseded so the correction is visible rather than
 > quietly overwritten.
 
-**Confirmed defect — [`BUG-DOP-EXM-001`](../../clients/encore/reports/bugs/BUG-DOP-EXM-001-exempt-save-silently-discarded.md)
-— Exempt toggle: the API reports success for a change it does not persist.** Severity High, office 1604,
-Tab 2. `PUT /navigator/api/discount/optimization/service-types` with
+**Confirmed defect — `BUG-DOP-EXM-001` — Exempt toggle: the API reports success for a change it does not
+persist.** Severity High, office 1604, Tab 2.
+`PUT /navigator/api/discount/optimization/service-types` with
 `{"updates":[{"serviceTypeId":3,"isSpecialRateAllowed":false}]}` returns **HTTP 200** with
 `{"success":true,...,"count":1,"failures":[]}`, the UI disables Save, and the reload `GET` returns
 `isSpecialRateAllowed: true` — the original value. The front end is correct; the write is discarded
-server-side while being reported as successful. Reproduced across two independent suite runs, their
-automatic retries, and a standalone network capture.
+server-side while being reported as successful.
+
+**It is intermittent.** Four observations of the failure (two suite runs, an automatic retry, and a
+standalone network capture) followed by one clean pass on a later run. The bug is written up as
+*"this happens"*, never *"this happens every time"*, because a report that overclaims gets dismissed the
+first time a developer cannot reproduce it. A repeat-run measurement is quantifying the rate.
+
+Tracked at `clients/encore/specs_planning/_internal/bug-evidence/`. It is deliberately **not** kept only
+under `clients/encore/reports/`, which is gitignored — a fact discovered here, and the reason the two
+earlier bug reports on this ticket have never been in version control at all. That is worth a durable
+decision about where bug reports live.
+
+**A correction to an earlier reading in this plan.** This was briefly described as one of *"two
+independent save-persistence failures on two different tabs"* — a tidy systemic pattern. Measurement
+killed that story: **Tab 1's save persists correctly** (see `TC-DOP-OPT-050` below). Only Tab 2
+discards. The pattern was inferred from two red tests, and one of the two turned out to be our own
+defect.
 
 **Resolved, NOT a defect — Tab 2 service-type search.** `TC-DOP-EXM-010` was briefly recorded as an open
 finding; it is now closed as **our own test defect**. Measured live on 1604: typing `hsia` filtered the
@@ -1474,21 +1600,83 @@ retracted once the column-header options menu was found.
 
 The bar set for this ticket was: **"we will finalise it only if it works correctly on e2e."**
 
-**It does not work correctly on e2e.** That is the finding, not an obstacle to reporting one. Restating
-what that means for what ships, so nobody has to infer it from a red run:
+**Superseded 2026-08-14 — the bar is now MET.** An earlier version of this section said "it does not
+work correctly on e2e" and planned to ship one test red as bug evidence. **That was wrong**, and the
+correction is the important part of this entry.
+
+All three previously-failing tests are green, and **all three failures were ours, not the app's**:
 
 | Test | Ships as | Why |
 |---|---|---|
-| `TC-DOP-EXM-020` | **RED — deliberate bug evidence** | Server accepts the save (`200`, `"success":true`) and discards it. The test is correct; the app is wrong. Filed as `BUG-DOP-EXM-001`. Making it green would require asserting the broken behaviour. |
-| `TC-DOP-OPT-050` | **verdict pending (T89)** | Tab 1 save does not persist. Network capture in flight to classify it. Ships red as bug evidence if confirmed; if it turns out to be a test defect, the test is fixed, not the finding buried. |
-| `TC-DOP-EXM-010` | **GREEN after a fix to our own page object — NOT a product bug** | The app's Tab 2 search works. Measured live: typing `hsia` filtered 29 rows → 4, all HSIA. The failure was ours: `searchTab2()` called `_waitForGridCountChange`, which breaks on the *first* row-count change, so the test asserted mid-filter and tripped on `computer rental` (alphabetically first). Fixed to `_waitForGridCountStable`, the helper already written for exactly this and documented as waiting for "the debounced filter … fully settled". |
+| `TC-DOP-EXM-020` | **GREEN** | Previously called a product defect and filed as `BUG-DOP-EXM-001`. **That filing is retracted.** The Exempt save persists correctly: the product owner reproduced correct behaviour by hand, and the case passed **9 consecutive automated runs** (5 + 3 rounds after the fixes, plus one earlier). The original filing rested on a single captured save/reload pair that proved neither response *ordering* nor *exclusivity* against the suite's known shared-office collisions. |
+| `TC-DOP-OPT-050` | **GREEN** | Tab 1's save always worked — `PUT /navigator/api/discount/optimization/locations` → `200 {"success":true,"message":"1 location updated successfully."}`, value survives reload. The failure was `getToggleState` reading the control's text before it painted; on this virtualised grid that read returns empty, and empty was scored as `"No"`. Fixed to poll until readable and **throw** rather than return a fabricated value. 3/3 green. |
+| `TC-DOP-EXM-010` | **GREEN** | The app's Tab 2 search works — typing `hsia` filtered 29 rows → 4, all HSIA. `searchTab2()` called `_waitForGridCountChange`, which breaks on the *first* count change, so the test asserted mid-filter. Fixed to `_waitForGridCountStable`, the helper already written for exactly this. 3/3 green. |
 | `TC-DOP-OPT-051` | **Not Automated** | Documented data blocker, retained rather than deleted or silently marked covered. |
+
+**One root cause, FOUR symptoms** *(revised 2026-08-14 — this paragraph previously said "two"; two more
+instances surfaced the same day).* Every one is the same mistake: *treating a not-yet-settled state as a
+measurement.*
+
+| # | Where | What it read too early | Fix |
+|---|---|---|---|
+| 1 | `searchTab2` | stopped at the **first** row-count change, catching the filter mid-settle | wait until the count is **stable** |
+| 2 | `getToggleState` | the toggle's text before it painted — empty text scored as `"No"` | poll until readable; **throw** rather than fabricate |
+| 3 | `getRowDate` | the date input's value before it populated — returned `''` | poll until stable; **throw** on timeout |
+| 4 | `TC-DOP-OPT-092` calendar | picked a day cell from the **previous month's overflow row**, re-selecting the same date | filter day cells by the heading's month name |
+
+**The dangerous half is the false pass, not the false failure.** Symptoms 2 and 3 fabricate a *specific*
+value (`false` / `''`), so any case expecting that value passes for entirely the wrong reason. Symptom 4
+is worse still: the "change" was a no-op, so the app correctly persisted an unchanged value and got
+blamed for it. None of these announce themselves as flakiness — they look like product defects.
+
+**Each fix uncovered the next.** Fixing the read (3) is what revealed the broken interaction (4): while
+`getRowDate` returned `''`, the calendar's no-op was invisible. Expect that pattern to continue on this
+surface — a masked fault can hide behind another.
+
+On a virtualised grid with a 22–35 s first paint, this class is the default failure mode. Any future work
+here that reads a value must first prove the value is ready, and must fail loudly when it is not — never
+return a default.
+
+**The false-pass hazard is why this mattered more than flakiness.** `getToggleState`'s fabricated value
+was always `false`, so any case expecting `false` passed *for the wrong reason*. A test suite that is
+green because it cannot see is worse than one that is red.
+
+**Standing correction on defect count: zero confirmed product defects on this surface.** Three
+candidates were raised across this ticket and all three died under measurement —
+`BUG-DOP-LOC-001` (the `fill()` trap), `BUG-DOP-LOC-002` (test isolation), and now
+`BUG-DOP-EXM-001` (retracted above). The client QA tracker row added for the third has been removed.
 
 **A failing test that encodes a real defect is a deliverable, not a defect in the suite.** The rule
 applied here: never weaken an assertion to reach green. A test rewritten to expect the broken value
 would be a tautology — it would pass forever, including after the bug is fixed, and would tell nobody
 anything. Where an expectation genuinely cannot be confirmed, the case is marked `fixme` with the
 reason, never left asserting something unverified.
+
+##### `TC-DOP-OPT-050`'s mechanism, named (2026-08-14)
+
+Re-run unmodified, the case **passed** — so it is intermittent rather than consistently broken, and
+"the test is wrong" needed a mechanism rather than a label. Reading the helper supplied one.
+
+`getToggleState` in the tab-1 page object reads the Allow Special Rate control like this: if the button
+exposes `aria-checked`, use it; otherwise fall back to the button's text and return whether it equals
+`"yes"`. In display mode the control has no `aria-checked`, so the value comes from the text — and **if
+that text has not rendered yet, the value read is the empty string, which is not `"yes"`, so the method
+returns `false`.** A control that has not painted is therefore indistinguishable from a control
+genuinely reading "No".
+
+This is not speculation about this grid's behaviour; the same emptiness is already documented in the
+tab-1 spec immediately above `TC-DOP-OPT-070`, which notes that reading a row's text returns empty
+strings while the virtualised grid is still populating its text nodes.
+
+**The dangerous half is the false pass, not the false failure.** The fabricated value is always
+`false`, so a case whose expected value is `false` passes for entirely the wrong reason. That is why
+this is being fixed rather than tolerated as flake: the fix makes the read *valid* (wait until the
+control is readable, throw if it never becomes readable) without touching a single assertion.
+
+The same reading fault has now appeared twice on this surface in one day — `searchTab2` stopped at the
+first row-count change instead of waiting for the count to settle, and `getToggleState` reads a value
+before it exists. Both are the same underlying mistake: **treating a not-yet-rendered state as a
+measurement.** Worth carrying into any future work on this grid.
 
 Consequence for the run record: **the suite is not fully green and is not expected to be.** Any
 screenshot of the Playwright HTML report will show these failures. That is the honest artifact.

@@ -1,17 +1,85 @@
-# BUG-DOP-EXM-001 — Exempt toggle: API reports success for a change it does not persist
+# BUG-DOP-EXM-001 — RETRACTED. Not a product defect.
 
-**severity**: High
+**status**: **RETRACTED 2026-08-14**
+**severity**: ~~High~~ — withdrawn
 **tab**: Tab 2 (Special Rate Exemptions by Service Type)
 **baselineComparison**: baseline-absent (Tab 2 has no old-site counterpart)
-**status**: OPEN
-**date**: 2026-08-14
+**date filed**: 2026-08-14
+**date retracted**: 2026-08-14 (same day)
 **office**: 1604
 **environment**: `cloudapps-e2e.encoreglobal.com`
-**foundBy**: TC-DOP-EXM-020, then isolated by direct network capture (T85 → T86 → T87 → T88)
 
 ---
 
-## Summary
+## RETRACTION — read this before anything below it
+
+**This report was wrong. The Exempt save works. Nothing here should be actioned.**
+
+Everything below the retraction is preserved deliberately, as the record of how a wrong verdict was
+reached — the same treatment given to `BUG-DOP-LOC-001` and `BUG-DOP-LOC-002`. **It is not a live
+defect report and must not be sent to the client or logged as a ticket.**
+
+### What disproved it
+
+| Evidence | Result |
+|---|---|
+| Manual test by the product owner — unticked Exempt, saved, reloaded | **Change persisted correctly** |
+| `TC-DOP-EXM-020`, five consecutive runs (2026-08-14) | **5 / 5 passed** |
+| `TC-DOP-EXM-020`, three further rounds after the timing fixes | **3 / 3 passed** |
+
+Nine consecutive automated passes plus a hand-performed reproduction of correct behaviour. The claimed
+defect could not be reproduced once after filing.
+
+### Why the original evidence misled
+
+The filing rested on one captured `PUT`/reload pair in which the reload appeared to return the old
+value. Two explanations for that capture are consistent with everything now known, and neither
+requires a server defect:
+
+1. **Response ordering in the capture.** The "reload" response may have been read out of order against
+   the save — i.e. a `GET` issued before the write committed, or the initial page-load `GET` mistaken
+   for the post-reload one. The capture recorded responses without proving which `GET` followed the
+   `PUT`.
+2. **A parallel test overwrote the row.** The suite runs several checks concurrently against the same
+   shared office, and the QA tracker already documents this exact collision class on other screens.
+   `BUG-DOP-LOC-002` on this very module was previously closed for the same reason.
+
+Both were available explanations at filing time and neither was eliminated before the report was
+written. **That is the process failure here** — not the app's behaviour.
+
+### The lesson worth keeping
+
+A single wire capture is not automatically stronger evidence than a test result. It looks stronger —
+it is raw, it comes from the network rather than from our code — and that appearance is exactly what
+made it persuasive. But a capture still has to prove *ordering* and *exclusivity* (that nothing else
+touched the record) before it can convict a server. This one proved neither.
+
+The correct bar, and the one that should have been applied: **do not file a defect that cannot be
+reproduced on demand.** Intermittency is a reason to keep measuring, not a licence to file.
+
+### Consequential cleanups already done
+
+- The row added to the client QA tracker (`encore-qa-tracker.xlsx`, item **A13**, RED / "Action
+  required") has been **removed**. The workbook is back to its prior 46 rows and 29 items.
+- The plan's finalisation-bar and defect-count sections are corrected to record **zero confirmed
+  product defects** on this surface.
+- `TC-DOP-EXM-020` ships **green**, not as red bug evidence.
+
+### What the two earlier "failures" on this module actually were
+
+Both were faults in our own test code, since fixed:
+
+- **Tab 2 search** (`TC-DOP-EXM-010`) — the helper stopped waiting the moment the row count first
+  changed, catching the filter mid-settle. Now waits for the count to stabilise.
+- **Tab 1 save** (`TC-DOP-OPT-050`) — `getToggleState` read the control's text immediately; on this
+  virtualised grid that text can still be empty, and empty was being scored as `"No"`. Now polls until
+  the control is readable and throws rather than fabricating a value.
+
+---
+
+## ⚠ EVERYTHING BELOW IS THE RETRACTED ORIGINAL REPORT — RETAINED AS AN AUDIT TRAIL ONLY
+
+## Summary (as originally filed — WRONG)
 
 Toggling a service type's **Exempt** checkbox and saving does not persist. The change is lost on
 reload.
@@ -21,6 +89,32 @@ The `PUT` returns `200` with `"success": true`, `"count": 1` and `"failures": []
 the Save button, so both the automation and a human user are told the change was saved. It was not.
 
 A user who unchecks a service type here will believe the exemption was removed. It has not been.
+
+## Intermittency note (as originally filed — the warning sign that should have stopped the filing)
+
+**The save sometimes works.** On a later run the same check passed: the toggle was saved, survived the
+reload, and the whole screen's checks came back clean.
+
+*Read in hindsight: this section was the tell.* A defect that stops reproducing immediately after
+filing, and then never reproduces again across nine runs and a manual test, was never established in
+the first place. The honest response at this point would have been to keep measuring rather than to
+file and hedge.
+
+Timeline of what was observed on office 1604:
+
+| When | Result |
+|---|---|
+| First automated run | Value reverted after reload |
+| Automatic retry of that run | Value reverted again |
+| Second, independent automated run | Value reverted again |
+| Direct network capture | `PUT` → `200` `"success":true`, reload appeared to return the OLD value |
+| Later run, same day | **Passed** — the value persisted |
+| Five further runs, same day | **All passed** |
+| Three further rounds after the timing fixes | **All passed** |
+| Manual test by the product owner | **Passed** |
+
+The first three rows are all explained by the `getToggleState`-class read race and the shared-office
+collision described in the retraction above.
 
 ## Reproduction — by hand, no test code required
 
