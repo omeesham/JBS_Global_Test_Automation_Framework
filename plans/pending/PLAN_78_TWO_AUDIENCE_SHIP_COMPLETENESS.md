@@ -35,7 +35,7 @@ Root cause, verified by execution this session: **gates resolve inputs against t
 
 | Lot | Ticket | Model | Charter | State at authoring |
 |---|---|---|---|---|
-| A1 | `.claude/state/ua-worker/chips/g78/tickets/a1-closure-gate-clone-census.md` | opus | closure gate over all 641 tracked plans in a detached worktree | running |
+| A1 | ticket `a1-closure-gate-clone-census` (worker chip, local only) | opus | closure gate over all 641 tracked plans in a detached worktree | running |
 | A2 | `.../a2-npm-gate-battery-clone.md` | gpt-5.5 | the 49 npm gate scripts + 3 git hooks in a detached worktree | running |
 | B | `.../b-client-overship-audit.md` | gpt-5.5 | ship simulation, survivor adjudication, 4 fence attacks | running |
 | C | `.../c-referenced-but-untracked-sweep.md` | opus | static sweep: every path the repo names vs `git ls-files` | **landed clean** (ledger `exit 0, ok true`) |
@@ -86,7 +86,7 @@ Fight-Protocol (delegation-temp §Fight-Protocol) instantiated. **Review is neve
 - Council aligns → CEO accepts → implementable, **except**:
 - **Rutvik-only, always**: gate loosenings (exemption / allowlist entry / threshold change — council may recommend, never execute) · new tracking under `clients/<id>/` (creates a ship candidate) · anything touching the assistant-layer secrecy boundary · deletions (archive-move + prune-check + per-item confirm) · pushes · the tracker-workbook commit (client-facing artifact).
 - **Strengthen-vs-loosen rule**: deny-glob ADDITIONS and check-coverage EXTENSIONS are strengthenings — implementable after council alignment + CEO accept, but still listed in the Phase 3 GO batch when client-visible, because the client deliverable's content changes.
-- `PLAN_REPO_MARKER_AND_PAIRING_REMEDIATION.md` stays local permanently (quotes scrubbed personal data). Any council output proposing to ship it is evidence the analysis is wrong, not grounds to ship it. `.auth/**` and `.playwright-cli/storage-state-*.json` are never tracked under any reasoning.
+- The repo-marker and pairing-remediation plan stays local permanently (it quotes scrubbed personal data). Any council output proposing to ship it is evidence the analysis is wrong, not grounds to ship it. Saved browser-session files under `.auth/` and `.playwright-cli/` are never tracked under any reasoning.
 
 **Evidence law** (the acceptance contract for every dispatch in this plan — learned from this goal's own measured failures, including the dispatcher's):
 
@@ -181,8 +181,8 @@ No new mechanism in this plan layers over an unconvicted failed fix: M1 rewires 
 ## NOT touched
 
 - `validate-plan-closure.mjs` verdict logic, closure/guardrail-config ramp values, `walk-unresolved-allowlist.json` — no exemptions, no thresholds, no verdict-logic edits anywhere.
-- `plans/pending/PLAN_REPO_MARKER_AND_PAIRING_REMEDIATION.md` — never shipped, never tracked, never cited into tracked files.
-- `.auth/**`, `.playwright-cli/storage-state-*.json` — never tracked; the 2026-05 history blob's filter-repo remediation stays out-of-scope (separate security follow-up, already on record).
+- The repo-marker and pairing-remediation plan (held in `plans/pending/`, untracked) — never shipped, never tracked, never cited by path into tracked files.
+- Saved browser-session files under `.auth/` and `.playwright-cli/` — never tracked; the 2026-05 history blob's filter-repo remediation stays out-of-scope (separate security follow-up, already on record).
 - `encore-mock` / `encore_deliverables_test` — nothing is pushed there by this plan, ever.
 - PLAN_75 / PLAN_68 scope and their in-flight working-tree files; PLAN_74's gate-defect ownership; PLAN_77's landed commits.
 - `copilot-worker.sh`, `worker-ext.md`, `~/.claude/**` control surfaces — PROTECTED; nothing here edits them (M1 edits `/push-repo` skill + adds a script, which are not on the PROTECTED list).
@@ -241,7 +241,7 @@ Every count below states its scope. Where two lots disagreed, the reconciliation
 | L8c | Scope reconciliation: an earlier lot reported 209/241. Its capture was **truncated** — footer landed at line 240 with 5 verdicts after it. `git ls-files 'plans/done/*.md'` = 477 confirms A1T | A2 vs A1T | A1T's 419/477 is authoritative |
 | L9 | `npm run lint` red on a clean clone — 428 problems (234 errors), incl. `website/frontend/vite.config.ts` linted but excluded from `tsconfig.json` | A2 | Blocks every colleague from clone onward |
 | L10 | `npm run plans:reindex:check` red on a clean clone — "INDEX.md is STALE" | A2 | Likely downstream of L1; verify before fixing |
-| L11 | `npm run xlsx:freshness` aborts without `.auth/encore-state.json` | A2 | SETUP-STEP — and the **model failure**: it names its own unlock. Hold it up as the pattern |
+| L11 | `npm run xlsx:freshness` aborts without a saved browser session under `.auth/` | A2 | SETUP-STEP — and the **model failure**: it names its own unlock. Hold it up as the pattern |
 | L12 | Setup README Step 4's stated expected output is wrong — the verification command emits a session warning and exits 2 | D | FIX-REFERENCE |
 | L13 | **Denominator gap**: A2 executed 17 of 49 npm gates; 32 unmeasured. Hook analysis never ran | A2 | Carry as an explicit gap in every downstream table; close in Phase 5 |
 | L14 | **Denominator gap**: C classified 141 of 5,903 raw reference hits (2.4%) | C | Strata decision per §Completeness — Rutvik ratifies the tail scope-out |
@@ -254,7 +254,7 @@ Every count below states its scope. Where two lots disagreed, the reconciliation
 | K2 | **REVEALS** — the shipped `clients/encore/.gitignore` carries our own words: "Agent-internal artifacts kept on disk but never shipped", "Internal artifacts — never ship to client", naming `CLAUDE.md` and `.auth/` | B3 (verified by CEO) | Reword the shipped copy; it discloses posture, not secrets |
 | K3 | **REVEALS** — `src/utils/field-case-runner.ts:37-38,117` comments disclose the internal repo layout and an internal receipt path | B3 | Reword comments |
 | K4 | **REVEALS** — `src/fixtures/label-jargon.json` ships our shorthand list, and **no shipped script references it** | B3 | Dead weight plus disclosure — strongest case for removal from the ship |
-| K5 | **REVEALS** — a skipped spec hard-codes `clients/encore/.auth/encore-state.json`; inert while skipped, breaks on unskip | B3 | Repoint to the generated relative path |
+| K5 | **REVEALS** — a skipped spec hard-codes an absolute path to the client's saved browser session under `.auth/`; inert while skipped, breaks on unskip | B3 | Repoint to the generated relative path |
 | K6 | **Latent** — the dated-script deny pattern is written for full repo paths; ship passes **stripped** paths, so it cannot fire. Verified by CEO with both controls behaving | B2 (verified by CEO) | Strengthening: fix the pattern's path form |
 | K7 | **Latent** — an empty or malformed exclusion list is not independently detected; `ship-client.sh` continues. Caught today only by a later check | B2 | Strengthening: assert the list is non-empty |
 | K8 | **5 of 35 modified workbooks DEGRADED.** Tracker: fills 5→2, solidFills 3→0, red/yellow/green RGB → none, styleAttrs 131→0 — its severity legend arrives dead. The other 4 lost 2 column-width definitions per sheet alongside legitimate row growth. All 35 CONTENT-CHANGED; 0 REGENERATED-EQUIVALENT | W1b2 (control fired) | Repair the tracker before any commit; the other 4 are cosmetic, batch-fix |
