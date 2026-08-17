@@ -1,0 +1,18 @@
+Pre-flight HEAD status: 308
+Pre-flight PASS
+Navigating to https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/discount-optimization-settings
+Detecting grid row selectors...
+Selector probe — .ag-row: 0, .ag-cell: 0, table tbody tr: 37, [role=row]: 0
+Using selectors: row=table tbody tr, cell=td, container=table
+Polling footer for non-zero count...
+Footer text: "SaveAddIDLocation NameAllow Special RateSpecial Rate Start Date1115The Abbey ResortYes1121InterContinental ChicagoYes1133The DagnyYes1134Boston Marriott Copley PlaceNo1137Hotel del CoronadoNo1142Hitlon Arlington National LandingNo1143Sheraton Stamford Hotel deactivatedNo1144Renaissance Baton Rouge HotelNo1145Hilton Dallas/Park CitiesNo1146The St. Regis Bal Harbour ResortNo1147Sheraton Pentagon City HotelNo1151The Westin New York Grand Central-DEACTIVATEDNo1152The Westin Kansas City at Crown CenterNo1154Sheraton Kansas City Hotel at Crown CenterNo1159Fairmont Olympic Hotel, SeattleNo1169The Kahala Hotel & ResortNo1172Hyatt Regency ValenciaNo1173Hilton Columbus DowntownNo1174Seaview, A Dolce HotelNo1175The Westin St. Francis on Union SquareNo1176Viewline SnowmassNo1178Salt Palace Convention CenterNo1179The Westin Bonaventure Hotel & Suites, Los AngelesNo1180DoubleTree by Hilton Hotel Philadelphia - Valley FNo1186The Bellevue HotelNo1187The Westin Cincinnati Fountain SqNo1191InterContinental Los Angeles Century CityNo1193The Maxwell NYC Hotel - DeactivatedNo1194Hilton DFW Lakes Executive Conference CenterNo1198Hilton AnatoleNo1200Hyatt Regency Coconut Point Resort & SpaNo1202Condado Vanderbilt HotelNo1203Ocean Place Resort & Spa- DEACTIVATEDNo1205Hyatt Regency ColumbusNo1207The Sheraton Columbus onCapitol Square-DEACTIVATEDNo1209Hyatt Regency PrincetonNo2154 locations found"
+Rendered rows at rest: 37
+Location Name column index: 2
+Detected scroll container: div.w-full.overflow-x-auto.overflow-y-auto.flex-1.min-h-0
+First row: "The Abbey Resort"
+Scrolling to bottom...
+Last row: "BRM Training Location #1"
+Starting scroll coverage pass...
+Middle row: "Four Seasons Hotel Denver-DEACTIVATED"
+Distinct names observed: 2148 / footer total: 1115 — REACHED
+Census complete. JSON written to: C:/Encore Framework/.claude/state/ua-worker/chips/discount-optimization/gap-closure/out-T96B/dop-grid-census-1604.json

@@ -1,0 +1,46 @@
+{
+  "selectorConfirmation": {
+    "assumed": "AG Grid",
+    "confirmed": false,
+    "fallback": "HTML table",
+    "rowSelector": "table tbody tr",
+    "cellSelector": "td",
+    "gridContainer": "table",
+    "probeCounts": {
+      "trCount": 37
+    }
+  },
+  "footer": {
+    "verbatim": "2154 locations found"
+  },
+  "virtualisation": {
+    "renderedRowsAtRest": 37,
+    "footerTotal": 2154,
+    "isVirtualised": true
+  },
+  "locationNameColIdx": 2,
+  "detectedScrollContainer": "div.w-full.overflow-x-auto.overflow-y-auto.flex-1.min-h-0",
+  "boundaryRows": {
+    "first": "The Abbey Resort",
+    "last": "BRM Training Location #1",
+    "middle": "Four Seasons Hotel Denver-DEACTIVATED"
+  },
+  "scrollCoverage": {
+    "distinctNamesObserved": 2148,
+    "footerTotal": 2154,
+    "reachedFooterTotal": false,
+    "shortfall": 6,
+    "sampleNames": [
+      "The Abbey Resort",
+      "InterContinental Chicago",
+      "The Dagny",
+      "Boston Marriott Copley Place",
+      "Hotel del Coronado",
+      "Hitlon Arlington National Landing",
+      "Sheraton Stamford Hotel deactivated",
+      "Renaissance Baton Rouge Hotel",
+      "Hilton Dallas/Park Cities",
+      "The St. Regis Bal Harbour Resort"
+    ]
+  }
+}
