@@ -5,6 +5,7 @@
 // Each test is structured so it FAILS against the pre-fix code.
 
 import { deriveFieldType, waitReady, waitReadyContent, enumerateState, renavigateToOrigin, deriveAllFieldTypes, entryKeyToSelector, resolveBranchOpener, MODULE_CONFIG } from '../enumerate-page.mjs';
+import { inPageEnumerate } from '../lib/deep-pierce.mjs';
 
 let passed = 0;
 let failed = 0;
@@ -505,6 +506,129 @@ console.log('\nPLAN_76 F: dead page (legacy numeric mock, nothing renders) throw
   assert('dead page still throws loudly', threw, 'silent partial forbidden');
   assert('timeout message reports census alongside testids',
     msg.includes('census'), `got: ${msg}`);
+}
+
+// ─── g76 Defect 1: readiness must scope to <main>, not document ──────────────────
+// A stable app-shell (document-level census constant) with <main> content arriving late
+// must NOT declare ready before late content lands. Pre-fix: waitReady walked document,
+// so stable chrome satisfied the window while <main> was empty.
+console.log('\ng76 Defect 1: stable app-shell does NOT satisfy readiness while <main> content arrives late');
+{
+  // Simulate: first 5 polls return stable chrome (as if document had stable buttons),
+  // then content appears in <main> (census jumps), then stabilizes.
+  // Under the fix, waitReady calls inPageEnumerate('main') — so the mock must return
+  // the inPageEnumerate shape scoped to <main> content only.
+  // Polls 0-4: <main> is empty (no entries, 0 scanned) — CONTAINER_NOT_FOUND throw
+  // Polls 5+: <main> appears with content that stabilizes
+  let pollCount = 0;
+  const mockPage = {
+    evaluate: async () => {
+      pollCount++;
+      if (pollCount <= 5) {
+        // <main> not yet mounted — inPageEnumerate throws CONTAINER_NOT_FOUND
+        throw new Error('CONTAINER_NOT_FOUND: no <main> element found on http://test.local/page. Refusing to enumerate — no fallback to document.');
+      }
+      // <main> now mounted with content — return inPageEnumerate shape
+      return { entries: [{ key: 'testid:field-1' }, { key: 'role:button|Save' }], candidates: [], stats: { scanned: 50, shadowHosts: 0, uniqueKeys: 2 } };
+    },
+    waitForTimeout: async () => {},
+  };
+  let ready = false, msg = '';
+  try { await waitReady(mockPage, { interval: 10, timeout: 2000 }); ready = true; }
+  catch (err) { msg = err.message; }
+  assert('readiness waits for <main> to appear (not satisfied by chrome)', ready, `got: ${msg}`);
+  assert('needed >5 polls (waited for <main> to mount)', pollCount > 5,
+    `declared ready after ${pollCount} polls — pre-fix would fire on stable document chrome immediately`);
+}
+
+// ─── g76 Defect 2: kinds absent from old narrow selector still hold readiness open ─────
+// Late content composed ONLY of kinds absent from the old KINDS selector (data-testid-only,
+// summary, iframe, tabindex) must still register in the census. Pre-fix: waitReady used a
+// narrow KINDS selector that missed these; post-fix uses inPageEnumerate's matchReasonA.
+console.log('\ng76 Defect 2: late content with only non-KINDS elements (testid, summary, iframe, tabindex) holds readiness');
+{
+  // Simulate: first 3 polls show a small <main> with 1 button, then content arrives
+  // composed only of elements the OLD narrow selector missed (testid-only divs, summary, iframe).
+  // Under the fix, these count as interactive (matchReasonA matches them), so census jumps.
+  let pollCount = 0;
+  const mockPage = {
+    evaluate: async () => {
+      pollCount++;
+      if (pollCount <= 3) {
+        // Small initial state — 1 button
+        return { entries: [{ key: 'role:button|OK' }], candidates: [], stats: { scanned: 10, shadowHosts: 0, uniqueKeys: 1 } };
+      }
+      if (pollCount <= 5) {
+        // Late content arrives: testid-only divs, summary, iframe, tabindex spans
+        return { entries: [
+          { key: 'role:button|OK' }, { key: 'testid:widget-1' }, { key: 'testid:widget-2' },
+          { key: 'struct:summary|Details|form' }, { key: 'struct:iframe||content' },
+          { key: 'struct:span|helper|tabindex' },
+        ], candidates: [], stats: { scanned: 80, shadowHosts: 0, uniqueKeys: 6 } };
+      }
+      // Stabilizes at 6
+      return { entries: [
+        { key: 'role:button|OK' }, { key: 'testid:widget-1' }, { key: 'testid:widget-2' },
+        { key: 'struct:summary|Details|form' }, { key: 'struct:iframe||content' },
+        { key: 'struct:span|helper|tabindex' },
+      ], candidates: [], stats: { scanned: 80, shadowHosts: 0, uniqueKeys: 6 } };
+    },
+    waitForTimeout: async () => {},
+  };
+  let ready = false, msg = '';
+  try { await waitReady(mockPage, { interval: 10, timeout: 2000 }); ready = true; }
+  catch (err) { msg = err.message; }
+  assert('late non-KINDS content eventually becomes ready', ready, `got: ${msg}`);
+  assert('did NOT declare ready during the 1-element phase (waited for late content)',
+    pollCount > 5,
+    `declared ready after ${pollCount} polls — pre-fix narrow KINDS missed these elements so census=1 was stable`);
+}
+
+// ─── g76 Defect 3: waitReady calls inPageEnumerate with 'main' (real path proof) ─────
+// Proves the ACTUAL function+arg passed to page.evaluate is inPageEnumerate and 'main'.
+// Fails if waitReady is reverted to a hand-rolled selector or document scope.
+console.log('\ng76 Defect 3: waitReady invokes inPageEnumerate with container arg "main"');
+{
+  let capturedFn = null, capturedArg = null, pollCount = 0;
+  const mockPage = {
+    evaluate: async (fn, ...args) => {
+      pollCount++;
+      capturedFn = fn;
+      capturedArg = args[0];
+      // Return stable result immediately so it resolves after CENSUS_STABLE_READS
+      return { entries: [{ key: 'testid:a' }, { key: 'testid:b' }, { key: 'testid:c' },
+                         { key: 'testid:d' }, { key: 'testid:e' }, { key: 'testid:f' },
+                         { key: 'testid:g' }, { key: 'testid:h' }, { key: 'testid:i' }],
+               candidates: [], stats: { scanned: 20, shadowHosts: 0, uniqueKeys: 9 } };
+    },
+    waitForTimeout: async () => {},
+  };
+  await waitReady(mockPage, { interval: 10, timeout: 2000 });
+  assert('page.evaluate receives inPageEnumerate (the shared enumerator function)',
+    capturedFn === inPageEnumerate,
+    `got different function: ${capturedFn && capturedFn.name}`);
+  assert('page.evaluate receives "main" as the container argument',
+    capturedArg === 'main',
+    `got arg: ${JSON.stringify(capturedArg)}`);
+}
+
+// ─── g76 Finding 2: genuine errors surface in timeout message (LR-003) ──────────────
+console.log('\ng76 Finding 2: genuine evaluate errors are surfaced in timeout message');
+{
+  let pollCount = 0;
+  const mockPage = {
+    evaluate: async () => {
+      pollCount++;
+      throw new Error('Serialization failed: cannot serialize function');
+    },
+    waitForTimeout: async () => {},
+  };
+  let msg = '';
+  try { await waitReady(mockPage, { interval: 10, timeout: 80 }); }
+  catch (err) { msg = err.message; }
+  assert('timeout message includes WAIT_READY_TIMEOUT', msg.includes('[WAIT_READY_TIMEOUT]'), `got: ${msg}`);
+  assert('timeout message includes the actual error text', msg.includes('Serialization failed'),
+    `error not surfaced in timeout: ${msg}`);
 }
 
 console.log(`\n=== ${passed} passed, ${failed} failed ===`);

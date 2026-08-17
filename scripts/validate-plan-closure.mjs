@@ -806,6 +806,32 @@ function checkC6(body) {
 // NON-overridable like C2-C6 — remediate by completing the walk, not by a per-token escape.
 const WALK_ARTIFACT_RX = /(?:field-inventories|old-site-baseline)\/[^/\s]+\.md$/;
 
+function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function isArtifactOwner(body, artifactRelPath) {
+  const pathRx = new RegExp(escapeRegExp(artifactRelPath));
+  const lines = body.split('\n');
+
+  const matrix = parsePerIdentityMatrix(body);
+  if (matrix && !matrix.malformed) {
+    for (const row of matrix.rows) {
+      // Cx applies only when the plan declares this walk artifact as its own deliverable.
+      if (pathRx.test(row.concreteDeliverable || '')) return true;
+    }
+  }
+
+  for (const line of lines) {
+    // Checklist ownership is explicit when the item says the plan emits or maintains the artifact.
+    if (/^-\s*\[[ xX]\]/.test(line) && /\b(Emit|Update|Author|Produce)\b/i.test(line) && pathRx.test(line)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function checkCx(body, planPath, landingDate, cliCoverageTierMode) {
   const items = [];
   // Parse the plan's declared CoverageMode (absent = 'deep' by contract — conservative default).
@@ -820,7 +846,8 @@ function checkCx(body, planPath, landingDate, cliCoverageTierMode) {
   // negative tests would no-op. So: exclude fixture citations unless the plan itself is a fixture.
   const planIsFixture = normalizePath(planPath).includes('test-fixtures/');
   const cited = extractCitedPaths(body).map(normalizePath)
-    .filter(p => WALK_ARTIFACT_RX.test(p) && (planIsFixture || !p.includes('test-fixtures/')));
+    .filter(p => WALK_ARTIFACT_RX.test(p) && (planIsFixture || !p.includes('test-fixtures/')))
+    .filter(p => isArtifactOwner(body, p));
   const seen = new Set();
   for (const rel of cited) {
     if (seen.has(rel)) continue;
@@ -1616,6 +1643,60 @@ function runSelfTest() {
       passed++;
     } else {
       console.log(`  [FAIL] CR-FAIL-FOLDS-UNDER-DENY: validatePlan(fail-absent-artifact.md) → expected FAIL, got ${vpFail.status}`);
+      failed++;
+    }
+  }
+
+  // Targeted Cx ownership-scoping assertions (cx-scoping/ subdirectory — not swept by generic loop above).
+  const cxScopingDir = join(REPO_ROOT, 'scripts', 'test-fixtures', 'cx-scoping');
+  const cxCases = [
+    {
+      name: 'CX-OWNER-CHECKLIST-FAILS',
+      file: 'owner-checklist-plan.md',
+      expectPlan: 'FAIL',
+      expectCheck: 'Cx',
+      expectCheckStatus: 'FAIL',
+    },
+    {
+      name: 'CX-OWNER-MATRIX-FAILS',
+      file: 'owner-matrix-plan.md',
+      expectPlan: 'FAIL',
+      expectCheck: 'Cx',
+      expectCheckStatus: 'FAIL',
+    },
+    {
+      name: 'CX-CITER-ONLY-PASSES',
+      file: 'citer-only-plan.md',
+      expectPlan: 'PASS',
+      expectCheck: 'Cx',
+      expectCheckStatus: 'PASS',
+    },
+    {
+      name: 'CX-EVASION-C6-STILL-FAILS',
+      file: 'evasion-c6-plan.md',
+      expectPlan: 'FAIL',
+      expectCheck: 'C6',
+      expectCheckStatus: 'FAIL',
+    },
+  ];
+  for (const tc of cxCases) {
+    const fixturePath = join(cxScopingDir, tc.file);
+    if (!existsSync(fixturePath)) {
+      console.log(`  [FAIL] ${tc.name}: fixture missing: ${fixturePath}`);
+      failed++;
+      continue;
+    }
+    const body = readFileSync(fixturePath, 'utf-8');
+    const result = validatePlan(body, fixturePath, {
+      overrideMode: 'enforce', forceCheck: true, c6Mode: 'deny', coverageMode: 'deny',
+      testStatusMode: 'off', recurrenceTrialMode: 'off', interactionCoverageMode: 'off',
+    });
+    const check = (result.checks || []).find(c => c.check === tc.expectCheck);
+    if (result.status === tc.expectPlan && check && check.status === tc.expectCheckStatus) {
+      console.log(`  [PASS] ${tc.name}: ${tc.file} → plan ${result.status}, ${tc.expectCheck} ${check.status}`);
+      passed++;
+    } else {
+      console.log(`  [FAIL] ${tc.name}: ${tc.file} → plan ${result.status}, ${tc.expectCheck} ${check ? check.status : 'missing'}; expected plan ${tc.expectPlan}, ${tc.expectCheck} ${tc.expectCheckStatus}`);
       failed++;
     }
   }

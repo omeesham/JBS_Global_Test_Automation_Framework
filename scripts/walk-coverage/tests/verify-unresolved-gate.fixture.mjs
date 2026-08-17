@@ -41,10 +41,12 @@ const walkedLabels = (moduleConfig?.requiredStates || []).map(s => s.label).join
 const artifactBase = `Walk_State : office=1101 module=${moduleName} walked=[${walkedLabels}]\n`;
 
 // Manifest rows matching entries
-function makeArtifact(keys) {
-  const rows = keys.map(k => `| ${k} | read-only-verified | - |`).join('\n');
+function makeArtifact(keys, dispositions = {}) {
+  const rows = keys.map(k => `| ${k} | ${dispositions[k] || 'read-only-verified'} | - |`).join('\n');
   return artifactBase + '\n## Coverage Manifest\n| Control Ref | Disposition | TC |\n|---|---|---|\n' + rows;
 }
+
+const UNDISPOSITIONED = '_undispositioned_';
 
 function writeJson(name, obj) {
   const p = join(tmp, name);
@@ -83,7 +85,9 @@ console.log('\n── 2. Unresolved controls → gate fires (mode-aware prefix c
     },
   };
   const jp = writeJson('one-unresolved.json', json);
-  const art = makeArtifact(['testid:btn-save', 'testid:btn-cancel']);
+  const art = makeArtifact(['testid:btn-save', 'testid:btn-cancel'], {
+    'testid:btn-cancel': UNDISPOSITIONED,
+  });
   const result = verifyDenominator(art, jp);
   const gateMsg = (result.reasons || []).find(r => r.includes('UNRESOLVED-PROBE-GATE'));
   // This assertion is mode-independent: the gate must always fire when there are unresolved probes.
@@ -99,6 +103,73 @@ console.log('\n── 2. Unresolved controls → gate fires (mode-aware prefix c
   } else {
     assert('deny mode: message does not carry [ANNOUNCE] prefix', gateMsg && !gateMsg.startsWith('[ANNOUNCE]'), gateMsg);
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════
+console.log('\n── 2a. Unresolved controls with valid manifest dispositions → gate does NOT fire ──');
+{
+  const json = {
+    entries: [
+      { key: 'testid:covered-field', status: 'VISIBLE' },
+      { key: 'testid:oos-field', status: 'VISIBLE' },
+    ],
+    derived_types: {
+      'testid:covered-field': { probe: 'unresolved', type: null, resolved: false },
+      'testid:oos-field': { probe: 'unresolved', type: null, resolved: false },
+    },
+  };
+  const jp = writeJson('valid-manifest-dispositions.json', json);
+  const art = makeArtifact(['testid:covered-field', 'testid:oos-field'], {
+    'testid:covered-field': 'covered-by-TC: TC-SVC-BAS-001',
+    'testid:oos-field': 'out-of-scope: outside-module shared application chrome control',
+  });
+  const result = verifyDenominator(art, jp);
+  const gateMsg = (result.reasons || []).find(r => r.includes('UNRESOLVED-PROBE-GATE'));
+  assert('valid manifest dispositions suppress unresolved-probe gate', !gateMsg, `got: ${gateMsg}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════
+console.log('\n── 2b. Unresolved controls without valid dispositions → gate still fires ──');
+{
+  const json = {
+    entries: [{ key: 'testid:undispositioned-field', status: 'VISIBLE' }],
+    derived_types: {
+      'testid:undispositioned-field': { probe: 'unresolved', type: null, resolved: false },
+    },
+  };
+  const jp = writeJson('undispositioned-unresolved.json', json);
+  const art = makeArtifact(['testid:undispositioned-field'], {
+    'testid:undispositioned-field': UNDISPOSITIONED,
+  });
+  const result = verifyDenominator(art, jp);
+  const gateMsg = (result.reasons || []).find(r => r.includes('UNRESOLVED-PROBE-GATE'));
+  assert('undispositioned unresolved key still fires the gate', !!gateMsg, 'no UNRESOLVED-PROBE-GATE message found');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════
+console.log('\n── 2c. Malformed manifest dispositions do NOT subtract unresolved controls ──');
+{
+  const json = {
+    entries: [
+      { key: 'testid:unknown-token', status: 'VISIBLE' },
+      { key: 'testid:oos-empty', status: 'VISIBLE' },
+      { key: 'testid:oos-short', status: 'VISIBLE' },
+    ],
+    derived_types: {
+      'testid:unknown-token': { probe: 'unresolved', type: null, resolved: false },
+      'testid:oos-empty': { probe: 'unresolved', type: null, resolved: false },
+      'testid:oos-short': { probe: 'unresolved', type: null, resolved: false },
+    },
+  };
+  const jp = writeJson('malformed-dispositions.json', json);
+  const art = makeArtifact(['testid:unknown-token', 'testid:oos-empty', 'testid:oos-short'], {
+    'testid:unknown-token': 'unknown-token: not a valid manifest disposition',
+    'testid:oos-empty': 'out-of-scope: ',
+    'testid:oos-short': 'out-of-scope: too short',
+  });
+  const result = verifyDenominator(art, jp);
+  const gateMsg = (result.reasons || []).find(r => r.includes('UNRESOLVED-PROBE-GATE'));
+  assert('malformed dispositions leave all unresolved keys counted', gateMsg && gateMsg.includes('3/3'), gateMsg || 'no UNRESOLVED-PROBE-GATE message found');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
@@ -150,7 +221,7 @@ console.log('\n── 5. Allowlist: valid reviewed entry exempts a key ──');
       },
     };
     const jp = writeJson('allowlisted.json', json);
-    const art = makeArtifact(['testid:btn-save']);
+    const art = makeArtifact(['testid:btn-save'], { 'testid:btn-save': UNDISPOSITIONED });
     const result = verifyDenominator(art, jp);
     const gateMsg = (result.reasons || []).find(r => r.includes('UNRESOLVED-PROBE-GATE'));
     assert('valid reviewed entry exempts the key (no gate fire)', !gateMsg, `got: ${gateMsg}`);
@@ -185,7 +256,7 @@ console.log('\n── 6a. Allowlist: unreviewed entry does NOT exempt ──');
       },
     };
     const jp = writeJson('allowlisted-unreviewed.json', json);
-    const art = makeArtifact(['testid:btn-save']);
+    const art = makeArtifact(['testid:btn-save'], { 'testid:btn-save': UNDISPOSITIONED });
     const result = verifyDenominator(art, jp);
     const gateMsg = (result.reasons || []).find(r => r.includes('UNRESOLVED-PROBE-GATE'));
     assert('unreviewed entry does NOT exempt (gate fires)', !!gateMsg, 'gate should fire');
@@ -216,7 +287,7 @@ console.log('\n── 6b. Allowlist: malformed entry (missing fields) does NOT e
       },
     };
     const jp = writeJson('allowlisted-malformed.json', json);
-    const art = makeArtifact(['testid:btn-save']);
+    const art = makeArtifact(['testid:btn-save'], { 'testid:btn-save': UNDISPOSITIONED });
     const result = verifyDenominator(art, jp);
     const gateMsg = (result.reasons || []).find(r => r.includes('UNRESOLVED-PROBE-GATE'));
     assert('malformed entry does NOT exempt (gate fires)', !!gateMsg, 'gate should fire');
@@ -251,7 +322,7 @@ console.log('\n── 6c. Allowlist: stale entry (empty key) does NOT exempt ─
       },
     };
     const jp = writeJson('allowlisted-stale.json', json);
-    const art = makeArtifact(['testid:btn-save']);
+    const art = makeArtifact(['testid:btn-save'], { 'testid:btn-save': UNDISPOSITIONED });
     const result = verifyDenominator(art, jp);
     const gateMsg = (result.reasons || []).find(r => r.includes('UNRESOLVED-PROBE-GATE'));
     assert('stale/empty-key entry does NOT exempt (gate fires)', !!gateMsg, 'gate should fire');
@@ -275,7 +346,7 @@ console.log('\n── 6d. Allowlist: unreadable file fails closed (gate fires) �
       },
     };
     const jp = writeJson('allowlisted-unreadable.json', json);
-    const art = makeArtifact(['testid:btn-save']);
+    const art = makeArtifact(['testid:btn-save'], { 'testid:btn-save': UNDISPOSITIONED });
     const result = verifyDenominator(art, jp);
     const gateMsg = (result.reasons || []).find(r => r.includes('UNRESOLVED-PROBE-GATE'));
     assert('unreadable allowlist fails closed (gate fires)', !!gateMsg, 'gate should fire');
@@ -305,7 +376,12 @@ console.log('\n── 7. 4-sort-button case (real data shape) still fires ──
     },
   };
   const jp = writeJson('sort-buttons.json', json);
-  const art = makeArtifact(['id:radix-sort-1', 'id:radix-sort-2', 'id:radix-sort-3', 'id:radix-sort-4', 'id:resolved-tab']);
+  const art = makeArtifact(['id:radix-sort-1', 'id:radix-sort-2', 'id:radix-sort-3', 'id:radix-sort-4', 'id:resolved-tab'], {
+    'id:radix-sort-1': UNDISPOSITIONED,
+    'id:radix-sort-2': UNDISPOSITIONED,
+    'id:radix-sort-3': UNDISPOSITIONED,
+    'id:radix-sort-4': UNDISPOSITIONED,
+  });
   const result = verifyDenominator(art, jp);
   const gateMsg = (result.reasons || []).find(r => r.includes('UNRESOLVED-PROBE-GATE'));
   assert('4 sort buttons fire the gate', !!gateMsg, 'no gate message');

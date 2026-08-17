@@ -208,28 +208,33 @@ const DOM_NODE_TOLERANCE = 2;  // absorbs spinner/animation churn; structural gr
 
 export async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300, timeout = 120000 } = {}) {
   void minTestids; // inert (see header note) — kept so existing callers/tests need no signature change
-  let lastT = -1, lastC = -1, lastN = -1, fastStable = 0, censusStable = 0, waited = 0;
+  let lastT = -1, lastC = -1, lastN = -1, fastStable = 0, censusStable = 0, waited = 0, lastError = '';
   while (waited < timeout) {
     let snap = null;
     try {
-      snap = await page.evaluate(() => {
-        const KINDS = 'button,input,select,textarea,a[href],[role=button],[role=combobox],[role=tab],[contenteditable]';
-        function walk(root, acc) {
-          const all = root.querySelectorAll('*');
-          acc.n += all.length;
-          for (const e of all) {
-            if (e.getAttribute && e.getAttribute('data-testid')) acc.t++;
-            if (e.matches && e.matches(KINDS)) acc.c++;
-            if (e.shadowRoot) walk(e.shadowRoot, acc);
-          }
-          return acc;
-        }
-        return walk(document, { t: 0, c: 0, n: 0 });
-      });
-    } catch { /* mid-navigation; retry */ }
+      // Single source of truth: uses inPageEnumerate scoped to <main> — the SAME function,
+      // scope, and kind predicate that enumerateState uses for the denominator. No second
+      // selector list can drift. CONTAINER_NOT_FOUND (no <main> yet) is caught and retried.
+      snap = await page.evaluate(inPageEnumerate, 'main');
+    } catch (err) {
+      // LR-003: distinguish expected retry conditions from genuine errors.
+      const msg = err && err.message || '';
+      if (msg.includes('CONTAINER_NOT_FOUND') || msg.includes('Execution context was destroyed') ||
+          msg.includes('frame was detached') || msg.includes('navigation')) {
+        // Expected during page load — retry silently.
+      } else {
+        // Genuine error (syntax, serialization, unexpected) — surface in timeout message.
+        lastError = msg;
+      }
+    }
     if (snap != null) {
-      // Legacy shape: a bare number means "testid count only" (older mocks/callers).
+      // Normalize result shape: inPageEnumerate returns {entries, stats}, legacy mocks return {t,c,n} or a number.
       if (typeof snap === 'number') snap = { t: snap, c: snap, n: snap };
+      else if (snap.entries && snap.stats) {
+        // Real inPageEnumerate result — derive t/c/n from the same data the denominator uses.
+        const t = snap.entries.filter(e => e.key && e.key.startsWith('testid:')).length;
+        snap = { t, c: snap.stats.uniqueKeys, n: snap.stats.scanned };
+      }
       const { t, c, n } = snap;
       // Fast path: label-rich page, same stability rule the old gate used — hard constant.
       if (t >= FAST_PATH_TESTIDS && t === lastT) { if (++fastStable >= stableReads) return t; } else fastStable = 0;
@@ -245,7 +250,7 @@ export async function waitReady(page, { minTestids = 8, stableReads = 2, interva
     waited += interval;
   }
   // Loud failure: a silently wrong denominator built on a partial load is worse than a crash.
-  throw new Error(`[WAIT_READY_TIMEOUT] waitReady timed out after ${timeout}ms (last testid count=${lastT}, interactive census=${lastC}, dom nodes=${lastN}). Refusing to continue with a partial page load.`);
+  throw new Error(`[WAIT_READY_TIMEOUT] waitReady timed out after ${timeout}ms (last testid count=${lastT}, interactive census=${lastC}, dom nodes=${lastN}${lastError ? `, lastError: ${lastError}` : ''}). Refusing to continue with a partial page load.`);
 }
 
 // History-specific content gate: waits for the Modified By column header (unique to the
@@ -1190,3 +1195,4 @@ async function main() {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) { main(); }
+

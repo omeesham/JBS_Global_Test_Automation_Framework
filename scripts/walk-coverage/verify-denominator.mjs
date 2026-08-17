@@ -37,6 +37,33 @@ function normalize(key) {
   return (key || '').trim();
 }
 
+function dispositionPayload(row, token) {
+  const rx = new RegExp(`${token}\\s*:\\s*([^|\`\\n]+)`, 'i');
+  return (row.raw.match(rx)?.[1] || '').trim();
+}
+
+function validManifestDisposition(row, walkMode) {
+  if (!row.controlRef) return false;
+  switch (row.disposition) {
+    case 'covered-by-TC':
+      return /\bTC-[A-Z0-9]+-[A-Z0-9]+-\d{3}\b/.test(row.raw);
+    case 'affordance-probed':
+      return dispositionPayload(row, 'affordance-probed').length > 0;
+    case 'read-only-verified':
+    case 'DIFFERENTIAL-DATA-REQUIRED':
+      return true;
+    case 'out-of-scope':
+      return dispositionPayload(row, 'out-of-scope').length >= 20;
+    case 'deferred-to-DEEP': {
+      if (walkMode !== 'quick') return false;
+      const m = row.raw.match(/deferred-to-DEEP\s*:\s*(\S+)\s+\(([^)]*)\)/i);
+      return !!m && m[1].trim().length > 0 && m[2].trim().length >= 20;
+    }
+    default:
+      return false;
+  }
+}
+
 // ---- unreachable exemptions ------------------------------------------------------------------
 function loadUnreachableExemptions() {
   const exemptionsPath = join(REPO_ROOT, '.claude', 'walk-exemptions.json');
@@ -155,6 +182,13 @@ export function verifyDenominator(artifactText, jsonPath) {
   const machineKeys = new Set(data.entries.map(e => normalize(e.key)));
   const manifestRows = extractManifestRows(artifactText);
   const manifestKeys = new Set(manifestRows.map(r => normalize(r.controlRef)));
+  const walkMode = (artifactText.match(/(?:\*\*)?Walk_Mode(?:\*\*)?\s*:\s*(quick|deep)\b/i)?.[1] || 'deep').toLowerCase();
+  const dispositionedManifestKeys = new Set(
+    manifestRows
+      .filter(row => validManifestDisposition(row, walkMode))
+      .map(row => normalize(row.controlRef))
+      .filter(Boolean)
+  );
 
   // 4a. missing = machineKeys \ manifestKeys → any non-empty → FAIL.
   const missing = [...machineKeys].filter(k => !manifestKeys.has(k));
@@ -240,12 +274,14 @@ export function verifyDenominator(artifactText, jsonPath) {
       const allowlist = loadUnresolvedAllowlist();
       const unresolvedKeys = allKeys.filter(k => {
         const dt = data.derived_types[k];
-        return (dt.probe === 'unresolved' || dt.probe === 'unresolvable') && !allowlist.has(k);
+        return (dt.probe === 'unresolved' || dt.probe === 'unresolvable')
+          && !allowlist.has(k)
+          && !dispositionedManifestKeys.has(normalize(k));
       });
       const unresolvedCount = unresolvedKeys.length;
       if (unresolvedCount > 0) {
         const sample = unresolvedKeys.slice(0, 10).join(', ');
-        const msg = `UNRESOLVED-PROBE-GATE: ${unresolvedCount}/${total} control(s) unresolved after allowlist. Keys: ${sample}`;
+        const msg = `UNRESOLVED-PROBE-GATE: ${unresolvedCount}/${total} control(s) unresolved after allowlist/manifest dispositions. Keys: ${sample}`;
         const mode = readUnresolvedProbeMode();
         fireDenominatorGateTelemetry(mode === 'deny' ? 'deny' : 'announce', jsonPath);
         if (mode === 'deny') reasons.push(msg);
