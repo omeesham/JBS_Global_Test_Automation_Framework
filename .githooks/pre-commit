@@ -312,6 +312,20 @@ if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^plans/(pending|
   fi
 fi
 
+# --- 7b) Citation-deliverability check (announce mode — LR-069 ramp). -----------
+# Fires on staged plan files. Warns about non-deliverable citations (gitignored/untracked).
+# Respects citation_deliverability_mode knob: off = skip, announce = warn, deny = block.
+if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^plans/(pending|done)/.*\.md$'; then
+  _cd_mode=$(node -e "try{const c=JSON.parse(require('fs').readFileSync('.claude/guardrail-config.json','utf-8'));console.log(c.citation_deliverability_mode||'announce')}catch{console.log('announce')}" 2>/dev/null)
+  if [ "$_cd_mode" != "off" ]; then
+    echo "[pre-commit] plan file staged → checking citation deliverability (${_cd_mode})..." >&2
+    _cd_files=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^plans/(pending|done)/.*\.md$')
+    for _cd_f in $_cd_files; do
+      node scripts/check-citation-deliverability.mjs --file "$_cd_f"
+    done
+  fi
+fi
+
 # --- 8) Enforcement-claim lint (announce mode — LR-069 ramp). -------------------
 # Fires when any rule/doc/skill markdown in the claim corpus is staged.
 if git diff --cached --name-only --diff-filter=ACMR \

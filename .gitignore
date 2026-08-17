@@ -37,6 +37,16 @@ logs/*
 # Reports — all generated output ignored, dirs created at runtime by global-setup.ts + ensure-report-dirs.js
 reports/*
 !reports/.gitkeep
+# Un-ignore the walk-coverage manifests that closure checks resolve as Completion_Record
+# evidence. Named individually, never by wildcard: this directory also holds multi-MB run
+# dumps (case-rows.json is ~7 MB) that must stay out. A colleague's clone fails C3/Cx
+# without these, because the check asks their filesystem for our evidence.
+!reports/walk-coverage/
+reports/walk-coverage/*
+!reports/walk-coverage/service-charge-basic-info.json
+!reports/walk-coverage/service-charge-basic-info.manifest.md
+!reports/walk-coverage/service-charge-history.json
+!reports/walk-coverage/service-charge-history.manifest.md
 /allure-results/
 /allure-report/
 /html-report/
