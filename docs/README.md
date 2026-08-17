@@ -6,7 +6,6 @@ TypeScript + Playwright automation framework with 6-agent pipeline for test deve
 
 ```bash
 npm install && npx playwright install
-cp config/environments/.env.example config/environments/.env.local
 
 npm test                    # All tests
 npm run test:chrome         # Chrome only
