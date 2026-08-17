@@ -53,7 +53,7 @@ Recon facts (verified 2026-08-14):
 - **V3**: converge → frozen spec in chips dir.
 - **V4 (build, sonnet-4.6 max)**: `.claude/hooks/lib/check-dispatch-visibility.mjs` + `.claude/hooks/dispatch-visibility-gate.sh` + fixture test `.claude/hooks/lib/test-dispatch-visibility-fixtures.mjs` (≥10 cases incl. allow-controls) + wiring: add to the existing `Bash|…` PreToolUse entry AND a **separate NEW matcher entry for `PowerShell`** carrying only this gate (F3: widening the existing entry would fire four untested sibling gates on PowerShell input — collateral risk; keep them untouched). LR-069 header (Sev S0, graduating incident above). Worker does NOT edit settings.json — it delivers the exact JSON edit; the owner session applies it (control file, Rutvik-ordered).
 - **V5 (review, gpt-5.5)**: adversarial code review, re-runs fixtures itself.
-- **V6 (owner)**: live trip probe pair — (deny) a real dispatch command with ` &` detach → expect PreToolUse DENY + `gate-fires.log` row; (allow) the same dispatch foreground `--help` and one tracked `run_in_background: true` no-op → both pass. Evidence tee'd to chips dir.
+- **V6 (owner)**: live trip probe pair — (deny) a real dispatch command with ` &` detach → expect PreToolUse DENY + a gate-fires telemetry row (per-machine log, not tracked); (allow) the same dispatch foreground `--help` and one tracked `run_in_background: true` no-op → both pass. Evidence tee'd to chips dir.
 
 ## Phase R — Rename-gate fix, council-hardened (no loosening)
 
@@ -96,7 +96,7 @@ Ship scripts, `.githooks/` chain, delegation supervisor wires in `~/.claude/dele
 ## Acceptance criteria
 
 - [ ] Visibility gate denies every council-enumerated invisible vector; fixture suite ≥10 cases green incl. allow-controls.
-- [ ] Live probe pair recorded: dispatch+detach DENIED (telemetry row in `.claude/state/gate-fires.log`) + tracked/foreground dispatch ALLOWED.
+- [ ] Live probe pair recorded: dispatch+detach DENIED (telemetry row in per-machine gate log, not tracked) + tracked/foreground dispatch ALLOWED.
 - [ ] PreToolUse matcher covers `PowerShell` via its own new entry (the pre-existing hole is closed without touching sibling gates).
 - [ ] Detective layer designed + landed: session-end ledger-vs-visible-dispatch reconciliation flags any invisible dispatch (F1).
 - [ ] The gate has NO agent-writable off-switch: knob is Rutvik-only lock-path or absent (F2).
