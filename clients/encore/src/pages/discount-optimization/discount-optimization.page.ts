@@ -233,24 +233,73 @@ export class DiscountOptimizationPage extends BasePage {
    *   `role="checkbox"` and `aria-checked="true"|"false"`.
    *
    * "Yes" / `aria-checked="true"` both mean the Allow Special Rate setting is enabled.
+   *
+   * The virtualised grid populates text nodes asynchronously — reading before the text node
+   * has rendered would return an empty string and produce a false "No". This method polls
+   * until a readable state is available before deciding.
    */
   @step('Read the Allow Special Rate toggle state for a row')
   async getToggleState(locationName: string): Promise<boolean> {
     const btn = this.page.locator(btnToggleDiscount(locationName)).first();
-    const ariaChecked = await btn.getAttribute('aria-checked');
-    if (ariaChecked !== null) return ariaChecked === 'true';
-    const text = (await btn.textContent() || '').trim();
-    return text.toLowerCase() === 'yes';
+    const timeout = 10_000;
+    const deadline = Date.now() + timeout;
+    let lastAriaChecked: string | null = null;
+    let lastText = '';
+    while (Date.now() < deadline) {
+      lastAriaChecked = await btn.getAttribute('aria-checked');
+      if (lastAriaChecked !== null) return lastAriaChecked === 'true';
+      lastText = (await btn.textContent() || '').trim();
+      if (lastText.length > 0) return lastText.toLowerCase() === 'yes';
+      await this.page.waitForTimeout(100);
+    }
+    throw new Error(
+      `getToggleState: toggle for "${locationName}" did not render a readable state within ${timeout} ms. ` +
+      `aria-checked=${lastAriaChecked}, textContent="${lastText}".`
+    );
   }
 
   /**
    * Reads the Special Rate Start Date value for a named row.
-   * Returns the input's current value string (e.g. `"09/09/2019"`) or empty string.
+   *
+   * Two failure modes are guarded against:
+   *
+   * 1. **Race on first render** — the virtualised grid populates date inputs asynchronously.
+   *    A single-shot `inputValue()` returns `''` until the first render cycle completes.
+   *
+   * 2. **Post-calendar propagation delay** — after a calendar picker selection, Angular's
+   *    reactive form may take one or more change-detection cycles to update the input value.
+   *    Returning on the first non-empty read risks returning a stale pre-calendar value.
+   *
+   * This method polls until the value has been the same non-empty string across three
+   * consecutive reads (100 ms apart), which proves the value has settled. On timeout it
+   * throws with the row name and last observed value — never returns a fabricated default.
    */
   @step('Read the Special Rate Start Date for a row')
   async getRowDate(locationName: string): Promise<string> {
     const row = await this.findRowByLocationName(locationName);
-    return row.locator(INP_DATE).first().inputValue();
+    const inp = row.locator(INP_DATE).first();
+    const STABLE_READS_REQUIRED = 3;
+    const POLL_INTERVAL_MS = 100;
+    const timeout = 10_000;
+    const deadline = Date.now() + timeout;
+    let stableCount = 0;
+    let lastValue = '';
+    while (Date.now() < deadline) {
+      const current = await inp.inputValue();
+      if (current.length > 0 && current === lastValue) {
+        stableCount++;
+        if (stableCount >= STABLE_READS_REQUIRED) return current;
+      } else {
+        stableCount = current.length > 0 ? 1 : 0;
+        lastValue = current;
+      }
+      await this.page.waitForTimeout(POLL_INTERVAL_MS);
+    }
+    throw new Error(
+      `getRowDate: date input for "${locationName}" did not reach a stable value within ${timeout} ms. ` +
+      `Last observed value: "${lastValue}". The input may have no date set, or an in-progress ` +
+      `calendar update did not propagate within the timeout.`
+    );
   }
 
   // ---------------------------------------------------------------- tab 1 — actions
@@ -479,7 +528,9 @@ export class DiscountOptimizationPage extends BasePage {
     const inp = this.page.locator(TXT_SEARCH_TAB2).first();
     await inp.click();
     await inp.pressSequentially(term, { delay: KEYSTROKE_DELAY_MS });
-    await this._waitForGridCountChange(ROWS_TAB2);
+    // Use stable-count helper: the debounced client-side filter passes through intermediate
+    // counts, so stopping on the first change races the filter mid-settle.
+    await this._waitForGridCountStable(ROWS_TAB2);
   }
 
   /** Clears the Tab 2 search box and waits for the full list to restore. */

@@ -1,6 +1,6 @@
 import { test, expect } from '../../src/fixtures/pages.fixture';
 import { DiscountOptimizationPage } from '../../src/pages/discount-optimization/discount-optimization.page';
-import { INP_DATE, ROWS_TAB1, TBL_CONTAINER } from '../../src/selectors/discount-optimization/discount-optimization';
+import { INP_DATE, ROWS_TAB1, TBL_CONTAINER, TAB_EXEMPTIONS, TAB_LOCATIONS, PANEL_LOCATIONS, PANEL_EXEMPTIONS } from '../../src/selectors/discount-optimization/discount-optimization';
 import {
   DOP_OFFICE,
   DOP_KNOWN_FILTER,
@@ -445,6 +445,108 @@ test.describe('Discount Optimization — Locations (Tab 1)', () => {
     await dop.switchTab('Discount Optimization');
   });
 
+  test('TC-DOP-OPT-066: Switching from Tab 2 to Tab 1 with no pending change does not show an unsaved-changes prompt (NM-3066)', async ({ dependencyGate }) => {
+    // Owner: discount-optimization-locations.spec.ts (Tab 1 spec). Cross-tab seam. NM-3066.
+    dependencyGate([]);
+    const pg = (dop as any).page;
+    expect(await dop.isSaveDisabled()).toBe(true);
+    let nativeDialogSeen = false;
+    pg.on('dialog', () => { nativeDialogSeen = true; });
+    await dop.switchTab('Special Rate Exemptions by Service Type');
+    await dop.switchTab('Discount Optimization');
+    const alertCount = await pg.locator('[role="alertdialog"]').count();
+    expect(alertCount).toBe(0);
+    expect(nativeDialogSeen).toBe(false);
+    await expect(pg.locator(PANEL_LOCATIONS)).toBeVisible();
+  });
+
+  test('TC-DOP-OPT-067: Switching from Tab 1 to Tab 2 with an unsaved change shows the unsaved-changes prompt; Stay holds on Tab 1; Discard proceeds to Tab 2 (NM-3066)', async ({ dependencyGate }) => {
+    // Owner: discount-optimization-locations.spec.ts (Tab 1 spec). Cross-tab seam. NM-3066.
+    dependencyGate([]);
+    const pg = (dop as any).page;
+    try {
+      expect(await dop.isSaveDisabled()).toBe(true);
+      await dop.toggleDiscount(DOP_LOCATION_FOR_TOGGLE);
+      expect(await dop.isSaveDisabled()).toBe(false); // mandatory oracle — dirty state achieved
+
+      // Click Tab 2 trigger directly; switchTab waits for the new panel which won't
+      // appear while the alertdialog is blocking the transition.
+      await pg.locator(TAB_EXEMPTIONS).first().click();
+      const alertDialog = pg.locator('[role="alertdialog"]');
+      await alertDialog.waitFor({ state: 'visible', timeout: 10_000 });
+      await expect(alertDialog).toContainText('Unsaved changes');
+      await expect(alertDialog).toContainText('Are you sure you want to leave this view? Any unsaved changes will be lost.');
+      await expect(alertDialog.locator('button:text-is("Stay")')).toBeVisible();
+      await expect(alertDialog.locator('button:text-is("Discard")')).toBeVisible();
+
+      // Stay: remains on Tab 1; dirty state survives
+      await alertDialog.locator('button:text-is("Stay")').click();
+      await alertDialog.waitFor({ state: 'hidden', timeout: 5_000 });
+      await expect(pg.locator(PANEL_LOCATIONS)).toBeVisible();
+      expect(await dop.isSaveDisabled()).toBe(false);
+
+      // Discard: proceeds to Tab 2; change is dropped
+      await pg.locator(TAB_EXEMPTIONS).first().click();
+      await alertDialog.waitFor({ state: 'visible', timeout: 10_000 });
+      await alertDialog.locator('button:text-is("Discard")').click();
+      await pg.locator(PANEL_EXEMPTIONS).waitFor({ state: 'visible', timeout: 45_000 });
+    } finally {
+      // If test failed before Discard: dismiss any open alertdialog, then restore the toggle.
+      const alertOpen = await pg.locator('[role="alertdialog"]').isVisible().catch(() => false);
+      if (alertOpen) {
+        await pg.locator('[role="alertdialog"] button:text-is("Stay")').first().click().catch(() => {});
+      }
+      const onTab1 = await pg.locator(PANEL_LOCATIONS).isVisible().catch(() => false);
+      if (onTab1 && !(await dop.isSaveDisabled().catch(() => true))) {
+        await dop.toggleDiscount(DOP_LOCATION_FOR_TOGGLE);
+      }
+    }
+  });
+
+  test('TC-DOP-OPT-068: Switching from Tab 2 to Tab 1 with an unsaved change shows the unsaved-changes prompt; Stay holds on Tab 2; Discard proceeds to Tab 1 (NM-3066)', async ({ dependencyGate }) => {
+    // Owner: discount-optimization-locations.spec.ts (Tab 1 spec). Cross-tab seam. NM-3066.
+    dependencyGate([]);
+    const pg = (dop as any).page;
+    await dop.switchTab('Special Rate Exemptions by Service Type');
+    try {
+      expect(await dop.isTab2SaveDisabled()).toBe(true);
+      await dop.toggleExempt('Equipment Rental');
+      expect(await dop.isTab2SaveDisabled()).toBe(false); // mandatory oracle — dirty state achieved
+
+      // Click Tab 1 trigger directly; switchTab waits for the new panel which won't
+      // appear while the alertdialog is blocking the transition.
+      await pg.locator(TAB_LOCATIONS).first().click();
+      const alertDialog = pg.locator('[role="alertdialog"]');
+      await alertDialog.waitFor({ state: 'visible', timeout: 10_000 });
+      await expect(alertDialog).toContainText('Unsaved changes');
+      await expect(alertDialog).toContainText('Are you sure you want to leave this view? Any unsaved changes will be lost.');
+      await expect(alertDialog.locator('button:text-is("Stay")')).toBeVisible();
+      await expect(alertDialog.locator('button:text-is("Discard")')).toBeVisible();
+
+      // Stay: remains on Tab 2; dirty state survives
+      await alertDialog.locator('button:text-is("Stay")').click();
+      await alertDialog.waitFor({ state: 'hidden', timeout: 5_000 });
+      await expect(pg.locator(PANEL_EXEMPTIONS)).toBeVisible();
+      expect(await dop.isTab2SaveDisabled()).toBe(false);
+
+      // Discard: proceeds to Tab 1; change is dropped
+      await pg.locator(TAB_LOCATIONS).first().click();
+      await alertDialog.waitFor({ state: 'visible', timeout: 10_000 });
+      await alertDialog.locator('button:text-is("Discard")').click();
+      await pg.locator(PANEL_LOCATIONS).waitFor({ state: 'visible', timeout: 45_000 });
+    } finally {
+      // If test failed before Discard: dismiss any open alertdialog, then cancel Tab 2 changes.
+      const alertOpen = await pg.locator('[role="alertdialog"]').isVisible().catch(() => false);
+      if (alertOpen) {
+        await pg.locator('[role="alertdialog"] button:text-is("Stay")').first().click().catch(() => {});
+      }
+      const onTab2 = await pg.locator(PANEL_EXEMPTIONS).isVisible().catch(() => false);
+      if (onTab2 && !(await dop.isTab2SaveDisabled().catch(() => true))) {
+        await dop.clickTab2Cancel().catch(() => {});
+      }
+    }
+  });
+
   // ---------------------------------------------------------------- active/inactive filtering (NM-3210)
 
   // Finding: no dedicated Active/Inactive filter control was found on this surface
@@ -816,16 +918,52 @@ test.describe('Discount Optimization — Locations (Tab 1)', () => {
     let selectedDate = '';
     try {
       expect(await dop.isSaveDisabled()).toBe(true);
+
+      // Capture API requests fired during calendar interaction. Match on the backend API path,
+      // never on the page URL — the framework fires its own POSTs to the page URL after a reload,
+      // and those would otherwise be counted as saves.
+      const apiRequestsFired: string[] = [];
+      const onRequest = (req: any) => {
+        const url: string = req.url();
+        if (url.includes('/api/') || url.includes('/settings/discount')) {
+          apiRequestsFired.push(`${req.method()} ${url}`);
+        }
+      };
+      pg.on('request', onRequest);
+
+      // Step 1: Open calendar — assert it is actually open before proceeding.
       await dop.openCalendar(PERSISTENCE_LOCATION);
       const popover = pg.locator('[role="dialog"]').first();
       await expect(popover).toBeVisible({ timeout: 10_000 });
+
+      // Step 2: Capture current month/year heading, advance one month, assert the heading
+      // actually changed before selecting a day — clicking mid-transition selects nothing.
+      const monthHeading = popover.locator('span, div, caption').filter({ hasText: /[A-Z][a-z]+ \d{4}/ }).first();
+      const monthBefore = await monthHeading.innerText({ timeout: 5_000 });
       const nextBtn = popover.locator('button[aria-label*="next"], button[aria-label*="Next"]').first();
       await expect(nextBtn).toBeVisible();
       await nextBtn.click();
-      const dateCell = popover.locator('[role="gridcell"] button:not([disabled])').first();
+      await expect(monthHeading).not.toHaveText(monthBefore, { timeout: 5_000 });
+      const monthAfter = await monthHeading.innerText({ timeout: 5_000 });
+
+      // Step 3: Click the first enabled day cell that belongs to the new month.
+      // The calendar grid shows overflow cells from the previous month; picking `.first()` risks
+      // selecting an overflow cell (e.g., March 31 in the April view) = same date as original.
+      // Filter by aria-label containing the new month name so we only pick April's own days.
+      const newMonthName = monthAfter.trim().split(/[\s\n]+/)[0]; // e.g., "April"
+      const dateCell = popover.locator(`[role="gridcell"] button:not([disabled])[aria-label*="${newMonthName}"]`).first();
+      await expect(dateCell).toBeVisible({ timeout: 5_000 });
+      const dateCellLabel = await dateCell.getAttribute('aria-label');
       await dateCell.click();
-      await pg.waitForSelector('[role="dialog"]', { state: 'hidden', timeout: 5_000 }).catch(() => {});
+
+      // Step 4: Assert the dialog actually closed — if it stays open the click did not register.
+      await expect(popover).toBeHidden({ timeout: 10_000 });
+      pg.off('request', onRequest);
+
+      // Step 5: Read back the value.
       await (dop as any).waitForAngularStable();
+      // Log step evidence before asserting so it survives a failure.
+      console.log(`[T104-EVIDENCE] originalDate="${originalDate}" monthBefore="${monthBefore}" monthAfter="${monthAfter}" cellClicked="${dateCellLabel}" apiRequests=${JSON.stringify(apiRequestsFired)}`);
       selectedDate = await dop.getRowDate(PERSISTENCE_LOCATION);
       expect(selectedDate).not.toBe(originalDate);
       expect(await dop.waitUntilSaveEnabled()).toBe(true);
