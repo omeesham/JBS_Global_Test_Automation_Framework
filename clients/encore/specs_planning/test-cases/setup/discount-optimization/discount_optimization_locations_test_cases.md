@@ -697,6 +697,73 @@
 
 ---
 
+## TC-DOP-OPT-066: Switching from Tab 2 to Tab 1 with no pending change does not show an unsaved-changes prompt
+
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Regression — NM-3066 |
+
+**Preconditions**: On the Discount Optimization Settings page, Locations tab active, no changes made. Grid has completed its first paint.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Confirm no change has been made (Save is disabled). | Save is disabled. |
+| 2 | Click the "Special Rate Exemptions by Service Type" tab. | Tab 2 loads with no prompt. |
+| 3 | Click back to the "Discount Optimization" tab. | Tab 1 loads immediately. |
+| 4 | Confirm no unsaved-changes dialog or prompt appeared. | No unsaved-changes prompt was shown — the switch was silent. |
+
+**Expected**: Switching from Tab 2 to Tab 1 with no pending change does not trigger an unsaved-changes prompt.
+**Data**: NM-3066
+**Automatable**: Yes
+
+---
+
+## TC-DOP-OPT-067: Switching from Tab 1 to Tab 2 with an unsaved change shows the unsaved-changes prompt; Stay holds on Tab 1; Discard proceeds to Tab 2
+
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Regression — NM-3066 |
+
+**Preconditions**: On the Discount Optimization Settings page, Locations tab active. Grid has completed its first paint.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Confirm Save is disabled. | Save is disabled. |
+| 2 | Toggle Allow Special Rate for a known row. | The row value changes and Save becomes enabled, confirming the edit is pending. |
+| 3 | Click the "Special Rate Exemptions by Service Type" tab. | A confirmation dialog appears with title "Unsaved changes", body "Are you sure you want to leave this view? Any unsaved changes will be lost.", and buttons "Stay" and "Discard". |
+| 4 | Click "Stay". | The dialog closes; Tab 1 remains active; Save is still enabled, so the edit is still pending. |
+| 5 | Click the "Special Rate Exemptions by Service Type" tab again. | The dialog appears again. |
+| 6 | Click "Discard". | The dialog closes; Tab 2 panel becomes visible; the unsaved change is dropped. |
+
+**Expected**: Leaving Tab 1 with an unsaved edit shows the unsaved-changes dialog. Stay holds on Tab 1 with the edit still pending. Discard proceeds to Tab 2.
+**Data**: NM-3066
+**Automatable**: Yes
+
+---
+
+## TC-DOP-OPT-068: Switching from Tab 2 to Tab 1 with an unsaved change shows the unsaved-changes prompt; Stay holds on Tab 2; Discard proceeds to Tab 1
+
+| Priority | Status | Type |
+|----------|--------|------|
+| High | Automated | Regression — NM-3066 |
+
+**Preconditions**: On the Discount Optimization Settings page, Tab 2 (Special Rate Exemptions by Service Type) active. Grid has completed its first paint.
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Switch to Tab 2. | Tab 2 renders with rows. Tab 2 Save is disabled. |
+| 2 | Toggle the Exempt checkbox for a known service type row. | The checkbox value changes and Tab 2 Save becomes enabled, confirming the edit is pending. |
+| 3 | Click the "Discount Optimization" tab. | A confirmation dialog appears with title "Unsaved changes", body "Are you sure you want to leave this view? Any unsaved changes will be lost.", and buttons "Stay" and "Discard". |
+| 4 | Click "Stay". | The dialog closes; Tab 2 remains active; Tab 2 Save is still enabled, so the edit is still pending. |
+| 5 | Click the "Discount Optimization" tab again. | The dialog appears again. |
+| 6 | Click "Discard". | The dialog closes; Tab 1 panel becomes visible; the unsaved change is dropped. |
+
+**Expected**: Leaving Tab 2 with an unsaved edit shows the unsaved-changes dialog. Stay holds on Tab 2 with the edit still pending. Discard proceeds to Tab 1.
+**Data**: NM-3066
+**Automatable**: Yes
+
+---
+
 ## TC-DOP-OPT-070: Search includes deactivated locations by name and clears correctly
 
 | Priority | Status | Type |

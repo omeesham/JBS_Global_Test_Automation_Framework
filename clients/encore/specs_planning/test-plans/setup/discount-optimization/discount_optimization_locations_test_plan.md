@@ -228,6 +228,33 @@ Page route: `gotoDiscountOptimization(office)` → `{base}locations/{office}/set
 4. Assert: tab 2 content panel is now visible.
 5. Click `tabLocations` to return.
 
+## Scenario: TC-DOP-OPT-066 — No unsaved-changes prompt when switching from Tab 2 to Tab 1 with no change (NM-3066)
+1. Confirm `btnSave` disabled.
+2. Click `tabExemptions`; wait for Tab 2 panel.
+3. Click `tabLocations`; wait for Tab 1 panel.
+4. Assert: no `[role="alertdialog"]` appeared; no native dialog fired; Tab 1 panel visible.
+
+## Scenario: TC-DOP-OPT-067 — Unsaved-changes prompt appears on dirty Tab 1 → Tab 2; Stay holds; Discard proceeds (NM-3066)
+1. Confirm `btnSave` disabled.
+2. Call `toggleDiscount` on a known row.
+3. Assert `btnSave` enabled (dirty-state oracle).
+4. Click `tabExemptions` trigger directly.
+5. Assert `[role="alertdialog"]` visible; text "Unsaved changes" / "Are you sure…"; buttons "Stay" and "Discard".
+6. Click "Stay"; assert alertdialog gone; `panelLocations` still visible; `btnSave` still enabled.
+7. Click `tabExemptions` again; assert alertdialog visible.
+8. Click "Discard"; assert `panelExemptions` visible. Change is dropped.
+
+## Scenario: TC-DOP-OPT-068 — Unsaved-changes prompt appears on dirty Tab 2 → Tab 1; Stay holds; Discard proceeds (NM-3066)
+1. Call `switchTab('Special Rate Exemptions by Service Type')`.
+2. Assert Tab 2 Save disabled.
+3. Call `toggleExempt` on a known service type row.
+4. Assert Tab 2 Save enabled (dirty-state oracle).
+5. Click `tabLocations` trigger directly.
+6. Assert `[role="alertdialog"]` visible; text "Unsaved changes" / "Are you sure…"; buttons "Stay" and "Discard".
+7. Click "Stay"; assert alertdialog gone; `panelExemptions` still visible; Tab 2 Save still enabled.
+8. Click `tabLocations` again; assert alertdialog visible.
+9. Click "Discard"; assert `panelLocations` visible. Change is dropped.
+
 ## Scenario: TC-DOP-OPT-070 — Search includes deactivated locations by name and clears correctly (NM-3210)
 1. After grid paint, record row count A.
 2. Fill txtSearch with deactivated fragment; wait for filter.
