@@ -37,6 +37,10 @@ logs/*
 # Reports — all generated output ignored, dirs created at runtime by global-setup.ts + ensure-report-dirs.js
 reports/*
 !reports/.gitkeep
+# Un-ignore walk-coverage manifest cited by PLAN_74 (PLAN_77 Phase 2 TRACK pile)
+!reports/walk-coverage/
+reports/walk-coverage/*
+!reports/walk-coverage/service-charge-basic-info.json
 /allure-results/
 /allure-report/
 /html-report/
