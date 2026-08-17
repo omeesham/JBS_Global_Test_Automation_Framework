@@ -1,6 +1,7 @@
 # Build artifacts
 node_modules/
-reports/
+reports/*
+!reports/bugs/
 logs/
 test-results/
 test-results-*/

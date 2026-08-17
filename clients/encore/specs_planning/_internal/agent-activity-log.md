@@ -1977,3 +1977,10 @@ Append-only audit trail per LR-028. Format: `| YYYY-MM-DDThh:mm | agent | status
 | 2026-08-17T23:37 | CEO/copilot-worker | dispatch | (none) | [delegation] t8-lotF-citations.md — gpt-5.5 build ok=true |
 | 2026-08-17T23:38 | CEO/copilot-worker | dispatch | (none) | [delegation] t6-lotD-citations.md — gpt-5.5 build ok=true |
 | 2026-08-18T00:02 | CEO/copilot-worker | dispatch | (none) | [delegation] t10-lotH-residual.md — gpt-5.5 build ok=true |
+| 2026-08-18T00:19 | CEO/copilot-worker | dispatch | (none) | [delegation] t11-collab1-unblock.md — claude-opus-4.6 build ok=true |
+| 2026-08-18T00:27 | CEO/copilot-worker | dispatch | (none) | [delegation] t12-collab-completeness.md — claude-opus-4.6 build ok=true |
+| 2026-08-18T00:38 | CEO/copilot-worker | dispatch | (none) | [delegation] t13-nm2269-nm2271-citations.md — claude-opus-4.6 build ok=true |
+| 2026-08-18T01:10 | CEO/copilot-worker | dispatch | (none) | [delegation] t14-graft-script-exemption.md — claude-opus-4.6 build ok=true |
+| 2026-08-18T01:24 | CEO/copilot-worker | dispatch | (none) | [delegation] t15-qa-tracker-refresh.md — claude-opus-4.6 build ok=true |
+| 2026-08-18T01:25 | OWNER | done | plans/done/PLAN_67_DISPATCH_VISIBILITY_AND_COUNCIL_HARDENED_FIXES.md, plans/done/PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK.md, plans/done/PLAN_ENCORE_NM2269_DELIVERY.md, plans/done/SUBPLAN_CORP_PRICING_NM2271_GRID_EQUIPMENT_LABOR.md, .gitignore, reports/walk-coverage/ | Repaired four done plans so they pass closure on a colleague clone, not just locally (commit 8353c20ce, pushed). Two had never been committed, so their closure gate had never run; moved artifacts repointed, per-run ones reworded. Tracked three walk-coverage manifests the checks read as evidence. Verified in a detached worktree, which caught NM3344 passing locally and failing on a clone. |
+| 2026-08-18T01:27 | CEO/copilot-worker | dispatch | (none) | [delegation] t16-bugs-to-colleagues-never-client.md — claude-opus-4.6 build ok=true |
