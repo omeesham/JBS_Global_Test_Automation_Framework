@@ -151,7 +151,7 @@ export const MODULE_CONFIG = {
     contentMarker: 'text=Modified By',
     openerTestidPatterns: [],
     openerRoleTextPatterns: [
-      // contentGate: true � History is a data grid with no data-testid attributes.
+      // contentGate: true � History is a data grid with no data-testid attributes.
       // waitReady's testid threshold (calibrated for forms) can never be satisfied here.
       // Instead, waitReadyContent waits for the Modified By column header (last-to-render)
       // and at least one data row, throwing loudly if neither appears within the timeout.
@@ -183,37 +183,74 @@ export const MODULE_CONFIG = {
   },
 };
 
-// ---- readiness gate (O1): poll a shadow-pierced testid count until stable (LR-052 poll-not-sleep,
-//      LR-023 no-networkidle). Standard short poll interval is a poll cadence, not a fixed sleep. ----
-// Cause-2 fix: timeout raised to 120 s (live page measured at 55-90 s); throws on timeout instead
-// of returning a silent partial — a partial load trusted as ready corrupts the denominator.
+// ---- readiness gate (O1, rebuilt by PLAN_76): stability contract, no testid floor ----
+// (LR-052 poll-not-sleep, LR-023 no-networkidle. Poll interval is a cadence, not a fixed sleep.)
+//
+// WHAT "READY" MEANS NOW (plain English — a new label-poor surface needs NO configuration):
+//   The page is ready when the things a walk actually enumerates have arrived and stopped
+//   changing: the interactive-element census (buttons, inputs, links, combo/tab roles) is at
+//   least 1 and identical across consecutive polls, AND the total DOM element count has
+//   settled (small tolerance absorbs spinner churn), AND a minimum time has elapsed.
+//   A page rich in data-testids (>= 8, stable) is declared ready early — that is only a
+//   fast-path accelerator, never a requirement. The old rule REQUIRED >= 8 testids, a floor
+//   with no derivation that permanently blocked label-poor pages (live: a settings page
+//   holding 135 buttons + 37 inputs renders exactly 1 testid — and 0 on its second tab).
+//   Per LR-062 there is deliberately NO per-surface readiness knob here or in MODULE_CONFIG.
+//
+// The `minTestids` parameter is retained for signature compatibility (branch overrides at the
+// :786 call site and older unit tests) but is INERT — the fast-path threshold is a hard
+// constant so no configuration can weaken readiness into a false-small denominator.
+// Cause-2 posture kept: throws loudly on timeout; a silent partial corrupts the denominator.
 // Exported for unit testing.
+const FAST_PATH_TESTIDS = 8;   // accelerator only — never a gate
+const CENSUS_STABLE_READS = 3; // consecutive identical census polls required
+const DOM_NODE_TOLERANCE = 2;  // absorbs spinner/animation churn; structural growth resets
+
 export async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300, timeout = 120000 } = {}) {
-  let last = -1, stable = 0, waited = 0;
+  void minTestids; // inert (see header note) — kept so existing callers/tests need no signature change
+  let lastT = -1, lastC = -1, lastN = -1, fastStable = 0, censusStable = 0, waited = 0;
   while (waited < timeout) {
-    let c = 0;
+    let snap = null;
     try {
-      c = await page.evaluate(() => {
-        function deep(root) {
-          let n = 0; const k = root.querySelectorAll('*');
-          for (const e of k) { if (e.getAttribute && e.getAttribute('data-testid')) n++; if (e.shadowRoot) n += deep(e.shadowRoot); }
-          return n;
+      snap = await page.evaluate(() => {
+        const KINDS = 'button,input,select,textarea,a[href],[role=button],[role=combobox],[role=tab],[contenteditable]';
+        function walk(root, acc) {
+          const all = root.querySelectorAll('*');
+          acc.n += all.length;
+          for (const e of all) {
+            if (e.getAttribute && e.getAttribute('data-testid')) acc.t++;
+            if (e.matches && e.matches(KINDS)) acc.c++;
+            if (e.shadowRoot) walk(e.shadowRoot, acc);
+          }
+          return acc;
         }
-        return deep(document);
+        return walk(document, { t: 0, c: 0, n: 0 });
       });
     } catch { /* mid-navigation; retry */ }
-    if (c >= minTestids && c === last) { if (++stable >= stableReads) return c; } else stable = 0;
-    last = c;
+    if (snap != null) {
+      // Legacy shape: a bare number means "testid count only" (older mocks/callers).
+      if (typeof snap === 'number') snap = { t: snap, c: snap, n: snap };
+      const { t, c, n } = snap;
+      // Fast path: label-rich page, same stability rule the old gate used — hard constant.
+      if (t >= FAST_PATH_TESTIDS && t === lastT) { if (++fastStable >= stableReads) return t; } else fastStable = 0;
+      // Stability contract: census present and identical, DOM settled within tolerance,
+      // minimum elapsed time (implied by the consecutive-poll requirement, asserted anyway).
+      const censusSame = c === lastC;
+      const domSettled = lastN >= 0 && Math.abs(n - lastN) <= DOM_NODE_TOLERANCE;
+      if (c >= 1 && censusSame && domSettled) { censusStable++; } else censusStable = 0;
+      if (censusStable >= CENSUS_STABLE_READS && waited >= 2 * interval) return t;
+      lastT = t; lastC = c; lastN = n;
+    }
     await page.waitForTimeout(interval);
     waited += interval;
   }
   // Loud failure: a silently wrong denominator built on a partial load is worse than a crash.
-  throw new Error(`[WAIT_READY_TIMEOUT] waitReady timed out after ${timeout}ms (last testid count=${last}). Refusing to continue with a partial page load.`);
+  throw new Error(`[WAIT_READY_TIMEOUT] waitReady timed out after ${timeout}ms (last testid count=${lastT}, interactive census=${lastC}, dom nodes=${lastN}). Refusing to continue with a partial page load.`);
 }
 
 // History-specific content gate: waits for the Modified By column header (unique to the
 // History panel, last-to-render) and at least one data row, then throws loudly on timeout.
-// Exported for unit testing. Do NOT use for form surfaces � those use waitReady.
+// Exported for unit testing. Do NOT use for form surfaces � those use waitReady.
 export async function waitReadyContent(page, { timeout = 120000 } = {}) {
   try {
     await page.waitForSelector('text=Modified By', { timeout });
@@ -223,7 +260,7 @@ export async function waitReadyContent(page, { timeout = 120000 } = {}) {
   try {
     await page.waitForSelector('tbody tr', { timeout });
   } catch {
-    throw new Error(`[WAIT_READY_CONTENT_TIMEOUT] History content gate timed out after ${timeout}ms: "Modified By" header found but no data rows appeared. Refusing to enumerate � denominator cannot be trusted.`);
+    throw new Error(`[WAIT_READY_CONTENT_TIMEOUT] History content gate timed out after ${timeout}ms: "Modified By" header found but no data rows appeared. Refusing to enumerate � denominator cannot be trusted.`);
   }
 }
 
@@ -773,7 +810,7 @@ async function main() {
     let g1hits = [];
     if (args.branch) {
       // Branch-only path: click the single named opener, enumerate that surface only.
-      // resolveBranchOpener was already called above to validate � safe to call again.
+      // resolveBranchOpener was already called above to validate � safe to call again.
       const branchPattern = resolveBranchOpener(cfg, args.branch);
       const loc = branchPattern.selector
         ? page.locator(branchPattern.selector)

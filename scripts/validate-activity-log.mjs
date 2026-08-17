@@ -236,17 +236,27 @@ function fsMtimeMs(relPath) {
  * When asOfMs is provided, uses point-in-time git history: compares the claim against the
  * file's last commit AT OR BEFORE asOfMs rather than the latest commit ever.
  *
- * When no prior commit exists (gitAsOf === null) and stagedFiles is provided:
- *   - File IS in stagedFiles: mtime is real evidence — fall through to mtime check.
- *     This preserves same-commit backdating detection (the graduating incident).
- *   - File NOT in stagedFiles: mtime is noise — we have no meaningful time signal for
- *     this file at the claim time; return {time: null} so the row is SKIPPED.
+ * EVIDENCE LAW (PLAN_76, 2026-08-17): a file's mtime may convict a row ONLY when the file's
+ * disk state was produced by the committer's own local edits. Disk states written by git
+ * itself — clone checkouts, branch switches, MERGE staging — reset mtimes to "now" and are
+ * NOT evidence of when anyone's work happened (a merge false-flagged 15 honest historical
+ * rows exactly this way and froze a collaborator's commit).
+ *
+ * When no prior commit exists at the claim time (gitAsOf === null) and mtimeEvidenceFiles
+ * is provided:
+ *   - File IS in mtimeEvidenceFiles (locally modified / hand-staged in a non-merge commit):
+ *     mtime is real evidence — fall through to the mtime check. This preserves same-commit
+ *     backdating detection (the graduating incident).
+ *   - File NOT in the set: mtime is noise; return {time: null} so the row is SKIPPED.
  *     Missing evidence must not convict (LR-037 bar).
  *
- * When stagedFiles is not provided (full/run mode): original fallback behavior.
+ * When mtimeEvidenceFiles is not provided: original fallback behavior (mtime always counts).
+ * Callers decide the set: staged mode passes the staged files (EMPTY during a merge —
+ * merge staging is git-written, see runStaged); full mode passes the dirty working-tree set.
  * Returns { time, source, exists }.
  */
-function fileTrueTime(relPath, asOfMs, stagedFiles) {
+export function fileTrueTime(relPath, asOfMs, mtimeEvidenceFiles) {
+  const stagedFiles = mtimeEvidenceFiles; // internal name kept small; semantics per docblock
   if (asOfMs != null) {
     const gitAsOf = gitCommitTimeAsOf(relPath, asOfMs);
     if (gitAsOf !== null) {
@@ -487,6 +497,44 @@ function resolveToken(token, stagedFiles) {
   return token;
 }
 
+/** True when the repo is mid-merge (MERGE_HEAD resolves): staged content is git-written,
+ *  so staged-file mtimes are checkout artifacts, never committer-edit evidence (PLAN_76). */
+function isMergeInProgress() {
+  try {
+    execSync('git rev-parse -q --verify MERGE_HEAD', {
+      cwd: REPO_ROOT,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Repo-relative paths with local modifications (staged or not) per `git status --porcelain`.
+ *  These are the only files whose mtime reflects the committer's own work (PLAN_76). */
+function getWorkingDirtySet() {
+  try {
+    const out = execSync('git status --porcelain', {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const set = new Set();
+    for (const line of out.split(/\r?\n/)) {
+      if (!line.trim()) continue;
+      let p = line.slice(3).trim();
+      const arrow = p.indexOf(' -> ');
+      if (arrow !== -1) p = p.slice(arrow + 4);
+      if (p.startsWith('"') && p.endsWith('"')) p = p.slice(1, -1);
+      set.add(p);
+    }
+    return set;
+  } catch {
+    return null; // unknown state → preserve legacy mtime-always behavior rather than skip
+  }
+}
+
 /** Get the set of repo-relative paths currently in the staging index (forward-slash normalized). */
 function getStagedFileSet() {
   try {
@@ -537,7 +585,13 @@ function runStaged() {
     }
   }
 
-  const stagedResolver = (relPath, asOfMs) => fileTrueTime(relPath, asOfMs, stagedFiles);
+  // PLAN_76: during a merge, EVERYTHING the merge brings is "staged", but those disk states
+  // came from git's checkout, not from the committer's editor — their mtimes convict nothing.
+  // Honest residual, stated plainly: a row backdated DURING a merge commit about a file with
+  // no committed history escapes the mtime check; git-time checks still apply to everything
+  // with history, and post-merge commits are gated normally again.
+  const mtimeEvidence = isMergeInProgress() ? new Set() : stagedFiles;
+  const stagedResolver = (relPath, asOfMs) => fileTrueTime(relPath, asOfMs, mtimeEvidence);
 
   const { violations, skipped, checked } = computeRowViolations(rows, stagedResolver, { latestRowForFile });
   report({ checked, violations, skipped, rowsTotal: rows.length, baseline: null, mode: 'staged' });
@@ -577,7 +631,12 @@ function run() {
     }
   }
 
-  const { violations, skipped, checked } = computeRowViolations(candidateRows, fileTrueTime, { latestRowForFile });
+  // PLAN_76: on a fresh clone/checkout every mtime is "now" — only files the committer
+  // actually modified locally carry mtime evidence. Kills the 97-row false alarm a fresh
+  // clone produced while keeping the check's teeth on genuinely dirty files.
+  const dirtySet = getWorkingDirtySet();
+  const fullResolver = (relPath, asOfMs) => fileTrueTime(relPath, asOfMs, dirtySet);
+  const { violations, skipped, checked } = computeRowViolations(candidateRows, fullResolver, { latestRowForFile });
   report({ checked, violations, skipped, rowsTotal: rows.length, baseline: baselineDate, mode: 'full' });
   return violations.length ? 1 : 0;
 }

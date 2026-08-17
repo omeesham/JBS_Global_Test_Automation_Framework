@@ -68,9 +68,10 @@ console.log('\nCause 2: waitReady throws on timeout');
   let timeoutThrown = false;
   let thrownMessage = '';
 
-  // Mock page: count never stabilizes (always returns 3, never >= minTestids=8)
+  // Mock page: dead page — nothing renders (census 0 can never satisfy the PLAN_76 stability
+  // contract, preserving this test's original intent: timeout must THROW, never return a partial).
   const mockPage = {
-    evaluate: async () => 3,
+    evaluate: async () => 0,
     waitForTimeout: async () => {},
   };
 
@@ -398,6 +399,112 @@ console.log('\nLive MODULE_CONFIG: History branch carries contentGate and routes
   assert('tab:history does not carry minTestids (retired property)',
     historyPattern && historyPattern.minTestids === undefined,
     `got minTestids=${historyPattern && historyPattern.minTestids} — minTestids was retired when contentGate replaced it`);
+}
+
+// ─── PLAN_76: stability-contract readiness (label-poor surfaces must pass) ──────
+// The old gate demanded >= 8 data-testids — an invented floor that permanently blocked
+// label-poor pages (live: discount-optimization-settings settles at 1 testid / 0 on tab 2
+// while holding 135 buttons + 37 inputs). New contract: interactive census >= 1 and stable,
+// DOM node count stable within a small tolerance, minimum elapsed time; testid >= 8 kept
+// only as a fast-path accelerator. Mock evaluate returns {t, c, n} snapshots
+// (t = testid count, c = interactive census, n = total DOM elements); a bare number is
+// treated as the legacy testid-only shape.
+
+function seqPage(snapshots) {
+  // Yields snapshots in order; repeats the last one forever. Tracks call count.
+  const state = { calls: 0 };
+  return {
+    state,
+    evaluate: async () => {
+      const i = Math.min(state.calls, snapshots.length - 1);
+      state.calls++;
+      return snapshots[i];
+    },
+    waitForTimeout: async () => {},
+  };
+}
+
+console.log('\nPLAN_76 A: label-poor page (1 testid, rich census) becomes ready');
+{
+  const page = seqPage([{ t: 1, c: 120, n: 900 }]);
+  let ready = false, result = null, msg = '';
+  try { result = await waitReady(page, { interval: 10, timeout: 2000 }); ready = true; }
+  catch (err) { msg = err.message; }
+  assert('1-testid surface passes readiness', ready,
+    `old floor-8 gate times out here — got: ${msg}`);
+  assert('returns the testid count', ready && result === 1, `got: ${JSON.stringify(result)}`);
+}
+
+console.log('\nPLAN_76 B: zero-testid page (buttons only) becomes ready');
+{
+  const page = seqPage([{ t: 0, c: 24, n: 400 }]);
+  let ready = false, msg = '';
+  try { await waitReady(page, { interval: 10, timeout: 2000 }); ready = true; }
+  catch (err) { msg = err.message; }
+  assert('0-testid surface passes readiness', ready,
+    `count-based floors can never pass 0 testids — got: ${msg}`);
+}
+
+console.log('\nPLAN_76 C: late-render page is NOT ready until the census settles');
+{
+  // Chrome shell first (census 10), module content lands later (census 50) and then holds.
+  const page = seqPage([
+    { t: 1, c: 10, n: 300 }, { t: 1, c: 10, n: 300 }, { t: 1, c: 10, n: 310 },
+    { t: 1, c: 50, n: 800 }, { t: 1, c: 50, n: 800 }, { t: 1, c: 50, n: 800 }, { t: 1, c: 50, n: 800 },
+  ]);
+  let ready = false, msg = '';
+  try { await waitReady(page, { interval: 10, timeout: 2000 }); ready = true; }
+  catch (err) { msg = err.message; }
+  assert('late-render page eventually ready', ready, `got: ${msg}`);
+  assert('readiness waited for the post-climb stable window (>= 6 samples)',
+    page.state.calls >= 6,
+    `declared ready after only ${page.state.calls} samples — premature-ready would under-enumerate (LR-062)`);
+}
+
+console.log('\nPLAN_76 D: DOM churn within tolerance still settles; beyond tolerance never does');
+{
+  // Spinner-class churn: node count oscillates by 1 — within tolerance, must settle.
+  const small = seqPage([
+    { t: 0, c: 24, n: 400 }, { t: 0, c: 24, n: 401 }, { t: 0, c: 24, n: 400 }, { t: 0, c: 24, n: 401 },
+  ]);
+  let readySmall = false, msgSmall = '';
+  try { await waitReady(small, { interval: 10, timeout: 2000 }); readySmall = true; }
+  catch (err) { msgSmall = err.message; }
+  assert('±1 node churn settles (within tolerance)', readySmall, `got: ${msgSmall}`);
+
+  // Structural churn: node count keeps jumping by 10 — content still arriving, must NOT settle.
+  const seq = [];
+  for (let i = 0; i < 400; i++) seq.push({ t: 0, c: 24, n: 400 + (i % 2) * 10 });
+  const big = seqPage(seq);
+  let threwBig = false, msgBig = '';
+  try { await waitReady(big, { interval: 10, timeout: 300 }); }
+  catch (err) { threwBig = true; msgBig = err.message; }
+  assert('±10 node churn never settles → loud timeout', threwBig,
+    'structural churn declared ready — premature-ready corrupts the denominator');
+  assert('churn timeout message carries WAIT_READY_TIMEOUT', msgBig.includes('WAIT_READY_TIMEOUT'), `got: ${msgBig}`);
+}
+
+console.log('\nPLAN_76 E: label-rich fast-path still fires (>= 8 stable testids, census-independent)');
+{
+  const page = seqPage([{ t: 10, c: 0, n: 100 }]);
+  let ready = false, result = null, msg = '';
+  try { result = await waitReady(page, { interval: 10, timeout: 2000 }); ready = true; }
+  catch (err) { msg = err.message; }
+  assert('fast-path declares ready on stable testid-rich page', ready, `got: ${msg}`);
+  assert('fast-path returns testid count', ready && result === 10, `got: ${JSON.stringify(result)}`);
+  assert('fast-path needed few samples (accelerator, not the slow contract)',
+    page.state.calls <= 4, `took ${page.state.calls} samples`);
+}
+
+console.log('\nPLAN_76 F: dead page (legacy numeric mock, nothing renders) throws the enriched timeout');
+{
+  const page = { evaluate: async () => 0, waitForTimeout: async () => {} };
+  let threw = false, msg = '';
+  try { await waitReady(page, { interval: 10, timeout: 200 }); }
+  catch (err) { threw = true; msg = err.message; }
+  assert('dead page still throws loudly', threw, 'silent partial forbidden');
+  assert('timeout message reports census alongside testids',
+    msg.includes('census'), `got: ${msg}`);
 }
 
 console.log(`\n=== ${passed} passed, ${failed} failed ===`);
