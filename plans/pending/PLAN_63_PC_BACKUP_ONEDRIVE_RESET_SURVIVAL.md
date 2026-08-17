@@ -79,7 +79,7 @@ Claude Code login · GitHub `gh` · Copilot CLI · Google/Chrome profile sign-in
 ## 6. Verification artifact (D23)
 
 - This file exists at `plans/pending/PLAN_63_PC_BACKUP_ONEDRIVE_RESET_SURVIVAL.md` with the Status field reading Pending.
-- At execution close: `C:\backup_staging\PC_BACKUP_2026-08\SHA256SUMS.txt` verifies clean against re-downloaded volumes (`7z t` + hash compare log), and the Phase 4 drill log shows GREEN.
+- At execution close: the SHA256SUMS file in the PC_BACKUP_2026-08 staging area (local backup staging, not repo evidence) verifies clean against re-downloaded volumes (`7z t` + hash compare log), and the Phase 4 drill log shows GREEN.
 
 ## 7. Risks
 
@@ -178,7 +178,7 @@ Cutoffs were read from each group's own archive volume timestamp, never assumed.
 | 12_delta_repo | 58,964 files / 1,388.5 MB | 758.7 MB | repo changes since 11 Aug 21:22 + 5 stashes as patches under `projects\_p63-delta-stashes\` |
 | 13_delta_home | 523 files / 250.5 MB | 30.5 MB | `.claude`, `.copilot`, `Desktop`, `.claude.json` since their own cutoffs |
 
-Both entry counts reconcile exactly against the input lists (530 listed for group 13 minus 7 PID-keyed process-lock markers that ceased to exist mid-run — `.in_use\69852`, `sessions\69852.json`, a rotating `.claude.json.backup`).
+Both entry counts reconcile exactly against the input lists (530 listed for group 13 minus 7 PID-keyed process-lock markers that ceased to exist mid-run -- PID-keyed process-lock markers, one transient session JSON, and a rotating Claude backup).
 
 ### Deliberate exclusions, each a decision
 

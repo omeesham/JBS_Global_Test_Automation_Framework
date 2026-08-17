@@ -41,7 +41,7 @@ Enumerate every mutable-state touchpoint per spec. Identify what can go wrong if
    - Cat-1 (trivial): single-field reset (e.g., Prep Date Offset = -1).
    - Cat-2 (medium): multi-field cascade (e.g., Intercompany → IDC Billing chain).
    - Cat-3 (hard): persistent state with side effects (new Section added, new Notes row).
-5. Produce state matrix file `clients/encore/specs_planning/_internal/spec-state-matrix-2026-04-22.md` with: spec, test ID, field, write type, Cat, recommended recovery approach (reload / type-original-value / API restore / snapshot+restore).
+5. Produce state matrix file (the referenced planning artifact does not exist — likely ephemeral or renamed) with: spec, test ID, field, write type, Cat, recommended recovery approach (reload / type-original-value / API restore / snapshot+restore).
 6. Activity-log row.
 
 ## Acceptance criteria

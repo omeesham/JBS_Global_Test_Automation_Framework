@@ -73,7 +73,7 @@ Only after 1 + 2 do the Fix Lots below run. Coupled with `plans/pending/PLAN_REP
 
 ### Lot FW-B2 — S1/S2 Ship/Score/Gate Fixes
 **Category B** | **Findings**: P2-LOT17-06, P2-LOT17-07, P2-LOT04-05..07, P2-LOT04-20, P2-LOT04-15, P2-LOT04-21, P2-LOT04-23
-**Files**: `scripts/ship-client.ps1` (lines 39-40, 53-55), (off-repo) ~/.claude/delegation/gates-config.json (G0/G1/G2/G3), (off-repo) ~/.claude/delegation/scorecard.mjs (lines 193-194, 114)
+**Files**: `scripts/ship-client.ps1` (lines 39-40, 53-55), (off-repo) ~/a delegation-era scratch file (removed — never tracked) (G0/G1/G2/G3), (off-repo) ~/.claude/delegation/scorecard.mjs (lines 193-194, 114)
 **Change**: Add $LASTEXITCODE checks after npm/tar/playwright in ship script; fix G0/G1/G2/G3 sev=S0 mode=announce contradiction; fix VERIFY_OUTPUT→VERIFY_ARTIFACTS in scorecard D12; fix error handling for missing model-costs.json
 **Pre-battery**: LCD_04 battery (43 probes) green
 **Verification**: `grep 'VERIFY_ARTIFACTS' ~/.claude/delegation/scorecard.mjs` ≥ 1 (off-repo); `grep 'LASTEXITCODE' scripts/ship-client.ps1` ≥ 3
@@ -87,10 +87,10 @@ Only after 1 + 2 do the Fix Lots below run. Coupled with `plans/pending/PLAN_REP
 
 ### Lot FW-B4 — Dark Gate Telemetry
 **Category B** | **Findings**: P1-M13, P3-01..11, P2-LOT09-08..10, P2-LOT12-05..07
-**Files**: All 10 dark gate libs (check-plan-closure, check-todo-injection, check-no-verify, check-graft-ship, check-identity-switch, check-bug-baseline, check-rca-verdict, check-jargon, check-execution-completion + labor-gate), (off-repo) ~/.claude/delegation/labor-gate-audit.log, (off-repo) ~/.claude/delegation/outcomes.jsonl, (off-repo) ~/.claude/delegation/grants-audit.log
+**Files**: All 10 dark gate libs (check-plan-closure, check-todo-injection, check-no-verify, check-graft-ship, check-identity-switch, check-bug-baseline, check-rca-verdict, check-jargon, check-execution-completion + labor-gate), (off-repo) ~/a delegation-era scratch file (removed — never tracked), (off-repo) ~/.claude/delegation/outcomes.jsonl, (off-repo) ~/a delegation-era scratch file (removed — never tracked)
 **Change**: Add shared fireTelemetry() call to every deny/announce branch in all 10 dark gates; merge delegation-nudge + delegation-primer into single gate; fix log data quality (missing session_id, contradictory metrics, fixture contamination)
 **Pre-battery**: LCD_03 (8 checks) + LCD_04 (43 probes) + LCD_05 (35) + LCD_06 (49) green
-**Verification**: `grep -c 'fireTelemetry' .claude/hooks/lib/check-plan-closure.mjs` ≥ 1; `cat ~/.claude/delegation/gate-fires.log | tail -3` shows rows after test fire
+**Verification**: `grep -c 'fireTelemetry' .claude/hooks/lib/check-plan-closure.mjs` ≥ 1; `cat ~/a delegation-era scratch file (removed — never tracked) | tail -3` shows rows after test fire
 
 ### Lot FW-B5 — Script Dead Code + Logic Fixes
 **Category B** | **Findings**: P2-LOT11-09..10, P2-LOT12-02..03, P2-LOT12-09..10, P2-LOT13-09..18, P2-LOT13-21, P2-LOT13-23, P2-LOT15-01, P2-LOT15-05, P2-LOT16-01..06, P2-LOT16-08..09, P2-LOT18-01, P2-LOT18-03..04, P2-LOT18-05, P2-LOT18-07..08, P25-M01..03, P25-M09..11, P25-M12..14, P25-M15..18, P25-M20, P25-LOT03-04..06, P25-LOT05-01, P25-LOT05-06

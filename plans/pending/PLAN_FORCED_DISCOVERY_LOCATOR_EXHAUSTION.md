@@ -428,7 +428,7 @@ drops must never be feature drops, per SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL Phase 
 lines 105-124; self-test T11/T12 at 387-412; **27/27, exit 0** (CEO-run).
 
 Real-data RED→GREEN, fixture
-`.claude/state/ua-worker/chips/fdle/fixtures/evidence-C-dialog-active.interaction-map.json`:
+worker chip output (ephemeral — not tracked in git):
 
 | direction | command | result |
 |---|---|---|
@@ -756,7 +756,7 @@ probe.after"*. Every one looked like a clean result. The only thing that exposed
 
 Graded 2026-07-30 by a blind cross-family census (gpt-5.5, barred from citing this plan's own prose
 as evidence for its own criteria), then re-graded after the fixes that census prompted. **8 of 11 met,
-3 open.** Artifact: `.claude/state/ua-worker/chips/close2/out-census2/CENSUS.md`.
+3 open.** Artifact: worker chip output (ephemeral — not tracked in git).
 
 - [x] Phase 0 RCA consumed; taxonomy adjusted or confirmed against it (cite RCA rows)
       — 9 of 9 interaction-axis rows verified against the RCA text they cite; row 5 (`guard`) corrected
@@ -791,7 +791,7 @@ as evidence for its own criteria), then re-graded after the fixes that census pr
         5→4). Its `basis` moved from `claim:` to `observed:`, and it now carries a real
         `countSource: "api:GET /api/location/corporate-price-pg-override?localOfficeId=1604"` with a
         non-2xx status — because the status was **measured**, not asserted: a clean two-pass live
-        census (`.claude/state/ua-worker/chips/close2/out-blastradius2/REPORT.md`) recorded 1604→500
+        census (worker chip output (ephemeral — not tracked in git)) recorded 1604→500
         on both passes, and also found **1121→500 on both passes**, which widens the defect beyond the
         "1604-specific" claim in its own bug record. T83 asserts the REQUEST-FAILED verdict directly.
       - **Adjacent finding, filed not fixed**: `BUG-CPR-OVR-002` carries **two distinct defects** under

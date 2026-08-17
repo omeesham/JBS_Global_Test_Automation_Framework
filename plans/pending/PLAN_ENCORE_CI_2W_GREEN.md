@@ -107,7 +107,7 @@ Phase 1 runs the 3 failing specs in isolation (each at workers=1, separate proce
 
 3 spec runs at `--workers=1` each, in parallel processes:
 
-- BAS run: `clients/encore/reports/_bas-only-2026-05-08.txt` — 38 pass / **20 fail** / 1 flaky / 1 skip / 36.1m
+- BAS run: a baseline report (path does not resolve — file was never committed) — 38 pass / **20 fail** / 1 flaky / 1 skip / 36.1m
 - MGH run: `clients/encore/reports/_mgh-only-2026-05-08.txt` — 8 pass / **9 fail** / 0 flaky / 3 skip / 14.3m
 - PRI run: `clients/encore/reports/_pri-only-2026-05-08.txt` — 19 pass / **8 fail** / 1 flaky / 7 skip / 23.7m
 
@@ -224,7 +224,7 @@ Suspect list (highest-likelihood first, based on cleanup outside try/finally OR 
 - TC-LOS-BAS-022 — already has try/finally (template — confirm it works)
 - Any other test in BAS-002..BAS-021 that mutates state and saves
 
-**Output**: a table mapping each failing late test → the minimal earlier set required to reproduce. File: `clients/encore/reports/_rca-bas-late-cluster-2026-05-07.md` (write a small markdown table; do not bloat).
+**Output**: a table mapping each failing late test → the minimal earlier set required to reproduce. File: an RCA report (path does not resolve — file was never committed) (write a small markdown table; do not bloat).
 
 **Acceptance**: every BAS-025..BAS-047 failure in the 1w list has a documented contaminator (or "passes individually with TC-001 only — needs LR-019 baseline strengthening").
 
@@ -392,7 +392,7 @@ These 7 rules, if filed into `.claude/rules/*.md` and `docs/read_only_docs/LEARN
 ## Acceptance Criteria (Master)
 
 - [ ] Phase 1: 3 isolated-spec runs complete (BAS / MGH / PRI at workers=1 each, parallel processes); reproduction matrix populated with isolated-fail counts.
-- [ ] Phase 1.5: minimal-pair narrowing for BAS late cluster contaminators (only if Phase 1 confirms ~19 isolated fails); contamination map saved at `clients/encore/reports/_rca-bas-late-cluster-2026-05-08.md`.
+- [ ] Phase 1.5: minimal-pair narrowing for BAS late cluster contaminators (only if Phase 1 confirms ~19 isolated fails); contamination map saved at an RCA report (path does not resolve — file was never committed).
 - [ ] Phase 2: every identified contaminator has try/finally + LR-009-correct cleanup; minimal-pair tests pass.
 - [ ] Phase 2.5: `clickSaveAndConfirm` propagates save failures (Layer 2 amplifier removed); error messages cite real trigger not downstream value mismatch.
 - [ ] Phase 3: `MAX_WORKERS: 2` lives in `clients/encore/.github/workflows/playwright-tests.yml`, with mitigation framing in the comment block.

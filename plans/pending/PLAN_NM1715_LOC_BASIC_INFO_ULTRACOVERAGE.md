@@ -197,7 +197,7 @@ Terminal audit across **both** plans.
 - LR-046: no strict plan line was rescoped without Rutvik's authorization.
 - LR-027 parent-cascade: annotate each child's DONE line, close parents when the last child closes.
 - NM-1715 is transitioned in Jira **only** on Rutvik's explicit go — publishing stays with him.
-- Emit closure audit to `clients/encore/specs_planning/_internal/nm1715-basic-information-closure-audit-2026-08-13.md`.
+- Emit closure audit to (the referenced planning artifact does not exist — likely ephemeral or renamed).
 
 **Acceptance**: zero open `deferred-to-DEEP`; both plans' matrices fully resolved; `/final-q` GREEN.
 

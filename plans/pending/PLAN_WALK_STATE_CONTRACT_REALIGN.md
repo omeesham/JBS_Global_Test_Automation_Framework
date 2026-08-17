@@ -480,13 +480,13 @@ The mirrored MODULE_CONFIG (or per-module config block) must carry the identical
 
 1. **Re-enumerate `terms-conditions`**:
    ```bash
-   node scripts/walk-coverage/enumerate-page.mjs --module=terms-conditions --out=reports/walk-coverage/terms-conditions.json 2>&1 | tee phase4-enumerate-tc.log
+   node scripts/walk-coverage/enumerate-page.mjs --module=terms-conditions --out=<planned terms-conditions walk-coverage JSON output> 2>&1 | tee phase4-enumerate-tc.log
    ```
-   Verify: the generated `.manifest.md` file (`reports/walk-coverage/terms-conditions.manifest.md`) contains `Walk_State` with the expected walked labels (`resting`, `expand:language-filter`, `row-added`). The two probe-evidence states are NOT expected in the walked set — they are satisfied by artifact, not enumeration. Additionally inspect the JSON output's `branches` array for `{ branch: 'expand:language-filter', ..., ok: true }` sourced from the language-filter opener row (NOT from cascade), and `{ branch: 'row-added', ..., ok: true }`. **Explicitly FAIL if the only `expand:language-filter` branch is the old cascade path renamed.**
+   Verify: the generated manifest for terms-conditions (planned output from the enumeration run) contains `Walk_State` with the expected walked labels (`resting`, `expand:language-filter`, `row-added`). The two probe-evidence states are NOT expected in the walked set — they are satisfied by artifact, not enumeration. Additionally inspect the JSON output's `branches` array for `{ branch: 'expand:language-filter', ..., ok: true }` sourced from the language-filter opener row (NOT from cascade), and `{ branch: 'row-added', ..., ok: true }`. **Explicitly FAIL if the only `expand:language-filter` branch is the old cascade path renamed.**
 
 2. **Re-enumerate `service-charge-text`**:
    ```bash
-   node scripts/walk-coverage/enumerate-page.mjs --module=service-charge-text --out=reports/walk-coverage/service-charge-text.json 2>&1 | tee phase4-enumerate-sct.log
+   node scripts/walk-coverage/enumerate-page.mjs --module=service-charge-text --out=<planned service-charge-text walk-coverage JSON output> 2>&1 | tee phase4-enumerate-sct.log
    ```
 
 3. **Run `verify-denominator`** — since `verify-denominator.mjs` exports functions without a CLI dispatcher, invoke via inline script:

@@ -433,8 +433,8 @@ clause + LR-064).
 Adopt `/identity GIVER`. Authoring is **two case files from the start** — one per submodule. Do not
 write one file and split it later; the split is the point.
 
-- `clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_locations_test_cases.md`
-- `clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_exemptions_test_cases.md`
+- (the referenced test-case file does not exist at this path)
+- (the referenced test-case file does not exist at this path)
 
 Both follow the markdown step-table format (`| # | Step | Expected Result |`, per-step Expected
 Results, `**Expected**:` summary line, `**Automatable**:` on every case). Surface/behavior cases carry

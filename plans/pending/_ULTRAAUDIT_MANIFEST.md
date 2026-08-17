@@ -219,8 +219,8 @@
 | `~/.claude/delegation/labor-gate-audit.log` | PLAN_DELEGATION_CHEATPROOF [INT] | ~460 | Runtime: labor-gate dispatch audit log | state | CEO-listing |
 | `~/.claude/delegation/labor-gate-config.json` | PLAN_DELEGATION_CHEATPROOF [INT] | ~2 | Labor gate config: concurrent-worker thresholds, enabled flag | code | CEO-listing |
 | `~/.claude/delegation/labor-gate-config.json.bak-cheatproof-20260715` | PLAN_DELEGATION_CHEATPROOF [INT] | ~1 | Pre-cheatproof backup of labor-gate-config.json | state | CEO-listing |
-| `~/.claude/delegation/lesson-router.md` | SUBPLAN_LCD_07_OBSERVABILITY [INT] | ~20 | Routes dispatcher lessons to appropriate learning channels | doctrine | CEO-listing |
-| `~/.claude/delegation/model-costs.json` | PLAN_DYNAMIC_WORKERS [INT] | ~8 | Cost data per model for routing-policy optimization | code | CEO-listing |
+| lesson-router in the local delegation home bundle | SUBPLAN_LCD_07_OBSERVABILITY [INT] | ~20 | Routes dispatcher lessons to appropriate learning channels | doctrine | CEO-listing |
+| model-costs in the local delegation home bundle | PLAN_DYNAMIC_WORKERS [INT] | ~8 | Cost data per model for routing-policy optimization | code | CEO-listing |
 | `~/.claude/delegation/model-registry.json` | PLAN_DYNAMIC_WORKERS [INT] | ~89 | Registry of models available for council dispatch | code | CEO-listing |
 | `~/.claude/delegation/outcomes.jsonl` | PLAN_DYNAMIC_WORKERS [INT] | ~250 | Runtime: dispatch outcomes log (every council run result) | state | CEO-listing |
 | `~/.claude/delegation/pruning-policy.md` | SUBPLAN_LCD_06_SELF_PRUNING [INT] | ~30 | Self-pruning policy: when and how to archive stale delegation files | doctrine | CEO-listing |
@@ -228,22 +228,22 @@
 | `~/.claude/delegation/registry-block.sh.pre-orch-bak` | PLAN_DYNAMIC_WORKERS [INT] | ~87 | Pre-orchestrator backup of registry-block.sh | state | CEO-listing |
 | `~/.claude/delegation/routing-changes.log` | PLAN_DYNAMIC_WORKERS [INT] | ~1 | Runtime: log of routing-policy changes | state | CEO-listing |
 | `~/.claude/delegation/routing-policy.json` | PLAN_DYNAMIC_WORKERS [INT] | ~18 | Cheapest-proven-model routing policy per ticket class | code | CEO-listing |
-| `~/.claude/delegation/scorecard.json` | PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY [INT] | ~1 | Runtime: current scorecard summary | state | CEO-listing |
+| scorecard in the local delegation home bundle | PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY [INT] | ~1 | Runtime: current scorecard summary | state | CEO-listing |
 | `~/.claude/delegation/scorecard.mjs` | PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY [INT] | ~265 | Scorecard computation: worker quality metrics from council runs | code | CEO-listing |
 | `~/.claude/delegation/self_incidents.log` | PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY [INT] | ~65 | Runtime: self-identified incidents log | state | CEO-listing |
 | `~/.claude/delegation/session-continuity.md` | PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY [INT] | ~63 | Session continuity protocol: how to resume interrupted council runs | doctrine | CEO-listing |
 | `~/.claude/delegation/ticket-template.md` | PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY; M: PLAN_DELEGATION_CHEATPROOF [INT] | ~48 | Template for dispatching worker tickets with correct DUTY_STACK | doctrine | CEO-listing |
 | `~/.claude/delegation/ticket-template.md.bak-cheatproof-20260715` | PLAN_DELEGATION_CHEATPROOF [INT] | ~48 | Pre-cheatproof backup of ticket-template.md | state | CEO-listing |
 | `~/.claude/delegation/uplink-policy.json` | PLAN_UPLINK_PROTOCOL [INT] | ~23 | Uplink policy: which events trigger advisory, redaction rules | code | CEO-listing |
-| `~/.claude/delegation/uplink.log` | PLAN_UPLINK_PROTOCOL [INT] | ~182 | Runtime: uplink advisory log | state | CEO-listing |
+| uplink log in the local delegation home bundle | PLAN_UPLINK_PROTOCOL [INT] | ~182 | Runtime: uplink advisory log | state | CEO-listing |
 | `~/.claude/delegation/weakness-map.md` | PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY [INT] | ~47 | Map of known worker weaknesses by category | doctrine | CEO-listing |
 | `~/.claude/delegation/worker-rules-extract.md` | SUBPLAN_PARITY_INJECTION_SYSTEM M3 [INT] | ~75 | M3 preamble source: worker house rules extracted for ticket injection | doctrine | CEO-listing |
 | `~/.claude/delegation/wrapper-clear-waiter.sh` | PLAN_DYNAMIC_WORKERS [INT] | ~9 | Shell: waits for wrapper clear signal before dispatch | code | CEO-listing |
 | `~/.claude/delegation/gates/envelope.mjs` | PLAN_DELEGATION_CHEATPROOF [INT] | ~27 | Envelope gate: wraps worker output in tamper-evident structure | code | CEO-listing |
 | `~/.claude/delegation/gates/verify-run.mjs` | PLAN_DELEGATION_CHEATPROOF; M: cheatproof-20260715 [INT] | ~310 | Verify-run gate: validates worker output against parity schema | code | CEO-listing |
 | `~/.claude/delegation/gates/verify-run.mjs.bak2-cheatproof-20260715` | PLAN_DELEGATION_CHEATPROOF [INT] | ~310 | Pre-cheatproof backup of verify-run.mjs | state | CEO-listing |
-| `~/.claude/delegation/private/baseline-hashes-2026-07-15.txt` | PLAN_DELEGATION_CHEATPROOF [INT] | ~6 | Baseline hashes for tamper-detection (private, not in repo) | state | CEO-listing |
-| `~/.claude/delegation/private/fixture-corpus-PRIVATE.json` | PLAN_DELEGATION_CHEATPROOF [INT] | ~73 | Private fixture corpus for gate verification | state | CEO-listing |
+| private baseline-hashes file in the local delegation home bundle | PLAN_DELEGATION_CHEATPROOF [INT] | ~6 | Baseline hashes for tamper-detection (private, not in repo) | state | CEO-listing |
+| private fixture corpus in the local delegation home bundle | PLAN_DELEGATION_CHEATPROOF [INT] | ~73 | Private fixture corpus for gate verification | state | CEO-listing |
 | `~/.claude/delegation/private/gates.sha256` | PLAN_DELEGATION_CHEATPROOF [INT] | ~3 | SHA256 checksums of gate files (tamper-detection) | state | CEO-listing |
 | `~/.claude/delegation/private/gates.sha256.tmp-backup` | PLAN_DELEGATION_CHEATPROOF [INT] | ~3 | Temporary backup of gates.sha256 | state | CEO-listing |
 

@@ -132,7 +132,7 @@ names withheld modules and internal status vocabulary — to leak into a client 
 containment property, not a filing preference; do not move it.
 
 - [ ] 1.1 Promote the drafted manifest from
-      `.claude/state/ua-worker/chips/deliv-leak/out-lot11/delivery-manifest.DRAFT.json` to
+      the Lot 11 draft delivery manifest from worker chip `deliv-leak` to
       `scripts/deliverable/delivery-manifest.encore.json`.
       Draft content is already evidence-backed: 30 modules — 19 `delivered`, 7 `withheld`,
       3 `approved-next`, 1 `internal-only`, plus a `conflicts[]` array naming every leaked module.
@@ -415,7 +415,7 @@ dropped item's defended scenario is covered by the item it was redundant with. E
 - [ ] 4.1 After the push, fetch the remote branch and re-run
       `verify-approved-scope.mjs` against the **remote** tree — not the local scratch directory.
       The scratch dir is the thing being tested; it cannot also be the oracle.
-- [ ] 4.2 ~~Append the machine verdict to `scripts/deliverable/ship-log.json`.~~ **DROPPED** by the
+- [ ] 4.2 ~~Append the machine verdict to a dedicated deliverable ship log.~~ **DROPPED** by the
       slop audit: redundant with 4.3. Both record the same fact — the gate's verdict for a ship run
       — and 4.3 puts it in the activity log, which is the record we actually read and already
       commit. Nothing in this plan ever read `ship-log.json`; a new append-only file with no reader
@@ -603,8 +603,7 @@ documented rule bypass every control here. It is now in scope at Phase 3.2b.
 
 ## Adversarial review — round 1 (gpt-5.5, cross-family)
 
-Verdict **REJECT** — 4 BLOCKER, 2 MAJOR. Full report:
-`.claude/state/ua-worker/chips/deliv-leak/out-lot12/PLAN-ADVERSARIAL-REVIEW.md`
+Verdict **REJECT** — 4 BLOCKER, 2 MAJOR. Full report was in worker chip `deliv-leak` Lot 12; those files were never tracked, so they do not travel with the repo.
 
 | # | Severity | Defect | Disposition |
 |---|---|---|---|
@@ -624,8 +623,7 @@ evidence fields close the gap without overriding that decision. Reasoning at Pha
 
 ## Adversarial review — round 2 (gpt-5.5, same reviewer, amended plan)
 
-Verdict **REJECT** — 2 CLOSED, 4 PARTIALLY-CLOSED. Report:
-`.claude/state/ua-worker/chips/deliv-leak/out-lot12/PLAN-ADVERSARIAL-REVIEW-R2.md`
+Verdict **REJECT** — 2 CLOSED, 4 PARTIALLY-CLOSED. Report was in worker chip `deliv-leak` Lot 12; those files were never tracked, so they do not travel with the repo.
 
 | R1 finding | R2 verdict | Disposition |
 |---|---|---|
@@ -646,8 +644,7 @@ deliverable. Handled at Phase 7.0, which now runs before any payload is built.
 
 ## Adversarial review — round 3 (gpt-5.5, same reviewer)
 
-Verdict **ACCEPT-WITH-CHANGES** — 3 CLOSED, 1 STILL-PARTIAL. Report:
-`.claude/state/ua-worker/chips/deliv-leak/out-lot12/PLAN-ADVERSARIAL-REVIEW-R3.md`
+Verdict **ACCEPT-WITH-CHANGES** — 3 CLOSED, 1 STILL-PARTIAL. Report was in worker chip `deliv-leak` Lot 12; those files were never tracked, so they do not travel with the repo.
 
 Four must-fix items, all folded in:
 

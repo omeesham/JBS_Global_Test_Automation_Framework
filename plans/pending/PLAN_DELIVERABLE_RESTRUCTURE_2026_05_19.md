@@ -203,7 +203,7 @@ Update `clients/encore/CLAUDE.md` + root `CLAUDE.md` likewise (paths only — co
 
 ### A6. Plan-file path patches (prevents Phase B breakage)
 
-Mass-find-replace in `plans/pending/PLAN_BIG_PIVOT_FCC_MASTER.md` + `plans/pending/SUBPLAN_NOTES_FCC_PILOT.md`:
+Mass-find-replace in `plans/pending/PLAN_BIG_PIVOT_FCC_MASTER.md` + a pilot subplan (path does not resolve — plan was never finalized):
 - `tests/specs/setup/<m>/` → `specs/<m>/`
 - `tests/test-data/setup/<m>/` → `src/data/testdata/<m>/`
 - `tests/infra/` → `src/infra/`
@@ -226,7 +226,7 @@ Sequence (`npm run clean` between runs per LR-024):
    - `clients/encore/reports/html-report/index.html` exists and opens
    - `clients/encore/reports/allure-results/` non-empty (≥1 result file)
    - `clients/encore/reports/failure-summary.json` exists (even if zero failures — agent-reporter writes empty list)
-   - `clients/encore/reports/junit-results.xml` exists
+   - a local report artifact (untracked — generated per-run) exists
    - `clients/encore/reports/test-results.json` exists
 10. `npm run allure:generate` — confirm `reports/allure-report/index.html` exists post-generate
 

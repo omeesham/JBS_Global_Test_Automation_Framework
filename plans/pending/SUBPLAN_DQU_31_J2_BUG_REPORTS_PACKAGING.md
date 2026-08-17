@@ -31,8 +31,8 @@ Consolidate every `reports/bugs/BUG-*.json` into a single client-readable index.
 
 1. List all `reports/bugs/*.json` files. Expect 3+ from LOS (SP-03) + LI bugs (SP-05) + any new from Track F.
 2. Validate each against LR-034 schema. Missing required fields → patch.
-3. Produce `reports/bugs/INDEX-2026-04-22.md` with table: ID, title, module, severity, status, discovered-date, affected-tests, one-line summary.
-4. Produce client-readable `reports/bugs/CLIENT_PACKAGE-2026-04-22.md`:
+3. Produce a bug report file (path does not resolve — file was never committed) with table: ID, title, module, severity, status, discovered-date, affected-tests, one-line summary.
+4. Produce client-readable a bug report file (path does not resolve — file was never committed):
    - Group by module.
    - Per bug: plain-English problem statement, steps to reproduce (as a user would do them), expected vs actual, impact, severity.
    - Hide internal metadata (mcpEvidence URLs if client doesn't need them).

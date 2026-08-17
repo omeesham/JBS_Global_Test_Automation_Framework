@@ -226,7 +226,7 @@ wrong. That single comparison produced the majority of the Service Charge findin
 
 | Identity | Duty | Concrete deliverable |
 |---|---|---|
-| OWNER | Denominator, lots, dispatch, running every demo, final register | `.claude/state/ua-worker/chips/fleet-sweep/REGISTER.md`<br>`clients/encore/specs_planning/_internal/agent-activity-log.md` |
+| OWNER | Denominator, lots, dispatch, running every demo, final register | a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output)<br>`clients/encore/specs_planning/_internal/agent-activity-log.md` |
 | WATCHDOG | Phase 2 adjudication; zero-findings justification per lot | `.claude/state/ua-worker/chips/fleet-sweep/out-ADJ-1/`<br>`.claude/state/ua-worker/chips/fleet-sweep/out-ADJ-2/` |
 | GENERATOR | — | (skipped: this plan writes no test and fixes nothing — that is its defining constraint) |
 | PLANNER | — | (skipped: no test cases are authored and no live walk is performed here) |

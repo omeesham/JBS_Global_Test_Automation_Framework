@@ -5,7 +5,7 @@ START: 2026-08-05T17:58:56.639+05:30
 ## P1 — the item roster, machine-built
 
 Commands used:
-- `rg -n "^## ⚠ TRI-PLAN MUTUAL GATE|^\d+\. \*\*(STEP [0-9]+|Answer the Owner Decisions)|^\*\*Category |^### Category |^#{3,4} (Lot ORP-[AC][0-9]+|Lot [A-D][0-9]+|ORP-A1 — EXCLUDED)(?: — | \(| \*|$)|^## Self-Cleaning Mechanism|Produce a triage table|^\*\*\([a-e]\)" _planstate-input\PLAN_REPO_SLOP_SWEEP.md`
+- `rg -n "^## ⚠ TRI-PLAN MUTUAL GATE|^\d+\. \*\*(STEP [0-9]+|Answer the Owner Decisions)|^\*\*Category |^### Category |^#{3,4} (Lot ORP-[AC][0-9]+|Lot [A-D][0-9]+|ORP-A1 — EXCLUDED)(?: — | \(| \*|$)|^## Self-Cleaning Mechanism|Produce a triage table|^\*\*\([a-e]\)" a plan-state input file (ephemeral audit scratch — not tracked)`
 - `PowerShell: Get-Content _planstate-input\PLAN_REPO_SLOP_SWEEP.md; apply the regex classes above; sort by source line; count rows`
 
 Total roster count: 40

@@ -106,8 +106,8 @@ mass-abandoned.
 
 Status column: **STANDS** (rev 1 row confirmed), **CORRECTED** (rev 1 row wrong in a way that changes
 design), **RETIRED** (rev 1 row's claim withdrawn), **NEW** (this wave). Sources: `cfgrisk` =
-`.claude/state/ua-worker/nm3344-cfgrisk-0811/result.md`, `runnersrc` = `…/nm3344-runnersrc-0811/result.md`,
-`lognum` = `…/nm3344-lognum-0811/result.md`, `census` = dispatcher greps/awk quoted in §Re-derivation.
+a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output), `runnersrc` = `…/a worker result file (path does not resolve — worker output is ephemeral)`,
+`lognum` = `…/a worker result file (path does not resolve — worker output is ephemeral)`, `census` = dispatcher greps/awk quoted in §Re-derivation.
 
 | # | Status | Finding | Anchor |
 |---|---|---|---|
@@ -128,7 +128,7 @@ design), **RETIRED** (rev 1 row's claim withdrawn), **NEW** (this wave). Sources
 | E15 | NEW | Every `npx playwright test` invocation WIPES its `outputDir` at startup unless `preserveOutputDir` (`createRemoveOutputDirsTask`, runner/index.js:5919–5932). Sequential shards sharing an outputDir destroy each other's failure artifacts | runnersrc Q3 |
 | E16 | NEW | CLI `--reporter` REPLACES the config reporter array (runner/index.js:301); NO additive mechanism, NO `PLAYWRIGHT_JSON_OUTPUT_*` / `PLAYWRIGHT_JUNIT_OUTPUT_*` / `PLAYWRIGHT_BLOB_OUTPUT_*` env vars exist in 1.60 (only `PLAYWRIGHT_HTML_OPEN`). Per-shard reporter paths require config edits OR runner-side file moves | runnersrc Q4 |
 | E17 | NEW | `--no-deps` exists in 1.60 (program.js:183); `merge-reports` accepts a directory of blob zips, no version gate in source | runnersrc Q5/Q6 |
-| E18 | NEW | Reporter outputs are FIXED-PATH except allure: `reports/html-report`, `reports/test-results.json`, `reports/junit-results.xml`, agent-reporter's `reports/failure-summary.json` all overwritten per invocation; `reports/allure-results` ACCUMULATES; agent-reporter's `reports/failure-history.json` survives `npm run clean` and accumulates across runs | cfgrisk Q1/Q8, agent-reporter.ts:69–70 |
+| E18 | NEW | Reporter outputs are FIXED-PATH except allure: `reports/html-report`, `reports/test-results.json`, `reports/junit-results.xml`, agent-reporter's `reports/failure-summary.json` all overwritten per invocation; `reports/allure-results` ACCUMULATES; agent-reporter's a failure history file (path does not resolve — file was never committed) survives `npm run clean` and accumulates across runs | cfgrisk Q1/Q8, agent-reporter.ts:69–70 |
 | E19 | NEW | Full-suite size today: **1 018 tests / 33 files**. locations=303, corporate-pricing=281, corporate-override=162, local-office=81, service-charge-text=81, terms-conditions=77, service-charge=33. The crash tripped at ~165 executed tests under heavy churn — module-sized shards (303, 281) would EXCEED the observed kill threshold | cfgrisk Q9 |
 | E20 | NEW | 61/96 failures carry the 30s test-timeout; 59 are the full `:118`-poll squeeze signature | census |
 | E21 | NEW | 11/11 fresh workers died at 0 ms from index 171 to run end — the exhausted state persisted within the run session. "Cleared after exit" is evidenced by two post-incident passes on the same machine: the DET-001 solo run (`nm3344-crashdisc-0811`) and the suiterepro control pair (`nm3344-suiterepro-0811b`, TC-TNC-CORE-001 passing 34.8 s) — two runs, not a resource measurement; the Phase 1 sampler closes the gap | lognum Q2 + those two artifacts |
@@ -229,14 +229,14 @@ design), **RETIRED** (rev 1 row's claim withdrawn), **NEW** (this wave). Sources
 
 | Artifact | What it proves |
 |---|---|
-| `.claude/state/nm3344-runs/delivered-run.log` | Primary record (6 036 lines) |
+| a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output) | Primary record (6 036 lines) |
 | `clients/encore/reports/delivered-artifacts-0811/` | Per-failure error-context/screenshots/traces (167 dirs) |
 | `clients/encore/reports/_preserved/delivered-regression-0811/` | Preserved HTML report. **Do not overwrite** |
 | `.claude/state/ua-worker/nm3344-cfgrisk-0811/result.md` | Config/fixture/reporter/script census, per-module test counts (rev 2) |
-| `.claude/state/ua-worker/nm3344-runnersrc-0811/result.md` | 1.60 runner-source verification: worker churn, outputDir wipe, reporter replacement, `--no-deps`, merge-reports, E6/E7 re-read (rev 2) |
-| `.claude/state/ua-worker/nm3344-lognum-0811/result.md` | 96/96 failure census, crash table, final-URL census (rev 2) |
+| a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output) | 1.60 runner-source verification: worker churn, outputDir wipe, reporter replacement, `--no-deps`, merge-reports, E6/E7 re-read (rev 2) |
+| a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output) | 96/96 failure census, crash table, final-URL census (rev 2) |
 | `.claude/state/ua-worker/nm3344-suiterepro-0811b/` | Contamination-kill differential experiment (rev 1) |
-| `.claude/state/ua-worker/nm3344-leakaudit-0811b/result.md` | Static state-leak audit; mutation table seed for Phase 5 (rev 1) |
+| a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output) | Static state-leak audit; mutation table seed for Phase 5 (rev 1) |
 | Superseded, kept for the record: `nm3344-logfor-0811` (forensics — E12 retired), `nm3344-fixdesign2-0811` (design — E6 corrected), `nm3344-crashdisc-0811` (partial) | rev 1 lineage |
 
 **Commands to re-derive the rev 2 headline numbers** (run from repo root):
@@ -377,7 +377,7 @@ appears anywhere in this phase.
 
 ### A1 — shard manifest, sized by TEST COUNT (E19), not module count
 
-- [ ] Create `clients/encore/scripts/shard-manifest.json`: explicit ordered shards, each an array of
+- [ ] Create a shard manifest (path does not resolve — file was never committed): explicit ordered shards, each an array of
       spec paths + the owning Playwright project. **Budget: ≤120 tests per shard** (observed kill
       threshold ~165 under churn; 120 leaves margin). Authoring-time seed from E19 (≈11 shards):
       corporate-override → 2 · corporate-pricing → 3 · locations (`encore-locations` project) → 3 ·
@@ -458,7 +458,7 @@ from today's global 1 to per-file assignments — so a one-line instruction ("lo
 pricing = 3") becomes a one-file edit, never an infra build. Mechanism is free: E25 (CLI flags +
 env-driven config).
 
-- [ ] Create `clients/encore/scripts/worker-policy.json`, read by the runner at start:
+- [ ] Create a worker policy config (path does not resolve — file was never committed), read by the runner at start:
 
       ```json
       {

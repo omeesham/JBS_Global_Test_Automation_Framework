@@ -176,7 +176,7 @@ blob, verified, dropped the stash; nothing lost. Do not use stash on this tree.
   next will hit it.
 - `locations_legal` and `locations_local_information` still need a real walk to populate their
   verification tables — visible debt, recorded in the documents themselves.
-- `scripts/worker-report.md` deliberately left untracked: stray worker narration misfiled into
+- (the referenced worker report template does not exist at this path) deliberately left untracked: stray worker narration misfiled into
   `scripts/`, not repo material.
 
 ## HALT lines

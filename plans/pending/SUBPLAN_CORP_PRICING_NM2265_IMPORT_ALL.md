@@ -72,9 +72,9 @@ Real import commits are **AUTHORIZED** under the SAME binding constraints as `SU
 
 **Context files**:
 - `plans/pending/PLAN_CORP_PRICING_JIRA_DELIVERY.md` (parent)
-- `plans/pending/SUBPLAN_CORP_PRICING_TOOLBAR_REMEDIATION.md` (SOURCE A — drift-fix fold)
-- `plans/pending/SUBPLAN_CORP_PRICING_EDGE_P3.md` (SOURCE B — real I/O fold)
-- `plans/pending/SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md` (Depends-on — upload helper)
+- `plans/done/SUBPLAN_CORP_PRICING_TOOLBAR_REMEDIATION.md` (SOURCE A — drift-fix fold)
+- SOURCE B — real I/O fold (the cited plan file is gone; the claim is unverified as file evidence)
+- `plans/done/SUBPLAN_CORP_PRICING_NM2305_LOC_IMPORT.md` (Depends-on — upload helper)
 - `clients/encore/specs_planning/_internal/walk-evidence-corporate-pricing-2026-06-23.md` (live evidence rows B7–B9)
 - `clients/encore/CLAUDE.md` (LR-ENC-001/002/003/004, LR-008/012/017/036)
 - `docs/read_only_docs/AGENT_SHARED_RULES.md` (§2 ownership, ALL-* rules)

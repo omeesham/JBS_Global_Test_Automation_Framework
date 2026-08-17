@@ -74,7 +74,7 @@ This plan restructures the pending queue to that shape. The output is a per-subm
 
 ## Phase 1 — Manifest mapping (R1)
 
-Produce `clients/encore/specs_planning/_internal/vertical-restructure-manifest-2026-05-06.md` classifying every entry in `plans/pending/` (~95 plans) into one of seven buckets:
+Produce a restructure manifest (path does not resolve — file was never committed) classifying every entry in `plans/pending/` (~95 plans) into one of seven buckets:
 
 | Bucket | Definition | Example |
 |---|---|---|

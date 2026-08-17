@@ -40,7 +40,7 @@ The plan body below incorporates all 8 corrections. Ship safety is maintained (L
 
 PLAN_ONE_GUIDE_SAID_THIS Q4 deferred this work: *"ship is a separate problem i will decide on"*. This plan captures the deferred work as an authored plan so it doesn't get lost.
 
-**What "ship" means here**: the **dry-run** ship to `RutviK-JBS/encore_deliverables_test` (the gitignored mock repo for testing the git-archive ship workflow). NOT the real delivery to Encore — that goes via JBS colleagues outside git per [`feedback_no_token_burn_on_rediscovery.md`](~/.claude/projects/.../memory/feedback_no_token_burn_on_rediscovery.md) + [`clients/encore/docs/read_only_docs/SHIP_TO_ENCORE.md`](clients/encore/docs/read_only_docs/SHIP_TO_ENCORE.md). Per user auto-memory: *"RutviK-JBS/encore_deliverables_test is a dry-run mock for testing git ship actions; real ship to client goes via JBS colleagues outside git (not Rutvik, not Claude)"*.
+**What "ship" means here**: the **dry-run** ship to `RutviK-JBS/encore_deliverables_test` (the gitignored mock repo for testing the git-archive ship workflow). NOT the real delivery to Encore — that goes via JBS colleagues outside git, as captured in user memory and the Encore shipping notes. Per user auto-memory: *"RutviK-JBS/encore_deliverables_test is a dry-run mock for testing git ship actions; real ship to client goes via JBS colleagues outside git (not Rutvik, not Claude)"*.
 
 **Why this plan exists:**
 - Guide 2 said: *"Do not claim CI green until shipped to encore_deliverables_test."*

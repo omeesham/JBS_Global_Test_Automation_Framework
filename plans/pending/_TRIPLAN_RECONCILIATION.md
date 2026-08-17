@@ -16,7 +16,7 @@ Every claim below cites its source artifact.
 
 ### Part 1 — In-Repo: Fix-List ⇄ Delete-List
 
-Source: `out-recon-fixwave/STEP0A-RECONCILIATION.md`
+Source: a session-local worker output file (not tracked in git)
 
 **Confirmed same-path collisions: ZERO.**
 
@@ -32,7 +32,7 @@ B4 deletes 25 `plans/done/` files (HIST_*, CORP_PRICING_*, etc.). FW-A3 fixes `P
 **C2 vs FW-B5 verdict** (source: `STEP0A-RECONCILIATION.md § C2 vs FW-B5`):
 C2 scrubs credentials in 6 `pipeline/` and `src/` files. FW-B5 touches `scripts/`, `.claude/hooks/lib/`, `.claude/agents/`, `AGENT_SHARED_RULES.md`, etc. Zero overlap. **NO COLLISION**. Definitive.
 
-**FW-B3 path-truth defect** (source: `out-rh-E/OFFREPO-COLLISION.md § FW-B3 PATH TRUTH`):
+**FW-B3 path-truth defect** (source: `a session-local worker output file (not tracked in git) § FW-B3 PATH TRUTH`):
 `PLAN_ULTRAAUDIT_FIX_WAVE.md` Lot FW-B3 cites five files under `~/.claude/hooks/lib/` — **that directory does not exist**. Actual locations: `delegation-gate.mjs`, `ua-worker-guard.mjs`, `labor-gate.mjs`, `delegation-nudge.mjs` all live directly at `~/.claude/hooks/` (no `lib/` subdirectory). `parse-verdict.mjs` exists only in the repo at `.claude/hooks/lib/parse-verdict.mjs`, not in `~/.claude/hooks/` at all. Any FW-B3 action referencing `~/.claude/hooks/lib/` will fail.
 
 ---
@@ -90,7 +90,7 @@ Source: `OFFREPO-COLLISION.md § UNIQUE-CONTENT CHECK / STRUCTURAL ASSESSMENT`.
 | lcd07r2 staged patch | `~/.claude/delegation/` (unapplied) | ~25 KB | Awaiting owner GO | apply-first (FIX_WAVE Decision 2: P1-M05); `PLAN_ULTRAAUDIT_FIX_WAVE.md` Open Decision 2 |
 | `config.json.bak-lcd04` | `~/.claude/delegation/config.json.bak-lcd04` | 110 bytes | Merge prerequisite per P2-13; but as of 2026-07-30 all keys already in live config | retire (merge already complete per `OFFREPO-COLLISION.md § UNIQUE-CONTENT CHECK`); awaiting-GO to delete |
 | 42 bak files (full set) | `~/.claude/` (32 files) + `~/.copilot/` (10 files) | varies | 19 have protected/PENDING-GO rulings (see COLLISION MATRIX Part 2); 23 unclassified | awaiting-GO (per-file for the 19 colliding; Category A batch for the 23 unclassified after carve-out) |
-| Residual staged pending plans (9) | `plans/pending/` | — | 9 pending plans cited in FIX_WAVE Open Decision 10: "confirm active vs stale before Phase 7 closure" | awaiting-GO — do not move/edit without explicit Rutvik approval (source: `out-recon-slop/TRI-STATE.md § PLAN_ULTRAAUDIT_FIX_WAVE.md BLOCKED ON`) |
+| Residual staged pending plans (9) | `plans/pending/` | — | 9 pending plans cited in FIX_WAVE Open Decision 10: "confirm active vs stale before Phase 7 closure" | awaiting-GO — do not move/edit without explicit Rutvik approval (source: `a session-local worker output file (not tracked in git) § PLAN_ULTRAAUDIT_FIX_WAVE.md BLOCKED ON`) |
 
 ---
 
@@ -116,7 +116,7 @@ All findings from re-hunt lots A–D. Findings the lots marked ALREADY-KNOWN are
 | RH-D-03 | `website/backend/src/middleware/tenant.middleware.ts:5` | S0 | Public default JWT secret lets attacker forge tenant-aware tokens and choose the schema used by routes | JWT signed with `intelliqe-dev-secret-change-in-production`, arbitrary payload | Token verifies; `queryWithSchema` runs against attacker-supplied schema; expected 401 | No |
 | RH-D-04 | `website/backend/src/services/tenant.service.ts:153` | S1 | Client slug inserted into SQL identifiers without validation — valid-looking admin input with spaces/punctuation breaks tenant provisioning | `POST /api/clients` with `slug:"bad slug"` | Route 500: DB syntax error from unquoted index name; should be 400 with validation error | No |
 
-**Lot A findings**: 0 net-new. 27/322 files opened. All S0/S1 patterns encountered were already in `_ULTRAAUDIT_FINDINGS.md`. Source: `out-rh-A/REHUNT-LOT-A.md § LOT SUMMARY`.
+**Lot A findings**: 0 net-new. 27/322 files opened. All S0/S1 patterns encountered were already in `_ULTRAAUDIT_FINDINGS.md`. Source: `a session-local worker output file (not tracked in git) § LOT SUMMARY`.
 
 ---
 
@@ -124,14 +124,14 @@ All findings from re-hunt lots A–D. Findings the lots marked ALREADY-KNOWN are
 
 ✅ **100% mandate MET for executables. Non-executables honestly ledgered — see per-lot artifacts.**
 
-Denominator: **1,937 total lines / 1,901 non-blank** in `.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`. The 1,901 figure is a NON-BLANK count and must never be used as a line offset (doing so silently drops the final ~36 rows including website/frontend entries). Source: `out-recon-slop/TRI-STATE.md § DENOMINATOR CHECK`; `out-w2-other/REHUNT-W2-OTHER.md § DENOMINATOR RECOVERED`.
+Denominator: **1,937 total lines / 1,901 non-blank** in `.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`. The 1,901 figure is a NON-BLANK count and must never be used as a line offset (doing so silently drops the final ~36 rows including website/frontend entries). Source: `out-recon-slop/TRI-STATE.md § DENOMINATOR CHECK`; `a session-local worker output file (not tracked in git) § DENOMINATOR RECOVERED`.
 
 | Bucket | Wave 1 artifact | Wave 2 artifact | Executable result | Non-executable handling |
 |---|---|---|---|---|
-| `.claude` | `out-rh-A/REHUNT-LOT-A.md` | `out-w2-claude/REHUNT-W2-CLAUDE.md` | **56/56 executables** | Ledgered per file with reasons |
-| `scripts / config / test` | `out-rh-B/REHUNT-LOT-B.md` | `out-w2-scripts/REHUNT-W2-SCRIPTS.md` | **117/117 executables** | Ledgered per file with reasons |
-| `pipeline / src / root / docs` | `out-rh-C/REHUNT-LOT-C.md` | `out-w2-pipeline/REHUNT-W2-PIPELINE.md` | **51/51 executables** | Ledgered per file with reasons |
-| `other` (`.playwright-cli`, `.ci`, `.githooks`, non-website) | `out-rh-D/REHUNT-LOT-D.md` | `out-w2-other/REHUNT-W2-OTHER.md` | **37/37 non-website executables** | Ledgered per file with reasons |
+| `.claude` | `out-rh-A/REHUNT-LOT-A.md` | a session-local worker output file (not tracked in git) | **56/56 executables** | Ledgered per file with reasons |
+| `scripts / config / test` | a session-local worker output file (not tracked in git) | a session-local worker output file (not tracked in git) | **117/117 executables** | Ledgered per file with reasons |
+| `pipeline / src / root / docs` | a session-local worker output file (not tracked in git) | a session-local worker output file (not tracked in git) | **51/51 executables** | Ledgered per file with reasons |
+| `other` (`.playwright-cli`, `.ci`, `.githooks`, non-website) | a session-local worker output file (not tracked in git) | `out-w2-other/REHUNT-W2-OTHER.md` | **37/37 non-website executables** | Ledgered per file with reasons |
 | **Combined** | | | **261/261 executables** | All non-executables ledgered |
 
 **Notes:**
@@ -145,12 +145,12 @@ Denominator: **1,937 total lines / 1,901 non-blank** in `.claude/state/ua-worker
 
 This wave ran under a decision-authority rule set by the owner: **workers read without limit, propose
 in text, and change nothing; every create/update/delete is decided by the dispatcher or by the owner.**
-Contract: `.claude/state/ua-worker/chips/q123/SHARED-R-PHASE-CONTRACT.md`.
+Contract: a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output).
 
 ### CORRECTED NUMBERS — supersedes every earlier open-count in this file
 
 Machine reconciliation of the findings index against all 59 `out-*/` worker reports
-(`out-r4-group/R4-OPEN-WORKLIST.md`):
+(a session-local worker output file (not tracked in git)):
 
 | bucket | count |
 |---|---|
@@ -192,7 +192,7 @@ doctrine.**
 
 ### ⛔ OVERTURNED — the self-cleaner "READY FOR GO" is WITHDRAWN (settled 2026-07-30)
 
-The author's seat **CONCEDED** the race (`out-c1-defend-race/C1-RACE-DEFENCE.md`). The earlier
+The author's seat **CONCEDED** the race (a session-local worker output file (not tracked in git)). The earlier
 READY-FOR-GO entry in this file is **withdrawn**. Do not register the sweeper.
 
 The conceded interleaving, with `sweep.mjs` line numbers:
@@ -220,7 +220,7 @@ created-but-empty state.
 
 ### (superseded) CHALLENGED — the self-cleaner "READY FOR GO" is disputed
 
-An independent cross-vendor read (`out-r3-ctrl/R3-CONTROL-DECISIONS.md`, Decision 1) states the
+An independent cross-vendor read (a session-local worker output file (not tracked in git), Decision 1) states the
 self-cleaner's **initial lock acquisition still carries an empty-lock race**, after the six adversarial
 rounds that produced this file's READY-FOR-GO entry. Treat that entry as **NOT settled** until the
 author defends or concedes. Not yet dispatched.
@@ -296,7 +296,7 @@ exceeds its outflow has not succeeded. Closing the tap outranks grinding the rem
 
 ### TELEMETRY WIRED — loop-closer applied (batch 4), plus two discoveries
 
-**Applied** (`out-u5-telemetry/U5-APPLIED.md`): shared `fireTelemetry(gate, verdict, target)` appended to
+**Applied** (a session-local worker output file (not tracked in git)): shared `fireTelemetry(gate, verdict, target)` appended to
 `.claude/hooks/lib/hook-utils.mjs`, wired into the three fully-dark gates. Fail-open by construction —
 the whole body is `try { … } catch { /* swallow */ }`, so a telemetry failure can never become a denied
 write; the state dir resolves module-relative, not cwd-relative.
@@ -437,11 +437,11 @@ by §3.5 doctrine, wave 3 existing convicts waves 1–2. Consequences:
 
 ### APPLIED VIA DECISION — batch 1 (9 proposals, dispatcher-approved, verified)
 
-The four proposal lots were collated into `out-consolidate/DECISION-SHEET.md`: **137 proposal rows**
+The four proposal lots were collated into a session-local worker output file (not tracked in git): **137 proposal rows**
 grouped by risk class (PROSE / PROMPT / DEAD-CODE / LOGIC / CONFIG / CLOSED-RECORD). The dispatcher
 approves by row number; a zero-discretion U-phase applies the approved list verbatim.
 
-**Batch 1 — approved and applied** (`out-u2-deadcode/U2-APPLIED.md`):
+**Batch 1 — approved and applied** (a session-local worker output file (not tracked in git)):
 
 | row | id | file | change |
 |---|---|---|---|
@@ -463,7 +463,7 @@ Diff is confined to the three files (`-15`, `+1/-2`, `+5/-14`). Worker reported 
 Ordering mattered and was part of the approval: the NUL fix had to land first, because while the NUL
 was present the file classified as binary to line-based tooling.
 
-**Batch 2 — approved and applied** (`out-u3-annotations/U3-APPLIED.md`): rows 4, 5, 8, 9, 11, 15 —
+**Batch 2 — approved and applied** (a session-local worker output file (not tracked in git)): rows 4, 5, 8, 9, 11, 15 —
 six annotations on `plans/done/` records (`SUBPLAN_LCD_05`, `SUBPLAN_LCD_06`, `PLAN_CHAIN_PER_SESSION_ORCHESTRATION` ×4).
 
 Verified by the dispatcher: **every original sentence survives verbatim** — the annotation is appended
@@ -485,7 +485,7 @@ first would pre-empt the answer.
 and `check-mistake-ledger.mjs` emit fire telemetry and "the other ≥8 deny/announce gate libs are DARK
 — they never append to `gate-fires.log`".
 
-A per-file verification (`out-rJ-telemetry/RJ-TELEMETRY-PROPOSALS.md`, grepped rather than assumed)
+A per-file verification (a session-local worker output file (not tracked in git), grepped rather than assumed)
 shows that is **not accurate**:
 
 | state | gates |
@@ -550,7 +550,7 @@ cleanup.
 
 ### FW3 ROOT CAUSE — a TOCTOU in `readState()` that reaches past fix wave 3
 
-`out-r5-fw3redesign/R5-FW3-REDESIGN.md` ran the LR-069 §3.5 prior-fix trial and returned
+a session-local worker output file (not tracked in git) ran the LR-069 §3.5 prior-fix trial and returned
 **CONVICTED (`scoped-wrong`)**. It is a materially better diagnosis than the review's:
 
 - **FW3-01** — the wave applied a *uniform* "state-op fails → pause the chain" policy to 8 sites. At
@@ -594,11 +594,11 @@ All fixes are in the working tree, unstaged, not committed. Sources: fix-wave FI
 
 | Wave | Files changed | Defects closed | Review verdict | Hops |
 |---|---|---|---|---|
-| **Fix wave 1** | `pipeline/worker/index.ts`, `pipeline/orchestrator/orchestrator.ts`, `scripts/ship-client.sh`, `scripts/validate-plan-closure.mjs` | S0: post-complete gate returning `success: true` on failure; orchestrator success-fallback routing; failed gate terminating as `completed`; spoofable gate field read from agent stdout; scalar-stdout crash | **ACCEPT** (`out-review3/CONFIRM-HOP5.md`) | 5 hops (2 REJECTs → dispatcher redesign → 2 confirm rounds) |
-| **Fix wave 2** | `scripts/setup/setup.sh`, `scripts/setup/setup.bat`, `scripts/pipeline-orchestrator.ts`, `scripts/task-context-builder.ts`, `scripts/ship-client.ps1` | S0/S1: both setup scripts exiting success on failed steps; missing Claude CLI treated as successful dry-run; `--json` swallowed as positional; PowerShell ship path missing env template and `--require-env-local`; three `runSingleStage()` callers swallowing failures | **ACCEPT** (`out-review-fw2c/FINAL-FW2.md`) | 4 hops (3 REJECTs → final accept) |
-| **Fix wave 3** | `pipeline/scripts/healer-post-complete.ts`, `pipeline/server/db/queries.ts`, `.claude/hooks/chain-orchestrator.sh` | Require path resolving to nonexistent module; invalid SQL when `clientId` absent; 9 discarded `cs_get`/`cs_set` exit codes | **REJECT** (`out-review-fw3/REVIEW-FW3.md`, cross-family, corrected 2026-07-30) — **2 defects UNREMEDIATED**, both in `chain-orchestrator.sh`: **FW3-01** (`:281-288` — `cs_set` of the child pid returns non-zero after the spawn succeeds, so the chain records `status=paused / state-write-failed` while the child keeps running; that child's Stop hook then exits early because `.status` is no longer `running`, and its verdict is never recorded). **FW3-02** (`:111,128-129` — `cs_get` of the queue file fails despite a valid `currentIndex`, yielding `current_file=unknown`; the ownership check returns `no` and the hook exits 0 without pausing, leaving the chain stuck in `running`). | 2 (applied → REJECTED; needs redesign) |
+| **Fix wave 1** | `pipeline/worker/index.ts`, `pipeline/orchestrator/orchestrator.ts`, `scripts/ship-client.sh`, `scripts/validate-plan-closure.mjs` | S0: post-complete gate returning `success: true` on failure; orchestrator success-fallback routing; failed gate terminating as `completed`; spoofable gate field read from agent stdout; scalar-stdout crash | **ACCEPT** (a session-local worker output file (not tracked in git)) | 5 hops (2 REJECTs → dispatcher redesign → 2 confirm rounds) |
+| **Fix wave 2** | `scripts/setup/setup.sh`, `scripts/setup/setup.bat`, `scripts/pipeline-orchestrator.ts`, `scripts/task-context-builder.ts`, `scripts/ship-client.ps1` | S0/S1: both setup scripts exiting success on failed steps; missing Claude CLI treated as successful dry-run; `--json` swallowed as positional; PowerShell ship path missing env template and `--require-env-local`; three `runSingleStage()` callers swallowing failures | **ACCEPT** (a session-local worker output file (not tracked in git)) | 4 hops (3 REJECTs → final accept) |
+| **Fix wave 3** | `pipeline/scripts/healer-post-complete.ts`, `pipeline/server/db/queries.ts`, `.claude/hooks/chain-orchestrator.sh` | Require path resolving to nonexistent module; invalid SQL when `clientId` absent; 9 discarded `cs_get`/`cs_set` exit codes | **REJECT** (a session-local worker output file (not tracked in git), cross-family, corrected 2026-07-30) — **2 defects UNREMEDIATED**, both in `chain-orchestrator.sh`: **FW3-01** (`:281-288` — `cs_set` of the child pid returns non-zero after the spawn succeeds, so the chain records `status=paused / state-write-failed` while the child keeps running; that child's Stop hook then exits early because `.status` is no longer `running`, and its verdict is never recorded). **FW3-02** (`:111,128-129` — `cs_get` of the queue file fails despite a valid `currentIndex`, yielding `current_file=unknown`; the ownership check returns `no` and the hook exits 0 without pausing, leaving the chain stuck in `running`). | 2 (applied → REJECTED; needs redesign) |
 
-Sources: `out-fixwave1/FIXWAVE1-APPLIED.md`, `out-fixwave2/FIXWAVE2-APPLIED.md`, `out-fixwave3/FIXWAVE3-APPLIED.md`, `out-review3/CONFIRM-HOP5.md`, `out-review-fw2c/FINAL-FW2.md`.
+Sources: a session-local worker output file (not tracked in git), a session-local worker output file (not tracked in git), a session-local worker output file (not tracked in git), `out-review3/CONFIRM-HOP5.md`, `out-review-fw2c/FINAL-FW2.md`.
 
 ---
 
@@ -624,7 +624,7 @@ Binding decisions made by the owner. Executors must not override these without e
 | `website/` is stale-but-retained and **untouchable** | All `website/` subtree files including backend S0s | 2026-07-29 | `out-recon-slop/TRI-STATE.md § OWNER DECISIONS`; SLOP_SWEEP decision (c) |
 | `plans/done/` stays — **640 files retained**, Lot B5 removed from queue | All 640 `plans/done/` files | 2026-07-29 | `out-recon-slop/TRI-STATE.md § OWNER DECISIONS`; SLOP_SWEEP decision (b) |
 | Coverage: **continue to depth** | All four coverage buckets | 2026-07-30 | Context pack — explicit owner GO |
-| 19 protected bak files: **archive, do not delete** | See COLLISION MATRIX Part 2 for the full 19-row set | 2026-07-30 | `out-rh-E/OFFREPO-COLLISION.md § COLLISION SET`; `out-goready/GO-READY-BATCHES.md § BATCH B-BAK-PROTECTED` |
+| 19 protected bak files: **archive, do not delete** | See COLLISION MATRIX Part 2 for the full 19-row set | 2026-07-30 | `out-rh-E/OFFREPO-COLLISION.md § COLLISION SET`; `a session-local worker output file (not tracked in git) § BATCH B-BAK-PROTECTED` |
 
 ---
 
@@ -696,7 +696,7 @@ Sequence: Phase 5 fix wave first (it gates everything); the registry after, it i
 
 ## C3 PENDING-PLAN TRIAGE
 
-Source: `out-c3/C3-PENDING-PLAN-TRIAGE.md`. Classification only — nothing was moved, edited, or deleted.
+Source: a session-local worker output file (not tracked in git). Classification only — nothing was moved, edited, or deleted.
 
 **137 files in `plans/pending/`** classified into four buckets:
 
@@ -885,7 +885,7 @@ Source: `out-recon-slop/TRI-STATE.md § PLAN_ULTRAAUDIT_FIX_WAVE.md BLOCKED ON`;
 | 8 | Orphaned untracked PNGs — git-clean nod required | | **OPEN** |
 | 9 | `docker-compose` / `render` / `jest` vestiges + gitignored scratch dirs | | **OPEN** |
 | 10 | 9 residual staged pending plans — confirm active vs stale before Phase 7 closure | See STAGED-ARTIFACT REGISTER | **OPEN** |
-| ps1-liveness | Was `scripts/ship-client.ps1` live or dead code? | Answered during Fix Wave 2 Hop 2 | ✅ **RESOLVED** — liveness confirmed via `plans/pending/PLAN_SHIP_CLIENT_PAYLOAD_GATE_REPAIR.md:153,203,229-240`; fix applied in Fix Wave 2. Source: `out-fixwave2/DEFENCE-FW2-HOP2.md` |
+| ps1-liveness | Was `scripts/ship-client.ps1` live or dead code? | Answered during Fix Wave 2 Hop 2 | ✅ **RESOLVED** — liveness confirmed via `a plan that was never finalized (path does not resolve):153,203,229-240`; fix applied in Fix Wave 2. Source: a session-local worker output file (not tracked in git) |
 
 ### ULTRAAUDIT Pending Decisions (3)
 
@@ -917,7 +917,7 @@ rename (`_ULTRAAUDIT_FINDINGS.md:306`) — zero code references. Row 44 confirme
 
 > `COMPACT: remove test-client.ts from tsconfig include; create tsconfig.test.json`
 
-The R-phase proposal (`out-rMN-src-context/RMN-PROPOSALS.md:54-65`) carried only the first clause. It was
+The R-phase proposal (`a session-local worker output file (not tracked in git):54-65`) carried only the first clause. It was
 approved as row 39 and applied correctly:
 
 ```diff
@@ -988,7 +988,7 @@ ticket's proof that it was closed was wrong.**
 
 | step | evidence |
 |---|---|
-| Live gate mode | `~/.claude/delegation/labor-gate-config.json` → `"mode": "deny"` — enforcing, not announce |
+| Live gate mode | `~/a delegation scratch file (untracked — session-local)` → `"mode": "deny"` — enforcing, not announce |
 | Drift check before overwriting | `diff` installed vs repo source = 38 lines, **all** of them the repo source being ahead. Zero local drift; nothing regressed |
 | Backup | two copies — `~/.claude/delegation/labor-gate.mjs.pre-install-2026-07-30.bak` + scratchpad |
 | Pre-install sha256 | `93b7bc55156039e7b9148461ba3abc06eefea148add743c6f6026cc5cd97b8cc` |
@@ -1039,7 +1039,7 @@ bypass is live and exploitable. The gate is strictly better than before the inst
 
 ### P2-LOT18-01 completed — the truncated finding is now whole
 
-`TICKET-u8-tsconfig` created `.claude/skills/ultra-agents/tavily-mcp/tsconfig.test.json`
+`TICKET-u8-tsconfig` created a test tsconfig (path does not resolve — the file may have been removed during restructuring)
 (`extends` the base, `noEmit: true`, includes `src/**/*.ts` + `test-client.ts`). Dispatcher-verified
 independently: `tsc -p tsconfig.test.json --listFiles` lists `test-client.ts`, exit 0. The file is
 typechecked again and still does not emit into `dist/` — both halves of the finding now hold.
@@ -1352,7 +1352,7 @@ Auditing lot A's DISPATCHER rows surfaced **11 rows touching permission or contr
 rule was the gap. The OWNER criteria I gave listed off-repo paths, file delete/move/rename, credentials,
 publishing, and ramp-knob promotion — and never named the permission layer.
 
-`memory/feedback_self_modification_needs_explicit_go.md` is explicit that
+a memory file (path does not resolve — memory files are session-local and ephemeral) is explicit that
 `.claude/settings*.json` edits need Rutvik's direct in-chat go. That rule should have been in the ticket.
 
 **Amended OWNER criteria — a finding is OWNER if any of the original conditions hold, OR:**
@@ -1375,7 +1375,7 @@ applying them does not change running behaviour, and the install is a separate O
 *Affected: JOIN260 `P2-LOT04-01, -02, -12, -13`.*
 
 This is the two-halves problem already on record
-(`memory/project_delegation_system_has_two_halves.md`) showing up inside the classification itself.
+(a memory file (path does not resolve — memory files are session-local and ephemeral)) showing up inside the classification itself.
 
 ### How the amendment gets applied
 
@@ -1442,7 +1442,7 @@ Machine artifacts at `.claude/state/ua-worker/chips/q123/out-merge-final/`:
 ### The off-repo split set — Fable Q2 condition 1 satisfied
 
 **95 findings** target `~/.claude/` or `~/.copilot/`, written to
-`out-merge-final/OFF-REPO-TRANSFER-MANIFEST.md`:
+a session-local worker output file (not tracked in git):
 
 | tree | count |
 |---|---|
@@ -1502,7 +1502,7 @@ removed.
 
 ### DISPATCHER worklist
 
-`out-merge-final/DISPATCHER-WORKLIST.md` — the **196** in-repo findings that need no owner approval,
+a session-local worker output file (not tracked in git) — the **196** in-repo findings that need no owner approval,
 grouped by target file, 98 files. Shape: a short head and a very long tail.
 
 | findings | file |
@@ -1675,7 +1675,7 @@ The big one: nine `.claude/hooks/lib/*` groups actually mean the **repo template
 `uplink-policy.json` (2 each). Every one of those is **inert until installed** — fixing the template
 changes no running behaviour, and the install is the owner's action.
 
-`P2-LOT04-24` (`.claude/hooks/lib/scorecard.json`) exists nowhere in the repo → **reclassified OWNER**.
+`P2-LOT04-24` (a scorecard config file (path does not resolve — the file may have been removed or renamed)) exists nowhere in the repo → **reclassified OWNER**.
 
 Because the mapping is *derived*, no ticket is allowed to treat it as fact: each carries a
 `## PATH-MISMATCH` section and an instruction to stop rather than edit the nearest lookalike.
@@ -1800,7 +1800,7 @@ Machine intersection of the 196 queue IDs against all 28 prior `*-APPLIED.md` re
 | appear in a prior APPLIED report — suspect closed | **65** |
 | no prior mention — presumed open | **131** |
 
-Written to `out-merge-final/STALE-SUSPECTS.md`, grouped by target file so each can be checked in one pass.
+Written to a session-local worker output file (not tracked in git), grouped by target file so each can be checked in one pass.
 "Appears in an APPLIED report" is a **suspicion, not a verdict** — an id can appear there as declined.
 `q123-w1-navigation` is the proof: all 7 of its ids appear in `out-fw-nav`, yet 4 still had real work.
 
@@ -3363,7 +3363,7 @@ works. The pattern stays.
 - `P2-LOT11-07` names `relevant-injection.mjs`; the file is at `.claude/hooks/lib/relevant-injection.mjs`.
   And the finding is stale regardless — there is no outer try/catch; `main()` is called bare at :276.
 - `P2-LOT04-24` names `.claude/hooks/lib/scorecard.json`; the file is at
-  `.claude/state/ua-worker/ticket-orch/scorecard.json`, and the tracked template already stamps a real time.
+  a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output), and the tracked template already stamps a real time.
 
 The file column in `DISPATCHER-WORKLIST.md` is a claim to verify, not a fact to route on.
 

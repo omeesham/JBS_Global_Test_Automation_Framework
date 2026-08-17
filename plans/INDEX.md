@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 156 pending · 477 done · 118 stale (>14d) · 0 DONE-in-pending
+**Totals**: 156 pending · 477 done · 111 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -89,12 +89,8 @@
 | [SUBPLAN_TESTRAIL_DEEP_SWEEP.md](pending/SUBPLAN_TESTRAIL_DEEP_SWEEP.md) | 73d | 2026-06-05 | P2 |
 | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | 70d | 2026-06-08 | P2-CYCLE-3 |
 | [PLAN_CODEREVIEW_FINDINGS_REMEDIATION.md](pending/PLAN_CODEREVIEW_FINDINGS_REMEDIATION.md) | 70d | 2026-06-08 | P1 (gates the colleague's next PR review coming back green) |
-| [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | 70d | 2026-06-08 | — |
-| [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | 70d | 2026-06-08 | — |
-| [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | 70d | 2026-06-08 | P2-CYCLE-3 |
 | [PLAN_SPEC_BASELINE_ENFORCEMENT.md](pending/PLAN_SPEC_BASELINE_ENFORCEMENT.md) | 70d | 2026-06-08 | — |
 | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | 70d | 2026-06-08 | P2-CYCLE-3 |
-| [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | 70d | 2026-06-08 | P2-CYCLE-3 |
 | [PLAN_ID_NAMING_AUDIT_AND_REMEDIATION.md](pending/PLAN_ID_NAMING_AUDIT_AND_REMEDIATION.md) | 68d | 2026-06-10 | P1 |
 | [PLAN_JARGON_AUTHORING_GATE.md](pending/PLAN_JARGON_AUTHORING_GATE.md) | 67d | 2026-06-11 | P1 |
 | [SUBPLAN_OPI_G_MIGRATE_CORP_PRICING.md](pending/SUBPLAN_OPI_G_MIGRATE_CORP_PRICING.md) | 66d | 2026-06-12 | P0-EMERGENCY |
@@ -109,14 +105,12 @@
 | [PLAN_FIGHTINNOVATION_INTER_SESSION_ASSISTANT.md](pending/PLAN_FIGHTINNOVATION_INTER_SESSION_ASSISTANT.md) | 35d | 2026-07-13 | P1 |
 | [PLAN_MEGA_AUDIT_COPILOT_ERA.md](pending/PLAN_MEGA_AUDIT_COPILOT_ERA.md) | 35d | 2026-07-13 | P0-FINAL (the terminal finalizer — highest priority in its slot, but its slot is LAST) |
 | [SUBPLAN_LCD_08_MEMORY_HINTS.md](pending/SUBPLAN_LCD_08_MEMORY_HINTS.md) | 35d | 2026-07-13 | P3 (LOW — PARKED, do NOT promote) |
-| [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | 32d | 2026-07-16 | — |
 | [SUBPLAN_MNT_FCC_REHOME.md](pending/SUBPLAN_MNT_FCC_REHOME.md) | 32d | 2026-07-16 | P3 |
 | [PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md](pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md) | 31d | 2026-07-17 | High — permanent fix for the silent-thin-coverage class (2026-07-17 Override gaps incident) |
 | [PLAN_LEGACY_OFFICE_MIGRATION_AND_GAP_RETROFIT.md](pending/PLAN_LEGACY_OFFICE_MIGRATION_AND_GAP_RETROFIT.md) | 31d | 2026-07-17 | Low now, High when triggered |
 | [SUBPLAN_CORP_PRICING_NM2271_GRID_EQUIPMENT_LABOR.md](pending/SUBPLAN_CORP_PRICING_NM2271_GRID_EQUIPMENT_LABOR.md) | 31d | 2026-07-17 | P1 |
 | [SUBPLAN_CORP_PRICING_NM2272_OVERRIDE_EXPORT.md](pending/SUBPLAN_CORP_PRICING_NM2272_OVERRIDE_EXPORT.md) | 31d | 2026-07-17 | P1 |
 | [SUBPLAN_CORP_PRICING_NM2273_OVERRIDE_IMPORT.md](pending/SUBPLAN_CORP_PRICING_NM2273_OVERRIDE_IMPORT.md) | 31d | 2026-07-17 | P1 |
-| [_ULTRAAUDIT_MANIFEST.md](pending/_ULTRAAUDIT_MANIFEST.md) | 31d | 2026-07-17 | — |
 | [PLAN_WALK_DEPTH_GATE.md](pending/PLAN_WALK_DEPTH_GATE.md) | 27d | 2026-07-21 | High |
 | [SUBPLAN_SURFACE_CASE_AXIS.md](pending/SUBPLAN_SURFACE_CASE_AXIS.md) | 27d | 2026-07-21 | Medium |
 | [PLAN_58_COVERAGE_MANIFEST_ORACLE_GATE.md](pending/PLAN_58_COVERAGE_MANIFEST_ORACLE_GATE.md) | 26d | 2026-07-22 | Medium |
@@ -129,7 +123,6 @@
 | [SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md](pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md) | 19d | 2026-07-29 | Medium — calendar-gated custodian for every in-flight LR-069 announce→deny ramp |
 | [SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md](pending/SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md) | 19d | 2026-07-29 | High — closes the one coverage class the generative oracle structurally cannot derive |
 | [PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE.md](pending/PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE.md) | 18d | 2026-07-30 | HIGH |
-| [PLAN_DELIVERABLE_SCOPE_LOCK.md](pending/PLAN_DELIVERABLE_SCOPE_LOCK.md) | 18d | 2026-07-30 | CRITICAL |
 | [PLAN_DELIVERY_SESSION_SELF_AUDIT.md](pending/PLAN_DELIVERY_SESSION_SELF_AUDIT.md) | 18d | 2026-07-30 | P0 — blocks the push |
 | [SUBPLAN_OFFREPO_RECONCILIATION.md](pending/SUBPLAN_OFFREPO_RECONCILIATION.md) | 18d | 2026-07-30 | HIGH |
 | [PLAN_DISCOUNT_MATRIX_AUTOMATION.md](pending/PLAN_DISCOUNT_MATRIX_AUTOMATION.md) | 17d | 2026-07-31 | P1 |
@@ -240,11 +233,11 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 89 | [SUBPLAN_REPO_08_RENAME_JBS.md](pending/SUBPLAN_REPO_08_RENAME_JBS.md) | SUBPLAN: Rename jbs_framework | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-16 |
 | 90 | [PLAN_CHAT_UI_BUGS.md](pending/PLAN_CHAT_UI_BUGS.md) | PLAN: Chat UI Bugs — Website Pipeline Experience | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
 | 91 | [PLAN_FULL_CHAIN_AUDIT.md](pending/PLAN_FULL_CHAIN_AUDIT.md) | PLAN: Adversarial Full-Chain Audit — V3 (Post-External-Review) | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-03-24 |
-| 92 | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | Healer Inspector & QA Report System — Final Logic Plan v1.2 | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
+| 92 | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | Healer Inspector & QA Report System — Final Logic Plan v1.2 | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-08-17 |
 | 93 | [PLAN_PLANS_INDEX_AUTOREGEN.md](pending/PLAN_PLANS_INDEX_AUTOREGEN.md) | PLAN_PLANS_INDEX_AUTOREGEN | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-15 |
 | 94 | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | PLAN: Playwright CLI Gradual Adoption | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-04-01 |
 | 95 | [PLAN_TEST_DATA_CSV_CONVERSION.md](pending/PLAN_TEST_DATA_CSV_CONVERSION.md) | PLAN: Test Data CSV Conversion | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
-| 96 | [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | PLAN: Visual Debug Skill — Give All Agents Eyes | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-06-08 |
+| 96 | [PLAN_VISUAL_DEBUG_SKILL.md](pending/PLAN_VISUAL_DEBUG_SKILL.md) | PLAN: Visual Debug Skill — Give All Agents Eyes | P2-CYCLE-3 | — (ready) | PENDING | — | — | — | — | 2026-08-17 |
 | 97 | [PLAN_56_HIDE_LEFT_PANEL_FROM_ALLURE.md](pending/PLAN_56_HIDE_LEFT_PANEL_FROM_ALLURE.md) | PLAN_56 — Hide "Location Left Panel — Basic Information" from the Allure report (only) | P2 | — (ready) | PENDING | — | — | — | — | 2026-06-03 |
 | 98 | [SUBPLAN_PIPELINE_TSC_HARDEN.md](pending/SUBPLAN_PIPELINE_TSC_HARDEN.md) | SUBPLAN: Pipeline tsc Compilation — Harden Build Mode | P2-NORMAL | — (ready) | PENDING | Opus | xhi | acceptEdits | none | 2026-05-01 |
 | 99 | [SUBPLAN_TESTRAIL_DEEP_SWEEP.md](pending/SUBPLAN_TESTRAIL_DEEP_SWEEP.md) | SUBPLAN_TESTRAIL_DEEP_SWEEP — other-module gap audit + non-deliverable Notes/MGH reference sweep | P2 | — (ready) | PENDING | Opus | xhi | auto | none | 2026-06-05 |
@@ -256,7 +249,7 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 105 | [_REPO_SLOP_FINDINGS.md](pending/_REPO_SLOP_FINDINGS.md) | Repo Slop Findings — Consolidated Council Audit | — | — (ready) | — | — | — | — | — | 2026-08-17 |
 | 106 | [_TRIPLAN_RECONCILIATION.md](pending/_TRIPLAN_RECONCILIATION.md) | TRI-PLAN RECONCILIATION | — | — (ready) | REFERENCE-ARTIFACT | — | — | — | — | 2026-08-17 |
 | 107 | [_ULTRAAUDIT_FINDINGS.md](pending/_ULTRAAUDIT_FINDINGS.md) | _ULTRAAUDIT_FINDINGS.md — UltraAudit Consolidated Findings**Date**: 2026-07-18**Ticket**: ua-merge-findings-0718## Sources Roster (every artifact dir consumed)- `.claude/state/ua-worker/ua1-coherence-merge-0717-artifacts/coherence-merged.md` (Phase 1, 21 findings)- `.claude/state/ua-worker/ua2-lot01-0718-review-artifacts/review.md` (lot01 reviewer, REJECTED)- `.claude/state/ua-worker/ua2-lot07-0718-review-artifacts/review.md` (lot07 reviewer, MATERIAL_ISSUES)- `.claude/state/ua-worker/ua2-lot08b-0718-artifacts/findings.md` (lot08b delta, 7 bak files)- `.claude/state/ua-worker/ua2-lot10b-0718-artifacts/findings.md` (lot10b delta, 6 bak files)- `.claude/state/ua-worker/ua2-lot14-0718-review-artifacts/review.md` (lot14 reviewer, MATERIAL_ISSUES)- `.claude/state/ua-worker/ua2-partitioner-0718-artifacts/dispatch-plan.md` (roster)- `.claude/state/ua-worker/ua3-gates-0718-artifacts/gate-topology.md` (Phase 3 executor)- `.claude/state/ua-worker/ua3-gates-0718-review-artifacts/review.md` (Phase 3 reviewer, REJECTED)- `.claude/state/ua-worker/ua4-lotA-0718-artifacts/lot-verdicts.md` (Phase 4 lot A)- `.claude/state/ua-worker/ua25-lot02-0718-review-artifacts/review.md` (lot25-02 reviewer, MATERIAL_ISSUES)- `.claude/state/ua-worker/ua25-lot04-0718-review-artifacts/review.md` (lot25-04 reviewer, MATERIAL_ISSUES)- `.claude/state/ua-worker/ua25-lot06-0718-review-artifacts/review.md` (lot25-06 reviewer, MATERIAL_ISSUES)- `.claude/state/ua-worker/ua25-lot07-0718-review-artifacts/review.md` (lot25-07 reviewer, MATERIAL_ISSUES)- `plans/pending/PLAN_COPILOT_INTEGRATION_ULTRAAUDIT.md` (Phase 5.1 fix-category definitions)- CEO dispatcher adjudications (source=CEO, 4 items)## Executor-Status Law Note- **ua2-lot01 REJECTED**: reviewer's H1-H7, M1-M7, E1-E3 replace executor's contested rows; uncontested executor rows survive.- **ua2-lot08 REFUTED**: all 7 executor line counts wrong + false "diff blocked" claim; reviewer authoritative on contested rows. *Reviewer content NOT read in this merge pass — flagged as gap in Coverage Reconciliation.*- **ua3-gates REFUTED**: executor claimed check-browsertool "SHIPS DISABLED" and proposed DEMOTE; reviewer found 1/19 fixture FAILS and settings.json wires it live — verdict corrected to FIX-OR-DISABLE.- **MATERIAL_ISSUES lots** (lot07, lot14, ua25-lot02/04/06/07): executor rows stand PLUS reviewer's named misses are imported as additional findings.---## Phase 1 — Vision Coherence (21 findings; import as-is from coherence-merged.md)> Source: `ua1-coherence-merge-0717-artifacts/coherence-merged.md` | — | — (ready) | — | — | — | — | — | 2026-08-17 |
-| 108 | [_ULTRAAUDIT_MANIFEST.md](pending/_ULTRAAUDIT_MANIFEST.md) | ULTRAAUDIT MERGED MANIFEST — Integration File Denominator | — | — (ready) | — | — | — | — | — | 2026-07-17 |
+| 108 | [_ULTRAAUDIT_MANIFEST.md](pending/_ULTRAAUDIT_MANIFEST.md) | ULTRAAUDIT MERGED MANIFEST — Integration File Denominator | — | — (ready) | — | — | — | — | — | 2026-08-17 |
 | 109 | [PLAN_58_COVERAGE_MANIFEST_ORACLE_GATE.md](pending/PLAN_58_COVERAGE_MANIFEST_ORACLE_GATE.md) | PLAN 58 — Coverage Manifest Oracle Gate: making unverified claims structurally visible | Medium | — (ready) | PENDING | opus | hi | default | — | 2026-07-22 |
 | 110 | [PLAN_60_JIRA_READONLY_HARDGATE.md](pending/PLAN_60_JIRA_READONLY_HARDGATE.md) | PLAN_60_JIRA_READONLY_HARDGATE — Jira/Confluence writes structurally impossible for Claude AND Copilot | — | — (ready) | PENDING | opus | hi | default | none | 2026-08-07 |
 | 111 | [PLAN_63_PC_BACKUP_ONEDRIVE_RESET_SURVIVAL.md](pending/PLAN_63_PC_BACKUP_ONEDRIVE_RESET_SURVIVAL.md) | PLAN_63: PC Backup → OneDrive (jadebiz) — Survive the Company-Account Reset | — | — (ready) | PENDING | fable | max | default | chrome | 2026-08-11 |
@@ -265,24 +258,24 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 114 | [PLAN_73_FAKE_GREEN_FLEET_SWEEP.md](pending/PLAN_73_FAKE_GREEN_FLEET_SWEEP.md) | PLAN 73: Fleet sweep — find and prove every fake green in the remaining 31 spec files | High | — (ready) | PENDING | opus | xhi | auto | none | 2026-08-16 |
 | 115 | [PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md](pending/PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md) | PLAN 74: Why every existing defence let the fake greens through — and the gate that would have stopped them | High | — (ready) | PENDING | opus | max | auto | none | 2026-08-16 |
 | 116 | [PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md](pending/PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md) | PLAN 75: Cut Claude's own burn without losing a single point of quality | High | — (ready) | PENDING | Opus | xhi | auto | none | 2026-08-16 |
-| 117 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | PENDING | — | — | — | — | 2026-07-16 |
+| 117 | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PLAN: Bug Hunting Rulebook v2 — Detection Fixes + data-testid Hard Rule | — | — (ready) | PENDING | — | — | — | — | 2026-08-17 |
 | 118 | [PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE.md](pending/PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE.md) | PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE | HIGH | — (ready) | PENDING | Opus | xhi | auto | none (no live UI work in this plan) | 2026-07-30 |
 | 119 | [PLAN_DELEGATION_LEDGER_TRUTH.md](pending/PLAN_DELEGATION_LEDGER_TRUTH.md) | PLAN: Delegation Ledger Truth — `ok`/`exit_reason` must key on the work, not the exit code | High | — (ready) | PENDING | opus | xhi | acceptEdits | none | 2026-07-23 |
-| 120 | [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | Plan — clients/encore restructure: kill `setup/` + `tests/` wrappers + move test-data + infra to src/ + delete seed spec → ship to encore_deliverables_test:notes-latest | — | — (ready) | — | — | — | acceptEdits | none | 2026-06-08 |
-| 121 | [PLAN_DELIVERABLE_SCOPE_LOCK.md](pending/PLAN_DELIVERABLE_SCOPE_LOCK.md) | PLAN_DELIVERABLE_SCOPE_LOCK — make it structurally impossible to ship unapproved work | CRITICAL | — (ready) | PENDING | Opus | ultrathink | default | none (no browser work in this plan) | 2026-07-30 |
-| 122 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-06-08 |
+| 120 | [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | Plan — clients/encore restructure: kill `setup/` + `tests/` wrappers + move test-data + infra to src/ + delete seed spec → ship to encore_deliverables_test:notes-latest | — | — (ready) | — | — | — | acceptEdits | none | 2026-08-17 |
+| 121 | [PLAN_DELIVERABLE_SCOPE_LOCK.md](pending/PLAN_DELIVERABLE_SCOPE_LOCK.md) | PLAN_DELIVERABLE_SCOPE_LOCK — make it structurally impossible to ship unapproved work | CRITICAL | — (ready) | PENDING | Opus | ultrathink | default | none (no browser work in this plan) | 2026-08-17 |
+| 122 | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | PLAN — Encore CI 2-Worker Green (Local Verification Before Push) | — | — (ready) | — | — | — | — | — | 2026-08-17 |
 | 123 | [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | PLAN: Encore Deliverable Remediation — Verified Findings, RCA, Remediation | — | — (ready) | IN-PROGRESS | — | — | default | cli | 2026-08-17 |
 | 124 | [PLAN_ENCORE_NM2272_NM2273_GRAFT_AND_SHIP.md](pending/PLAN_ENCORE_NM2272_NM2273_GRAFT_AND_SHIP.md) | PLAN — Graft colleague branches NM-2272 (override EXPORT) + NM-2273 (override IMPORT) onto our disk `main`, verify per-identity, ship to the client deliverables repo | High | — (ready) | PENDING | Opus | xhi | acceptEdits | Playwright CLI (E2E ×2 proof only; live import target = the colleague's already-certified office 4107). Per `.claude/rules/browser-tool.md`. No Chrome-MCP row applies. | 2026-07-24 |
 | 125 | [PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md](pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md) | PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION | High — permanent fix for the silent-thin-coverage class (2026-07-17 Override gaps incident) | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-07-17 |
 | 126 | [PLAN_GATE_DEBT_CLOSURE.md](pending/PLAN_GATE_DEBT_CLOSURE.md) | PLAN_GATE_DEBT_CLOSURE | — | — (ready) | PENDING | Opus | xhi | plan | — | 2026-07-24 |
 | 127 | [PLAN_HIS012_EXTERNAL_AUDIT.md](pending/PLAN_HIS012_EXTERNAL_AUDIT.md) | PLAN HIS012 EXTERNAL AUDIT: Independent verification of PLAN_71 and PLAN_72 | High | — (ready) | PENDING | opus | xhi | auto | cli | 2026-08-16 |
 | 128 | [PLAN_LEGACY_OFFICE_MIGRATION_AND_GAP_RETROFIT.md](pending/PLAN_LEGACY_OFFICE_MIGRATION_AND_GAP_RETROFIT.md) | PLAN_LEGACY_OFFICE_MIGRATION_AND_GAP_RETROFIT | Low now, High when triggered | [PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md](pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md) | PENDING | Opus | xhi | auto | cli | 2026-07-17 |
-| 129 | [PLAN_REPO_SLOP_SWEEP.md](pending/PLAN_REPO_SLOP_SWEEP.md) | PLAN_REPO_SLOP_SWEEP — Full Cleanup of Everything Claude and Copilot Have Touched | HIGH | — (ready) | PENDING | — | — | default | — | 2026-08-14 |
+| 129 | [PLAN_REPO_SLOP_SWEEP.md](pending/PLAN_REPO_SLOP_SWEEP.md) | PLAN_REPO_SLOP_SWEEP — Full Cleanup of Everything Claude and Copilot Have Touched | HIGH | — (ready) | PENDING | — | — | default | — | 2026-08-17 |
 | 130 | [SUBPLAN_OFFREPO_RECONCILIATION.md](pending/SUBPLAN_OFFREPO_RECONCILIATION.md) | SUBPLAN_OFFREPO_RECONCILIATION — Off-Repo Findings Transfer (95 items) | HIGH | — (ready) | PENDING | Opus | xhi | default | — | 2026-07-30 |
 | 131 | [PLAN_SC_INPUT_RACE_ROOT_CAUSE.md](pending/PLAN_SC_INPUT_RACE_ROOT_CAUSE.md) | PLAN — Service Charge input-race: one root cause hunt, delegated and evidence-forced | — | — (ready) | PENDING | gpt-5.5 xhigh (live/probe seats) + claude-opus-4.6 max (artifact seat) — no other tiers | ultrathink on mama's synthesis steps only | default (probes are read-only against the app; no source edits in Phases 0–2) | cli (workers drive standalone Playwright scripts; headed) | 2026-08-14 |
 | 132 | [SUBPLAN_SCT_RENUMBER_DEFERRED_SHARED_WRITES.md](pending/SUBPLAN_SCT_RENUMBER_DEFERRED_SHARED_WRITES.md) | PLAN_SCT_RENUMBER_CLOSEOUT (mega plan — full-council execution) | — | — (ready) | PENDING | Opus (CEO/orchestrator) — worker tiers declared per phase below | — | default | cli (Phase 5 suite run only; every other phase is `none`) | 2026-08-06 |
 | 133 | [PLAN_SPEC_BASELINE_ENFORCEMENT.md](pending/PLAN_SPEC_BASELINE_ENFORCEMENT.md) | PLAN — Spec Baseline-State Enforcement (fix + rule, no static gate) | — | — (ready) | PENDING | — | — | execution (one page-object method + spec `beforeEach` wiring + one rule-prose edit + one stale-comment fix) | — | 2026-06-08 |
-| 134 | [PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md](pending/PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md) | PLAN — Staged per-ticket delivery of NM-2268 / NM-2269 / NM-2270 to the Encore deliverables repo | — | — (ready) | SUPERSEDED | Opus · **Thinking**: ultrathink · **PermissionMode**: default | — | — | — | 2026-08-13 |
+| 134 | [PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md](pending/PLAN_STAGED_TICKET_DELIVERY_NM2268_70.md) | PLAN — Staged per-ticket delivery of NM-2268 / NM-2269 / NM-2270 to the Encore deliverables repo | — | — (ready) | SUPERSEDED | Opus · **Thinking**: ultrathink · **PermissionMode**: default | — | — | — | 2026-08-17 |
 | 135 | [PLAN_TEAM_REPO_GATE_INPUT_CLOSURE.md](pending/PLAN_TEAM_REPO_GATE_INPUT_CLOSURE.md) | PLAN_TEAM_REPO_GATE_INPUT_CLOSURE | — | — (ready) | PENDING | Opus (P1/P2/P5 judgment + guardrail edits) / Sonnet allowed on P3/P4 mechanical rows | standard; ultrathink only at the P2 gitignore flip decision | default (guardrail-layer edits inside — each lands via normal commit gates, no bypass) | none | 2026-08-12 |
 | 136 | [PLAN_GRAFT_NM3345_3346_TAKEOVER.md](pending/PLAN_GRAFT_NM3345_3346_TAKEOVER.md) | PLAN_GRAFT_NM3345_3346_TAKEOVER | — | — (ready) | PENDING | opus | xhi | auto | cli | 2026-08-06 |
 | 137 | [PLAN_ULTRAAUDIT_FIX_WAVE.md](pending/PLAN_ULTRAAUDIT_FIX_WAVE.md) | PLAN_ULTRAAUDIT_FIX_WAVE.md | HIGH | — (ready) | PENDING | — | — | default | — | 2026-08-17 |
@@ -826,43 +819,43 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
+| 2026-08-17 | pending | [godsplan.md](pending/godsplan.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_60_JIRA_READONLY_HARDGATE.md](pending/PLAN_60_JIRA_READONLY_HARDGATE.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_61_WORKER_DEATH_PERMAFIX.md](pending/PLAN_61_WORKER_DEATH_PERMAFIX.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_63_PC_BACKUP_ONEDRIVE_RESET_SURVIVAL.md](pending/PLAN_63_PC_BACKUP_ONEDRIVE_RESET_SURVIVAL.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_68_DELIVERABLE_CLIENT_FORMAT_RESTRUCTURE.md](pending/PLAN_68_DELIVERABLE_CLIENT_FORMAT_RESTRUCTURE.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md](pending/PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_73_FAKE_GREEN_FLEET_SWEEP.md](pending/PLAN_73_FAKE_GREEN_FLEET_SWEEP.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md](pending/PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md](pending/PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_76_GATE_FALSE_BLOCK_RCA_AND_FIX.md](pending/PLAN_76_GATE_FALSE_BLOCK_RCA_AND_FIX.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_77_CLOSURE_EVIDENCE_MUST_TRAVEL.md](pending/PLAN_77_CLOSURE_EVIDENCE_MUST_TRAVEL.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_AGENT_AUTHORING_EFFICIENCY.md](pending/PLAN_AGENT_AUTHORING_EFFICIENCY.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_BASELINE_ENFORCEMENT_HARDGATE.md](pending/PLAN_BASELINE_ENFORCEMENT_HARDGATE.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_BUG_HUNTING_RULEBOOK_V2.md](pending/PLAN_BUG_HUNTING_RULEBOOK_V2.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_CASE_GENERATION_STANDARD.md](pending/PLAN_CASE_GENERATION_STANDARD.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE.md](pending/PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_CODEREVIEW_FINDINGS_REMEDIATION.md](pending/PLAN_CODEREVIEW_FINDINGS_REMEDIATION.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md](pending/PLAN_DELIVERABLE_RESTRUCTURE_2026_05_19.md) | — |
+| 2026-08-17 | pending | [PLAN_DELIVERABLE_SCOPE_LOCK.md](pending/PLAN_DELIVERABLE_SCOPE_LOCK.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_DELIVERY_SESSION_SELF_AUDIT.md](pending/PLAN_DELIVERY_SESSION_SELF_AUDIT.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_DISCOUNT_OPTIMIZATION_AUTOMATION.md](pending/PLAN_DISCOUNT_OPTIMIZATION_AUTOMATION.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md](pending/PLAN_EMERGENCY_01_HIST_ARCH_AND_BUG_GUARDS_2026_05_15.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_ENCORE_CI_2W_GREEN.md](pending/PLAN_ENCORE_CI_2W_GREEN.md) | — |
 | 2026-08-17 | pending | [PLAN_ENCORE_DELIVERABLE_REMEDIATION.md](pending/PLAN_ENCORE_DELIVERABLE_REMEDIATION.md) | IN-PROGRESS |
+| 2026-08-17 | pending | [PLAN_ENCORE_NM2272_NM2273_GRAFT_AND_SHIP.md](pending/PLAN_ENCORE_NM2272_NM2273_GRAFT_AND_SHIP.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_FIGHTINNOVATION_INTER_SESSION_ASSISTANT.md](pending/PLAN_FIGHTINNOVATION_INTER_SESSION_ASSISTANT.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md](pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md](pending/PLAN_HEALER_INSPECTOR_QA_REPORT_V1.1.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_HIS012_EXTERNAL_AUDIT.md](pending/PLAN_HIS012_EXTERNAL_AUDIT.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_LM_HISTORY_COVERAGE.md](pending/PLAN_LM_HISTORY_COVERAGE.md) | GATED |
 | 2026-08-17 | pending | [PLAN_NM1715_LOC_BASIC_INFO_COVERAGE.md](pending/PLAN_NM1715_LOC_BASIC_INFO_COVERAGE.md) | PENDING |
-| 2026-08-17 | pending | [PLAN_ULTRAAUDIT_FIX_WAVE.md](pending/PLAN_ULTRAAUDIT_FIX_WAVE.md) | PENDING |
-| 2026-08-17 | pending | [SUBPLAN_59D_OVERRIDE_NONCODE_FOOTPRINT.md](pending/SUBPLAN_59D_OVERRIDE_NONCODE_FOOTPRINT.md) | PENDING |
-| 2026-08-17 | pending | [SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md](pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md) | PENDING |
-| 2026-08-17 | pending | [SUBPLAN_NM1715_BI_02_FIELD_DENOMINATOR.md](pending/SUBPLAN_NM1715_BI_02_FIELD_DENOMINATOR.md) | PENDING |
-| 2026-08-17 | pending | [SUBPLAN_SCT_RENUMBER_DEFERRED_SHARED_WRITES.md](pending/SUBPLAN_SCT_RENUMBER_DEFERRED_SHARED_WRITES.md) | PENDING |
-| 2026-08-17 | pending | [_REPO_SLOP_FINDINGS.md](pending/_REPO_SLOP_FINDINGS.md) | — |
-| 2026-08-17 | pending | [_TRIPLAN_RECONCILIATION.md](pending/_TRIPLAN_RECONCILIATION.md) | REFERENCE-ARTIFACT |
-| 2026-08-17 | pending | [_ULTRAAUDIT_FINDINGS.md](pending/_ULTRAAUDIT_FINDINGS.md) | — |
-| 2026-08-17 | done | [PLAN_65_TICKET_ID_STRUCTURAL_NAMING_REMEDIATION.md](done/PLAN_65_TICKET_ID_STRUCTURAL_NAMING_REMEDIATION.md) | DONE |
-| 2026-08-17 | done | [PLAN_66_DELIVERABLE_TRUTH_SWEEP.md](done/PLAN_66_DELIVERABLE_TRUTH_SWEEP.md) | DONE |
-| 2026-08-17 | done | [PLAN_67_DISPATCH_VISIBILITY_AND_COUNCIL_HARDENED_FIXES.md](done/PLAN_67_DISPATCH_VISIBILITY_AND_COUNCIL_HARDENED_FIXES.md) | DONE |
-| 2026-08-16 | pending | [PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md](pending/PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md) | PENDING |
-| 2026-08-16 | pending | [PLAN_73_FAKE_GREEN_FLEET_SWEEP.md](pending/PLAN_73_FAKE_GREEN_FLEET_SWEEP.md) | PENDING |
-| 2026-08-16 | pending | [PLAN_HIS012_EXTERNAL_AUDIT.md](pending/PLAN_HIS012_EXTERNAL_AUDIT.md) | PENDING |
-| 2026-08-16 | pending | [worker-report.md](pending/worker-report.md) | — |
-| 2026-08-16 | done | [PLAN_71_HISTORY_SORT_TRUTH_AND_TAUTOLOGY_TEST.md](done/PLAN_71_HISTORY_SORT_TRUTH_AND_TAUTOLOGY_TEST.md) | DONE |
-| 2026-08-16 | done | [PLAN_72_FAKE_GREEN_PROVE_AND_FIX.md](done/PLAN_72_FAKE_GREEN_PROVE_AND_FIX.md) | DONE |
-| 2026-08-16 | done | [PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK.md](done/PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK.md) | DONE |
-| 2026-08-14 | pending | [PLAN_60_JIRA_READONLY_HARDGATE.md](pending/PLAN_60_JIRA_READONLY_HARDGATE.md) | PENDING |
-| 2026-08-14 | pending | [PLAN_BASELINE_ENFORCEMENT_HARDGATE.md](pending/PLAN_BASELINE_ENFORCEMENT_HARDGATE.md) | PENDING |
-| 2026-08-14 | pending | [PLAN_CLOSURE_GATE_V6_PARENT.md](pending/PLAN_CLOSURE_GATE_V6_PARENT.md) | PENDING-DRAFT-V6 |
-| 2026-08-14 | pending | [PLAN_DELEGATION_LEDGER_TRUTH.md](pending/PLAN_DELEGATION_LEDGER_TRUTH.md) | PENDING |
-| 2026-08-14 | pending | [PLAN_DELIVERY_SESSION_SELF_AUDIT.md](pending/PLAN_DELIVERY_SESSION_SELF_AUDIT.md) | PENDING |
-| 2026-08-14 | pending | [PLAN_ENCORE_NM2272_NM2273_GRAFT_AND_SHIP.md](pending/PLAN_ENCORE_NM2272_NM2273_GRAFT_AND_SHIP.md) | PENDING |
-| 2026-08-14 | pending | [PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md](pending/PLAN_FULL_SUITE_RUN_CLEAN_REPORTS.md) | PENDING |
-| 2026-08-14 | pending | [PLAN_MEGA_AUDIT_COPILOT_ERA.md](pending/PLAN_MEGA_AUDIT_COPILOT_ERA.md) | PENDING |
-| 2026-08-14 | pending | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_NM1715_LOC_BASIC_INFO_ULTRACOVERAGE.md](pending/PLAN_NM1715_LOC_BASIC_INFO_ULTRACOVERAGE.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md](pending/PLAN_P0_ENCORE_QA_BUG_FOLLOWUPS.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_PLAYWRIGHT_CLI_ADOPTION.md](pending/PLAN_PLAYWRIGHT_CLI_ADOPTION.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_RCA_NOTES_SPEC_2026-05-21.md](pending/PLAN_RCA_NOTES_SPEC_2026-05-21.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_REPO_SLOP_SWEEP.md](pending/PLAN_REPO_SLOP_SWEEP.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_SC_INPUT_RACE_ROOT_CAUSE.md](pending/PLAN_SC_INPUT_RACE_ROOT_CAUSE.md) | PENDING |
+| 2026-08-17 | pending | [PLAN_SERVICE_CHARGE_TEXT_AUTOMATION.md](pending/PLAN_SERVICE_CHARGE_TEXT_AUTOMATION.md) | PENDING |

@@ -162,7 +162,7 @@ Dated cells are refreshed to the actual emission date at closure (C6).
 | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
 | HUNTER | (none) | `(none)` | — |
-| GIVER | field inventory | `clients/encore/specs_planning/_internal/field-inventories/left-panel-basic-information-2026-08-13.md` | `grep -c "Coverage_Ratio" clients/encore/specs_planning/_internal/field-inventories/left-panel-basic-information-2026-08-13.md` exit > 0 |
+| GIVER | field inventory | a field inventory artifact (path does not resolve — file was never committed) | `grep -c "Coverage_Ratio" clients/encore/specs_planning/_internal/field-inventories/left-panel-basic-information-2026-08-13.md` exit > 0 |
 | BUILDER | (none) | `(none)` | — |
 | WATCHDOG | (none) | `(none)` | — |
 | HEALER | (none) | `(none)` | — |

@@ -4,7 +4,7 @@ START: 2026-08-05T18:00+05:30
 
 ## F1 — the item roster, machine-built
 
-Source: `_planstate-input/PLAN_ULTRAAUDIT_FIX_WAVE.md` headings/lots/prerequisites.
+Source: transient planstate input bundle for PLAN_ULTRAAUDIT_FIX_WAVE (scratch input, not tracked) headings/lots/prerequisites.
 
 Enumeration method: grep over `### Lot` headings + Execution Prerequisite section.
 

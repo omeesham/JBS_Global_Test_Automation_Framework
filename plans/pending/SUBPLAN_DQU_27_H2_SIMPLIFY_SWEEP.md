@@ -21,7 +21,7 @@
 **Dependency gate**: SP-DQU-26 `Status: DONE`; `simplify-cleanup-scope-2026-04-22.md` exists.
 **Context files**:
 - Scope file from SP-26
-- `.claude/skills/simplify/SKILL.md` (rules for what counts as "simple")
+- a skill file (path does not resolve — the skill was never created or was removed) (rules for what counts as "simple")
 
 ## Purpose
 

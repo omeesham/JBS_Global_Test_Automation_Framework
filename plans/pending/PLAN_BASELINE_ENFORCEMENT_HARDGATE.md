@@ -41,17 +41,17 @@
    `fresh-open`, which credits a bare `goto()` in `beforeEach` (`:134` regex). A page reload restores
    NOTHING on the server. The shared e2e data drifted (our own runs left `30.00`/`35.00`/`45.00` behind
    on rows tests hardcoded) and two tests began failing on data their own siblings had poisoned — with
-   the gate passing throughout. Root-cause chain: `clients/encore/reports/rca-nm3344-0814/r3-seatA/RESULT.md`
-   (mechanism), `r3-seatB/RESULT.md` (live proof of the Save-enable rule), owner's manual replication at
+   the gate passing throughout. Root-cause chain: a local report file (untracked — exists on the author's machine but does not travel with the repo)
+   (mechanism), a session-local worker output file (not tracked in git) (live proof of the Save-enable rule), owner's manual replication at
    `clients/encore/specs_planning/_internal/ground-truth-service-charge-manual-2026-08-14.md`.
 2. **The failure class is repo-wide, measured.** Two blind census seats + a mechanical diff + CEO
    adjudication produced: **33 spec files; ~5 with fragile per-test-only restores; 11 fully
-   conventional; 9 read-only** (artifacts: `clients/encore/reports/gate-census-0814/seatA/RESULT.md`,
-   `seatB/RESULT.md`, `diff/RESULT.md`). The census initially called 5 specs zero-enforcement; a
+   conventional; 9 read-only** (artifacts: a local report file (untracked — exists on the author's machine but does not travel with the repo),
+   a worker seat result (path does not resolve — relative path from a session-local directory), a session-local worker output file (not tracked in git)). The census initially called 5 specs zero-enforcement; a
    2026-08-14 confirm seat re-read the disputed 2 against disk and ruled the GATE REGISTRY right on
    both (`location-notes.spec.ts:639-650` has `ensureEmptyState` in `beforeEach`;
    `location-shared-setup-locations.spec.ts:477-495` has `ensureCleanSSLTable` — verdicts in
-   `clients/encore/reports/plan-fight-0814/confirm/RESULT.md`). The real zero-enforcement debt is the
+   a local report file (untracked — exists on the author's machine but does not travel with the repo)). The real zero-enforcement debt is the
    gate's own 3 WAIVED entries (`local-office-ect`, `local-office-settings`,
    `location-local-information` — parked on the FCC backlog since 2026-07-01, never burned down).
 3. **Stale defect annotations rot in days, not months.** Three "known defects" recorded 2026-08-10/11
@@ -59,7 +59,7 @@
    had moved. Tests were failing as "evidence vehicles" for defects that no longer existed.
 4. **Blind restores are the drift engine.** Restores that `clickSave()` without waiting for Save to be
    active silently no-op and leave test values persisted (proven for BAS-004/BAS-020 pre-remediation in
-   `r3-seatA/RESULT.md`). No gate in the family catches this class today.
+   a session-local worker output file (not tracked in git)). No gate in the family catches this class today.
 
 ## §Prior-Fix Trial (LR-069 §3.5 — MANDATORY, verdicts recorded 2026-08-14 with disk evidence)
 

@@ -82,7 +82,7 @@ Sources: `.claude/state/ua-worker/dlv-r{1,2,3a,3b,4,5,6,7}/`.
 | ID | Surface | Action |
 |---|---|---|
 | L-1 | `describe` block titles literally contain `(NM-2269)` and `(NM-2270)` | Strip the ticket ref from any describe that survives into an earlier branch |
-| L-2 | `WALK_SORT_ORACLES` in `src/data/corporate-override/override.ts` is commented `(NM-2270)` and used only by TC-046/047/049 | Remove from branches that don't carry those tests (confirm against `.claude/state/ua-worker/dlv-r3b/depgraph.md`) |
+| L-2 | `WALK_SORT_ORACLES` in `src/data/corporate-override/override.ts` is commented `(NM-2270)` and used only by TC-046/047/049 | Remove from branches that don't carry those tests; the dependency graph was in worker state and is not portable evidence |
 | L-3 | TC-041's skip reason cites `NM-2126` | **Keep** — NM-2126 is the client's own Jira ID and TC-041 is in NM-2268's scope. Legitimate cross-reference, matches existing `NM-####` refs already shipped in other specs. |
 | L-4 | Untracked junk in `clients/encore/` root — nested `clients/` dir, `*.png`, `review2-*.txt` | Delete or ignore before any ship; would ship if ever staged |
 

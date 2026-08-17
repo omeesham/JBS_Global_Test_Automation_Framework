@@ -30,7 +30,7 @@ Applies the OPI_C recipe, **one spec at a time (vertical)**, to the remaining Lo
 - `/identity` (gate) · `/regression-guard` (wrap) · `/relevant` (Phase 0.5) · `/rca` (per-spec `--workers=2` flake) · `/final-q` (exit)
 
 **Context files**:
-- parent + `plans/done/SUBPLAN_OPI_C_MIGRATE_LEGAL_PILOT.md` (the recipe) + `plans/done/SUBPLAN_OPI_B_*` (confirmed offices + per-constant inventory; values live-read at migration)
+- parent + `plans/pending/SUBPLAN_OPI_C_MIGRATE_LEGAL_PILOT.md` (the recipe) + `plans/done/SUBPLAN_OPI_B_*` (confirmed offices + per-constant inventory; values live-read at migration)
 - `.claude/rules/specs.md`, `.claude/rules/angular.md` (LR-009/011/026 — local-info NaN reload, left-panel cascade), `.claude/rules/data.md`, `.claude/rules/browser-tool.md`
 - `clients/encore/CLAUDE.md` (LR-008 date-offset rules, LR-012 shared dialog, LR-ENC-002 parity)
 

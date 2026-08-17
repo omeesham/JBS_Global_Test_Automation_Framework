@@ -15,15 +15,15 @@ For disk existence I will test repo paths relative to the repo root and home pat
 
 D2:
 Input counts:
-- `A-tracked.txt` raw=2053 dedup=2053 cmd=`Get-Content -LiteralPath _accounting-input\A-tracked.txt | Measure-Object -Line; ... | Sort-Object -Unique`
-- `B-untracked.txt` raw=55751 dedup=55751 cmd=`Get-Content -LiteralPath _accounting-input\B-untracked.txt | Measure-Object -Line; ... | Sort-Object -Unique`
-- `B-ignored.txt` raw=81126 dedup=81126 cmd=`Get-Content -LiteralPath _accounting-input\B-ignored.txt | Measure-Object -Line; ... | Sort-Object -Unique`
-- `C-claude.txt` raw=5489 dedup=5489 cmd=`Get-Content -LiteralPath _accounting-input\C-claude.txt | Measure-Object -Line; ... | Sort-Object -Unique`
-- `D-copilot.txt` raw=11599 dedup=11599 cmd=`Get-Content -LiteralPath _accounting-input\D-copilot.txt | Measure-Object -Line; ... | Sort-Object -Unique`
-- `ROSTER-PATHS.txt` raw=1854 dedup=1854 cmd=`Get-Content -LiteralPath _accounting-input\ROSTER-PATHS.txt | Measure-Object -Line; ... | Sort-Object -Unique`
-- `ROSTER-BY-SMELL.txt` raw=1854 dedup=1854 cmd=`Get-Content -LiteralPath _accounting-input\ROSTER-BY-SMELL.txt | Measure-Object -Line; ... | Sort-Object -Unique`
-- `MANIFEST-PATHS.txt` raw=251 dedup=250 cmd=`Get-Content -LiteralPath _accounting-input\MANIFEST-PATHS.txt | Measure-Object -Line; ... | Sort-Object -Unique`
-- `CROSSWALK-powershell.txt` raw=1 dedup=1 cmd=`Get-Content -LiteralPath _accounting-input\CROSSWALK-powershell.txt | Measure-Object -Line; ... | Sort-Object -Unique`
+- `A-tracked.txt` raw=2053 dedup=2053, measured from the run-local accounting input bundle.
+- `B-untracked.txt` raw=55751 dedup=55751, measured from the run-local accounting input bundle.
+- `B-ignored.txt` raw=81126 dedup=81126, measured from the run-local accounting input bundle.
+- `C-claude.txt` raw=5489 dedup=5489, measured from the run-local accounting input bundle.
+- `D-copilot.txt` raw=11599 dedup=11599, measured from the run-local accounting input bundle.
+- `ROSTER-PATHS.txt` raw=1854 dedup=1854, measured from the run-local accounting input bundle.
+- `ROSTER-BY-SMELL.txt` raw=1854 dedup=1854, measured from the run-local accounting input bundle.
+- `MANIFEST-PATHS.txt` raw=251 dedup=250, measured from the run-local accounting input bundle.
+- `CROSSWALK-powershell.txt` raw=1 dedup=1, measured from the run-local accounting input bundle.
 Roster smell distribution cmd=`Get-Content _accounting-input\ROSTER-BY-SMELL.txt | split tab | Group-Object`: normal=1773; scratch-dir=33; loose-root-dump=19; orphan-image=13; temp-log=10; vestigial-infra=3; walk-evidence=3.
 
 ## D3 - the accounting

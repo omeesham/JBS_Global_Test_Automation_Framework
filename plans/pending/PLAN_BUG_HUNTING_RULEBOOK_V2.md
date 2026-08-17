@@ -238,4 +238,4 @@ Acknowledged, deferred until backend/frontend exists:
 
 ## Replaces
 
-This plan **replaces** `plans/pending/PLAN_BUG_HUNTING_RULEBOOK.md`. After execution, move the old plan to `plans/done/` and this becomes the active record.
+This plan **replaces** the original bug-hunting plan (path does not resolve — it was superseded by V2). After execution, move the old plan to `plans/done/` and this becomes the active record.

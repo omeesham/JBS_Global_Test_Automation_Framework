@@ -90,12 +90,12 @@ Scratch directory (.recover-scratch/, 32 entries — untracked/ignored):
 - `make_done_plan.js`, `probe_fails.js`, `spectitles.js`, `ssl.js`, `titleplan.js`, `valdump.js`
 - `verify-trim-scopes.mjs`, `xlsx-trim-seed.mjs`, `notes-categorize.mjs`, `notes-inspect.mjs`
 - `cur_committed_backup.xlsx`, `recovered-workbook.xlsx`, `testrail-before-ids.json`
-- `regguard/after-exports.txt`, `regguard/before-exports.txt`
+- Regression-guard before/after export dumps from the local run; the artifact paths are gone, so this claim is unverified as file evidence.
 
 Migration residual (empty dirs, 4 entries):
 - `_migration_global_claude/plugins/`, `plugins/data/`, `plugins/data/playwright-claude-plugins-official/`, `plugins/data/playwright-inline/`
 
-**KEEPs (12)**: `docker-compose.yml`, `render.yaml`, `rotation-state.json`, `.tmp/*` (×3), `tmp/*` (×3), `test-results/.last-run.json`, `reports/allure-results/categories.json`, `reports/allure-results/environment.properties`
+**KEEPs (12)**: `docker-compose.yml`, `render.yaml`, `rotation-state.json`, `.tmp/*` (×3), `tmp/*` (×3), generated Playwright last-run metadata, and generated Allure categories/environment files.
 
 ---
 
@@ -118,13 +118,13 @@ Migration residual (empty dirs, 4 entries):
 
 *Delegation-audit session docs (LOT-02 + LOT-03, 8 files):*
 - `.claude/state/delegation-audit/arena-brief.md`
-- `.claude/state/delegation-audit/arena-verify.md`
-- `.claude/state/delegation-audit/classify-integration-plans.md`
+- arena verify report from the local delegation-audit scratch bundle; the artifact path is gone, so this claim is unverified as file evidence.
+- classify-integration-plans report from the local delegation-audit scratch bundle; the artifact path is gone, so this claim is unverified as file evidence.
 - `.claude/state/delegation-audit/critic-completeness.md`
-- `.claude/state/delegation-audit/fight-design-brief.md`
+- fight-design brief from the local delegation-audit scratch bundle; the artifact path is gone, so this claim is unverified as file evidence.
 - `.claude/state/delegation-audit/m2-build-delegation.md`
-- `.claude/state/delegation-audit/research-1-external.md`
-- `.claude/state/delegation-audit/ticket-A-classify.md`
+- research-1 external report from the local delegation-audit scratch bundle; the artifact path is gone, so this claim is unverified as file evidence.
+- ticket-A classify report from the local delegation-audit scratch bundle; the artifact path is gone, so this claim is unverified as file evidence.
 
 *Delegation-audit snapshot hooks (LOT-02, 2 files):*
 - `.claude/state/delegation-audit/inputs/hooks/delegation-gate.mjs`
@@ -132,40 +132,7 @@ Migration residual (empty dirs, 4 entries):
 
 *Delegation-audit snapshot memory (LOT-02, 35 files):*
 - `.claude/state/delegation-audit/inputs/memory/feedback_agent_cost_frugality.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_apply_ux_vision_to_every_ui.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_bootstrap_in_subplans.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_chat_simple_compaction.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_closure_is_part_of_task.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_consult_artifacts_before_asking.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_copilot_vs_claude_code.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_debug_methodology.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_encore_questions_compact.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_composition.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_contradictions_audit.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_data_sources.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_hide_multitenant.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_honesty_scope.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_no_overstating_scope.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_simplify.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_specificity.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_stay_behind_reality.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_strip_agent_framework_language.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_endday_v4_default_meeting_safe.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_execute_audit_discipline.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_execute_not_over_plan.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_gate_push_on_denylist.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_general_quality_prompt_intent.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_graft_clean_disk.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_missing_testid_report_policy.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_owner_activity_log.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_pacing_constraint_vs_truth.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_plain_english_reporting.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_plan_permissionmode_tag.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_planning_workflow.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_preview_reuse_check.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_question_quality.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_questionnaire_decision_mode.md`
-- `.claude/state/delegation-audit/inputs/memory/feedback_receipt_newcomer_format.md`
+- 34 additional memory-feedback snapshot entries from the same local delegation-audit input bundle; the artifact paths are gone, so the individual file citations are not portable evidence.
 
 *Channel leftover (LOT-04, 1 file):*
 - `.claude/channel/KT_PROMPT_FOR_COLLEAGUE.md`

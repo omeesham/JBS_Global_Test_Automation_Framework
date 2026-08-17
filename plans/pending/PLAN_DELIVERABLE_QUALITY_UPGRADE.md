@@ -87,7 +87,7 @@ Format hygiene (Rules 1-4 in `tc-authoring-rules.md`) was resolved by SP-42 on 2
 |---|---|---|---|---|
 | SP-DQU-02 | Neutral-eye audit: Local Office Settings (Chrome Claude) | WATCHDOG | /find-bugs, /research | `neutral-eye-audits/local-office-settings-2026-04-22.md` |
 | SP-DQU-03 | LOS CSV fixes (11 reviewer flags) + re-export + file 3 APP bugs | HEALER | /bugfix, /regression-guard | Updated MD + CSV + 3 BUG-*.json |
-| SP-DQU-04 | Neutral-eye audit: Local Information (Chrome Claude) | WATCHDOG | /find-bugs, /research | `neutral-eye-audits/local-information-2026-04-22.md` |
+| SP-DQU-04 | Neutral-eye audit: Local Information (Chrome Claude) | WATCHDOG | /find-bugs, /research | neutral-eye audit artifact for Local Information (the artifact this cited is gone; the claim is unverified) |
 | SP-DQU-05 | LI CSV fixes + re-export + file any LI APP bugs | HEALER | /bugfix, /regression-guard | Updated MD + CSV + BUG-LI-*.json (count TBD) |
 | **SP-DQU-05E** | **LOS + LI deep coverage retro-audit (baseline-first walk + ISTQB depth-grid + gap-fill TCs)** | WATCHDOG → HEALER | /find-bugs, /bugfix, /regression-guard | 2 baseline artifacts + coverage matrix doc + N gap-fill TCs + BUG-* for any regression-from-baseline + 2 re-exported CSVs. **BLOCKS HIST pivot on LOS + LI specs.** |
 

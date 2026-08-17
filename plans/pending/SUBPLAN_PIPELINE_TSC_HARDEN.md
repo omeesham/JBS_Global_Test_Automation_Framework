@@ -35,9 +35,9 @@ After `PLAN_CLIENT_DELIVERABLE_REBUILD` moved `src/{orchestrator,server,worker,u
   - `.claude/context/navigation.md` (R00)
   - `clients/encore/specs_planning/_internal/agent-mistakes.md` (ALL-* / GEN-* / etc.)
   - `.claude/rules/pipeline.md` (LR-027, LR-028, LR-046, LR-049)
-  - `plans/pending/PLAN_CLIENT_DELIVERABLE_REBUILD.md` (parent — deviations #22, #29, #30 set up this subplan)
+  - `plans/done/PLAN_CLIENT_DELIVERABLE_REBUILD.md` (parent — deviations #22, #29, #30 set up this subplan)
   - `clients/encore/specs_planning/_internal/PLAN_CLIENT_DELIVERABLE_REBUILD-deviations.md` (#22+#29+#30+#32)
-  - TypeScript handbook: project references — https://www.typescriptlang.org/docs/handbook/project-references.html
+  - TypeScript handbook: project references (external documentation, not a repo artifact)
 
 ---
 

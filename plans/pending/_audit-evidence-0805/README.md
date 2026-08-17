@@ -5,7 +5,7 @@ block wired into the tri-plan unit on 2026-08-05:
 
 - `plans/pending/PLAN_REPO_SLOP_SWEEP.md`
 - `plans/pending/PLAN_ULTRAAUDIT_FIX_WAVE.md`
-- `plans/pending/PLAN_COPILOT_INTEGRATION_ULTRAAUDIT.md`
+- the Copilot integration ultra-audit plan in the pending queue (present locally when this was written, but not cited here as portable evidence)
 
 **Why this copy exists**: the audit ran from `C:\Users\rutvi\aud\`, a scratch workspace explicitly
 scheduled for teardown ("anything u do for this audit is just for this audit and doesnt survive").

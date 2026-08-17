@@ -179,7 +179,7 @@ CrossCheck: clean
 Completion_Record: reports/walk-coverage/service-charge-basic-info.json (status=complete, elements=29)
 ```
 
-Its own provenance JSON carries unresolved controls (`reports/walk-coverage/service-charge-basic-info.json:624-700`),
+Its own provenance JSON carries unresolved controls (`the walk-coverage report (exists locally, untracked runtime artifact):624-700`),
 and the closure check reports **23 of 29 unresolved after allowlist** — Radix-generated ids and structural
 keys including `Order Search`, `DRO Search` and `Payment` buttons.
 
@@ -435,7 +435,7 @@ because it also carries false assurance. One line, and it prevented a real misdi
 | Identity | Duty | Concrete deliverable |
 |---|---|---|
 | OWNER | The §4 design, the go/no-go on enforcement, final judgement | `plans/pending/PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md`<br>`clients/encore/specs_planning/_internal/agent-activity-log.md` |
-| WATCHDOG | Phases 0–2: enumerate, fire at the corpus, classify every miss | `.claude/state/ua-worker/chips/gate-rca/DEFENCE-MATRIX.md` |
+| WATCHDOG | Phases 0–2: enumerate, fire at the corpus, classify every miss | worker chip output (ephemeral — not tracked in git) |
 | GARDENER | Phase 4 build and ramp of the gate and its fixtures | `scripts/check-unfailable-assertions.mjs`<br>`scripts/lib/` fixture corpus for the eight proven findings |
 | GENERATOR | The case-generation oracle-strength column | `clients/encore/specs_planning/_internal/field-case-generation.md` |
 | PLANNER | — | (skipped: no test cases are authored and no live walk is performed in this plan) |

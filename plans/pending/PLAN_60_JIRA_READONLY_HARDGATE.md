@@ -39,7 +39,7 @@
 |---|---|---|
 | 1 | Claude → Atlassian MCP write tools | L1 settings deny + L2 PreToolUse hook (suffix-regex, survives connector UUID change + `--dangerously-skip-permissions`, fires for subagents/workflow agents too) |
 | 2 | Claude → Bash REST (`curl`/`wget`/`iwr` + token) | L2 hook `--bash-mode` on the existing Bash matcher chain |
-| 3 | Copilot worker → Atlassian MCP | L3 wrapper preflight: FATAL if any atlassian/jira/confluence server ever appears in `~/.copilot/mcp-config.json` (today: none — keep it that way structurally) + worker rulebook line |
+| 3 | Copilot worker → Atlassian MCP | L3 wrapper preflight: FATAL if any atlassian/jira/confluence server ever appears in the home Copilot MCP config (today: none — keep it that way structurally) + worker rulebook line |
 | 4 | Any other machine session (other repos, other CWDs) | L4 user-level `~/.claude` deny + hook mirror `[RUTVIK-GO]` |
 
 **The deny set** (Phase 0 re-derives this machine-owned — the list below is the 2026-08-07 snapshot, 10 tools):
@@ -77,7 +77,7 @@ New mechanism difference: machine deny at the tool-call layer + live-fire proof 
 ### Phase 1 — Doctrine layer — CEO (control files)
 1. **LR-073** in `docs/read_only_docs/LEARNED_RULES.md`: *"Jira + Confluence are READ-ONLY for every AI actor — Claude main session, subagents, workflow agents, Copilot workers. Create/Update/Delete/transition/comment/worklog/link = Rutvik by hand only. Mechanism: settings deny + `jira-readonly-gate` + wrapper preflight (this plan). Read mandates (LR-063, LR-ENC-004) unchanged."*
 2. `[RUTVIK-GO — protected file]` Reword `worker-ext.md:43` + `:251`: "Jira/Confluence writes stay on Claude's path" → "Jira/Confluence writes are forbidden for EVERYONE — workers have zero Atlassian access; Claude is read-only (LR-073); writes are Rutvik-by-hand only."
-3. Add one line to the council-worker rulebook: "Atlassian (Jira/Confluence): FORBIDDEN entirely — no read, no write, no REST. Jira facts come from the CEO's ticket." Apply to the repo source template AND `~/.copilot/agents/council-worker.agent.md` AND verify the wrapper's variant-generation path (`copilot-worker.sh` ~L292) propagates it into `v--<model>--*.agent.md` files — a rule only in the base file is silently dropped for pinned-model dispatches.
+3. Add one line to the council-worker rulebook: "Atlassian (Jira/Confluence): FORBIDDEN entirely — no read, no write, no REST. Jira facts come from the CEO's ticket." Apply to `.claude/skills/ultra-agents/setup/agents/council-worker.agent.md` AND the home Copilot council-worker agent file (untracked by design), then verify the wrapper's variant-generation path (`copilot-worker.sh` ~L292) propagates it into `v--<model>--*.agent.md` files — a rule only in the base file is silently dropped for pinned-model dispatches.
 4. Update auto-memory `feedback_jira_readonly_and_subagent_trust_toggle.md`: point at LR-073 + gate paths (mechanism now exists).
 
 ### Phase 2 — Claude machine layer, project-level — worker builds mjs from this spec; CEO does settings.json (control file) — wrap with /regression-guard
@@ -90,7 +90,7 @@ New mechanism difference: machine deny at the tool-call layer + live-fire proof 
 4. `.claude/guardrail-config.json`: `jira_readonly_mode: "deny"` + ramp siblings, ramp_note: "S0 per LR-069 §3.1 — irreversible client-visible; announce phase skipped by rubric's own exception". Knob values `off|deny` only — no announce tier exists for S0.
 
 ### Phase 3 — Copilot layer — CEO (wrapper is dispatch-critical; verify no live runs first)
-1. `copilot-worker.sh` preflight (with the other exit-2 guards, ~L85–160): read `${COPILOT_MCP_CONFIG:-$HOME/.copilot/mcp-config.json}`; if it names any atlassian/jira/confluence server → `FATAL … Jira is READ-ONLY (LR-073); workers get zero Atlassian access. Refusing to dispatch.` + `exit 2`. Env-var indirection exists so the fixture test can inject a violating config without touching the real one.
+1. `copilot-worker.sh` preflight (with the other exit-2 guards, ~L85–160): read the path from `COPILOT_MCP_CONFIG`, falling back to the home Copilot MCP config (untracked by design); if it names any atlassian/jira/confluence server → `FATAL … Jira is READ-ONLY (LR-073); workers get zero Atlassian access. Refusing to dispatch.` + `exit 2`. Env-var indirection exists so the fixture test can inject a violating config without touching the real one.
 2. This preflight is the structural half of memory rule "workers get zero Atlassian access" — today it passes vacuously (no server configured); it exists to make silently ADDING one impossible.
 
 ### Phase 4 — User-level machine layer `[RUTVIK-GO — hook/permission self-modification]` — CEO

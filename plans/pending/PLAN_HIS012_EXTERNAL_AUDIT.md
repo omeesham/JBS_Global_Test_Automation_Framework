@@ -83,14 +83,14 @@ This audit does not form opinions about code. It runs things and reports outcome
 
 | Artifact | Path | Purpose |
 |---|---|---|
-| PLAN_71 | `plans/pending/PLAN_71_HISTORY_SORT_TRUTH_AND_TAUTOLOGY_TEST.md` | Primary claims source |
-| PLAN_72 | `plans/pending/PLAN_72_FAKE_GREEN_PROVE_AND_FIX.md` | Primary claims source |
-| Live walk | `.claude/state/ua-worker/chips/his012-truth/out-WALK/WALK.md` | Basis for 4-header claim |
-| Artifact corrections | `.claude/state/ua-worker/chips/his012-truth/out-RECONCILE/RECONCILE.md` | Basis for correction claims |
+| PLAN_71 | (the referenced plan was renamed or merged into another plan) | Primary claims source |
+| PLAN_72 | (the referenced plan was renamed or merged into another plan) | Primary claims source |
+| Live walk | worker chip output (ephemeral — not tracked in git) | Basis for 4-header claim |
+| Artifact corrections | worker chip output (ephemeral — not tracked in git) | Basis for correction claims |
 | Prove-A demo | `.claude/state/ua-worker/chips/fake-greens/out-PROVE-A/prove-fake-greens.mjs` | Provider A proof |
 | Prove-B demo | `.claude/state/ua-worker/chips/fake-greens/out-PROVE-B/prove-fake-greens.mjs` | Provider B proof |
 | Mutation verify | `.claude/state/ua-worker/chips/fake-greens/out-MUTATE/mutate-verify.mjs` | Fix verification script |
-| Mutation report | `.claude/state/ua-worker/chips/fake-greens/out-MUTATE/MUTATE.md` | Session's own repair claims |
+| Mutation report | worker chip output (ephemeral — not tracked in git) | Session's own repair claims |
 | Corrected spec | `clients/encore/tests/service-charge/service-charge-history.spec.ts` | PLAN_71 output |
 | Fixed spec | `clients/encore/tests/service-charge/service-charge-basic-information.spec.ts` | PLAN_72 output |
 
@@ -112,9 +112,9 @@ every downstream conclusion is unsupported.
 1. Verify the three scripts exist on disk at their declared paths (file listing).
 2. Run each independently, tee output:
    ```bash
-   node .claude/state/ua-worker/chips/fake-greens/out-PROVE-A/prove-fake-greens.mjs 2>&1 | tee $OUT/phase1-prove-a.txt
-   node .claude/state/ua-worker/chips/fake-greens/out-PROVE-B/prove-fake-greens.mjs 2>&1 | tee $OUT/phase1-prove-b.txt
-   node .claude/state/ua-worker/chips/fake-greens/out-MUTATE/mutate-verify.mjs 2>&1 | tee $OUT/phase1-mutate.txt
+   node .claude/state/ua-worker/chips/fake-greens/out-PROVE-A/prove-fake-greens.mjs 2>&1 | tee $worker run output (ephemeral — not tracked in git)
+   node .claude/state/ua-worker/chips/fake-greens/out-PROVE-B/prove-fake-greens.mjs 2>&1 | tee $worker run output (ephemeral — not tracked in git)
+   node .claude/state/ua-worker/chips/fake-greens/out-MUTATE/mutate-verify.mjs 2>&1 | tee $worker run output (ephemeral — not tracked in git)
    ```
 3. For each script: exit code, output matches the session's claims in PLAN_72 §10.
 4. Cross-check: Prove-A and Prove-B agree on FAKE-PROVEN vs NOT-FAKE-PROVEN. Any disagreement between
@@ -142,13 +142,13 @@ fresh session, from a cold auth state, is the evidence that matters.
 
 1. Refresh auth state:
    ```bash
-   npx playwright test tests/auth.setup.ts 2>&1 | tee $OUT/phase2-auth.txt
+   npx playwright test tests/auth.setup.ts 2>&1 | tee $worker run output (ephemeral — not tracked in git)
    ```
    Confirm: output shows 1 passed, no MFA or Microsoft sign-in page.
 2. Run TC-SVC-HIS-012 twice in isolation:
    ```bash
-   npx playwright test --grep "TC-SVC-HIS-012" --project=chromium 2>&1 | tee $OUT/phase2-run1.txt
-   npx playwright test --grep "TC-SVC-HIS-012" --project=chromium 2>&1 | tee $OUT/phase2-run2.txt
+   npx playwright test --grep "TC-SVC-HIS-012" --project=chromium 2>&1 | tee $worker run output (ephemeral — not tracked in git)
+   npx playwright test --grep "TC-SVC-HIS-012" --project=chromium 2>&1 | tee $worker run output (ephemeral — not tracked in git)
    ```
 3. Read the current oracle in `service-charge-history.spec.ts`. State explicitly: what does the
    rewritten assertion check? Can it pass when the sort affordance is absent (the old failure mode)?
@@ -175,7 +175,7 @@ fixing fake greens — a more damaging error than the original eight.
 
 1. Read finding 8's treatment in three locations:
    - `service-charge-basic-information.spec.ts` — what does the current test assert at the relevant lines?
-   - `out-MUTATE/MUTATE.md` — is finding 8 listed in the passing column, the skipped column, or absent?
+   - worker run output (ephemeral — not tracked in git) — is finding 8 listed in the passing column, the skipped column, or absent?
    - The companion test-case document for TC-SVC-BAS-025.
 2. Determine unambiguously: does finding 8 read as a **known gap with a named unlock**, or as covered?
 3. Is there a tracking reference (FIXME annotation, Jira ticket, deferred-to note) pointing to a concrete
@@ -271,7 +271,7 @@ decides — not defers — whether that gap is in scope for this audit or gets i
 
 | Identity | Duty | Concrete deliverable |
 |---|---|---|
-| WATCHDOG | All phases, evidence collection, verdict table | `$OUT/AUDIT-REPORT.md` |
+| WATCHDOG | All phases, evidence collection, verdict table | `$worker run output (ephemeral — not tracked in git)` |
 | OWNER | Dispatch, read verdicts, issue findings as new tickets if needed | New plan tickets only if blocking findings |
 | HUNTER | — | skipped: no new baseline walk in scope |
 | GIVER | — | skipped: no new plan to author |

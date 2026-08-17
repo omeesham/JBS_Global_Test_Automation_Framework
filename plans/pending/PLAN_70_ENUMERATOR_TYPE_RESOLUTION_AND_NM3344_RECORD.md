@@ -61,10 +61,10 @@ configured value. **It was a legitimate bug fix, not a gate relaxed to let a pla
 
 | Artifact | What it settles |
 |---|---|
-| `.claude/state/ua-worker/chips/nm3344-close/out-B-repo/FINDINGS-B.md` | Original repo-side RCA (contains errors corrected by the defense — read the defense too) |
-| `.claude/state/ua-worker/chips/nm3344-close/out-B-repo/REVIEW-B-r2.md` | Cross-family re-execution; config history; real multiplier; blast radius refutation |
-| `.claude/state/ua-worker/chips/nm3344-close/out-B-repo/DEFENSE-B.md` | Aligned final record for finding 1 — **the three causes, the blast-radius table, the coverage verdict** |
-| `.claude/state/ua-worker/chips/nm3344-close/out-A-live/FINDINGS-A.md` + `REVIEW-A.md` + `ALIGNED-A.md` | Live evidence for both findings; positive control; the live observation still owed |
+| worker chip output (ephemeral — not tracked in git) | Original repo-side RCA (contains errors corrected by the defense — read the defense too) |
+| worker chip output (ephemeral — not tracked in git) | Cross-family re-execution; config history; real multiplier; blast radius refutation |
+| worker chip output (ephemeral — not tracked in git) | Aligned final record for finding 1 — **the three causes, the blast-radius table, the coverage verdict** |
+| worker chip output (ephemeral — not tracked in git) + `REVIEW-A.md` + `ALIGNED-A.md` | Live evidence for both findings; positive control; the live observation still owed |
 
 Supporting raw artifacts (`*.verify.txt`, `r2-*`, `rev-*`) sit beside those files with sha256 manifests.
 
@@ -214,7 +214,7 @@ established against it:
 
 1. **No machine artifact carries it.** The surviving evidence is 24/30 (2026-08-11), 24/30 (2026-08-15), and
    23/29 for Basic Information.
-2. **Its only source is a prior council report** (`out-B-repo/FINDINGS-B.md`), which reconciles 30/30 and
+2. **Its only source is a prior council report** (worker run output (ephemeral — not tracked in git)), which reconciles 30/30 and
    23/29 by assigning them to two separate events — a reconciliation that is **not independently evidenced**.
    A prior report's number is a claim, and several of that report's other conclusions have already been
    overturned by this plan.

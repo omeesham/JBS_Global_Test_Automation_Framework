@@ -31,7 +31,7 @@ Legal is the cleanest pilot: it already has a working bounded-retry `ensureDefau
 
 **Context files**:
 - `plans/pending/PLAN_PER_WORKER_OFFICE_POOL_PARALLEL_ISOLATION.md` (parent)
-- `plans/done/SUBPLAN_OPI_B_POOL_SELECTION_ACCESS_CAPTURE.md` (per-office Legal baselines)
+- `plans/pending/SUBPLAN_OPI_B_POOL_SELECTION_ACCESS_CAPTURE.md` (per-office Legal baselines)
 - `.claude/rules/specs.md` (LR-018 run-all, LR-019 per-test baseline, LR-024 clean-before-RCA, LR-025 Radix retry)
 - `.claude/rules/angular.md` (LR-009/026 dirty-state)
 - `.claude/rules/browser-tool.md` (LR-038/054)

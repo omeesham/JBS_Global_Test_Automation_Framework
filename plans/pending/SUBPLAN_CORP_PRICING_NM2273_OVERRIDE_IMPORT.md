@@ -33,7 +33,7 @@ Because NM-2273 runs last of the six, it also carries the SHADOW_FRAMEWORK_CLOSU
 audit of the full Corporate Pricing remediation chain and the announce→deny gate ramp. That phase
 switches identity to WATCHDOG.
 
-**Walk-certified data beds**: Import dialog — walk-A office 1101 (`raw-A/1101-import-dialog-snapshot.verify.txt`):
+**Walk-certified data beds**: Import dialog — walk-A office 1101 (snapshot evidence from scratch worker artifact, not tracked):
 dialog title "Import All Pricing Overrides", controls: "Choose a file to import data." paragraph,
 "Upload file" button, "Attached file" showing "No file selected", "Upload progress" progressbar,
 "Cancel" button (`data-testid="pg-override-upload-dialog-cancel"`), "Upload" button (disabled until

@@ -34,9 +34,9 @@
 
 Evidence base (all machine-enumerated, cross-family reviewed 2026-08-07):
 - `.claude/state/ua-worker/chips/wdeath/out-A/death-census.{md,jsonl}` — census, 759 candidates
-- `.claude/state/ua-worker/chips/wdeath/out-Arev/census-review.md` — corrected counts, C3 split, C8 scan
-- `.claude/state/ua-worker/chips/wdeath/out-B/prior-fixes.md` — 36-fix inventory
-- `.claude/state/ua-worker/chips/wdeath/out-Brev/priorfix-review.md` — live-fire verdicts per guard
+- Worker chip wdeath out-Arev census review (scratch; not tracked) — corrected counts, C3 split, C8 scan
+- Worker chip wdeath out-B prior-fixes inventory (scratch; not tracked) — 36-fix inventory
+- Worker chip wdeath out-Brev prior-fix review (scratch; not tracked) — live-fire verdicts per guard
 
 ## Corrected death taxonomy (what actually kills workers)
 
@@ -76,7 +76,7 @@ No prior fix is layered over without its rewire: every CONVICTED row's replaceme
 3. Re-run `node .claude/state/ua-worker/chips/wdeath/out-Arev/review-script.mjs` → freeze corrected baseline numbers (the "before" for Phase 8).
 
 ### Phase 1 — Kill C3 at the source (structural write-as-you-go) **[GO-GATE for 1a/1b]**
-- **1a** `~/.claude/delegation/DUTY_STACK.md` (Tier-2): add a standing duty block — FIRST tool action = create the declared OUTPUT file with section headings; append every finding immediately; on low budget STOP and flush partial (partial-on-disk = success, empty = failure); one blocking foreground command per long step; never end a turn "waiting".
+- **1a** the home delegation DUTY_STACK file (Tier-2): add a standing duty block — FIRST tool action = create the declared OUTPUT file with section headings; append every finding immediately; on low budget STOP and flush partial (partial-on-disk = success, empty = failure); one blocking foreground command per long step; never end a turn "waiting".
 - **1b** `~/.copilot/agents/council-worker.agent.md` (Tier-2): same duty in the profile's standing rules (wrapper re-materializes `v--*` variants from the base on every dispatch — base edit propagates; verify one variant regenerates).
 - **1c** `copilot-worker.sh`: after ticket parse (post fresh-file check ~:176), wrapper itself creates the declared OUTPUT path containing exactly one line: `<!-- STEP-0 stub: run <run-id> — worker must replace/append; stub-only at exit = no-deliverable -->`. Extend the deliverable oracle (~:700-736) so a file whose content is only the stub line classifies as missing (sentinel path unchanged). Side benefit: stub mtime is the universal launch-proof for the CEO (closes the silent-C5 trap from the dispatch side too).
 

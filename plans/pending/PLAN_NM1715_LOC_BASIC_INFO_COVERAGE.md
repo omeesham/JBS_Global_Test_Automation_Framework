@@ -25,7 +25,7 @@ It is a sub-module, **not a route**: there is no `/basic-info` URL.
 Coverage already exists on paper — 37 test cases (`TC-LOC-LP-001`…`037`) with clean markdown↔spec
 parity, a page object, selectors, test data and a test plan. Rutvik does not trust any of it: it was
 authored by a prior worker fleet when the framework was far less mature. A repo census run on
-2026-08-13 (`.claude/state/ua-worker/chips/nm1715/inv-0813/INVENTORY.md`) turned that distrust into
+2026-08-13 via a worker chip inventory (scratch; not tracked) turned that distrust into
 evidence.
 
 **The finding that justifies this whole plan:** the 37 test cases were authored against a field
@@ -143,7 +143,7 @@ Two jobs, both read-only.
 1. **Jira/Confluence harvest (LR-ENC-004, LR-063).** Pull NM-956 in full — it is the validations
    spec. Then NM-977, NM-3358, NM-980, NM-1090, NM-1146, NM-933, NM-845, NM-1455, NM-3133, NM-3322,
    NM-1481. Paginate past 50 results — the dispatcher's scan hit the cap and there may be more.
-   Output: `clients/encore/specs_planning/_internal/requirements-nm1715-basic-information-2026-08-13.md`,
+   Output: a dated internal NM-1715 Basic Information requirements harvest artifact (planned; not present yet),
    one row per stated requirement, each with its Jira key, so every future TC can cite a source.
 2. **Content-based artifact sweep.** Re-enumerate every artifact touching this sub-module by
    **content**, not filename — `git ls-files` for the denominator, then grep for
@@ -299,7 +299,7 @@ list keyed to SP-2 field names; a reconciled field-case-catalog dated today.
 Author the QUICK layer per `/coverage`: FCC **Axis 1** (per-field cases from the
 `field-case-generation.md` §2 taxonomy, per field type) + **Axis 2** L1 surface/behavior must-asserts.
 Anything deeper carries the `deferred-to-DEEP` token (legal only under `quick`, per LR-072) and is
-recorded in `clients/encore/specs_planning/_internal/nm1715-deferred-to-deep-ledger.md` (created by
+recorded in the NM-1715 deferred-to-deep ledger (planned internal artifact created by
 this SP; one row per deferred item: TC ID, field, reason, PLAN B as recipient). **LR-072 G3**: the
 `deferred-to-DEEP` token lives only in internal artifacts and plan bodies — it MUST NOT appear in
 `locations_left_panel_basic_information_test_cases.md` (the deliverable-source MD whose token-free
@@ -365,10 +365,10 @@ Dated cells are refreshed to the actual emission date at closure (C6).
 
 | Identity | Owned artifact this plan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HUNTER | old-site baseline, requirements doc | `clients/encore/specs_planning/_internal/old-site-baseline/left-panel-basic-information-2026-08-13.md`<br>`clients/encore/specs_planning/_internal/requirements-nm1715-basic-information-2026-08-13.md` | artifact freshness grep (≤14 days per LR-013) |
-| GIVER | test cases, test plan, XLSX, catalog | `clients/encore/specs_planning/test-cases/setup/locations/locations_left_panel_basic_information_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/locations/locations_left_panel_basic_information_test_plan.md`<br>`clients/encore/specs_planning/_internal/field-case-catalogs/left-panel-basic-information-2026-08-13.md` | `npm run check:tc-parity` exit 0 |
+| HUNTER | old-site baseline, requirements doc | planned dated old-site baseline and requirements harvest artifacts (not present yet; produced by SP-1/SP-3) | artifact freshness grep (≤14 days per LR-013) |
+| GIVER | test cases, test plan, XLSX, catalog | `clients/encore/specs_planning/test-cases/setup/locations/locations_left_panel_basic_information_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/locations/locations_left_panel_basic_information_test_plan.md`<br>planned dated field-case catalog (not present yet; produced by SP-5/SP-6) | `npm run check:tc-parity` exit 0 |
 | BUILDER | spec, page object, selectors, data | `clients/encore/tests/locations/location-left-panel-basic-information.spec.ts` | `npx playwright test --list` resolves all FCC TC IDs |
-| WATCHDOG | TC disposition table, bug hunt summary | `clients/encore/specs_planning/_internal/nm1715-bug-hunt-summary-2026-08-13.md` | per-mode acceptance; LR-034 schema check |
+| WATCHDOG | TC disposition table, bug hunt summary | planned NM-1715 bug-hunt summary (not present yet; produced by SP-8) | per-mode acceptance; LR-034 schema check |
 | HEALER | (none) — no RCA-driven fix is scoped here | `(none)` | — |
 | GARDENER | (none) — no refactor is scoped here | `(none)` | — |
 

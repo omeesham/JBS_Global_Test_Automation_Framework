@@ -175,7 +175,7 @@ Non-deletable: this plan drives TC authoring and files bugs (LR-048 §5, Anti-As
 node scripts/walk-coverage/enumerate-page.mjs --office=1604 --module=service-charge-text --state=1604-service-charge-text
 ```
 
-Emits `reports/walk-coverage/1604-service-charge-text.json` + `.manifest.md`. **Pass `--module`** — `--url` alone inherits the pricing config (Phase 0.6). The agent does not define what counts as walkable; it only assigns a disposition to every enumerated element.
+Emits the service-charge-text walk-coverage JSON plus its manifest under the run reports area. **Pass `--module`** — `--url` alone inherits the pricing config (Phase 0.6). The agent does not define what counts as walkable; it only assigns a disposition to every enumerated element.
 
 ### A2 — Opener-frontier recursion (HARD STOP #11b / §20.1) — the single biggest miss class
 
@@ -232,7 +232,7 @@ Every finding is triaged before it earns the word "bug": `/rca` for the mechanis
 ### A8 — Artifacts
 
 - `clients/encore/specs_planning/_internal/walk-evidence-service-charge-text-2026-08-03.md` — per-element worker tier, raw evidence, `anomaly:` notes, Opus verdict, and the `## Observations` section. No `walk-probes/` directory and no `walk-judgment-*` file; those were over-engineering and must not reappear.
-- `clients/encore/specs_planning/_internal/field-inventories/service-charge-text-2026-08-03.md` — all 8 mandatory frontmatter keys (`Module`, `Client`, `MCP_Session_Date` = filename date, `MCP_Session_Tool`, `MCP_Tool_Reason`, `Author_Identity`, `Page_URL`, `Test_Entity`) + `Baseline_Artifact`; the 7 mandatory sections; the 8-column Field Inventory table; and the `## Coverage Manifest` block with `Coverage_Ratio: N/N (100%)`, `Walk_State:`, `CrossCheck: clean`.
+- the service-charge-text field inventory dated 2026-08-03 (the artifact this cited is gone; the claim is unverified as file evidence) — all 8 mandatory frontmatter keys (`Module`, `Client`, `MCP_Session_Date` = filename date, `MCP_Session_Tool`, `MCP_Tool_Reason`, `Author_Identity`, `Page_URL`, `Test_Entity`) + `Baseline_Artifact`; the 7 mandatory sections; the 8-column Field Inventory table; and the `## Coverage Manifest` block with `Coverage_Ratio: N/N (100%)`, `Walk_State:`, `CrossCheck: clean`.
 
 **Phase A (INTAKE) closure criteria**
 - [ ] `Coverage_Ratio` = **100%**, zero undispositioned rows, `CrossCheck: clean` — verified by `node scripts/walk-coverage/cross-check.mjs`, not by assertion.

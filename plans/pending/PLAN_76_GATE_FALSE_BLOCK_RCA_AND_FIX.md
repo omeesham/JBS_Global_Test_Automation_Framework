@@ -128,7 +128,7 @@ Not triggered — this plan touches no pipeline artifacts (no `.spec.ts`, no tes
 
 ## Council fight log
 
-- 2026-08-17 T1d `g76-plan-review` (gpt-5.5, cross-family): VERDICT **BOUNCE**, 5 findings. Author defense: all 5 CONCEDED, zero counters — plan amended in place (D23-1 hardened; Q6 widened to non-threshold aborts; G2(a) invariants pinned; guardrail-config exception + conditional hook/package.json scope added; H1/H2/H3 hypotheses replace the H3 assumption). Reviewer ASK-1 (exact blocking invocation on the collaborator's machine) → pending T1b + its fight round; if still ambiguous, Rutvik relays one question to the collaborator. ASK-2 (may Phase 3 touch hooks/package.json) → YES, conditional, recorded above. Alignment: reached by concession.
+- 2026-08-17 T1d `g76-plan-review` (gpt-5.5, cross-family): VERDICT **BOUNCE**, 5 findings. Author defense: all 5 CONCEDED, zero counters — plan amended in place (D23-1 hardened; Q6 widened to non-threshold aborts; G2(a) invariants pinned; guardrail-config exception + conditional (the hooks package.json path was incorrect — hooks live under `.githooks/`) scope added; H1/H2/H3 hypotheses replace the H3 assumption). Reviewer ASK-1 (exact blocking invocation on the collaborator's machine) → pending T1b + its fight round; if still ambiguous, Rutvik relays one question to the collaborator. ASK-2 (may Phase 3 touch (the hooks package.json path was incorrect — hooks live under `.githooks/`)) → YES, conditional, recorded above. Alignment: reached by concession.
 
 ## Execution record (running — Status flips only after Phase 5/6)
 

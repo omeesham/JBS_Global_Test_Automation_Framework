@@ -27,7 +27,7 @@ in-flight ramp, so each building plan can close its body on evidence and hand ex
 *"flip this key when its criterion is met."* One custodian replaces N rotting parents.
 
 **Provenance**: created 2026-07-29 as the recipient named in
-`plans/pending/SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md`'s Execution Summary, per the adjudicated ruling
+(the referenced subplan was never created)'s Execution Summary, per the adjudicated ruling
 that a completed body plus a durable recipient beats a month-long calendar marker.
 
 ## Bootstrap

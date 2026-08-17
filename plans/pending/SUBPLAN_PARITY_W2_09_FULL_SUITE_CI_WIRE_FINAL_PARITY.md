@@ -25,7 +25,7 @@ W2-09 closes the parity restructure. It wires the CI scripts authored in W1-05 i
 
 **Items in W2-09 scope** (per auditor R2-P2-3 — moved from W1-05):
 - **D11** weekly cron — GH Actions workflow at `.github/workflows/parity-drift-weekly.yml`
-- **D15** PR template — `.github/PULL_REQUEST_TEMPLATE.md` checklist for in-depth quality
+- **D15** PR template — repository PR checklist template (planned artifact; not present yet)
 - **D16** catalog-growth tracking — CI check that `red-flag-patterns.json` is append-only; weekly review log
 - **D17** drift-back prevention sweep — run sanity scripts against ENTIRE deliverable (not just touched files)
 - **CI wiring** — `.husky/pre-commit` + GH Actions PR check; runs all W1-05 validators
@@ -100,7 +100,7 @@ Author `.github/workflows/parity-drift-weekly.yml`:
 ### Phase 6 — CI wire: pre-commit + PR check
 
 1. Update `.husky/pre-commit` (or `clients/encore/scripts/preflight.mjs`) to invoke every W1-05 validator + the new D16 catalog check.
-2. Add GH Actions workflow `.github/workflows/parity-check.yml` triggered on PR — runs all validators + reports findings as PR comment.
+2. Add GH Actions parity workflow (planned artifact; not present yet) triggered on PR — runs all validators + reports findings as PR comment.
 3. Both must exit 1 on any validator failure (block merge).
 
 ### Phase 7 — Phase 9: Full-suite Playwright run

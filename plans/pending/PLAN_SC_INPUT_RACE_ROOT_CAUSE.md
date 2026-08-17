@@ -20,10 +20,10 @@ measured rate, and (b) design a test-side posture that fails loudly on the defec
 
 | Symptom | Where | Artifact |
 |---|---|---|
-| Save stayed disabled 10s after an edit → click timeout | TC-SVC-BAS-004, full run 1 | `reports/run-basic-final-0814-r2/01-run.verify.txt` |
-| Typed 34, saved, reloaded → read 24 (one of two edited fields reverted) | TC-SVC-BAS-023, full run 2 | `reports/run-basic-final-0814-r3/01-run.verify.txt` |
-| Keyboard-typed valid value survived blur only 1 of 3 | live walk, positive control | `reports/rca-alpha-0814/seatB/RESULT.md` |
-| Both failing tests pass 3/3 solo | determinism probe | `reports/bas004-determinism-0814/RESULT.md` |
+| Save stayed disabled 10s after an edit → click timeout | TC-SVC-BAS-004, full run 1 | full-run evidence was captured in a run-local report directory that is not tracked |
+| Typed 34, saved, reloaded → read 24 (one of two edited fields reverted) | TC-SVC-BAS-023, full run 2 | full-run evidence was captured in a run-local report directory that is not tracked |
+| Keyboard-typed valid value survived blur only 1 of 3 | live walk, positive control | RCA seatB result artifact is gone; the claim is unverified as file evidence |
+| Both failing tests pass 3/3 solo | determinism probe | determinism probe result artifact is gone; the claim is unverified as file evidence |
 | Invalid text: flagged while focused, flag/value unstable after blur | 11-case walk + owner replication | seatB RESULT + `ground-truth-service-charge-manual-2026-08-14.md` |
 
 A different test fails each full run because the loss is probabilistic per keystroke-entry, not

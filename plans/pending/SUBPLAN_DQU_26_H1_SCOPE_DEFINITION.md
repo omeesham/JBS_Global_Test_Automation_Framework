@@ -49,7 +49,7 @@ Per D9: scope of /simplify + /cleanup sweeps is Encore deliverables + Encore-spe
    - `orchestrator/**` or `pipeline/**` (if exists)
    - `scripts/**` (utility scripts — user dependent, confirm with user first)
 3. For each whitelist path, list file count + line count. Sanity-check scope manageable (expect ~40-80 files total).
-4. Write to `clients/encore/specs_planning/_internal/simplify-cleanup-scope-2026-04-22.md`: INCLUDE + EXCLUDE tables + rationale for ambiguous paths + sign-off-with-user prompt.
+4. Write to a dated internal simplify-cleanup scope artifact (planned; not present yet): INCLUDE + EXCLUDE tables + rationale for ambiguous paths + sign-off-with-user prompt.
 5. Activity-log row.
 
 ## Acceptance criteria

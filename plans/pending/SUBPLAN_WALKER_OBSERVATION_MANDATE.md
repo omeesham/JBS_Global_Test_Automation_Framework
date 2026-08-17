@@ -23,7 +23,7 @@ Skeleton existed (`ALL-042..044`, `LR-034`, per-walker BUG→LR-034 hooks, discu
 ## Part 2 — File the triggering bug (Track A — REMAINS; needs live browser)
 
 1. **Verify (Chrome, human-in-loop; LR-034 Step 2 + LR-ENC-004)**: reproduce the broken render live, capture the real numeric cap + CSS cause + screenshot; reproduce on office 1604 too; Rovo/Jira + `reports/bugs/` dedup first.
-2. **File** `clients/encore/reports/bugs/BUG-CPR-DET-001.json` (LR-034 schema; `severity: medium`, `baselineComparison: baseline-absent`, `affectedTests: [TC-CPR-DET-023]`).
+2. **File** the bug report file (exists locally, untracked runtime artifact) (LR-034 schema; `severity: medium`, `baselineComparison: baseline-absent`, `affectedTests: [TC-CPR-DET-023]`).
 3. **Pattern sweep** (every editable grid cell shares the inline-editor): Max Discount (>100), Override Price, etc. File each instance.
 4. **Coverage fix** (GIVER, LR-ENC-002 parity): upgrade TC-CPR-DET-023 + Max Discount sibling to the **dual oracle** — keep `aria-invalid` AND add a `boundingBox()` geometry assertion (invalid cell ⊄ its column); `test.fixme('bug-blocked: BUG-CPR-DET-001')`. Sync MD + XLSX + test-plan.
 

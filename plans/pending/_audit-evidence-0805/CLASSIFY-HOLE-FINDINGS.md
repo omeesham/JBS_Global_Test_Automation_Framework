@@ -70,7 +70,7 @@ Group counts (from BUCKET-2-by-dir.txt, 31 multi-file groups + 218 individual-fi
 | .claude/context | 6 | MIXED | `navigation.md` and `patterns.md` are LIVE (referenced by CLAUDE.md). 4 are DEAD/UNDETERMINED — see C3 |
 | src/utils | 4 | LIVE | Utility code imported by scripts and pipeline |
 | pipeline/worker | 4 | LIVE | Pipeline worker code — spawned by orchestrator |
-| .claude/channel | 4 | **FILES DO NOT EXIST ON DISK** | All 4 paths (KT_PROMPT_FOR_COLLEAGUE.md, broadcast/BROADCAST.md, inbox/COLLEAGUE_AGENT.md, inbox/RUTVIK_AGENT.md) return `Test-Path: False`. Roster is stale for these entries. Part of the dead agent-school message channel. |
+| .claude/channel | 4 | **FILES DO NOT EXIST ON DISK** | All 4 channel roster entries returned `Test-Path: False`. Roster is stale for these entries. Part of the dead agent-school message channel. |
 | website/.claude | 2 | LIVE | Website-specific Claude settings |
 | src/framework-contracts | 2 | LIVE | TypeScript contracts imported by pipeline and scripts |
 | scripts/setup | 2 | LIVE | Setup scripts referenced by SETUP.md |
