@@ -76,24 +76,24 @@ observation-claiming disposition without that evidence would be a fabrication.
 | element-key | role | disposition |
 |---|---|---|
 | `id:radix-_r_#_ [archetype×7]` | button | out-of-scope: presentational container carrying no independent user-facing behaviour |
-| `struct:a|Home|div/div/div/div/ul/li` | a | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:a|Inbox|div/div/div/div/ul/li` | a | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `id:radix-_r_a_` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `id:radix-_r_d_` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `id:radix-_r_g_` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:button|Order Search|div/div/div/div/ul/li` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:a|Job Search|div/div/div/div/ul/li` | a | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:a|Asset Search|div/div/div/div/ul/li` | a | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:a|Customer Search|div/div/div/div/ul/li` | a | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:button|DRO Search|div/div/div/div/ul/li` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:button|Payment Search|div/div/div/div/ul/li` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:a|Item Search|div/div/div/div/ul/li` | a | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:button|ECT Search|div/div/div/div/ul/li` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:button|Event Agendas|div/div/div/div/ul/li` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:button|Navigator Assistant|div/div/div/div/ul/li` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `id:radix-_r_t_` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:button|Click to restore sidebar|body/div/div/div/div/div` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
-| `struct:button|trigger-button|skip/div/div/div/div/div` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:a|Home|div/div/div/div/ul/li` | a | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:a|Inbox|div/div/div/div/ul/li` | a | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `id:radix-_r_a_` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `id:radix-_r_d_` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `id:radix-_r_g_` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:button|Order Search|div/div/div/div/ul/li` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:a|Job Search|div/div/div/div/ul/li` | a | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:a|Asset Search|div/div/div/div/ul/li` | a | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:a|Customer Search|div/div/div/div/ul/li` | a | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:button|DRO Search|div/div/div/div/ul/li` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:button|Payment Search|div/div/div/div/ul/li` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:a|Item Search|div/div/div/div/ul/li` | a | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:button|ECT Search|div/div/div/div/ul/li` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:button|Event Agendas|div/div/div/div/ul/li` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:button|Navigator Assistant|div/div/div/div/ul/li` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `id:radix-_r_t_` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:button|Click to restore sidebar|body/div/div/div/div/div` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:button|trigger-button|skip/div/div/div/div/div` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
 | `struct:tablist|Discount OptimizationSpecial Rate Exempt|div/div/div/div/div/div` | tablist | covered-by-TC: TC-DOP-OPT-001 |
 | `id:radix-_r_v_-trigger-serviceTypeExemptions` | tab | covered-by-TC: TC-DOP-EXM-001 |
 | `id:radix-_r_v_-content-serviceTypeExemptions` | tabpanel | covered-by-TC: TC-DOP-EXM-001 |
@@ -101,10 +101,10 @@ observation-claiming disposition without that evidence would be a fabrication.
 | `struct:button|Cancel|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div` | button | covered-by-TC: TC-DOP-EXM-001 |
 | `struct:button|Save|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div` | button | covered-by-TC: TC-DOP-EXM-020 |
 | `struct:th|Service Type|div/div/div/table/thead/tr` | th | covered-by-TC: TC-DOP-OPT-002 |
-| `id:radix-_r_2e_` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `id:radix-_r_2e_` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
 | `struct:button|Resize column serviceTypeName|div/div/table/thead/tr/th` | button | out-of-scope: tab 2 column resize drag control; column resizing and tab 2 sort controls are out of scope per the locations test plan |
 | `struct:th|Exempt|div/div/div/table/thead/tr` | th | covered-by-TC: TC-DOP-OPT-002 |
-| `id:radix-_r_2g_` | button | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `id:radix-_r_2g_` | button | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
 | `struct:button|Resize column isSpecialRateAllowed|div/div/table/thead/tr/th` | button | out-of-scope: tab 2 column resize drag control; column resizing and tab 2 sort controls are out of scope per the locations test plan |
 | `struct:checkbox|Exempt Computer Rental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
 | `struct:checkbox|Exempt Concise Equipment|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
@@ -135,7 +135,7 @@ observation-claiming disposition without that evidence would be a fabrication.
 | `struct:checkbox|Exempt Virtual Events Professional Servi|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
 | `struct:checkbox|Exempt Wedding Event Equipment Rental|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
 | `struct:checkbox|Exempt ZSub Rental Specialty|div/div/table/tbody/tr/td` | checkbox | covered-by-TC: TC-DOP-EXM-020 |
-| `struct:section|Notifications alt+T|html/body` | section | out-of-scope: global application shell and left-hand navigation, outside the Discount Optimization surface under test |
+| `struct:section|Notifications alt+T|html/body` | section | out-of-scope: outside-module — global application shell and left-hand navigation, outside the Discount Optimization surface under test |
 
 ---
 

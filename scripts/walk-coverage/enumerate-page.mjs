@@ -161,6 +161,24 @@ export const MODULE_CONFIG = {
     ...MC_DATA['service-charge'],
   },
 
+  'discount-optimization': {
+    path: (office) => `${BASE}/locations/${office}/settings/discount-optimization-settings`,
+    // Tab 1 is the default; clicking it (already selected, aria-selected=true) forces
+    // activateTabByRoleText to enter the contentMarker-wait path immediately.
+    activateTabsByRoleText: [
+      { role: 'tab', text: 'Discount Optimization' },
+    ],
+    // tbody tr — only resolves after virtual scroll paints at least one data row.
+    contentMarker: 'tbody tr',
+    openerTestidPatterns: [],
+    // Tab 2 activated as an opener so its columns enter the denominator on cycle 1.
+    openerRoleTextPatterns: [
+      { role: 'tab', text: 'Special Rate Exemptions by Service Type', branch: 'tab:service-type-exemptions' },
+    ],
+    excludeOptionRoles: true,
+    ...MC_DATA['discount-optimization'],
+  },
+
   'corporate-pricing-override': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/pg-override`,
     contentMarker: 'h1:text-is("Product Group Override")',

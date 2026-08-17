@@ -219,19 +219,19 @@ none
 ## Coverage Manifest
 
 **MCP_Session_Date**: 2026-08-11
-**Coverage_Ratio**: INCOMPLETE — 0 rows rendered
-**CrossCheck**: INCOMPLETE — tbody rows did not paint within 301s; footer "Count 2155" IS rendered, confirming page is reachable and count is known; only tbody data is absent
+**Coverage_Ratio**: 2/2 — both enumerated controls (Add, Save) dispositioned `read-only-verified`. NOTE: this denominator is small because this baseline walk enumerated only the two panel-header controls; it is not a full-surface enumeration. Read this ratio as "everything this artifact enumerated is dispositioned", not as "the whole old-site surface was walked".
+**CrossCheck**: clean — corrected 2026-08-17. The earlier INCOMPLETE was a selector defect, not a rendering failure: the old-site grid uses ARIA role divs (`[role=row]`), never `<tbody><tr>`, so the original `tbody tr` poll could never match. A re-walk on 2026-08-17 observed 39 rows rendered in ~32s headless, footer "Count 2155" — the same footer the original walk recorded.
 **Completion_Record**: clients/encore/specs_planning/_internal/old-site-baseline/legacy-completion-record.json
 **Enumeration_Script**: `scripts/nav2-legacy-discount-walk.mjs` (T41 menu-click run)
 **Session_Hash**: `walk-t41-2026-08-11`
-**Row_Count_Confirmed**: 0 rows confirmed in tbody after 301s — footer text "Count 2155" rendered in page body (consistent with §4); tbody rows did not paint
+**Row_Count_Confirmed**: 39 rows observed via `[role=row]` on 2026-08-17 (virtualised grid renders a page at a time); footer text "Count 2155" is the authoritative total. The earlier "0 rows in tbody" reading came from querying `tbody tr`, which this grid does not use.
 **Footer_Text_Observed**: "Count 2155"
 **Auth_State**: `clients/encore/.auth/nav2-state.json` (e2e state NOT overwritten: true)
 **Mutation_Attestation**: Zero mutations. No fields edited, no saves submitted, no rows added or deleted.
 
 **DROPDOWN_PROOF**: PROVED — Setup dropdown opened via hover (no force click). Siblings confirmed: Corporate Pricing, Discount Matrix, ECT Settings, Local Office Settings. Full verbatim list in `.claude/state/ua-worker/chips/discount-optimization/out-t41/legacy-menu-walk.md` §DROPDOWN_PROOF.
 
-**REACHABLE_VS_RENDERING**: Page is REACHABLE — correct URL confirmed, dropdown proven open, link clicked, footer "Count 2155" rendered. Table tbody rows did NOT paint within 301s. Finding: **reachable but not rendering**, NOT unreachable.
+**REACHABLE_VS_RENDERING**: Page is REACHABLE and RENDERING — corrected 2026-08-17. Correct URL confirmed, dropdown proven open, link clicked, footer "Count 2155" rendered, and 39 grid rows observed via `[role=row]`. The earlier "reachable but not rendering" finding is RETRACTED: it was produced by polling `tbody tr` on a grid that renders ARIA role divs.
 
 | Control Ref | Disposition | Label | Notes |
 |---|---|---|---|
