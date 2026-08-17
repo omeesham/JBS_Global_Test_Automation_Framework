@@ -1,4 +1,4 @@
----
+﻿---
 artifact: walk-evidence
 client: encore
 module: service-charge
@@ -278,6 +278,8 @@ Evidence: `.claude/state/ua-worker/nm3344-auditfix-0811/hist-run1.log` and `hist
 
 Live probe 2026-08-11 (nm3344-fixmeprobe2-0811) on a 76-row populated History grid for office 1604: row 0 (APP Downloaded | 0.00 % | s-prd-clickauto@psav.com | 08/11/2026 10:27:08 AM) was unchanged after clicking the Service Type column header. All four column headers had ria-sort=null before the click and ria-sort=null after the click. No requirement document was found specifying that the History grid must be sortable. Classified as a design observation — no defect filed. TC-SVC-HIS-012 updated to assert the observed behaviour (no sort) rather than the prior unconfirmed assumption (sort).
 
+**CORRECTION 2026-08-16 (RECONCILE ticket):** The 2026-08-11 probe result was an environment artifact. A live walk on 2026-08-16 on a 347-row grid (WALK.md) confirmed all four column headers open a Sort ascending / Sort descending / Hide column dropdown and sorting lands visibly. The observation of no row reorder was a degraded-environment false negative. TC-SVC-HIS-012 was corrected and passes 3/3 as of 2026-08-16.
+
 ---
 
 **SVC-OBS-4 — Modified By format differs between legacy and new rows: GUIDs for pre-existing rows, email for automation-user-created rows. SCOPE CLARIFICATION for BUG-SVC-HIS-001.**
@@ -292,6 +294,10 @@ Live probe 2026-08-11 (nm3344-fixmeprobe2-0811): a save on Basic Information (AP
 Clicking the first column header (Service Type) on the History grid causes the grid to empty immediately. Rows do not return within 30 seconds. Observed across 3 independent test runs (final battery passes 4, 5, and 6 — sc-final.log lines 501, 627, 1520, 1646). The test ran BEFORE the mutation test (HIS-013) in file order each time, ruling out row-state contamination as the cause. aria-sort is not set after the click, confirming the grid has no sort affordance. This is a discussion-item candidate — no NM ticket exists for column-header click behaviour; do not file a bug JSON without a confirmed requirement. Evidence: clients/encore/reports/sc-artifacts-history-5/ and sc-artifacts-history-6/ failure screenshots for TC-SVC-HIS-012; sc-final.log 30 s timeouts both passes.
 
 **Disposition: deferred-to-DEEP.** No documented requirement covers column-header click behaviour on the History grid. Whether the grid-empties response constitutes a product defect requires a product-team decision. Deferring investigation to the DEEP coverage phase when requirements can be confirmed. No bug JSON filed.
+
+**CORRECTION 2026-08-16 (RECONCILE ticket):** This claim was false. A live walk on 2026-08-16 on a 347-row grid (WALK.md) showed the grid never emptied after a header click. The five blank rows observed previously were the loading skeleton, not an empty post-click state. The sort dropdown (Sort ascending / Sort descending / Hide column) appeared on every header click; clicking Sort ascending reordered the grid. This entry is preserved as history; its conclusion is superseded. Sort behavior is confirmed working on all four columns and is covered by TC-SVC-HIS-012 (passing 3/3 as of 2026-08-16).
+
+**CORRECTION 2026-08-16 (RECONCILE ticket):** This observation was a false claim. A live walk on 2026-08-16 on a 347-row grid (WALK.md) showed the following: a click on any column header opens a Radix dropdown (Sort ascending / Sort descending / Hide column) within 200 ms; clicking "Sort ascending" reorders the grid; the grid was never empty after a header click. The five blank rows observed in 2026-08-11 test runs were the loading skeleton that appears while the grid fetches data, not an empty post-click state. The spec comment "clicking empties the grid" was authored while the grid was in its loading state on a degraded environment — the claim was never independently confirmed on a fully loaded grid. This entry is preserved as a historical record; its conclusion is superseded. Sort behavior is confirmed working on all four columns and is covered by TC-SVC-HIS-012 (passing 3/3 as of 2026-08-16).
 
 
 **SVC-OBS-6 — Enumerator did NOT trigger the header-click-empties-grid behavior (SVC-OBS-3). ENUMERATION FINDING 2026-08-11.**

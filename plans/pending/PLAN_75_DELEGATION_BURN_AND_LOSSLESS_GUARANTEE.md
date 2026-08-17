@@ -6,9 +6,13 @@
 > 4. **Dependency gate**: none. This plan is independently runnable.
 > 5. **Context load**: `.claude/skills/delegation-temp/SKILL.md`, `.claude/skills/ultra-agents/worker-ext.md`, `.claude/state/ua-worker/ledger.jsonl`, and §2 of this plan.
 > 6. **Phase 0 FIRST** — the measurement. No change lands before the baseline exists.
-> 7. **Handoff**: flip the Status field to DONE, add the Executed date, append an activity-log row, move to `plans/done/`, run `npm run plans:reindex`.
+> 7. **Two-session structure (AUD-017)**: Phases 0–3 run in session A; Phase 4 + the DONE flip run in a SEPARATE session. Ending session A with the plan PENDING and a checkpoint row in §8 is the designed flow, not a silent checkpoint (LR-060 note) — hand off in chat naming Phase 4 as next.
+> 8. **Handoff (Phase-4 session only)**: flip the Status field to DONE, add the Executed date, append an activity-log row, move to `plans/done/`, run `npm run plans:reindex`.
 >
 > **HALT + ASK RUTVIK** if: a proposed change touches a protected control file · a burn reduction cannot be paired with a quality check that would catch its regression · Phase 0's measurement contradicts §2's observed corpus by more than a third.
+>
+> **NOT a HALT**: Phase 1's missing go — record the ask, skip Phase 1, continue (see Phase 1's GO handling).
+> **Review freshness**: §9's review covered the 2026-08-16 draft; this plan was materially edited 2026-08-17 (§9b), so the §0 cross-family attack MUST be re-run on the current text before Phase 1 — a recorded review does not survive material edits.
 
 ---
 
@@ -18,8 +22,9 @@
 **Priority**: High
 **Created**: 2026-08-16
 **Parent**: none
+**Depends on**: none — independently runnable. Two collision guards: gate defects belong to `plans/pending/PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md` (§6); B1-class fixes extend PLAN_61's landed death machinery (§6), never fork it.
 **Identity**: OWNER
-**Model**: opus
+**Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: auto
 **BrowserTool**: none
@@ -37,6 +42,14 @@ result reaches the CEO.
 
 **No agent, including a future Claude, may weaken or remove this section.** If a phase seems to justify
 an exception, that is a finding to report, not a licence to proceed.
+
+**Reading note (2026-08-17 audit — reconciliation, not a weakening)**: §0's "every phase below is
+dispatched" composes with Phase 1–3's "Claude authors / Claude classifies" exactly as §9 findings 5–6
+(accepted cross-family) resolved it: the *doing* of every phase — evidence gathering, measurement,
+attack rounds, re-execution — is dispatched; the *judgment core* — classification, fix synthesis,
+accept/reject — stays with Claude per the north star; and every stage's output still receives a
+cross-family adversarial pass with author defence. Nothing in this note exempts any stage from
+council review.
 
 ---
 
@@ -158,8 +171,21 @@ Machine-enumerate, do not model-judge:
 - The death rate attributable to wall-ceiling specifically, and the median run duration for runs that survived — the gap between them is the ticket-sizing error.
 - Every run whose declared OUTPUT file came back a skeleton or stub, with its ticket's length and its work-type.
 
+**Ledger vocabulary (machine-read 2026-08-17, 2708 rows — re-derive at run time, do not trust this
+snapshot)**: fields include `run_id, session_id, parent_run_id, ticket_id, work_type, secs, exit, ok,
+exit_reason, stall_warns, attempt, death_class, model, effort, tokens_in, tokens_out, cost_usd, ts,
+ts_end` — with PARTIAL coverage (≈500 early rows lack `ts`/`tokens`/`cost`; `exit_reason` absent on
+≈200; `death_class` present on 561 only). Observed `exit_reason` enum: `success` 2109 ·
+`no-report-schema` 178 · `no-deliverable` 70 · `wall_ceiling` 64 · `error` 44 · `no-declared-output` 32 ·
+`budget-exhausted` 6 · `network` 4. **There is NO goal field** — "per goal" means: group by
+`session_id`, with `parent_run_id` for nesting, and say so in the output. Every ratio states its
+field-coverage denominator; a ratio over a field only half the rows carry must say so.
+
 **The orchestrator side, which the ledger cannot see** (added after review — the first draft measured only
-the delegated half). From the session transcript rather than the ledger, count for a completed goal:
+the delegated half). From the session transcript rather than the ledger — transcripts live under
+`~/.claude/projects/C--Users-RutvikKhorasiya-projects-encore-framework/` as per-session `.jsonl` files;
+if the transcript for a completed goal cannot be located, every orchestrator-side cell is reported
+`unmeasured` — count for a completed goal:
 tool calls made by Claude directly, distinguishing ticket-authoring from reading from verification;
 turns spent on bounce or re-diagnosis after a worker death; turns spent inside the reviewer-defence loop;
 turns spent on closure ceremony.
@@ -168,8 +194,14 @@ turns spent on closure ceremony.
 honest gap in the baseline is worth more than a number nobody can reproduce — a fabricated denominator
 would poison every saving computed against it.
 
-**Acceptance**: a table with counts, produced by a command that can be re-run, covering **both** sides.
-Any unmeasured cell explicitly labelled as such.
+**Outputs (literal paths — create the directory)**: the re-runnable measurement script at
+`.claude/state/plan75/phase0-measure.mjs`, and the table it emits at
+`.claude/state/plan75/phase0-burn-baseline.md`.
+**Acceptance**: the table carries counts for **both** sides, reproduces by re-running the script, and
+labels every unmeasured cell as such.
+**Dispatch shape**: read-only research ticket(s) per `/delegation-temp` §Dispatch discipline — preflight
+via `node scripts/dispatch-preflight.mjs --ticket <t> --run-id <id> --model <m> --work-type research`,
+`--max-credits` at 2× estimate, cross-provider reviewer seat.
 **HALT** if neither source can support a measurement — say so plainly rather than substituting judgement.
 
 ### Phase 1 — Fix the skill gap that started this (Claude authors, council attacks)
@@ -184,6 +216,15 @@ plan drafted without an adversarial cross-family pass is incomplete.
 
 **`.claude/skills/delegation-temp/SKILL.md` is a protected control file. This phase needs Rutvik's
 explicit go before the edit, and the go must be recorded in the plan.**
+
+**GO handling (not a HALT)**: if Rutvik's recorded go does not exist when Phase 1 is reached, record
+the ask as a §8 row, skip Phase 1, and continue Phases 2–3; land Phase 1 in any later session once the
+go — the verbatim quote plus its date — is recorded in this section.
+
+**Deterministic anchor for §7**: the Phase-1 edit adds a section to the skill whose header line is
+exactly `## §Planning — council covers plan authoring`. That exact string is what §7's first check
+greps for; as of 2026-08-17 the word "planning" appears **zero** times in the skill (machine-checked),
+so the check can only pass if this phase actually landed.
 
 ### Phase 2 — Classify every burn finding (**Claude classifies; workers gather evidence**)
 
@@ -205,6 +246,9 @@ So: **workers gather the evidence for each finding — what happened, where, how
 Claude does the classification and the fix synthesis.** A cross-family seat then attacks the finished
 classification, which is review, not authorship.
 
+**Output (literal path)**: `.claude/state/plan75/phase2-classification.md` — one row per finding:
+the finding × every class it carries × the evidence pointer a worker gathered for it.
+
 ### Phase 3 — Propose fixes in saving-plus-guarantee pairs (Claude authors, council attacks)
 
 Every proposal names the saving **and** the check that catches its regression. Unpaired proposals are
@@ -212,6 +256,10 @@ rejected on sight. Order by saving-per-unit-of-risk, not by size of saving.
 
 **Design constraint**: no fix may move judgment to a worker. If a saving requires a worker to decide
 something rather than observe something, it is out of scope — that is the north star, not a preference.
+
+**Output (literal path)**: `.claude/state/plan75/phase3-proposals.md` — every proposal written in the
+§1 four-component guarantee shape (mechanism · threshold · baseline · sample), ordered
+saving-per-unit-of-risk with the ordering rationale recorded.
 
 ### Phase 4 — Prove losslessness (delegated, adversarial, separate session)
 
@@ -224,14 +272,19 @@ caught.
 
 **If losslessness cannot be demonstrated for a fix, that fix is reverted, not shipped with a caveat.**
 
+**Separate session is AUD-017, not preference** — the Phase-4 session must not be the session that
+landed the fixes. **Output (literal path)**: `.claude/state/plan75/phase4-losslessness-verdict.md` —
+per landed fix: the both-ways comparison, what each way caught, and the keep/revert verdict. The plan
+stays PENDING until this file exists; only the Phase-4 session flips Status to DONE.
+
 ---
 
 ## §5 Per-Identity Satisfaction
 
 | Identity | Duty | Concrete deliverable |
 |---|---|---|
-| OWNER | Measurement, classification, the fixes, the skill edit | `plans/pending/PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md`<br>`clients/encore/specs_planning/_internal/agent-activity-log.md` |
-| WATCHDOG | Phase 4 losslessness proof, separate session | (skipped: the artifact path is unknown until Phase 3 decides which fixes land; Phase 4 names it at that point) |
+| OWNER | Measurement, classification, the fixes, the skill edit | `plans/pending/PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md`<br>`.claude/state/plan75/phase0-burn-baseline.md`<br>`.claude/state/plan75/phase2-classification.md`<br>`.claude/state/plan75/phase3-proposals.md`<br>`clients/encore/specs_planning/_internal/agent-activity-log.md` |
+| WATCHDOG | Phase 4 losslessness proof, separate session | `.claude/state/plan75/phase4-losslessness-verdict.md` |
 | HUNTER | — | (skipped: no module intake, baseline walk or client surface falls inside this plan's scope) |
 | GIVER | — | (skipped: no test cases or test plans are authored or modified by this plan) |
 | BUILDER | — | (skipped: no spec files are authored or modified by this plan) |
@@ -243,7 +296,8 @@ caught.
 ## §6 NOT touched
 
 - Any client spec, page object, test case or test plan. This plan is about the delegation system, not the product under test.
-- Any closure or safety gate. Gate defects found today belong to PLAN_74; this plan must not quietly absorb them.
+- Any closure or safety gate. Gate defects found today belong to `plans/pending/PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md`; this plan must not quietly absorb them.
+- PLAN_61's landed death machinery (dispatch-time stub, per-work-type budget floors, stall bounce, `death_class` census — `plans/pending/PLAN_61_WORKER_DEATH_PERMAFIX.md`). B1-class fixes build on it, never fork or duplicate it.
 - The north star. Rules that push thinking down or pull doing up are rejected, whatever they save.
 - Protected control files, without Rutvik's recorded go — `/delegation-temp`, `worker-ext.md`, the dispatch wrapper, `.claude/settings.json`.
 
@@ -252,16 +306,33 @@ caught.
 ## §7 Verification artifact
 
 ```bash
-grep -c "planning" .claude/skills/delegation-temp/SKILL.md
+grep -c "## §Planning — council covers plan authoring" .claude/skills/delegation-temp/SKILL.md
 ```
-Expected after Phase 1: non-zero, and the hits describe the council's planning duty rather than merely
-mentioning the word.
+Expected: `0` before Phase 1 (machine-confirmed 2026-08-17 — the word "planning" appears nowhere in
+the skill today), exactly `1` after. The first draft of this check counted the loose word "planning"
+and terminated in a judgment clause ("hits describe the duty"), which cannot fail deterministically —
+replaced with the exact anchor header Phase 1 is required to add.
 
 ```bash
 node -e "const l=require('fs').readFileSync('.claude/state/ua-worker/ledger.jsonl','utf8').trim().split('\n').map(JSON.parse); const w=l.filter(r=>r.exit_reason==='wall_ceiling'); console.log('wall-ceiling deaths:', w.length, 'of', l.length);"
 ```
 Expected: a falling ratio after Phase 3's ticket-sizing fix lands. Establish the number in Phase 0 first —
-a ratio with no baseline proves nothing.
+a ratio with no baseline proves nothing. Cross-check for the Phase-0 reviewer: the 2026-08-17
+whole-ledger snapshot was **64 wall-ceiling deaths of 2708 rows** — Phase 0 re-derives this scoped per
+goal/session; a Phase-0 number wildly off that order needs explaining, in either direction.
+
+---
+
+## §7.5 Acceptance criteria (the DONE-flip checklist — every box, no exceptions)
+
+- [ ] Phase 0: `.claude/state/plan75/phase0-measure.mjs` re-runs clean; `.claude/state/plan75/phase0-burn-baseline.md` covers both sides; every unmeasured cell labelled.
+- [ ] Phase 0 reviewed against §2 loudly; a >⅓ contradiction fired the recorded HALT.
+- [ ] Phase 1: the skill carries the exact `## §Planning — council covers plan authoring` section AND Rutvik's go is recorded verbatim in Phase 1 — OR the phase is open with the ask recorded in §8.
+- [ ] Phase 2: `.claude/state/plan75/phase2-classification.md` — every Phase-0 finding and every §2 row carries every applicable class; classification attacked by a cross-family seat, author defended.
+- [ ] Phase 3: `.claude/state/plan75/phase3-proposals.md` — every proposal in the four-component guarantee shape; zero unpaired proposals.
+- [ ] Phase 4 (separate session): `.claude/state/plan75/phase4-losslessness-verdict.md` — every landed fix proven lossless or reverted.
+- [ ] §0 held: every stage's output got a cross-family adversarial pass with author defence, including the fresh pass on the 2026-08-17 text before Phase 1.
+- [ ] §8 reflects reality; closure ceremony per bootstrap item 8.
 
 ---
 
@@ -294,3 +365,39 @@ evidence that the bias this plan exists to counter is real and operates below no
 against reflexive delegation on one page and delegated its own centre two pages later. A future session
 reading only the corrected text would learn the rule; reading this row, it learns the rule is hard to
 follow even while writing it down.
+
+---
+
+## §9b Claude-layer audit (2026-08-17, /audit review + machine verification — the auditing session did not author this plan)
+
+Machine checks run against the live repo, each reproducible:
+
+| Check | Result | Plan change |
+|---|---|---|
+| `wall_ceiling` is a real ledger token | CONFIRMED — 64 of 2708 rows | §7 check kept; dated baseline snapshot recorded beside it |
+| B1's three cited run-ids exist in the ledger | CONFIRMED — `closeverify-0816` ×2, `blinda-0816` ×1, `f7walk-0816` ×1 | none needed |
+| "planning" absent from the skill | CONFIRMED — 0 word-matches | Phase 1's premise holds; §7 check 1 hardened to a deterministic anchor header |
+| "per goal" is machine-derivable from the ledger | **REFUTED — the ledger has no goal field** | Phase 0 now groups by `session_id` and must say so |
+| Cited files exist (`worker-ext.md`, ledger, `dispatch-preflight.mjs`, `ticket-skill-scan.mjs`) | CONFIRMED | none needed |
+| `PLAN_74` resolves to a real pending file | CONFIRMED — `PLAN_74_FAKE_GREEN_ROOT_CAUSE_AND_GATE.md` | §6 cites the exact path |
+
+Findings fixed in the body — all additive; no §0/§9 reviewed text weakened:
+
+1. **No phase named its output artifact** — a dumb agent cannot satisfy C3/C6 closure without literal
+   paths. All five phases now carry `.claude/state/plan75/*` outputs; the §5 matrix cites them.
+2. **§0 "every phase dispatched" read as contradicting Phase 1–3 "Claude authors/classifies"** —
+   reading note added under §0, resolving per §9 findings 5–6.
+3. **A missing Phase-1 go would have halted the whole plan** — skip-and-continue wired; the ask
+   becomes a §8 row, not a dead stop.
+4. **Two-session Phase 4 collided silently with LR-060's no-silent-checkpoint** — bootstrap item 7
+   now declares the split as designed flow.
+5. **`Model: opus` was not the LR-041 canonical value** — corrected to `claude-opus-4-8`; `Depends on`
+   frontmatter added per LR-048.
+6. **§7 check 1 terminated in a judgment clause** — replaced with an exact anchor header the grep can
+   fail on.
+7. **Review freshness unstated** — a recorded review does not survive material edits; the fresh
+   cross-family attack on this 2026-08-17 text is now a named precondition of Phase 1.
+8. **PLAN_61 scope collision unguarded** — §6 row added: B1-class fixes extend its landed death
+   machinery, never fork it.
+9. **No acceptance-criteria checklist existed** (LR-048 item 7) — §7.5 added; it is the DONE-flip
+   checklist.

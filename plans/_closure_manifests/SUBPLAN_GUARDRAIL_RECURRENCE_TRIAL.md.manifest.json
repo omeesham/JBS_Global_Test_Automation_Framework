@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md",
+  "plan_basename": "SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md",
+  "plan_sha256": "581da96e51dc88c0588855dd90ea99fd9978e8c585c2087a27fc1e09496964d5",
+  "passed_at": "2026-07-29T16:13:24.354Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "745bcdf719004e94544fadcf24ba988b462469a7f91fd76f26d2f36e04af8e9c",
+  "validator_invocation_id": "1785341604354-e3c5a2828e62aa9c940ab9ccbbd9c955-581da96e51dc88c0",
+  "artifacts": [],
+  "provisional": false
+}

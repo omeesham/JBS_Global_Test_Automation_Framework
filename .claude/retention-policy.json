@@ -1,0 +1,92 @@
+{
+  "_comment": "Retention policy for client surface directories. Authored by PLAN_CLIENT_SURFACE_PURGE_AND_WRITE_FENCE.md Phase 4 Arm B2. Enforcement is report-and-confirm ONLY — this file never authorises autonomous deletion. A directory present under clients/<id>/ but absent from this list is itself a finding (B2 completeness check). Policy applies per content class WITHIN a folder, not folder-wholesale.",
+  "_version_note": "version 1 — 2026-08-03. Measurements cited in rationale fields are timestamped snapshots; the live tree is volatile.",
+  "version": 1,
+  "directories": [
+    {
+      "path": "clients/encore/reports/allure-results",
+      "contentClass": "dead-output",
+      "retention": { "maxAgeDays": 7 },
+      "budget": { "growthRatioPerSession": 1.5 },
+      "rationale": "794 MB measured 2026-07-31 (snapshot); 8 MB measured 2026-08-03T11:32:25Z snapshot (tree is volatile). Raw Allure runner output, rendered into allure-report and never read again. Regenerates on every test run.",
+      "owner": "OWNER"
+    },
+    {
+      "path": "clients/encore/reports/allure-report",
+      "contentClass": "dead-output",
+      "retention": { "maxAgeDays": 7 },
+      "budget": { "growthRatioPerSession": 2.0 },
+      "rationale": "111 MB measured 2026-07-31 (snapshot). Rendered HTML report derived from allure-results. Regenerates on every allure generate call. Absent on 2026-08-03T11:32:25Z snapshot — confirms it is ephemeral output.",
+      "owner": "OWNER"
+    },
+    {
+      "path": "clients/encore/reports/test-results",
+      "contentClass": "dead-output",
+      "retention": { "maxAgeDays": 7 },
+      "budget": { "growthRatioPerSession": 2.0 },
+      "rationale": "67.7 MB, 129 files measured 2026-08-03T11:32:25Z snapshot. Playwright raw test-results directory (screenshots, videos, traces). Regenerates on every test run.",
+      "owner": "OWNER"
+    },
+    {
+      "path": "clients/encore/reports/html-report",
+      "contentClass": "dead-output",
+      "retention": { "maxAgeDays": 14 },
+      "budget": { "growthRatioPerSession": 2.0 },
+      "rationale": "0.6 MB, 1 file measured 2026-08-03T11:32:25Z snapshot. Playwright HTML reporter output. Regenerates on every test run.",
+      "owner": "OWNER"
+    },
+    {
+      "path": "clients/encore/.playwright-cli",
+      "contentClass": "regenerable-cache",
+      "contentClassScope": "browser-profile",
+      "retention": { "maxAgeDays": null },
+      "budget": { "growthRatioPerSession": null },
+      "rationale": "Chromium browser binary/profile used by playwright-cli. Never expired by policy — removing it causes the next run to re-download and re-install, pure waste. 0 MB on 2026-08-03T11:32:25Z snapshot (already lean); was 40 MB in historical measurements per plan.",
+      "owner": "OWNER"
+    },
+    {
+      "path": "clients/encore/.playwright-cli",
+      "contentClass": "dead-output",
+      "contentClassScope": "csv-and-logs",
+      "retention": { "maxAgeDays": 30 },
+      "budget": { "growthRatioPerSession": 1.5 },
+      "rationale": "Downloaded CSVs and console/run logs back to May (per plan measurement). Same directory as the browser profile — policy applied per content class, not folder-wholesale. The logs/CSVs do not regenerate and will not come back on their own.",
+      "owner": "OWNER"
+    },
+    {
+      "path": "clients/encore/.auth",
+      "contentClass": "regenerable-cache",
+      "contentClassScope": "browser-profiles",
+      "retention": { "maxAgeDays": null },
+      "budget": { "growthRatioPerSession": null },
+      "rationale": "60.9 MB, 722 files measured 2026-08-03T11:32:25Z snapshot. Two persistent Chromium browser profiles used by Playwright auth setup. Never expired by policy — they regenerate on auth.setup.ts run but that adds minutes of overhead per session. Only the two *-state.json files (~20 KB total) are strictly needed for auth token reuse; the rest are browser profile caches.",
+      "owner": "OWNER"
+    },
+    {
+      "path": "clients/encore/.auth",
+      "contentClass": "dead-output",
+      "contentClassScope": "stale-session-state",
+      "retention": { "maxAgeDays": 30 },
+      "budget": { "growthRatioPerSession": 1.2 },
+      "rationale": "60.9 MB total in .auth (2026-08-03T11:32:25Z snapshot); only ~20 KB of *-state.json is actually needed. Old session-state dirs accumulate silently. Policy: report when file count or size grows beyond baseline — the two needed *-state.json files do not change size meaningfully.",
+      "owner": "OWNER"
+    },
+    {
+      "path": "clients/encore/node_modules",
+      "contentClass": "regenerable-cache",
+      "retention": { "maxAgeDays": null },
+      "budget": { "growthRatioPerSession": null },
+      "rationale": "86.8 MB, 3382 files measured 2026-08-03T11:32:25Z snapshot. npm install output — never expired by policy. Removing it causes the next run to re-install all dependencies, pure waste. Growth is only meaningful when package.json changes.",
+      "owner": "OWNER"
+    },
+    {
+      "path": "clients/encore/specs_planning/_internal",
+      "contentClass": "dead-output",
+      "contentClassScope": "dated-evidence-dirs",
+      "retention": { "maxAgeDays": 60 },
+      "budget": { "growthRatioPerSession": 1.5 },
+      "rationale": "5.6 MB, 123 files measured 2026-08-03T11:32:25Z snapshot. Dated evidence snapshot directories produced during planning walks. Not regenerated by test runs; accumulates with each planning session.",
+      "owner": "OWNER"
+    }
+  ]
+}

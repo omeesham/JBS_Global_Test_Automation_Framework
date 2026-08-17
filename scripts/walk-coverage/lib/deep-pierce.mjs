@@ -25,7 +25,7 @@
  *   candidates: [{ idx, key, role, name }]  (cursor:pointer G1 candidates; idx → window.__wcCands)
  *   stats:      { scanned, shadowHosts, uniqueKeys }
  */
-export function inPageEnumerate() {
+export function inPageEnumerate(rootSelector) {
   // ---- role sets (WAI-ARIA 1.2 widget roles vs. composite-container / landmark / structure) ----
   var WIDGET_ROLES = { button:1, checkbox:1, combobox:1, textbox:1, searchbox:1, radio:1, switch:1,
     tab:1, link:1, menuitem:1, menuitemcheckbox:1, menuitemradio:1, slider:1, option:1,
@@ -140,7 +140,19 @@ export function inPageEnumerate() {
     return false;
   }
 
-  var all = deepAll(document);
+  // Cause-4 fix: scope enumeration to <main> to exclude app-shell chrome.
+  // If rootSelector is provided and no matching element exists, throw CONTAINER_NOT_FOUND
+  // rather than silently falling back to document — a fallback reintroduces the exact bug.
+  var rootEl;
+  if (rootSelector) {
+    rootEl = document.querySelector(rootSelector);
+    if (!rootEl) {
+      throw new Error('CONTAINER_NOT_FOUND: no <' + rootSelector + '> element found on ' + location.href + '. Refusing to enumerate — no fallback to document.');
+    }
+  } else {
+    rootEl = document;
+  }
+  var all = deepAll(rootEl);
   var shadowHosts = 0;
   var map = {};            // element-key -> entry (union, deduped)
   var order = [];

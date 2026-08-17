@@ -15,7 +15,7 @@
 //
 // Refs: LR-062 (denominator discipline), LR-065 (case-generation taxonomy).
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, appendFileSync } from 'node:fs';
 import { join, dirname, resolve, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
@@ -50,6 +50,51 @@ function loadUnreachableExemptions() {
     }
   } catch { /* no valid exemptions */ }
   return keys;
+}
+
+// ---- unresolved allowlist (PLAN_70 Phase 5) -------------------------------------------------
+// Not agent-writable. Fails closed on unreadable/malformed/stale entries.
+function loadUnresolvedAllowlist() {
+  const allowlistPath = join(REPO_ROOT, '.claude', 'walk-unresolved-allowlist.json');
+  const keys = new Set();
+  try {
+    if (!existsSync(allowlistPath)) return keys;
+    const data = JSON.parse(readFileSync(allowlistPath, 'utf-8'));
+    if (!Array.isArray(data.exemptions)) return keys;
+    for (const entry of data.exemptions) {
+      // Fail closed: skip malformed, unreviewed, or stale entries
+      if (!entry || typeof entry.key !== 'string' || !entry.key.trim()) continue;
+      if (!entry.reviewer || typeof entry.reviewer !== 'string') continue;
+      if (!entry.date || typeof entry.date !== 'string') continue;
+      if (!entry.exemption_class || typeof entry.exemption_class !== 'string') continue;
+      if (!entry.reason || typeof entry.reason !== 'string') continue;
+      if (!entry.evidence || typeof entry.evidence !== 'string') continue;
+      if (entry.reviewed !== true) continue;
+      keys.add(entry.key.trim());
+    }
+  } catch { /* fail closed — unreadable means no exemptions */ }
+  return keys;
+}
+
+// ---- read unresolved_probe_mode from guardrail-config ----------------------------------------
+function readUnresolvedProbeMode() {
+  try {
+    const gcPath = join(REPO_ROOT, '.claude', 'guardrail-config.json');
+    if (existsSync(gcPath)) {
+      const gc = JSON.parse(readFileSync(gcPath, 'utf-8'));
+      if (gc.unresolved_probe_mode === 'deny') return 'deny';
+    }
+  } catch { /* fail-safe to announce */ }
+  return 'announce';
+}
+
+// ---- fire telemetry for the unresolved-probe gate -------------------------------------------
+function fireDenominatorGateTelemetry(verdict, target) {
+  try {
+    const logPath = join(REPO_ROOT, '.claude', 'state', 'gate-fires.log');
+    const line = `unresolved-probe-gate, ${new Date().toISOString()}, ${verdict}, ${target}\n`;
+    appendFileSync(logPath, line, 'utf-8');
+  } catch { /* telemetry is best-effort */ }
 }
 
 // ---- spec file finder -----------------------------------------------------------------------
@@ -173,39 +218,38 @@ export function verifyDenominator(artifactText, jsonPath) {
     }
   }
 
-  // Item 3: Unresolved-probe ratio becomes a failing condition.
-  // Reads unresolved_probe_mode from .claude/guardrail-config.json (announce-first per LR-069 §3.3).
-  if (data.derived_types) {
+  // Item 3: Unresolved-probe gate (PLAN_70 Phase 5 — replaces convicted ratio check).
+  // Deny when: !derived_types || total === 0 || unresolvedCount > 0 (after allowlist).
+  // No ratio. No threshold. Reads unresolved_probe_mode from guardrail-config (announce-first per LR-069 §3.3).
+  if (!data.derived_types) {
+    const msg = 'UNRESOLVED-PROBE-GATE: derived_types missing — denominator has no type resolution data';
+    const mode = readUnresolvedProbeMode();
+    fireDenominatorGateTelemetry(mode === 'deny' ? 'deny' : 'announce', jsonPath);
+    if (mode === 'deny') reasons.push(msg);
+    else reasons.push(`${ANNOUNCE_PREFIX}${msg}`);
+  } else {
     const allKeys = Object.keys(data.derived_types);
-    const unresolvedKeys = allKeys.filter(k => {
-      const dt = data.derived_types[k];
-      return dt.probe === 'unresolved' || dt.probe === 'unresolvable';
-    });
     const total = allKeys.length;
-    const unresolvedCount = unresolvedKeys.length;
-    if (total > 0) {
-      const fraction = unresolvedCount / total;
-      // Read threshold from guardrail-config; default 0.5 (50%)
-      let unresolvedThreshold = 0.5;
-      let unresolvedMode = 'announce';
-      try {
-        const gcPath = join(REPO_ROOT, '.claude', 'guardrail-config.json');
-        if (existsSync(gcPath)) {
-          const gc = JSON.parse(readFileSync(gcPath, 'utf-8'));
-          if (gc.unresolved_probe_mode) unresolvedMode = gc.unresolved_probe_mode;
-          if (typeof gc.unresolved_probe_threshold === 'number') unresolvedThreshold = gc.unresolved_probe_threshold;
-        }
-      } catch { /* fail-safe to defaults */ }
-      if (fraction > unresolvedThreshold) {
-        const pct = Math.round(fraction * 100);
+    if (total === 0) {
+      const msg = 'UNRESOLVED-PROBE-GATE: derived_types is empty (total === 0) — no controls to verify';
+      const mode = readUnresolvedProbeMode();
+      fireDenominatorGateTelemetry(mode === 'deny' ? 'deny' : 'announce', jsonPath);
+      if (mode === 'deny') reasons.push(msg);
+      else reasons.push(`${ANNOUNCE_PREFIX}${msg}`);
+    } else {
+      const allowlist = loadUnresolvedAllowlist();
+      const unresolvedKeys = allKeys.filter(k => {
+        const dt = data.derived_types[k];
+        return (dt.probe === 'unresolved' || dt.probe === 'unresolvable') && !allowlist.has(k);
+      });
+      const unresolvedCount = unresolvedKeys.length;
+      if (unresolvedCount > 0) {
         const sample = unresolvedKeys.slice(0, 10).join(', ');
-        const msg = `UNRESOLVED-PROBE-RATIO: ${unresolvedCount}/${total} (${pct}%) exceeds threshold ${Math.round(unresolvedThreshold * 100)}%. Offending keys: ${sample}`;
-        if (unresolvedMode === 'deny') {
-          reasons.push(msg);
-        } else {
-          // announce mode: report but do not block
-          reasons.push(`${ANNOUNCE_PREFIX}${msg}`);
-        }
+        const msg = `UNRESOLVED-PROBE-GATE: ${unresolvedCount}/${total} control(s) unresolved after allowlist. Keys: ${sample}`;
+        const mode = readUnresolvedProbeMode();
+        fireDenominatorGateTelemetry(mode === 'deny' ? 'deny' : 'announce', jsonPath);
+        if (mode === 'deny') reasons.push(msg);
+        else reasons.push(`${ANNOUNCE_PREFIX}${msg}`);
       }
     }
   }
@@ -297,7 +341,7 @@ export function verifyDenominator(artifactText, jsonPath) {
           ? ` NOTE: ${unresolvedForMsg}/${ckForMsg.length} controls unresolved — parity confirms equal widened estimates, not resolved coverage.`
           : '';
 
-        console.log(`${parity.report} (artifact: ${artifactLabel}, scope: ${scopeMethod}, ${rows.length}/${allRows.length} rows matched)${unresolvedNote}`);
+        console.error(`${parity.report} (artifact: ${artifactLabel}, scope: ${scopeMethod}, ${rows.length}/${allRows.length} rows matched)${unresolvedNote}`);
         reasons.push(...parity.reasons);
       }
     } catch (err) {

@@ -1,0 +1,116 @@
+{
+  "_comment": "Self-clean rule registry. Every rule lands in 'announce' mode (report-only, no moves). Promotion to 'quarantine' per-rule after >=3 sweeps with zero false positives (LR-069 §3.3). Hard-delete only at quarantine-TTL expiry (30d) for regenerable items.",
+  "_provenance": "PLAN_REPO_SLOP_SWEEP Lot C1. Design: .claude/state/ua-worker/slop35-fable-selfclean-0718-artifacts/self-clean-design.md",
+  "throttle_interval_hours": 24,
+  "quarantine_ttl_days": 30,
+  "age_gate_days": 7,
+  "never_sweep": [
+    "website/**",
+    ".auth/**",
+    ".env*",
+    "node_modules/**",
+    ".browsers/**",
+    "clients/*/src/**",
+    "clients/*/tests/**",
+    "clients/*/config/**",
+    ".claude/state/chain-sessions/**",
+    ".claude/state/chain-sessions-green/**",
+    ".claude/state/chain-archive/**",
+    ".claude/state/selfclean/quarantine/**",
+    ".claude/state/gate-fires.log",
+    ".claude/memory/**",
+    ".claude/private/**",
+    ".tmp/regression-guard/**",
+    "tmp/baseline/**",
+    "reports/allure-results/categories.json",
+    "reports/allure-results/environment.properties",
+    "reports/allure-results/history/**",
+    "rotation-state.json",
+    "test-results/.last-run.json",
+    "*.bak*"
+  ],
+  "_never_sweep_note": "Hard floor checked before any rule. Items here are NEVER touched regardless of rule match. Includes: owner-ruled retained dirs (website/), auth/env state, shipped client surface, LR-042 chain-state, live runtime state, quarantine dir itself, and owner-protected backups.",
+  "rules": [
+    {
+      "id": "P1-walk-dumps",
+      "description": "Playwright accessibility-tree walk dumps at repo root and in .work/ dirs",
+      "severity": "S2",
+      "predicate": {
+        "type": "glob",
+        "patterns": ["eq-*.yml", "pg-*.yml", "pgoverride-*.yml", ".work/**/*.yml", ".playwright-cli/page-*.yml"]
+      },
+      "strata": ["ignored", "untracked"],
+      "regenerable": true,
+      "graduating_incident": "slop2 LOT-01/LOT-05: 21+ walk dump files accreting at root, invisible via gitignore",
+      "mode": "announce",
+      "ramp_started": "2026-07-30",
+      "ramp_target": "2026-08-29",
+      "ramp_note": "Promote to quarantine after >=3 sweeps with zero false positives on this rule."
+    },
+    {
+      "id": "P2-scratch-dirs",
+      "description": "Uncleaned scratch/recovery/migration directories",
+      "severity": "S2",
+      "predicate": {
+        "type": "glob",
+        "patterns": [".recover-scratch/**", "_migration*/**"]
+      },
+      "strata": ["ignored", "untracked"],
+      "regenerable": false,
+      "graduating_incident": "slop2 LOT-02/LOT-05: 36+ files in .recover-scratch/ and _migration_global_claude/ residuals",
+      "mode": "announce",
+      "ramp_started": "2026-07-30",
+      "ramp_target": "2026-08-29",
+      "ramp_note": "Promote to quarantine after >=3 sweeps with zero false positives on this rule."
+    },
+    {
+      "id": "P5-root-media",
+      "description": "Orphan screenshots and media files at repo root",
+      "severity": "S2",
+      "predicate": {
+        "type": "glob",
+        "patterns": ["e2e-*.png", "*.jpeg", "phase4-chat.jpeg"]
+      },
+      "strata": ["ignored", "untracked"],
+      "regenerable": true,
+      "graduating_incident": "slop2 LOT-05: 6+ orphan PNG/JPEG files at root, gitignored and invisible",
+      "mode": "announce",
+      "ramp_started": "2026-07-30",
+      "ramp_target": "2026-08-29",
+      "ramp_note": "Promote to quarantine after >=3 sweeps with zero false positives on this rule."
+    },
+    {
+      "id": "P6-leftover-debris",
+      "description": "One-off debris: backup files, TEMP artifacts, Windows redirect artifacts, Excel locks",
+      "severity": "S2",
+      "predicate": {
+        "type": "glob",
+        "patterns": ["TEMP*", "C:*", "~$*"]
+      },
+      "strata": ["ignored", "untracked"],
+      "regenerable": true,
+      "graduating_incident": "slop2 LOT-06/LOT-16: 12+ debris files from edit-backup habit, bash-redirect mishaps, Excel locks",
+      "mode": "announce",
+      "ramp_started": "2026-07-30",
+      "ramp_target": "2026-08-29",
+      "ramp_note": "Promote to quarantine after >=3 sweeps with zero false positives on this rule."
+    },
+    {
+      "id": "P10-state-churn",
+      "description": "Expired .claude/state runtime artifacts beyond TTL",
+      "severity": "S2",
+      "predicate": {
+        "type": "glob",
+        "patterns": [".claude/state/closure-fail-closed-counter-*.json", ".claude/state/mistake-ledger-warnings-*.json"]
+      },
+      "strata": ["ignored", "untracked"],
+      "age_gate_days_override": 14,
+      "regenerable": true,
+      "graduating_incident": "slop2 LOT-03/LOT-10: 300+ .claude/state runtime artifacts with no expiry, growing every session",
+      "mode": "announce",
+      "ramp_started": "2026-07-30",
+      "ramp_target": "2026-08-29",
+      "ramp_note": "Promote to quarantine after >=3 sweeps with zero false positives on this rule."
+    }
+  ]
+}

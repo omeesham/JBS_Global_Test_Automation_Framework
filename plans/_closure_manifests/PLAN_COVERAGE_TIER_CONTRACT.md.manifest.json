@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_COVERAGE_TIER_CONTRACT.md",
+  "plan_basename": "PLAN_COVERAGE_TIER_CONTRACT.md",
+  "plan_sha256": "4938ead9e90f4fd699a5736229a21af3021575786b2a5c4b9f238d4400a52ed0",
+  "passed_at": "2026-08-07T07:45:45.232Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "254d61a2476533bb3a76e6e2ae8272c22dfb5600d93ea25bb92956d10068c910",
+  "validator_invocation_id": "1786088745231-b1f9cbdf64c2e5038378fe154481cd97-4938ead9e90f4fd6",
+  "artifacts": [],
+  "provisional": false
+}

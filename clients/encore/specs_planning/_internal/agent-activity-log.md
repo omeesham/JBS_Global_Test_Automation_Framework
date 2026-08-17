@@ -1896,3 +1896,11 @@ Append-only audit trail per LR-028. Format: `| YYYY-MM-DDThh:mm | agent | status
 | 2026-08-16T23:02 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-F7-RUN2.md — claude-sonnet-4.6 verify ok=false |
 | 2026-08-16T23:09 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-P75-REVIEW.md — gpt-5.5 review ok=true |
 | 2026-08-16T23:30 | CEO/copilot-worker | dispatch | (none) | [delegation] TICKET-COMMIT-SCOPE.md — claude-sonnet-4.6 review ok=true |
+| 2026-08-17T14:28 | owner | done | plans/pending/PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md | PLAN_75 audited+hardened (no execution): /audit review with machine verification vs ledger; 9 findings fixed additively (see plan §9b); literal phase artifacts, acceptance checklist, deterministic §7 checks added |
+| 2026-08-17T15:29 | CEO/copilot-worker | dispatch | (none) | [delegation] T1-verify-claims.md — claude-sonnet-4.6 verify ok=true |
+| 2026-08-17T15:33 | CEO/copilot-worker | dispatch | (none) | [delegation] T2-shell-contract.md — claude-sonnet-4.6 verify ok=true |
+| 2026-08-17T15:44 | CEO/copilot-worker | dispatch | (none) | [delegation] T1-fix-closure-stdout.md — claude-sonnet-4.6 build ok=true |
+| 2026-08-17T15:57 | CEO/copilot-worker | dispatch | (none) | [delegation] T2-review-closure-stdout.md — gpt-5.5 review ok=true |
+| 2026-08-17T16:05 | CEO/copilot-worker | dispatch | (none) | [delegation] T1-ledger-evidence.md — claude-sonnet-4.6 verify ok=true |
+| 2026-08-17T16:10 | CEO/copilot-worker | dispatch | (none) | [delegation] T2-write-entries.md — claude-sonnet-4.6 build ok=true |
+| 2026-08-17T16:15 | CEO/copilot-worker | dispatch | (none) | [delegation] T3-bounce.md — claude-sonnet-4.6 build ok=true |

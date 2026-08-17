@@ -151,7 +151,11 @@ export const MODULE_CONFIG = {
     contentMarker: 'text=Modified By',
     openerTestidPatterns: [],
     openerRoleTextPatterns: [
-      { role: 'tab', text: 'Service Charge History', branch: 'tab:history' },
+      // contentGate: true � History is a data grid with no data-testid attributes.
+      // waitReady's testid threshold (calibrated for forms) can never be satisfied here.
+      // Instead, waitReadyContent waits for the Modified By column header (last-to-render)
+      // and at least one data row, throwing loudly if neither appears within the timeout.
+      { role: 'tab', text: 'Service Charge History', branch: 'tab:history', contentGate: true },
     ],
     excludeOptionRoles: true,
     ...MC_DATA['service-charge'],
@@ -181,7 +185,10 @@ export const MODULE_CONFIG = {
 
 // ---- readiness gate (O1): poll a shadow-pierced testid count until stable (LR-052 poll-not-sleep,
 //      LR-023 no-networkidle). Standard short poll interval is a poll cadence, not a fixed sleep. ----
-async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300, timeout = 20000 } = {}) {
+// Cause-2 fix: timeout raised to 120 s (live page measured at 55-90 s); throws on timeout instead
+// of returning a silent partial — a partial load trusted as ready corrupts the denominator.
+// Exported for unit testing.
+export async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300, timeout = 120000 } = {}) {
   let last = -1, stable = 0, waited = 0;
   while (waited < timeout) {
     let c = 0;
@@ -200,7 +207,31 @@ async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300
     await page.waitForTimeout(interval);
     waited += interval;
   }
-  return last;
+  // Loud failure: a silently wrong denominator built on a partial load is worse than a crash.
+  throw new Error(`[WAIT_READY_TIMEOUT] waitReady timed out after ${timeout}ms (last testid count=${last}). Refusing to continue with a partial page load.`);
+}
+
+// History-specific content gate: waits for the Modified By column header (unique to the
+// History panel, last-to-render) and at least one data row, then throws loudly on timeout.
+// Exported for unit testing. Do NOT use for form surfaces � those use waitReady.
+export async function waitReadyContent(page, { timeout = 120000 } = {}) {
+  try {
+    await page.waitForSelector('text=Modified By', { timeout });
+  } catch {
+    throw new Error(`[WAIT_READY_CONTENT_TIMEOUT] History content gate timed out after ${timeout}ms: "Modified By" header never appeared. Refusing to enumerate.`);
+  }
+  try {
+    await page.waitForSelector('tbody tr', { timeout });
+  } catch {
+    throw new Error(`[WAIT_READY_CONTENT_TIMEOUT] History content gate timed out after ${timeout}ms: "Modified By" header found but no data rows appeared. Refusing to enumerate � denominator cannot be trusted.`);
+  }
+}
+
+// Cause-1 fix: after the opener loop the page may be on a different panel.
+// Extracted as an export so unit tests can verify the re-navigation is present.
+export async function renavigateToOrigin(page, url) {
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await waitReady(page);
 }
 
 // Broadened 2026-08-10: the original regex matched only external IdP URLs.
@@ -289,15 +320,19 @@ async function cdpG1Recovery(page, candidates, cap = 80) {
 }
 
 // ---- one enumeration of the current state (Pass A + Pass B + candidates), per frame ----
-async function enumerateState(page) {
+// Cause-4 fix: scope enumeration to <main> so app-shell chrome (sidebar anchors etc.) is excluded.
+export async function enumerateState(page) {
   const out = { entries: [], candidates: [], stats: { scanned: 0, shadowHosts: 0 } };
-  // Frame walk (G5) is the outer loop. The main frame holds the pricing surface; iframe scanning is
-  // by-construction insurance (not pricing-exercised — pilot §7.3).
   for (const frame of page.frames()) {
     let r;
-    try { r = await frame.evaluate(inPageEnumerate); } catch { continue; }
+    try { r = await frame.evaluate(inPageEnumerate, 'main'); } catch (err) {
+      // CONTAINER_NOT_FOUND means the page genuinely has no <main>; a silent skip would produce
+      // an empty denominator that reads as a clean pass — the exact failure mode we are fixing.
+      // All other per-frame errors (frame detached, navigation, etc.) are tolerated as before.
+      if (err.message && err.message.includes('CONTAINER_NOT_FOUND')) throw err;
+      continue;
+    }
     out.entries.push(...r.entries);
-    // candidates index into THAT frame's window.__wcCands; CDP G1 below resolves them on the main frame
     if (frame === page.mainFrame()) out.candidates = r.candidates;
     out.stats.scanned += r.stats.scanned;
     out.stats.shadowHosts += r.stats.shadowHosts;
@@ -352,8 +387,8 @@ async function scanPortalElements(page) {
 // Convert an entry key to a Playwright-compatible CSS selector, or null if unresolvable.
 // Item 4: struct: keys resolve via their recorded DOM ancestor path. Where a key genuinely
 // cannot resolve (e.g. ambiguous ancestor path), it is recorded with disposition 'unresolvable'.
-function entryKeyToSelector(key) {
-  const clean = key.replace(/\s*\[archetype×\d+\]$/, '');
+export function entryKeyToSelector(key) {
+  const clean = key.replace(/\s*\[archetype\u00D7\d+\]$/, '');
   if (clean.startsWith('testid:')) return `[data-testid="${clean.slice(7)}"]`;
   if (clean.startsWith('id:')) return `[id="${clean.slice(3)}"]`;
   if (clean.startsWith('name:')) return `[name="${clean.slice(5).split('|')[0]}"]`;
@@ -422,12 +457,21 @@ const CLICK_DENYLIST_PATTERN = /\b(save|submit|apply|confirm|delete|remove|disca
 // Tags/roles that are plausibly editable cells or input triggers (safe to click for probing).
 // A bare <button> that is not a click-to-edit cell should never be probed.
 const PROBEABLE_TAGS = new Set(['INPUT', 'SELECT', 'TEXTAREA', 'TD', 'TH', 'SPAN', 'DIV', 'A']);
+// Cause-1 fix: 'tab' removed — tab triggers are navigation controls; clicking one unmounts the
+// panel being measured, causing all subsequent $eval calls to fail (testids 80→0 in production).
+// Tab triggers classified as non_probeable; ordering property: no probe changes mount state.
 const PROBEABLE_ROLES = new Set([
   'cell', 'gridcell', 'textbox', 'combobox', 'listbox', 'spinbutton',
-  'checkbox', 'switch', 'option', 'tab', 'menuitem', 'treeitem',
+  'checkbox', 'switch', 'option', 'menuitem', 'treeitem',
 ]);
 
+// Navigation roles: clicking these swaps the mounted panel — must never be click-probed regardless
+// of tag (a tab trigger may be a DIV which is in PROBEABLE_TAGS, so we guard by role first).
+const NAVIGATION_ROLES = new Set(['tab', 'tablist']);
+
 function isProbeableByClikc(tag, role) {
+  // Navigation roles override tag membership — they swap the mounted panel when clicked.
+  if (role && NAVIGATION_ROLES.has(role)) return false;
   if (PROBEABLE_TAGS.has(tag)) return true;
   if (role && PROBEABLE_ROLES.has(role)) return true;
   return false;
@@ -447,6 +491,9 @@ async function readAccessibleName(page, selector) {
 // to search the runtime-loaded legal type names. No hardcoded type strings — the taxonomy
 // (field-case-generation.md) loaded via loadFieldCaseTaxonomy() is the single source of truth.
 // Evaluation: ALL rules are tested; resolve only on a unique match (Defect 2 fix).
+// Cause-3 fix: bare `INPUT` catch-all removed — it incorrectly classified type-less numeric inputs
+// as "Plain text". A control matching no rule must remain `unresolved`; an honest unknown is
+// better than a confident wrong type propagated into a closed plan.
 const TYPE_SIGNAL_RULES = [
   { match: o => o.role === 'spinbutton',  pattern: /numeric|spinbutton/i },
   { match: o => o.role === 'checkbox',    pattern: /checkbox/i },
@@ -454,11 +501,13 @@ const TYPE_SIGNAL_RULES = [
   { match: o => o.role === 'combobox',    pattern: /dropdown|combobox/i },
   { match: o => o.role === 'listbox',     pattern: /dropdown|combobox|listbox/i },
   { match: o => o.tag === 'INPUT' && o.type === 'number',  pattern: /numeric|spinbutton/i },
+  // Cause-3 fix: type-less decimal inputs (the 79 percentage inputs). Confirmed signals:
+  // tagName=INPUT, type=null, inputmode=decimal. No formcontrolname/id/name on these elements.
+  { match: o => o.tag === 'INPUT' && o.type === '' && o.inputmode === 'decimal', pattern: /numeric|spinbutton/i },
   { match: o => o.tag === 'INPUT' && o.type === 'checkbox', pattern: /checkbox/i },
   { match: o => o.tag === 'INPUT' && o.type === 'password', pattern: /password/i },
   { match: o => o.tag === 'INPUT' && (o.type === 'date' || o.type === 'datetime-local'), pattern: /date/i },
   { match: o => o.tag === 'INPUT' && o.type === 'file',    pattern: /file/i },
-  { match: o => o.tag === 'INPUT',        pattern: /plain.text/i },
   { match: o => o.tag === 'SELECT',       pattern: /dropdown|combobox/i },
   { match: o => o.tag === 'TEXTAREA',     pattern: /plain.text/i },
 ];
@@ -468,6 +517,7 @@ export function deriveFieldType(observation, legalTypes) {
     tag: (observation.tag || '').toUpperCase(),
     type: (observation.type || '').toLowerCase(),
     role: (observation.role || '').toLowerCase(),
+    inputmode: (observation.inputmode || '').toLowerCase(),
   };
   const matchedTypes = new Set();
   for (const rule of TYPE_SIGNAL_RULES) {
@@ -481,11 +531,148 @@ export function deriveFieldType(observation, legalTypes) {
   return matchedTypes.size >= 2 ? { ambiguous: [...matchedTypes] } : null;
 }
 
+// Exported seam: resolves an --branch value to its matching openerRoleTextPatterns entry.
+// Throws loudly if the value is unrecognised so the caller can exit(2) immediately.
+export function resolveBranchOpener(cfg, branchArg) {
+  const patterns = (cfg && cfg.openerRoleTextPatterns) || [];
+  const match = patterns.find(p => p.branch === branchArg);
+  if (!match) {
+    const known = patterns.map(p => p.branch).filter(Boolean).join(', ') || '(none configured)';
+    throw new Error(
+      `[FATAL] --branch="${branchArg}" is not a recognised branch value for this module.\n` +
+      `Known branches: ${known}\n` +
+      'An unrecognised --branch value must fail loudly; silently ignoring it would reintroduce the original bug.'
+    );
+  }
+  return match;
+}
+// Cause-1 seam: exported so tests can drive the production ordering
+// (renavigate must precede every Phase 2.2 DOM read).
+// main() calls this after the opener loop; the seam lets a unit test inject
+// mock collaborators and assert goto fires before $eval — no browser required.
+export async function deriveAllFieldTypes(page, url, entries, rawEntries, legalTypes) {
+  await renavigateToOrigin(page, url);
+
+  // --- Phase 2.2: derive field types from DOM observation ---
+  const archetypeRepKeys = new Map();
+  for (const raw of rawEntries) {
+    const tk = templateKey(raw.key);
+    if (!archetypeRepKeys.has(tk)) archetypeRepKeys.set(tk, raw.key);
+  }
+
+  const derivedTypes = {};
+  for (const entry of entries) {
+    const controlKey = entry.key;
+    let selectorKey = controlKey;
+    if (entry.archetype) {
+      const tk = controlKey.replace(/\s*\[archetype\u00D7\d+\]$/, '');
+      selectorKey = archetypeRepKeys.get(tk) || controlKey;
+    }
+    const selector = entryKeyToSelector(selectorKey);
+    if (!selector) {
+      const keyPrefix = selectorKey.split(':')[0];
+      derivedTypes[controlKey] = classifyUnresolvableKey(controlKey, `${keyPrefix}: key has no resolvable CSS selector from ancestor path`);
+      continue;
+    }
+    let obs;
+    try {
+      obs = await readElementObservation(page, selector);
+    } catch (err) {
+      console.warn(`[derive-type] read failed for ${controlKey}: ${String(err).slice(0, 80)}`);
+      derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
+      continue;
+    }
+    if (!obs) {
+      derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
+      continue;
+    }
+    if (isRestingConclusive(obs)) {
+      const fieldType = deriveFieldType(obs, legalTypes);
+      if (fieldType && typeof fieldType === 'object' && fieldType.ambiguous) {
+        derivedTypes[controlKey] = {
+          type: null,
+          resolved: false,
+          evidence: `${formatEvidence(obs)}; ambiguous_candidates=${fieldType.ambiguous.join(',')}`,
+          probe: 'unresolved',
+        };
+      } else {
+        derivedTypes[controlKey] = {
+          type: fieldType,
+          resolved: fieldType !== null,
+          evidence: formatEvidence(obs),
+          probe: 'resting',
+        };
+      }
+    } else {
+      const accessibleName = await readAccessibleName(page, selector);
+      const keyText = controlKey.replace(/^(testid:|id:|name:)/, '');
+      if (CLICK_DENYLIST_PATTERN.test(keyText) || CLICK_DENYLIST_PATTERN.test(accessibleName)) {
+        derivedTypes[controlKey] = {
+          type: null,
+          resolved: false,
+          evidence: `denylist_hit: key="${keyText}" accessibleName="${accessibleName}"`,
+          probe: 'unresolved',
+        };
+        continue;
+      }
+      const obsTag = (obs.tag || '').toUpperCase();
+      const obsRole = (obs.role || '').toLowerCase();
+      if (!isProbeableByClikc(obsTag, obsRole)) {
+        derivedTypes[controlKey] = {
+          type: null,
+          resolved: false,
+          evidence: `non_probeable: tag=${obsTag} role=${obsRole}`,
+          probe: 'unresolved',
+        };
+        continue;
+      }
+      let activeObs = null;
+      let clickPerformed = false;
+      try {
+        await page.click(selector, { timeout: 3000 });
+        clickPerformed = true;
+        await page.waitForTimeout(300);
+        activeObs = await readActiveElementObservation(page);
+      } catch (err) {
+        console.warn(`[derive-type] click-probe failed for ${controlKey}: ${String(err).slice(0, 80)}`);
+      } finally {
+        if (clickPerformed) {
+          try {
+            await page.keyboard.press('Escape');
+            await page.waitForTimeout(200);
+          } catch (escErr) {
+            console.warn(`[derive-type] Escape failed for ${controlKey}: ${String(escErr).slice(0, 80)}`);
+          }
+        }
+      }
+      const effectiveObs = activeObs || obs;
+      const fieldType = deriveFieldType(effectiveObs, legalTypes);
+      if (fieldType && typeof fieldType === 'object' && fieldType.ambiguous) {
+        derivedTypes[controlKey] = {
+          type: null,
+          resolved: false,
+          evidence: `${formatEvidence(effectiveObs)}; ambiguous_candidates=${fieldType.ambiguous.join(',')}`,
+          probe: 'unresolved',
+        };
+      } else {
+        derivedTypes[controlKey] = {
+          type: fieldType,
+          resolved: fieldType !== null,
+          evidence: formatEvidence(effectiveObs),
+          probe: activeObs ? 'edit-mode-click' : 'resting',
+        };
+      }
+    }
+  }
+  return derivedTypes;
+}
+
 async function readElementObservation(page, selector) {
   return page.$eval(selector, el => ({
     tag: el.tagName.toUpperCase(),
     type: el.getAttribute('type') || '',
     role: el.getAttribute('role') || '',
+    inputmode: el.getAttribute('inputmode') || '',
   }));
 }
 
@@ -507,11 +694,16 @@ async function main() {
   const cfg = MODULE_CONFIG[moduleName];
   if (!cfg && !args.url) { console.error(`No config for module "${moduleName}" and no --url given.`); process.exit(2); }
   const url = args.url || cfg.path(office);
-  const state = args.state || `${office}-${moduleName}`;
+  const state = (args.state || `${office}-${moduleName}`) + (args.branch ? `--${args.branch.replace(/[^a-z0-9:]+/g, '-')}` : '');
   const authPath = args.auth || (existsSync(DEFAULT_AUTH) ? DEFAULT_AUTH : FALLBACK_AUTH);
   const maxCycles = parseInt(args['max-cycles'] || '6', 10);
   const useCdp = !args['no-cdp'];
   const headed = !!args.headed;
+
+  if (args.branch) {
+    if (!cfg) { console.error(`[FATAL] --branch requires a module config; none found for "${moduleName}".`); process.exit(2); }
+    try { resolveBranchOpener(cfg, args.branch); } catch (err) { console.error(err.message); process.exit(2); }
+  }
 
   if (!existsSync(authPath)) {
     console.error(`[FATAL] auth state not found: ${authPath}. Refresh via: playwright-cli open --persistent --profile=.auth\\e2e-profile`);
@@ -578,7 +770,25 @@ async function main() {
       console.error(`[debug] pre-enumerate: pricing aria-selected=${sel} gridCount=${gridCount} colIsAltCount=${altCount} frames=${frames} url=${page.url()}`);
     }
 
-    // --- resting-state enumeration + CDP G1 on its candidates (Pay To Address lives here) ---
+    let g1hits = [];
+    if (args.branch) {
+      // Branch-only path: click the single named opener, enumerate that surface only.
+      // resolveBranchOpener was already called above to validate � safe to call again.
+      const branchPattern = resolveBranchOpener(cfg, args.branch);
+      const loc = branchPattern.selector
+        ? page.locator(branchPattern.selector)
+        : page.getByRole(branchPattern.role, { name: branchPattern.text, exact: true });
+      await loc.first().click({ timeout: 5000 });
+      // Content-gated branches (e.g. History) wait for rendered DOM markers, not testid counts.
+      if (branchPattern.contentGate) {
+        await waitReadyContent(page);
+      } else {
+        await waitReady(page, branchPattern.minTestids != null ? { minTestids: branchPattern.minTestids } : {});
+      }
+      const branchState = await enumerateState(page);
+      mergeEntries(accum, branchState.entries, args.branch, excludeOptions);
+      report.branches.push({ branch: args.branch, openerText: branchPattern.text, addedKeys: branchState.entries.length, ok: true });
+    } else {    // --- resting-state enumeration + CDP G1 on its candidates (Pay To Address lives here) ---
     // Item 1(a): detect whether the page is genuinely at rest (no open dialogs/modals/popovers).
     // Only mark resting as observed when no overlay is blocking the base surface.
     const hasOpenOverlay = await page.evaluate(() => {
@@ -849,6 +1059,8 @@ async function main() {
       }
     }
 
+    }
+
     // --- archetype-collapse (F3/G8) + set algebra (M4) ---
     const rawEntries = [...accum.values()];
     const entries = collapseArchetypes(rawEntries, parseInt(args['archetype-threshold'] || '4', 10));
@@ -871,125 +1083,11 @@ async function main() {
       process.exit(3);
     }
 
-    // --- Phase 2.2: derive field types from DOM observation ---
+    // Cause-1 fix: the opener loop may have left the page on a History tab or other mounted panel.
+    // Navigate back to the originating URL so Phase 2.2 reads DOM from the correct mounted panel.
     const taxonomy = loadFieldCaseTaxonomy();
     const legalTypes = taxonomy.fieldTypes.map(ft => ft.type);
-
-    const archetypeRepKeys = new Map();
-    for (const raw of rawEntries) {
-      const tk = templateKey(raw.key);
-      if (!archetypeRepKeys.has(tk)) archetypeRepKeys.set(tk, raw.key);
-    }
-
-    const derivedTypes = {};
-    for (const entry of entries) {
-      const controlKey = entry.key;
-      let selectorKey = controlKey;
-      if (entry.archetype) {
-        const tk = controlKey.replace(/\s*\[archetype×\d+\]$/, '');
-        selectorKey = archetypeRepKeys.get(tk) || controlKey;
-      }
-      const selector = entryKeyToSelector(selectorKey);
-      if (!selector) {
-        // Item 4: struct:/role: keys that cannot resolve get explicit unresolvable disposition
-        const keyPrefix = selectorKey.split(':')[0];
-        derivedTypes[controlKey] = classifyUnresolvableKey(controlKey, `${keyPrefix}: key has no resolvable CSS selector from ancestor path`);
-        continue;
-      }
-      let obs;
-      try {
-        obs = await readElementObservation(page, selector);
-      } catch (err) {
-        console.warn(`[derive-type] read failed for ${controlKey}: ${String(err).slice(0, 80)}`);
-        derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
-        continue;
-      }
-      if (!obs) {
-        derivedTypes[controlKey] = { type: null, resolved: false, evidence: '', probe: 'unresolved' };
-        continue;
-      }
-      if (isRestingConclusive(obs)) {
-        const fieldType = deriveFieldType(obs, legalTypes);
-        if (fieldType && typeof fieldType === 'object' && fieldType.ambiguous) {
-          derivedTypes[controlKey] = {
-            type: null,
-            resolved: false,
-            evidence: `${formatEvidence(obs)}; ambiguous_candidates=${fieldType.ambiguous.join(',')}`,
-            probe: 'unresolved',
-          };
-        } else {
-          derivedTypes[controlKey] = {
-            type: fieldType,
-            resolved: fieldType !== null,
-            evidence: formatEvidence(obs),
-            probe: 'resting',
-          };
-        }
-      } else {
-        // DEFECT 1 FIX: denylist check — never click destructive/mutating controls
-        const accessibleName = await readAccessibleName(page, selector);
-        const keyText = controlKey.replace(/^(testid:|id:|name:)/, '');
-        if (CLICK_DENYLIST_PATTERN.test(keyText) || CLICK_DENYLIST_PATTERN.test(accessibleName)) {
-          derivedTypes[controlKey] = {
-            type: null,
-            resolved: false,
-            evidence: `denylist_hit: key="${keyText}" accessibleName="${accessibleName}"`,
-            probe: 'unresolved',
-          };
-          continue;
-        }
-        // Only click elements whose role/tag is plausibly an editable cell or input trigger
-        const obsTag = (obs.tag || '').toUpperCase();
-        const obsRole = (obs.role || '').toLowerCase();
-        if (!isProbeableByClikc(obsTag, obsRole)) {
-          derivedTypes[controlKey] = {
-            type: null,
-            resolved: false,
-            evidence: `non_probeable: tag=${obsTag} role=${obsRole}`,
-            probe: 'unresolved',
-          };
-          continue;
-        }
-        // DEFECT 3 FIX: Escape in finally — always dismiss edit mode even on throw
-        let activeObs = null;
-        let clickPerformed = false;
-        try {
-          await page.click(selector, { timeout: 3000 });
-          clickPerformed = true;
-          await page.waitForTimeout(300);
-          activeObs = await readActiveElementObservation(page);
-        } catch (err) {
-          console.warn(`[derive-type] click-probe failed for ${controlKey}: ${String(err).slice(0, 80)}`);
-        } finally {
-          if (clickPerformed) {
-            try {
-              await page.keyboard.press('Escape');
-              await page.waitForTimeout(200);
-            } catch (escErr) {
-              console.warn(`[derive-type] Escape failed for ${controlKey}: ${String(escErr).slice(0, 80)}`);
-            }
-          }
-        }
-        const effectiveObs = activeObs || obs;
-        const fieldType = deriveFieldType(effectiveObs, legalTypes);
-        if (fieldType && typeof fieldType === 'object' && fieldType.ambiguous) {
-          derivedTypes[controlKey] = {
-            type: null,
-            resolved: false,
-            evidence: `${formatEvidence(effectiveObs)}; ambiguous_candidates=${fieldType.ambiguous.join(',')}`,
-            probe: 'unresolved',
-          };
-        } else {
-          derivedTypes[controlKey] = {
-            type: fieldType,
-            resolved: fieldType !== null,
-            evidence: formatEvidence(effectiveObs),
-            probe: activeObs ? 'edit-mode-click' : 'resting',
-          };
-        }
-      }
-    }
-    report.derived_types = derivedTypes;
+    report.derived_types = await deriveAllFieldTypes(page, url, entries, rawEntries, legalTypes);
 
     // --- completion_record: attach before JSON write; self-hash for anti-tamper ---
     // Build the record first (without content_sha256), serialize, compute sha256 over that,
