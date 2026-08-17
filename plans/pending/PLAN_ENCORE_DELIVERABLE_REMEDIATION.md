@@ -153,7 +153,7 @@ gates). An LR-029 live sweep of the Corporate Pricing surfaces corrected the ear
 claim (Search exposes 3 generic component testids; the other surfaces zero). With #9 encoded, all five
 deferred Phase-5 items (#1 rule-covered · #6 gate 5m · #8 runtime-redirect · #9 golden rule + 5n · #10
 gate 5l) are resolved. Delivered by the child plan
-[PLAN_GATE_BACKLOG_AND_1604_TRACKER.md](../done/PLAN_GATE_BACKLOG_AND_1604_TRACKER.md) — **DONE
+[PLAN_GATE_BACKLOG_AND_1604_TRACKER.md](../plans/done/PLAN_GATE_BACKLOG_AND_1604_TRACKER.md) — **DONE
 2026-07-06** (executed #6/#9/#10 gates + the 1604 override write-up). This parent stays **In-Progress**
 on its own open item 2 (full `corporate-pricing-search.spec.ts` + clean full-suite acceptance — outside
 the child plan's scope, not yet requested).

@@ -655,7 +655,7 @@ reference it.
    `reports/label-inventory.txt`, `.playwright-cli/multi-loc.js` (two pending subplans),
    the id-audit trio (`id-rename-map.json`, `baseline-testrail-dump.json`, `dump-testrail.mjs` —
    consumed by `remediate.mjs`/`fix-offbyone.mjs` under PLAN_ID_NAMING_AUDIT_AND_REMEDIATION),
-   `evidence-cp-override-2026-07-13/raw-evidence.md`, and `scripts/walks/`.
+   `clients/encore/specs_planning/_internal/evidence-cp-override-2026-07-13/raw-evidence.md`, and `scripts/walks/`.
 
 **Commit discipline for this plan and for the session that opened it**: the working tree currently
 carries ~125 modified files from **four concurrent sessions**, and HEAD is on

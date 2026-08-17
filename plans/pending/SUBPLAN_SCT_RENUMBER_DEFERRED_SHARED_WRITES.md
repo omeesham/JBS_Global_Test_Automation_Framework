@@ -72,8 +72,8 @@ contiguous `TC-SCT-CORE-001..083`, 83 IDs.
 | Artifact | State |
 |---|---|
 | `clients/encore/tests/service-charge-text/service-charge-text.spec.ts` | renumbered, 83 IDs, `001`→`083` |
-| `.../test-cases/setup/service-charge-text/service_charge_text_core_test_cases.md` | renumbered, 83 IDs |
-| `.../test-plans/setup/service-charge-text/service_charge_text_core_test_plan.md` | renumbered, 83 IDs |
+| `.../clients/encore/specs_planning/test-cases/setup/service-charge-text/service_charge_text_core_test_cases.md` | renumbered, 83 IDs |
+| `.../clients/encore/specs_planning/test-plans/setup/service-charge-text/service_charge_text_core_test_plan.md` | renumbered, 83 IDs |
 | Gap-explanation blockquotes (the rejected patch) | deleted — 0 hits |
 | `export_test_cases/module-codes.json` | 3 SCT `gapLedger` entries removed; renames-map entry added; JSON valid |
 | `clients/encore/testcases/service-charge-text/service-charge-text-core.xlsx` | rebuilt |

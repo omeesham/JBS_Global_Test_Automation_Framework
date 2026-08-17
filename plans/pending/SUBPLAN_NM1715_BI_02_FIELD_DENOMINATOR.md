@@ -22,7 +22,7 @@
 This is the gate the entire NM-1715 effort hangs on.
 
 37 test cases (`TC-LOC-LP-001`…`037`) exist for this sub-module with clean markdown↔spec parity. They
-were authored against `_internal/field-inventories/left-panel-basic-information-2026-06-11.md`, which
+were authored against `clients/encore/specs_planning/_internal/field-inventories/left-panel-basic-information-2026-06-11.md`, which
 documents **exactly one field** — Pay To Address. Verified directly on 2026-08-13, not taken on a
 worker's word.
 

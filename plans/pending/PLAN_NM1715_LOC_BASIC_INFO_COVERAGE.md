@@ -33,7 +33,7 @@ inventory that documents **exactly one field** (Pay To Address). The denominator
 established, so the number 37 carries no information about coverage. That inventory is 63 days old;
 the old-site baseline is 63–71 days old. Both are past the LR-013 staleness HALT threshold.
 
-Worse — and better — prior agents already caught themselves. `field-case-catalogs/launcher-dialogs-2026-06-11.md`
+Worse — and better — prior agents already caught themselves. `clients/encore/specs_planning/_internal/field-case-catalogs/launcher-dialogs-2026-06-11.md`
 describes the Pay To Address launcher, cites `SUBPLAN_LAUNCHER_DIALOG_GAPS_FCC`, a false-green sweep,
 and an RCA on launcher-dialog misses, and names `left-panel-basic-information-2026-06-03.md` verbatim
 as *"the walk that MISSED Pay To"*. One concrete defect is already confirmed: `TC-LOC-LP-004`'s
@@ -201,7 +201,7 @@ FULL old-site baseline walk (Rutvik's explicit call — not targeted). Baseline 
 old Navigator UI per LR-ENC-001 / `.claude/rules/baseline.md` row 4.
 
 **Access is already established and recorded — do not re-litigate it, and do not ask Rutvik for it.**
-Everything below comes from `_internal/old-site-baseline/OSB-ACCESS-VERIFY-2026-04-24.md` and
+Everything below comes from `clients/encore/specs_planning/_internal/old-site-baseline/OSB-ACCESS-VERIFY-2026-04-24.md` and
 LR-ENC-001 in `clients/encore/CLAUDE.md`:
 
 | Fact | Value |

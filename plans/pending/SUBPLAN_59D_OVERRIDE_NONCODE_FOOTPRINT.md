@@ -216,10 +216,10 @@ literally `**Module**:` or `Module:`, then apply the same edit pattern to all. I
 
 **Files — leave entirely unchanged (superseded versions, historical evidence, narrative logs):**
 
-- `field-inventories/corporate-pricing-override-2026-07-09.md`, `-2026-06-19.md`, `-2026-06-09.md`, `-2026-06-08.md` — SUPERSEDED per RECON-A3; not the live oracle
-- `old-site-baseline/corporate-pricing-override-2026-06-08.md` — historical baseline; no live tooling keys on it; rename would falsify date-provenance
-- `field-case-catalogs/override-2026-06-09.md` — historical catalog; not a live oracle
-- `testid-live-dumps-2026-07-06/pg-override.json` — point-in-time dump; if it has a `module` JSON key, update it only if a live tool actively reads it; otherwise leave
+- `clients/encore/specs_planning/_internal/field-inventories/corporate-pricing-override-2026-07-09.md`, `-2026-06-19.md`, `-2026-06-09.md`, `-2026-06-08.md` — SUPERSEDED per RECON-A3; not the live oracle
+- `clients/encore/specs_planning/_internal/old-site-baseline/corporate-pricing-override-2026-06-08.md` — historical baseline; no live tooling keys on it; rename would falsify date-provenance
+- `clients/encore/specs_planning/_internal/field-case-catalogs/override-2026-06-09.md` — historical catalog; not a live oracle
+- `clients/encore/specs_planning/_internal/testid-live-dumps-2026-07-06/pg-override.json` — point-in-time dump; if it has a `module` JSON key, update it only if a live tool actively reads it; otherwise leave
 - `evidence-cp-override-2026-07-13/` — historical defect evidence directory; no live tool keys on it
 - `agent-activity-log.md`, `agent-mistakes.md`, `REMEDIATION_PROGRESS.md`, `jira-defect-crossref-2026-06-09.md` — narrative logs; NO-ACTION per RECON-A3 §3
 

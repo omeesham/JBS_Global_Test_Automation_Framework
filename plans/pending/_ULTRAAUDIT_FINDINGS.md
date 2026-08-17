@@ -248,12 +248,12 @@ NOTE: Executor declared all 6 bak files unauditable (false blocker; mirror had t
 
 | id | file:line | class | severity | proposed action | source |
 |---|---|---|---|---|---|
-| P2-15 | `questionnaire/SKILL.md:23` vs `:84` | contradiction | S2 | Choose one question-batch limit (10 or 5) and delete the contradictory line | ua2-lot14-0718-review |
+| P2-15 | `.claude/skills/questionnaire/SKILL.md:23` vs `:84` | contradiction | S2 | Choose one question-batch limit (10 or 5) and delete the contradictory line | ua2-lot14-0718-review |
 | P2-16 | `audit/SKILL.md:5` frontmatter vs `:25` | frontmatter-contradiction | S2 | Fix auto-calls: identity, reflect — /reflect only fires in review mode | ua2-lot14-0718-review |
 | P2-17 | `audit/SKILL.md:365-373` | missed-D23-instance | S2 | Add audit/SKILL.md to D23 compaction pass | ua2-lot14-0718-review |
 | P2-18 | `assistants/SKILL.md:43-45,61-62` vs `:18-21,80-85` | OFF-status-contradiction | S2 | Fix OFF status text: "direct council admin (legacy)" contradicts "no copilot dispatches" | ua2-lot14-0718-review |
 | P2-19 | `compile-learnings/SKILL.md:3` | wrong-rule-home | S2 | Fix description: graduation target is .claude/rules/ or LEARNED_RULES.md | ua2-lot14-0718-review |
-| P2-20 | `planning/SKILL.md:174` | auto-call-list-incomplete | S3 | Add /identity to auto-call list | ua2-lot14-0718-review |
+| P2-20 | `.claude/skills/planning/SKILL.md:174` | auto-call-list-incomplete | S3 | Add /identity to auto-call list | ua2-lot14-0718-review |
 | P2-21 | `delegation-temp/SKILL.md:156-160` | graduation-condition-met | S2 | DELETE: LCD_01/02/03 all done; skill's own graduation condition met | ua2-lot14-0718 |
 | P2-22 | `audit/SKILL.md:63-69` | stale-grep-example | S3 | Make grep example shell-neutral/PowerShell equivalent | ua2-lot14-0718 |
 | P2-23 | `compile-learnings/SKILL.md:192-199` | wrong-rule-home | S2 | Update graduation routing to .claude/rules/ per current rule homes | ua2-lot14-0718 |
@@ -468,7 +468,7 @@ All 76 items across lots A–E (TRIM_01–06, RCD_B/C, script deletions, comment
 | P25-LOT01-01..03, P25-LOT01-06..07, P25-LOT01-11..14 | browsertool-gate.sh / check-browsertool.mjs / test fixtures | Header and dead-design-doc compaction |
 | P25-LOT03-01..05 | CLAUDE.md / hooks-identity.md / guardrail-policy.md / specs.md | Duplication removal; stale section; coverage recount |
 | P25-LOT05-02..05 | check-per-test-baseline.mjs / check scripts | Header compact; ESM guard; flag-doc comments |
-| P25-M05, P25-M06 | encore-questions/SKILL.md / coverage+ultracoverage/SKILL.md | Protocol compact; shared authoring pointer |
+| P25-M05, P25-M06 | .claude/skills/encore-questions/SKILL.md / coverage+.claude/skills/ultracoverage/SKILL.md | Protocol compact; shared authoring pointer |
 | P25-M19 | validate-plan-closure.mjs | Update footprint-count estimate in plan |
 
 ### Category B — Live Machinery (staged + battery proof + council review)

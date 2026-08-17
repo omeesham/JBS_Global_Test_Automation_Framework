@@ -743,7 +743,7 @@ The following facts were independently verified by the dispatcher against disk (
 4. **CONFIRMED**: `pipeline/worker/index.ts:525-536` — gate failure recorded at :529 (`_postCompleteGatePassed = false`), then `resolve({success: true})` at :536. S0 confirmed. Source: `out-rh-C/REHUNT-LOT-C.md`, finding RH-C-01.
 5. **CONFIRMED**: `scripts/validate-plan-closure.mjs:4` documents `--enforce` as READ-ONLY. `:1242` calls `recordAttempt()` which writes a JSON file on every FAIL — state mutation during a documented read-only command. S1 confirmed. Source: `out-rh-B/REHUNT-LOT-B.md`, finding RH-B-01.
 6. **CONFIRMED**: Denominator file `.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md` exists (251,377 bytes, mtime 2026-07-18). Measured line count: 1,901. Entry count: 1,853 (48-line surplus is headers/separators/blanks, consistent). **Stale as of 2026-07-30** — commits have landed since 2026-07-18. Re-run enumerator and diff before certifying any sweep complete. Source: `out-recon-slop/TRI-STATE.md § DENOMINATOR CHECK`.
-7. **CONFIRMED**: The 1,901 figure is a NON-BLANK count; the plan's "1,901 non-blank" annotation is correct and must not be used as a line offset (doing so silently drops the final ~36 rows, including website/frontend entries such as `src/data/jiraconfig.txt`). Source: `PLAN_REPO_SLOP_SWEEP.md:22` (staleness note) + `TRI-STATE.md § DENOMINATOR CHECK`.
+7. **CONFIRMED**: The 1,901 figure is a NON-BLANK count; the plan's "1,901 non-blank" annotation is correct and must not be used as a line offset (doing so silently drops the final ~36 rows, including website/frontend entries such as `website/frontend/src/data/jiraconfig.txt`). Source: `PLAN_REPO_SLOP_SWEEP.md:22` (staleness note) + `TRI-STATE.md § DENOMINATOR CHECK`.
 
 ---
 
@@ -1188,7 +1188,7 @@ Two discoveries that made this urgent, both dispatcher-verified with `git ls-fil
 ### Debris source investigated
 
 Root cause of the doubled `clients/encore/clients/encore/` path found: a `playwright-cli run-code`
-session log at `evidence-cp-review-2026-07-13/02-A10-A11-C4-detail-repro.txt:58` records a screenshot
+session log at `clients/encore/specs_planning/_internal/evidence-cp-review-2026-07-13/02-A10-A11-C4-detail-repro.txt:58` records a screenshot
 call passing a **repo-relative** path while the session cwd was `clients/encore/`, so the tool resolved
 it into a doubled path. Fix is a convention — screenshot targets must be absolute, derived from
 `git rev-parse --show-toplevel`.
@@ -1700,7 +1700,7 @@ into this very session, so a mid-edit syntax error breaks the session doing the 
 |---|---|---|---|
 | `q123-w1-scorecard` | `setup/delegation/scorecard.mjs` | 9 | 140 |
 | `q123-w1-navigation` | `.claude/context/navigation.md` | 7 | 120 |
-| `q123-w1-gatescfg` | `setup/delegation/gates-config.json` | 5 | 80 |
+| `q123-w1-gatescfg` | `.claude/skills/ultra-agents/setup/delegation/gates-config.json` | 5 | 80 |
 | `q123-w1-closureval` | `scripts/validate-plan-closure.mjs` | 5 | 150 |
 
 Disjoint files, disjoint verify surfaces, no shared-module extraction — safe to run concurrently.

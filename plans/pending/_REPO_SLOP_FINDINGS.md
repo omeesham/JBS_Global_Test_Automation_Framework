@@ -55,7 +55,7 @@ Deduped across all 16 lots:
 KEEPs (collapsed): ~1,440 rows across all lots — confirmed load-bearing by executor + reviewer evidence.
 
 Reviewer overturns applied (material corrections absorbed into counts above):
-- LOT-02: delegation-primer.mjs flipped DELETE → KEEP (live reference found in reflect/SKILL.md:70)
+- LOT-02: delegation-primer.mjs flipped DELETE → KEEP (live reference found in .claude/skills/reflect/SKILL.md:70)
 - LOT-03: 2 DELETE → KEEP overturns; 3 KEEP → DELETE flips (unproven-state-artifacts)
 - LOT-04: 105 DELETE → KEEP (executor error; live citations confirmed by reviewer)
 - LOT-07: 29 KEEP → DELETE (superseded/cancelled/credential plans; reviewer rescan)

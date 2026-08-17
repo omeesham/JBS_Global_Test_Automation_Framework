@@ -151,7 +151,7 @@ Items requiring Rutvik input before any action:
 2. **C lot delegation-gate.mjs.lcd07r2** (P1-M05): 25KB staged unapplied patch. Apply now or park until after this fix wave?
 3. **D lot hook bak files** (P2-LOT08-01..07): bak-lcd07 must NOT be deleted (unique v4/v5 content P2-LOT08-03); confirm delete-vs-archive for remaining 6.
 4. **D lot agent bak files** (P2-LOT10-01..06): quarantine confirmed; ready to batch-delete on your GO.
-5. **D lot delegation-temp/SKILL.md** (P2-21): graduation conditions are NOT met. The skill retires at queue item 10 (PLAN_LAZY_CEO_DELEGATOR) subject to its OWNER-LAW-3 absorption gate; the full 12-item queue must be DONE and structural enforcement proven firing live before retirement (§Graduation, .claude/skills/delegation-temp/SKILL.md). Do NOT delete this skill in this wave.
+5. **D lot .claude/skills/delegation-temp/SKILL.md** (P2-21): graduation conditions are NOT met. The skill retires at queue item 10 (PLAN_LAZY_CEO_DELEGATOR) subject to its OWNER-LAW-3 absorption gate; the full 12-item queue must be DONE and structural enforcement proven firing live before retirement (§Graduation, .claude/skills/delegation-temp/SKILL.md). Do NOT delete this skill in this wave.
 6. **D lot PLAN_AUDIT_COPILOT.md** (P1-M18, 2816L): TRIM candidate; prune-check run required first; confirm on GO.
 7. **Stale ship-plan references** (Phase 4 QUESTIONS_FOR_OWNER): 2 ship plans in plans/pending/ cite deleted verify-vendor-fresh.mjs — update or retire those plans.
 8. **Orphaned untracked PNGs**: git-clean nod required to remove.
