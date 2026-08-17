@@ -149,7 +149,7 @@ These are flagged here for the next-cycle plan; NOT filed in this subplan per us
 
 **Source artifacts**:
 - Spec run log: `C:\Users\RutvikKhorasiya\AppData\Local\Temp\claude\C--Users-RutvikKhorasiya-projects-encore-framework\f03bca21-438c-4cb9-ab01-56a31fc6f5d6\tasks\bv7u06rio.output` (3943 lines, 26.2 min wall clock).
-- Failure summary: `clients/encore/reports/failure-summary.json` (timestamp 2026-05-14T08:29:13Z, ~2 MB).
+- Failure summary: local generated failure-summary report (timestamp 2026-05-14T08:29:13Z, ~2 MB; not tracked).
 - Pre-run preserved: (the referenced file no longer exists — it was transient or removed) (the §3.7 4-worker run, preserved before clean per LR-024).
 - New bug file: `reports/bugs/BUG-LOS-BAS-065.json`.
 

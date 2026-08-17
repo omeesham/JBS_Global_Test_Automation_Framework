@@ -128,7 +128,7 @@
 | `.claude/state/fightinnovation/clash-isolation/verdict.md` | PLAN_FIGHTINNOVATION [INT] | ~30 | Council clash state: final verdict | state | B |
 | `.claude/state/fightinnovation/session-comms/ring-opening.md` | PLAN_FIGHTINNOVATION [INT] | ~30 | Council session-comms: ring-opening for session channel | state | B |
 | `.claude/state/fightinnovation/session-comms/verdict.md` | PLAN_FIGHTINNOVATION [INT] | ~30 | Council session-comms: verdict for session channel | state | B |
-| `.claude/state/ua-worker/worker-doctrine-index.md` | PLAN_WORKER_SKILL_ROUTING [INT] | 25 | Doctrine lookup pointer registry — maps ticket type to doctrine file | state | BOTH |
+| local worker-doctrine index under ua-worker state (gitignored) | PLAN_WORKER_SKILL_ROUTING [INT] | 25 | Doctrine lookup pointer registry - maps ticket type to doctrine file | state | BOTH |
 | `CLAUDE.md` | PLAN_COPILOT_CLAUDE_ABSOLUTE_PARITY; M: LCD family, PLAN_DELEGATION_CHEATPROOF [INT+FW] | 162 | Root Claude config: supreme rules, @-refs, skill routing, identity codenames | doctrine | B |
 | `docs/read_only_docs/AGENT_SHARED_RULES.md` | Multiple; M: b3791493, aa7a8552, d97923b2, beb38014 [INT+FW] | 867 | Shared rules for all pipeline agents — §ALL rules governing workers | doctrine | BOTH |
 | `scripts/check-dead-exports.mjs` | PLAN_REACTIVE_VS_PREVENTIVE_GUARDRAIL_AUDIT [FW] | 153 | Detects dead exports in framework scripts | code | B |

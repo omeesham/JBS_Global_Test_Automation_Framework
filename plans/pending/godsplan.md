@@ -67,7 +67,7 @@ Full bootstrap block + frontmatter (Identity OWNER, Model opus-4-7, Thinking max
 
 Save Rutvik's guiding teachings (god-as-intent-integrity metaphor, gene-marriage goal, Sonnet-proof-plans vision, intent-over-words rule, plain-English discipline, partnership framing) to BOTH:
 - The user vision auto-memory file outside the repo — loaded every session.
-- `.claude/private/guiding-vision.md` — inside the repo, gitignored. Never referenced in client artifacts, reports, or commits.
+- Repo-side private guiding-vision mirror - inside the repo, gitignored. Never referenced in client artifacts, reports, or commits.
 
 Both files hold identical content, in Rutvik's own words where possible. Private contract between this repo and him. Not sent to other agents, other humans, or logs.
 
@@ -102,7 +102,7 @@ PreToolUse hook. On every Edit/Write, checks the target path and the nature of t
 
 - Plan file readable by Rutvik in ~2 minutes.
 - The Claude baseline broad-scan subplan to be authored tomorrow (Session 1 continues there).
-- `memory/user_vision.md` + `.claude/private/guiding-vision.md` to be saved tomorrow as first actions.
+- `memory/user_vision.md` + repo-side private guiding-vision mirror to be saved tomorrow as first actions.
 - `.claude/private/` added to `.gitignore` if not already.
 - First `/chain` or `/execute SP-01` kicks off cleanly — no missing frontmatter, no ambiguity about next step.
 
@@ -114,7 +114,7 @@ PreToolUse hook. On every Edit/Write, checks the target path and the nature of t
 - `.claude/hooks/` — new intent-drift hook by SP-15.
 - `CLAUDE.md` — LR-045 chunking rule by SP-12.
 - `plans/pending/` — 15 new subplan files authored over the run.
-- `memory/user_vision.md`, `.claude/private/guiding-vision.md` — SP-16, first actions tomorrow.
+- `memory/user_vision.md`, repo-side private guiding-vision mirror - SP-16, first actions tomorrow.
 
 ## Defaults where Rutvik hasn't steered (will flip on correction)
 
@@ -125,7 +125,7 @@ PreToolUse hook. On every Edit/Write, checks the target path and the nature of t
 
 ## Picked up tomorrow — first actions
 
-1. Save `memory/user_vision.md` + `.claude/private/guiding-vision.md` (SP-16, ~5 min).
+1. Save `memory/user_vision.md` + repo-side private guiding-vision mirror (SP-16, ~5 min).
 2. Confirm `.claude/private/` is gitignored.
 3. Author `plans/pending/SUBPLAN_CLAUDE_BASELINE_01_BROAD_SCAN.md` with full Sonnet-proof body (per §SP-01 detail above).
 4. Regenerate INDEX (`npm run plans:reindex`).
@@ -220,7 +220,7 @@ Used ToolSearch
 
 
 
-Plan written. On your teachings request — I baked it in as SP-16 in the plan: once plan mode exits, I save your guiding vision (god-as-intent-integrity, gene-marriage goal, Sonnet-proof plans, intent-over-words, partnership framing, plain-English rule) to both memory/user_vision.md (auto-memory, always loaded) and .claude/private/guiding-vision.md (repo-side, gitignored). Identical content, private between us, never sent to clients, other agents, or commits. Not a separate ask — it's a guaranteed step of this plan.
+Plan written. On your teachings request - I baked it in as SP-16 in the plan: once plan mode exits, I save your guiding vision (god-as-intent-integrity, gene-marriage goal, Sonnet-proof plans, intent-over-words, partnership framing, plain-English rule) to both memory/user_vision.md (auto-memory, always loaded) and the repo-side private guiding-vision mirror (gitignored). Identical content, private between us, never sent to clients, other agents, or commits. Not a separate ask - it's a guaranteed step of this plan.
 
 
 
@@ -348,7 +348,7 @@ u r fre to be creative, just dont be destructive... this is also a part of visio
 
 
 
-Noted. Creative freedom, not destructive freedom. Adding to the vision set alongside the "rules refined not eliminated" lesson — both bank for tomorrow's save to memory + .claude/private/guiding-vision.md.
+Noted. Creative freedom, not destructive freedom. Adding to the vision set alongside the "rules refined not eliminated" lesson - both bank for tomorrow's save to memory + the repo-side private guiding-vision mirror.
 
 
 
@@ -556,7 +556,7 @@ memory/user_vision.md — 11 teachings, auto-loaded every session
 
 
 
-.claude/private/guiding-vision.md — repo mirror, gitignored
+Repo-side private guiding-vision mirror - repo mirror, gitignored
 
 
 

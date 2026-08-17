@@ -5,7 +5,7 @@
 **Created**: 2026-07-29
 **Identity**: OWNER
 **Parent**: (none — standalone custodian stub per LR-069 §3.3.3)
-**Depends on**: `.claude/guardrail-config.json` ramp keys; `scripts/check-ramp-expiry.mjs` (machine deadline); `.claude/state/gate-fires.log` (fire telemetry)
+**Depends on**: `.claude/guardrail-config.json` ramp keys; `scripts/check-ramp-expiry.mjs` (machine deadline); local gate-fire log (per-machine, not tracked) for fire telemetry
 **Model**: claude-opus-4-8
 **Thinking**: hi
 **PermissionMode**: auto
@@ -66,7 +66,7 @@ definition covering at minimum:
 
 - what counts as a session in which the gate was actually exercised (it must have run — a session where
   the gate never fired is not evidence of cleanliness, it is absence of evidence);
-- what counts as a false positive versus a true positive, adjudicated against `.claude/state/gate-fires.log`;
+- what counts as a false positive versus a true positive, adjudicated against the local gate-fire log (per-machine, not tracked);
 - where the running count lives, so it survives the session that increments it.
 
 **Do not invent a threshold beyond the ≥10 that LR-069 §3.3 already sets.** If a gate's own plan named

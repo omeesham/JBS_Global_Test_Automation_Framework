@@ -47,9 +47,9 @@ I preserved repo/home root scope during dedupe; without that, five home rows col
 
 D4:
 Roster decay command=`Node fs.existsSync(repo-relative path), with git C-style octal escape decoding cross-check`: roster rows gone from disk=427; decoding rescued 0 rows.
-Gone sample: `.auth/_archived/nav4-state-deprecated.txt`; `.auth/chrome-profile/`; `.auth/encore-state.json`; `.claude/private/guiding-vision.md`; `.claude/hooks/lib/uplink/packet-builder.mjs`; `.claude/skills/end-day/SKILL.md`; `.claude/state/delegation-audit/arena-brief.md`.
+Gone sample: archived nav4 auth-state text file (gitignored, local-only); `.auth/chrome-profile/`; `.auth/encore-state.json`; repo-side private guiding-vision mirror (gitignored); `.claude/hooks/lib/uplink/packet-builder.mjs`; private end-day skill file (gitignored); `.claude/state/delegation-audit/arena-brief.md`.
 Manifest-vs-roster command=`normalize MANIFEST-PATHS and ROSTER-PATHS with same relative-path key`: manifest paths absent from roster=96.
-Manifest absent sample: `.claude/state/ua-worker/worker-doctrine-index.md`; `copilot-worker.sh`; `delegation-gate.mjs`; `delegation-nudge.mjs`; `~/.claude/delegation/`; `~/.claude/delegation/DUTY_STACK.md`; `~/.claude/delegation/config.json`.
+Manifest absent sample: local worker-doctrine index under ua-worker state (gitignored); `copilot-worker.sh`; `delegation-gate.mjs`; `delegation-nudge.mjs`; `~/.claude/delegation/`; `~/.claude/delegation/DUTY_STACK.md`; `~/.claude/delegation/config.json`.
 Off-repo instruments: input lists are `C-claude.txt`=5489 and `D-copilot.txt`=11599; `CROSSWALK-powershell.txt` says claude=5488 copilot=11596, so deltas are +1 claude and +3 copilot in the input lists.
 Likely explanation for the off-repo delta: `CROSSWALK-powershell.txt` appears to be a second walk snapshot of the same roots but not the exact emitted list; all `C-claude.txt`/`D-copilot.txt` rows have `home:` prefix and no blank rows, so the small +1/+3 delta is consistent with snapshot timing, hidden/permission-filter differences, or file-vs-container inclusion differences rather than malformed input rows.
 
@@ -63,7 +63,7 @@ Of the 156,018 distinct paths that exist in the supplied current accounting list
 D6:
 Could not compute exact row identities for the off-repo crosswalk deltas because `CROSSWALK-powershell.txt` contains only `claude=5488 copilot=11596`, not path rows to diff against `C-claude.txt` and `D-copilot.txt`.
 I dispute the phrase "same two off-repo roots" if it is intended to imply exact parity: the provided path lists are larger by +1 `.claude` row and +3 `.copilot` rows, with no blank lines or missing `home:` prefixes to explain it.
-I also dispute treating the supplied repo strata as perfectly live disk truth: direct disk probes found 427 roster rows gone from disk, while a normalized comparison against `A/B`/`B-ignored` would call only 350 absent; 80 rows are present in the supplied current repo strata but absent by direct disk reads, e.g. `.auth/encore-state.json`, `.claude/private/guiding-vision.md`, and `.claude/hooks/lib/uplink/packet-builder.mjs`.
+I also dispute treating the supplied repo strata as perfectly live disk truth: direct disk probes found 427 roster rows gone from disk, while a normalized comparison against `A/B`/`B-ignored` would call only 350 absent; 80 rows are present in the supplied current repo strata but absent by direct disk reads, e.g. `.auth/encore-state.json`, the repo-side private guiding-vision mirror, and `.claude/hooks/lib/uplink/packet-builder.mjs`.
 Quoted/non-ASCII rows exist: 25 roster rows contain git C-style octal escapes or quoting-like escapes; decoding them did not change the roster-gone count.
 
 ---

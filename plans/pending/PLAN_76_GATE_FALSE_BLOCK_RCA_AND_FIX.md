@@ -107,7 +107,7 @@ Line anchors verified in source by the prior session at commit `fb58ffed6`; `ori
 - `.claude/guardrail-config.json` ramp keys — owner-gated; EXCEPTION (T1d finding 3): if the Q6 census proves a config-controlled abort (e.g. `TOOTHLESS-SURFACE` deny mode) blocks this surface, that specific key enters scope by evidence, with the change named to Rutvik before push.
 - **Conditional IN-scope (T1d finding 5, CEO-authorized)**: `.githooks/pre-commit` + `package.json` validator invocation lines — ONLY if Phase-1 evidence shows invocation drift (stale hook / wrong entrypoint) is the real activity-log blocker; a class-level fix must be allowed to reach the load-bearing file.
 - `copilot-worker.sh`, `worker-ext.md`, home hooks — PROTECTED control surface.
-- `plans/done/PLAN_ENCORE_NM2269_DELIVERY.md`, `SUBPLAN_CORP_PRICING_NM2271_*` (stale done-plans) and `.claude/skills/graft/classify-incoming.sh` — parked owner decisions from 2026-08-16, not this plan.
+- the NM2269 delivery done-plan, `SUBPLAN_CORP_PRICING_NM2271_*` (stale done-plans) and `.claude/skills/graft/classify-incoming.sh` - parked owner decisions from 2026-08-16, not this plan.
 - Chain state (NM2305 PAUSED) — untouched; no auto-fire.
 - Everything outside `scripts/walk-coverage/**` + `scripts/validate-activity-log.mjs` + this plan file + ticket/evidence dirs under `.claude/state/ua-worker/chips/g76/`.
 

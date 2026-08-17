@@ -27,7 +27,7 @@ These three plans are ONE gated unit — running any ONE obligates the other two
 
 This plan is PARKED. A future (rested) session runs these IN ORDER — do not rush to execute:
 
-1. **STEP 0 — Upgrade + reconcile ULTRAAUDIT FIRST (mandatory; Owner Decision (e) = YES).** Before ANY Category C/D lot here touches a `.claude/**` harness file, run the `PLAN_ULTRAAUDIT_FIX_WAVE.md` upgrade: re-run its bug hunt over the full machine denominator (`.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`) and reconcile its fix-list against this sweep's DELETE-list. Reason: both plans touch the same harness files — fixing a file another lot deletes (or deleting one another lot fixes) is exactly the collision this prevents. See `PLAN_ULTRAAUDIT_FIX_WAVE.md` → "Execution Prerequisite".
+1. **STEP 0 - Upgrade + reconcile ULTRAAUDIT FIRST (mandatory; Owner Decision (e) = YES).** Before ANY Category C/D lot here touches a `.claude/**` harness file, run the `PLAN_ULTRAAUDIT_FIX_WAVE.md` upgrade: re-run its bug hunt over the full machine denominator (the local slop sweep denominator artifact, not tracked) and reconcile its fix-list against this sweep's DELETE-list. Reason: both plans touch the same harness files - fixing a file another lot deletes (or deleting one another lot fixes) is exactly the collision this prevents. See `PLAN_ULTRAAUDIT_FIX_WAVE.md` -> "Execution Prerequisite".
 2. **STEP 1 — Category A** (safe untracked/ignored debris: root walk-dumps, scratch dirs, temp logs) may run independently of Step 0 — it touches no tracked source ULTRAAUDIT cares about. **Out-of-repo Category A lots (ORP-A1 through ORP-A3 in "Out-of-Repo Scope") are also independent of Step 0 and may run at this step.**
 3. **STEP 2 — Categories B/C/D** run only AFTER Step 0's reconciliation, and only for items whose Owner Decision (below) is answered. C/D are per-item GO. **Out-of-repo Category C lots (ORP-C1 memory-prune — "Out-of-Repo Scope" section; Lot C3 pending-plan triage — Category C section) wait alongside in-repo C/D — per-item GO required for each.**
 4. **Answer the Owner Decisions batch first** — an unanswered decision means that lot waits, it does not proceed on a guess.
@@ -487,7 +487,7 @@ Each item requires explicit Rutvik GO. Category D operations touch git history o
 
 **Action**:
 1. `git rm plans/done/PLAN_34_BACKEND_CLEANUP.md plans/done/PLAN_23_MONOREPO_INTEGRATION.md plans/done/PLAN_27_DEV_ENVIRONMENT.md plans/done/PLAN_31_VERIFICATION.md`
-2. Edit `.claude/context/CURRENT_STATE.md:37` and `.claude/channel/broadcast/BROADCAST.md:19` — replace credential values with `[redacted]` placeholders
+2. Edit `.claude/context/CURRENT_STATE.md:37` and the local broadcast channel artifact line 19 - replace credential values with `[redacted]` placeholders
 3. History scrub: HEAD-only deletion leaves credentials in git history — Rutvik decides scope (see § Owner Decisions item a)
 
 **Verify battery**:
@@ -535,7 +535,7 @@ Each item requires explicit Rutvik GO. Category D operations touch git history o
 
 ## Self-Cleaning Mechanism
 
-**Reference**: Full design at `.claude/state/ua-worker/slop35-fable-selfclean-0718-artifacts/self-clean-design.md`
+**Reference**: Full design was in the local slop35 self-clean design worker artifact (not tracked).
 
 **Posture**: auto-quarantine + report. A SessionStart-throttled background sweeper enumerates the full repo (machine triad: `git ls-files`, untracked, ignored — never judgment-based) and applies deterministic pattern rules from a tracked config. Findings move to a quarantine dir (path-preserving, reversible, manifest-tracked) rather than hard-delete. A one-line report fires in SessionStart context if the previous sweep has unacknowledged quarantines.
 
@@ -642,7 +642,7 @@ SUPERSEDED 1 · UNVERIFIABLE 4 → **about 33% done**.
 
 ## S-0 · The denominator this plan uses covers 1.2% of what exists
 
-This plan's machine denominator is `.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`,
+This plan's machine denominator is the local slop sweep denominator artifact (not tracked),
 generated 2026-07-18. Rebuilt from scratch on 2026-08-05 across four quadrants with no judgment
 exclusions:
 

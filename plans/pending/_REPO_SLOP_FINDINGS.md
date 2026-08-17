@@ -114,7 +114,7 @@ Migration residual (empty dirs, 4 entries):
 - `.claude/skills/ultra-agents/tavily-mcp/dist/src/tavily-client.js`
 - `.claude/skills/ultra-agents/tavily-mcp/dist/src/types.js`
 - `.claude/skills/ultra-agents/tavily-mcp/dist/test-client.js`
-- `.claude/skills/ultra-agents/tavily-mcp/rotation-state.json` (gitignored runtime state)
+- tavily-mcp rotation state file (gitignored runtime state)
 
 *Delegation-audit session docs (LOT-02 + LOT-03, 8 files):*
 - `.claude/state/delegation-audit/arena-brief.md`
@@ -135,7 +135,7 @@ Migration residual (empty dirs, 4 entries):
 - 34 additional memory-feedback snapshot entries from the same local delegation-audit input bundle; the artifact paths are gone, so the individual file citations are not portable evidence.
 
 *Channel leftover (LOT-04, 1 file):*
-- `.claude/channel/KT_PROMPT_FOR_COLLEAGUE.md`
+- local KT prompt channel artifact (gitignored)
 
 *Stale pending-plan + worktree (LOT-06, 2 entries):*
 - `.claude/plans/plans-pending-plan-timeout-centralizatio-playful-rabbit.md`
@@ -300,7 +300,7 @@ Severity: S3 = live/real credential in git history | S2 = dev credential committ
 | `pipeline/worker/worker-manager.ts` | line 31 | Hardcoded dev-secret fallback [redacted] | S3 | YES | LOT-12 reviewer | Same |
 | `src/common/credential-loader.ts` | line 103 | Admin password fallback [redacted] | S3 | YES — 3edb6f19 eeb387e5 cc990407 | LOT-12 reviewer | Same |
 | `.claude/context/CURRENT_STATE.md` | line 37 | PostgreSQL password [redacted] in tracked file | S2 | YES — confirmed by reviewer git-history-secret.verify.txt | LOT-06 reviewer | Scrub value from file; history scrub |
-| `.claude/channel/broadcast/BROADCAST.md` | line 19 | Local dev DB credentials [redacted] | S2 | YES | LOT-04 reviewer MISS-002 | Scrub value from file |
+| local broadcast channel artifact (gitignored) | line 19 | Local dev DB credentials [redacted] | S2 | YES | LOT-04 reviewer MISS-002 | Scrub value from file |
 | `plans/done/PLAN_REMOVE_VAULT.md` | line 36 | `password: ... \|\| 'admin'` — possible non-secret fallback pattern | S1 | YES | LOT-08 reviewer MISS-03 | Review; remediate if real |
 
 **History scrub decision**: Rutvik leaning HEAD-only (no full history rewrite + force-push) — final call pending (see PLAN_REPO_SLOP_SWEEP.md § Owner Decisions).

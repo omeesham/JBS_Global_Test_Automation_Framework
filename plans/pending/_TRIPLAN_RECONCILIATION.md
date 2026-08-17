@@ -124,7 +124,7 @@ All findings from re-hunt lots A–D. Findings the lots marked ALREADY-KNOWN are
 
 ✅ **100% mandate MET for executables. Non-executables honestly ledgered — see per-lot artifacts.**
 
-Denominator: **1,937 total lines / 1,901 non-blank** in `.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`. The 1,901 figure is a NON-BLANK count and must never be used as a line offset (doing so silently drops the final ~36 rows including website/frontend entries). Source: `out-recon-slop/TRI-STATE.md § DENOMINATOR CHECK`; `a session-local worker output file (not tracked in git) § DENOMINATOR RECOVERED`.
+Denominator: **1,937 total lines / 1,901 non-blank** in the local slop0 denominator artifact (not tracked). The 1,901 figure is a NON-BLANK count and must never be used as a line offset (doing so silently drops the final ~36 rows including website/frontend entries). Source: `out-recon-slop/TRI-STATE.md section DENOMINATOR CHECK`; `a session-local worker output file (not tracked in git) section DENOMINATOR RECOVERED`.
 
 | Bucket | Wave 1 artifact | Wave 2 artifact | Executable result | Non-executable handling |
 |---|---|---|---|---|
@@ -742,7 +742,7 @@ The following facts were independently verified by the dispatcher against disk (
 3. **CONFIRMED**: `PLAN_REPO_SLOP_SWEEP.md:114-115` lists `~/.claude/delegation/gates/` and `~/.copilot/agents/` as NEVER-TOUCH. 11 of the 19 collisions sit inside them (1 in `gates/`, 10 in `agents/`). Source: `OFFREPO-COLLISION.md § COLLISION SET`.
 4. **CONFIRMED**: `pipeline/worker/index.ts:525-536` — gate failure recorded at :529 (`_postCompleteGatePassed = false`), then `resolve({success: true})` at :536. S0 confirmed. Source: `out-rh-C/REHUNT-LOT-C.md`, finding RH-C-01.
 5. **CONFIRMED**: `scripts/validate-plan-closure.mjs:4` documents `--enforce` as READ-ONLY. `:1242` calls `recordAttempt()` which writes a JSON file on every FAIL — state mutation during a documented read-only command. S1 confirmed. Source: `out-rh-B/REHUNT-LOT-B.md`, finding RH-B-01.
-6. **CONFIRMED**: Denominator file `.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md` exists (251,377 bytes, mtime 2026-07-18). Measured line count: 1,901. Entry count: 1,853 (48-line surplus is headers/separators/blanks, consistent). **Stale as of 2026-07-30** — commits have landed since 2026-07-18. Re-run enumerator and diff before certifying any sweep complete. Source: `out-recon-slop/TRI-STATE.md § DENOMINATOR CHECK`.
+6. **CONFIRMED**: The local slop0 denominator artifact existed during the dispatcher disk check (251,377 bytes, mtime 2026-07-18). Measured line count: 1,901. Entry count: 1,853 (48-line surplus is headers/separators/blanks, consistent). **Stale as of 2026-07-30** - commits have landed since 2026-07-18. Re-run enumerator and diff before certifying any sweep complete. Source: `out-recon-slop/TRI-STATE.md section DENOMINATOR CHECK`.
 7. **CONFIRMED**: The 1,901 figure is a NON-BLANK count; the plan's "1,901 non-blank" annotation is correct and must not be used as a line offset (doing so silently drops the final ~36 rows, including website/frontend entries such as `website/frontend/src/data/jiraconfig.txt`). Source: `PLAN_REPO_SLOP_SWEEP.md:22` (staleness note) + `TRI-STATE.md § DENOMINATOR CHECK`.
 
 ---
@@ -2395,7 +2395,7 @@ unrelated reasons, and chainplan still had one genuinely open row. But dispatchi
 it first is now a known way to waste a worker.
 
 The 21 unresolved headings include several the resolver calls `missing` that are actually **gitignored and
-present** (`.claude/hooks/lib/uplink/*`, `plans/pending/PLAN_LAZY_CEO_DELEGATOR.md`) — `git ls-files` does
+present** (`.claude/hooks/lib/uplink/*`, the Lazy CEO Delegator pending plan file) - `git ls-files` does
 not list ignored files. That is a limitation of the check, not evidence the files are absent.
 
 *Appended 2026-08-03.*

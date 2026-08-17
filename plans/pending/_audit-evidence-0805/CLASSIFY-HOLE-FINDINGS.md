@@ -129,7 +129,7 @@ Group counts (from BUCKET-2-by-dir.txt, 31 multi-file groups + 218 individual-fi
 - **Last change**: Fri Mar 20 2026
 - **References**: 6 hits — `.claude/AGENT_SCHOOL.md` (dead), `.claude/agents/COLLEAGUE.agent.md` (dead), done plans, `scripts/agent-channel.mjs` (dead), one activity-log mention
 - **What it was**: Vision/goals context for the two-agent system
-- **Evidence**: Not in CLAUDE.md's @-references table. Not in skills/INDEX.md. Not loaded by any hook. The guiding vision is now at `.claude/private/guiding-vision.md` (different file, referenced by CLAUDE.md). **Dead — superseded by guiding-vision.md.**
+- **Evidence**: Not in CLAUDE.md's @-references table. Not in skills/INDEX.md. Not loaded by any hook. The guiding vision is now in the repo-side private guiding-vision mirror (gitignored, different file, referenced by CLAUDE.md). **Dead - superseded by guiding-vision.md.**
 
 ### 7. `.claude/context/WORKFLOW.md`
 - **Last change**: Fri Apr 3 2026

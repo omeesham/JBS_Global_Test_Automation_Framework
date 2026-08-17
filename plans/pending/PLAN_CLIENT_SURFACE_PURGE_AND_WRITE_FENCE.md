@@ -380,12 +380,12 @@ anticipated.
   would leak into a deliverable). Graduating incident: this plan's own census.
 - **Budget**: ≤200 ms per call (LR-069 §3.4 PreToolUse budget). A path-prefix check against a static
   allowlist meets that comfortably; anything requiring a directory walk does not.
-- **Fire telemetry from day one.** Every verdict appends to `.claude/state/gate-fires.log`. The
+- **Fire telemetry from day one.** Every verdict appends to the local gate-fire log (per-machine, not tracked). The
   known-gap note in LR-069 §3.4 records ≥8 gates shipped dark; this one does not join them.
 - **Absolute-path discipline in tickets is the companion control.** The fence stops the write; the
   ticket template stops the intent. Both, or agents will keep aiming at the client folder and merely
   failing louder.
-- **Fail-open on exception**, logged to `.claude/state/hook-failures.log`. A broken gate must never
+- **Fail-open on exception**, logged to the local hook-failures log (per-machine, not tracked). A broken gate must never
   wedge a session.
 
 **Escape hatch**: the LR-043 §A one-shot break-glass handshake, unchanged. Discretionary, never workflow.
@@ -434,7 +434,7 @@ dark (LR-069 §3.4 known-gap). Strictness is therefore three obligations, not on
    ALLOW in the same self-test run. A gate that denies everything, or allows everything, carries no
    information (`feedback_a_signal_that_never_varies_is_not_a_signal`).
 3. **Telemetry from the first commit.** Every verdict — allow and deny — appends to
-   `.claude/state/gate-fires.log`. Without it the LR-069 demotion review runs blind and the gate is
+   the local gate-fire log (per-machine, not tracked). Without it the LR-069 demotion review runs blind and the gate is
    unauditable.
 
 #### Why the override is Rutvik's, not an agent's
@@ -548,7 +548,7 @@ worker chip output (ephemeral — not tracked in git) (superseded groups) + the 
 
 ### 2026-07-31 findings record — research already burned, do NOT rediscover
 
-Full evidence: `.claude/state/ua-worker/chips/purge/out-redisp-lot-a/LOT-A.md` (635 tracked files,
+Full evidence: purge lot A worker chip output (local ua-worker state, not tracked; 635 tracked files,
 KEEP 237 / DELETE-CANDIDATE 198 / DELETE-ASK 200) + `out-redisp-lot-b/LOT-B.md` (untracked 29 exact +
 ignored trees, 46s measurement window). The compact facts an executing agent needs:
 

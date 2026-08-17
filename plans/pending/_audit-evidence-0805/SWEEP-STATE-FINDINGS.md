@@ -88,7 +88,7 @@ Total roster count: 40
 | C3 | DONE-UNCOMMITTED | `_TRIPLAN_RECONCILIATION.md` lines 697-709 records C3 triage: 137 files classified into 87 keep, 31 refine, 11 salvage, 8 useless; no tracked commit for live artifact. |
 | TRIAGE-C3 | DONE-UNCOMMITTED | Same artifact lines 697-709 provide required four-bucket triage table; live reconciliation input is untracked/differs from committed copy. |
 | CATEGORY-D | PARTIAL | D1 still mostly pending, D2 key scrub committed but file not removed, D3 jest remains while worktree absent. |
-| D1 | PARTIAL | 4 credential-bearing done-plans still tracked; `.claude/context/CURRENT_STATE.md` still tracked; `.claude/channel/broadcast/BROADCAST.md` absent/untracked; owner sub-decision remains OPEN. |
+| D1 | PARTIAL | 4 credential-bearing done-plans still tracked; `.claude/context/CURRENT_STATE.md` still tracked; local broadcast channel artifact absent/untracked; owner sub-decision remains OPEN. |
 | D2 | PARTIAL | Commit 2a37d1b scrubbed key in `website/frontend/src/data/jiraconfig.txt`, but file is still tracked/on disk and no deletion commit exists. |
 | D3 | PARTIAL | `.claude/worktrees/amazing-swanson-775132` absent, but `jest.config.ts` still tracked/on disk; no deletion commit for jest. |
 | SELF-CLEANING-MECHANISM | PARTIAL | Only npm scripts exist in `package.json` lines 132-135; hook, sweeper, config, and quarantine implementation files absent. |
@@ -181,7 +181,7 @@ Total roster count: 40
   - `.claude/state/fightinnovation/clash-isolation/verdict.md`
   - `.claude/state/fightinnovation/session-comms/ring-opening.md`
   - `.claude/state/fightinnovation/session-comms/verdict.md`
-  - `.claude/state/ua-worker/worker-doctrine-index.md`
+  - local worker-doctrine index under ua-worker state (gitignored; path not portable)
   - `scripts/check-dead-exports.test.mjs`
   - `scripts/check-doc-script-parity.test.mjs`
   - `scripts/check-identity-ownership.mjs`

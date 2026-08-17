@@ -184,7 +184,7 @@ one ramp).
       `location-shared-setup-locations.spec.ts`): the 2026-08-14 confirm seat already ruled the gate
       registry RIGHT on both (`ensureEmptyState` at `location-notes.spec.ts:639-650`;
       `ensureCleanSSLTable` at `location-shared-setup-locations.spec.ts:477-495` — verdicts in
-      `clients/encore/reports/plan-fight-0814/confirm/RESULT.md`). This step only confirms those two
+      the confirm-seat worker output, which lived under local client reports and is not tracked). This step only confirms those two
       cites still hold on the current tree; drift → HALT + ask Rutvik (bootstrap HALT list). The
       reconciled census seeds every `mutates:` flag in Phase 1.
 - [ ] **Count Gate B's real populations**: grep the tree for both anchor families (spec-side variants,
@@ -257,7 +257,7 @@ one ramp).
 
 ### Phase 5 — DENY promotion (gated on telemetry, days later — may be a separate session)
 - [ ] Promotion criteria (ALL required): ≥10 real commits passed through ANNOUNCE mode · zero
-      false-fires in `.claude/state/gate-fires.log` · debt list shrank or held (never grew) ·
+      false-fires in the local gate-fire log (per-machine, not tracked) ; debt list shrank or held (never grew) ;
       **≥1 recorded live trip of each FAIL class, demonstrated on a fixture branch** (a gate that has
       never been seen to fire is not promotable — a signal that never varies is not a signal).
 - [ ] Flip both knobs to `deny` (`ramp_complete: true`, `ramp_flipped` date). Glob pass becomes FAIL
@@ -267,8 +267,8 @@ one ramp).
       `.claude/rules/specs.md` to state its enforcement is now mutation-aware.
 
 ## §Context-files (read all before Phase 0)
-- `clients/encore/reports/gate-census-0814/seatA/RESULT.md` · `seatB/RESULT.md` · `diff/RESULT.md`
-- `clients/encore/reports/rca-nm3344-0814/r3-seatA/RESULT.md` · `r3-seatB/RESULT.md`
+- local gate-census seat outputs (seatA/seatB/diff RESULT files under client reports, not tracked)
+- local NM3344 RCA seat outputs (r3-seatA/r3-seatB RESULT files under client reports, not tracked)
 - `clients/encore/specs_planning/_internal/ground-truth-service-charge-manual-2026-08-14.md`
 - `scripts/check-per-test-baseline.mjs` + `.test.mjs` (the convicted gate being rewired — Read tool only)
 - `scripts/check-weak-reset.mjs` · `scripts/check-save-honesty.mjs` (family siblings)

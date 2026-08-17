@@ -75,7 +75,7 @@ Run `/planning` to design:
 3. **Live-grep execution** — at status-flip-to-completed time, hook re-runs the captured `grep_pattern` against `file_path`, compares hit-count to `expected_count`. Mismatch → deny with full LR-046 quote + 3 options (do-now / spawn / append + ask user).
 4. **Chain-spawned bypass** — if transcript shows `/chain` parent context (orchestrator-spawned), hook MUST still fire. The fix for chain runs: chain-orchestrator pauses with `verdict-NONE` at parent's `/final-q`; user resolves interactively. No "auto-approve in chain" escape hatch.
 5. **Override handshake** — same one-shot pattern as LR-043 §A (`[OVERRIDE-REQUEST]` → user authorization phrase → 3-turn allow window). Required for legitimate edge-case rescopes.
-6. **Fail-OPEN policy** — any uncaught exception → log to `.claude/state/hook-failures.log` + allow. `/final-q` Step 4.5 floors verdict to YELLOW if log is non-empty.
+6. **Fail-OPEN policy** - any uncaught exception -> log to the local hook-failures log (per-machine, not tracked) + allow. `/final-q` Step 4.5 floors verdict to YELLOW if log is non-empty.
 
 `/planning` Step 4 adversarial audit MUST stress-test the regex against ≥20 real plan bodies in `plans/done/` for false-positive rate. Target: <2% false-positive on a 50-plan sample.
 

@@ -24,7 +24,7 @@ These three plans are ONE gated unit — running any ONE obligates the other two
 
 This plan is PARKED and its findings are INCOMPLETE-BY-CONSTRUCTION: they came from a **model-guessed denominator (~197 files)** — the same blind spot the later whole-repo slop sweep exposed and fixed. Do NOT start fixing on the assumption this list is complete. Before executing ANY fix here, a future (rested) session does two things IN ORDER:
 
-1. **Re-run the bug hunt over the FULL machine denominator.** Scope = the machine roster the slop sweep built (`.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md` — `git ls-files` + on-disk walk, 1,853 in-scope entries), NOT the old 197-file manifest. **Staleness note (2026-07-30)**: this roster was enumerated 2026-07-18. The file is 1,937 total lines / 1,901 non-blank — the 1,901 figure is a NON-BLANK count and must not be used as a line offset (doing so silently drops the final ~36 rows, including website/frontend entries such as website/frontend/src/data/jiraconfig.txt). Commits have landed since enumeration. Re-run the enumerator and diff against this roster before certifying any sweep complete. Cross-provider council (gpt-5.5 + claude-opus-4.6), guilty-until-proven, so harness **correctness** gets the same 100% coverage that file-**existence** already got. Fold any new S0/S1 bugs into the Fix Lots below.
+1. **Re-run the bug hunt over the FULL machine denominator.** Scope = the machine roster the slop sweep built (the local slop0 denominator artifact from `git ls-files` + on-disk walk, 1,853 in-scope entries; not tracked), NOT the old 197-file manifest. **Staleness note (2026-07-30)**: this roster was enumerated 2026-07-18. The file is 1,937 total lines / 1,901 non-blank - the 1,901 figure is a NON-BLANK count and must not be used as a line offset (doing so silently drops the final ~36 rows, including website/frontend entries such as website/frontend/src/data/jiraconfig.txt). Commits have landed since enumeration. Re-run the enumerator and diff against this roster before certifying any sweep complete. Cross-provider council (gpt-5.5 + claude-opus-4.6), guilty-until-proven, so harness **correctness** gets the same 100% coverage that file-**existence** already got. Fold any new S0/S1 bugs into the Fix Lots below.
 2. **Reconcile against the slop sweep's DELETE-list.** Cross-check every fix here against `plans/pending/_REPO_SLOP_FINDINGS.md`: if a file this plan fixes is on that sweep's DELETE/RELOCATE list (or vice-versa), resolve the conflict before touching it. Never fix-then-delete, never delete-mid-fix.
 
 Only after 1 + 2 do the Fix Lots below run. Coupled with `plans/pending/PLAN_REPO_SLOP_SWEEP.md` → "Execution Order" (STEP 0). If unclear at run time: STOP and re-read — do not improvise.
@@ -212,7 +212,7 @@ one item in-repo done / off-repo unverifiable → **about 20–25% done**. Large
 ## F-0 · This plan's own prerequisite is unsatisfiable against the current denominator
 
 PREREQ-1 demands a cross-provider re-hunt over "the full 1,853 denominator". That roster
-(`.claude/state/ua-worker/slop0-enum-0718-artifacts/denominator.md`, generated 2026-07-18) was rebuilt
+(the local slop0 denominator artifact, generated 2026-07-18 and not tracked) was rebuilt
 from scratch on 2026-08-05 and measured against what exists:
 
 - **156,018 files exist** across the repository and the two off-repo roots.

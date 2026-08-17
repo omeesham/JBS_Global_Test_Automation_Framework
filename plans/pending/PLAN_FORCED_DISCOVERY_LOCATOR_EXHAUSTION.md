@@ -4,7 +4,7 @@
 **Priority**: High — permanent fix for the silent-thin-coverage class (2026-07-17 Override gaps incident)
 **Created**: 2026-07-17
 **Identity**: OWNER (framework mechanism; pipeline identities consume it once landed)
-**Depends on**: RCA output `.claude/state/ua-worker/chips/delegation-temp/out-override-rca/RCA-MATRIX.md` (Phase 0 input); walk-fleet outputs at `.claude/state/ua-worker/chips/delegation-temp/out-override-walk/`
+**Depends on**: Phase 0 RCA matrix from the delegation-temp worker chip (local ua-worker output, not tracked); walk-fleet outputs from the matching delegation-temp worker chip (local ua-worker output, not tracked)
 **Model**: claude-opus-4-8
 **Thinking**: xhi
 **PermissionMode**: auto

@@ -232,7 +232,7 @@ a worker-state file under `.claude/state/` (untracked — per-machine ephemeral 
 | a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output) | Primary record (6 036 lines) |
 | `clients/encore/reports/delivered-artifacts-0811/` | Per-failure error-context/screenshots/traces (167 dirs) |
 | `clients/encore/reports/_preserved/delivered-regression-0811/` | Preserved HTML report. **Do not overwrite** |
-| `.claude/state/ua-worker/nm3344-cfgrisk-0811/result.md` | Config/fixture/reporter/script census, per-module test counts (rev 2) |
+| local nm3344 config-risk worker result (gitignored) | Config/fixture/reporter/script census, per-module test counts (rev 2) |
 | a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output) | 1.60 runner-source verification: worker churn, outputDir wipe, reporter replacement, `--no-deps`, merge-reports, E6/E7 re-read (rev 2) |
 | a worker-state file under `.claude/state/` (untracked — per-machine ephemeral output) | 96/96 failure census, crash table, final-URL census (rev 2) |
 | `.claude/state/ua-worker/nm3344-suiterepro-0811b/` | Contamination-kill differential experiment (rev 1) |

@@ -284,7 +284,7 @@ SP-30 (Allure) and SP-34 (handoff package) can ship immediately after SP-08 even
 - `export_test_cases/to-csv.ts` — converter (modified in SP-06).
 - `plans/pending/PLAN_REQUIREMENTS_DRIVEN_TEST_QUALITY_UPGRADE.md` — cross-reference for Local Info audit (do NOT duplicate).
 - `.claude/skills/standup/SKILL.md` — template for /today + /nextweek.
-- `.claude/skills/end-day/SKILL.md` — private-skill pattern reference.
+- Private end-day skill pattern (gitignored; path not portable) - private-skill pattern reference.
 - LR-034 (Bug Filing), LR-037 (activity-log timestamps), LR-038 (browser matrix), LR-040 (closure gate), LR-018 (spec-fixing workflow), LR-024 (artifacts + fresh run before RCA), LR-026 (Angular dirty-state).
 
 ---

@@ -55,4 +55,4 @@ Framework files edited this session (the mandate + recording slot + point-of-act
 - `grep -n "ALL-045" docs/read_only_docs/AGENT_SHARED_RULES.md` → hits the new rule.
 - `grep -rn "## Observations" .claude/rules/inventory.md` → hits the section definition.
 - `grep -c "HARD STOP #13\|HARD STOP #23\|HARD STOP #12" .claude/agents/{REQUIREMENTS,PLANNER,AUDIT}.md` → one each.
-- (After Part 2) `ls clients/encore/reports/bugs/BUG-CPR-DET-001.json`; `npm run check:tc-parity` exit 0.
+- (After Part 2) confirm the local CPR detail bug report exists; `npm run check:tc-parity` exit 0.

@@ -32,7 +32,7 @@ test case can name the requirement it enforces instead of encoding whatever the 
 on the day it was observed.
 
 It also repairs a defect in the 2026-08-13 repo census
-(`.claude/state/ua-worker/chips/nm1715/inv-0813/INVENTORY.md`). That census built its denominator
+(the nm1715 inventory worker chip output, local ua-worker state and not tracked). That census built its denominator
 from a **filename** regex (`location|local.?office|basic.?info`), so any artifact named for its
 concern rather than its module was invisible to it. That is how it missed
 `field-case-catalogs/launcher-dialogs-2026-06-11.md` — a catalog about this exact sub-module's Pay To
