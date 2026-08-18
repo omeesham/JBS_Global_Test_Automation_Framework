@@ -841,6 +841,7 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
+| 2026-08-18 | done | [PLAN_CLIENT_DELIVERABLE_REBUILD.md](done/PLAN_CLIENT_DELIVERABLE_REBUILD.md) | DONE |
 | 2026-08-18 | done | [PLAN_DELEGATION_CHEATPROOF.md](done/PLAN_DELEGATION_CHEATPROOF.md) | DONE |
 | 2026-08-17 | pending | [godsplan.md](pending/godsplan.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_60_JIRA_READONLY_HARDGATE.md](pending/PLAN_60_JIRA_READONLY_HARDGATE.md) | PENDING |
@@ -880,4 +881,3 @@ When completing a plan:
 | 2026-08-17 | pending | [PLAN_HIS012_EXTERNAL_AUDIT.md](pending/PLAN_HIS012_EXTERNAL_AUDIT.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_LAZY_CEO_DELEGATOR.md](pending/PLAN_LAZY_CEO_DELEGATOR.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_LM_HISTORY_COVERAGE.md](pending/PLAN_LM_HISTORY_COVERAGE.md) | GATED |
-| 2026-08-17 | pending | [PLAN_NM1715_LOC_BASIC_INFO_COVERAGE.md](pending/PLAN_NM1715_LOC_BASIC_INFO_COVERAGE.md) | PENDING |
