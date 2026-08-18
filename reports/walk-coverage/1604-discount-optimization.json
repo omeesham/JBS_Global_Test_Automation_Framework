@@ -2051,31 +2051,31 @@
     "struct:button|Resize column locationName|div/div/table/thead/tr/th": {
       "type": null,
       "resolved": false,
-      "evidence": "",
+      "evidence": "non_probeable: tag=BUTTON role=",
       "probe": "unresolved"
     },
     "struct:th|Allow Special Rate|div/div/div/table/thead/tr": {
       "type": null,
       "resolved": false,
-      "evidence": "",
-      "probe": "unresolved"
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
     },
     "struct:button|Resize column allowSpecialRate|div/div/table/thead/tr/th": {
       "type": null,
       "resolved": false,
-      "evidence": "",
+      "evidence": "non_probeable: tag=BUTTON role=",
       "probe": "unresolved"
     },
     "struct:th|Special Rate Start Date|div/div/div/table/thead/tr": {
       "type": null,
       "resolved": false,
-      "evidence": "",
-      "probe": "unresolved"
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
     },
     "struct:button|Resize column startAllowSpecialRate|div/div/table/thead/tr/th": {
       "type": null,
       "resolved": false,
-      "evidence": "",
+      "evidence": "non_probeable: tag=BUTTON role=",
       "probe": "unresolved"
     },
     "struct:button|Remove The Abbey Resort|div/table/tbody/tr/td/div": {
@@ -2763,6 +2763,6 @@
     "element_count": 131,
     "raw_before_collapse": 134,
     "halt_reasons": [],
-    "content_sha256": "550d8fb5ca467683d101459c3ff73e5d3612e7275befceba0e7ff2972e0758a2"
+    "content_sha256": "e62bbd4ad63a138bdad31637976195997d4c39b2a523e3f3593c9d2c19992350"
   }
 }
