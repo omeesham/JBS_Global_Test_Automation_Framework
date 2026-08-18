@@ -522,6 +522,88 @@ function gitOldContent(repoRoot, relPath) {
   return gitShow(repoRoot, `HEAD:${relPath}`);
 }
 
+// ---------- merge-exempt logic ----------
+
+/**
+ * Detect whether a merge is in progress by asking git for MERGE_HEAD.
+ * Uses `git rev-parse` (works with linked worktrees where .git is a file).
+ * Returns null if no merge, or an array of merge-head SHAs (≥1 for octopus).
+ */
+export function detectMergeHeads(repoRoot) {
+  try {
+    const raw = execSync('git rev-parse -q --verify MERGE_HEAD', {
+      cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    if (!raw.trim()) return null;
+    // MERGE_HEAD can contain multiple lines (octopus merge)
+    const heads = raw.trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    return heads.length > 0 ? heads : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Get the blob SHA of a path at a given tree-ish, or null if it doesn't exist.
+ */
+function blobAt(repoRoot, treeish, relPath) {
+  try {
+    const out = execSync(`git rev-parse "${treeish}:${relPath}"`, {
+      cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    return out.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * During a merge, filter out staged files that arrived unchanged from any parent.
+ * A file is exempt iff its index blob matches the blob at that path in HEAD or
+ * any MERGE_HEAD. Returns { exempt: string[], graded: files[] }.
+ */
+export function filterMergeExempt(repoRoot, files, mergeHeads) {
+  // Collect parent refs: HEAD + all merge heads
+  let headSha;
+  try {
+    headSha = execSync('git rev-parse HEAD', {
+      cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    headSha = null;
+  }
+  const parentRefs = [headSha, ...mergeHeads].filter(Boolean);
+
+  const exempt = [];
+  const graded = [];
+
+  for (const f of files) {
+    const indexBlob = blobAt(repoRoot, ':0', f.path);
+    if (!indexBlob) {
+      // Cannot resolve index blob — grade it (deny-safe)
+      graded.push(f);
+      continue;
+    }
+
+    let matchedParent = false;
+    for (const parent of parentRefs) {
+      const parentBlob = blobAt(repoRoot, parent, f.path);
+      if (parentBlob && parentBlob === indexBlob) {
+        matchedParent = true;
+        break;
+      }
+    }
+
+    if (matchedParent) {
+      exempt.push(f.path);
+    } else {
+      graded.push(f);
+    }
+  }
+
+  return { exempt, graded };
+}
+
 function gitStagedContent(repoRoot, relPath) {
   return gitShow(repoRoot, `:${relPath}`);
 }
@@ -776,6 +858,24 @@ function main() {
     const source = args.fixturePath ? `fixture ${args.fixturePath}` : 'git diff --cached';
     console.log(`[check-tc-has-fieldinventory] skip — no staged test-case markdowns found (source: ${source})`);
     process.exit(0);
+  }
+
+  // ── Merge-exempt filtering (TICKET-g78-V22): during a merge, exempt files ──
+  // whose index blob is byte-identical to any parent (HEAD or MERGE_HEAD).
+  // These arrived unchanged from upstream — staleness is upstream's problem.
+  if (!args.fixturePath) {
+    const mergeHeads = detectMergeHeads(args.repoRoot);
+    if (mergeHeads) {
+      const { exempt, graded } = filterMergeExempt(args.repoRoot, files, mergeHeads);
+      for (const p of exempt) {
+        console.log(`[fieldinventory] SKIP ${p} — arrived unchanged via merge, staleness belongs upstream`);
+      }
+      files = graded;
+      if (files.length === 0) {
+        console.log('[check-tc-has-fieldinventory] skip — all staged TC files are merge-exempt (unchanged from parent)');
+        process.exit(0);
+      }
+    }
   }
 
   if (args.verbose) {
