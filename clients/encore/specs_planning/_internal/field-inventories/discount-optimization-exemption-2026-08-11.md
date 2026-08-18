@@ -21,6 +21,15 @@
 > Start Date**. This is a display-label change only; the underlying field and its Yes/No values are
 > unchanged. The observations below are preserved verbatim as recorded on their date and deliberately keep
 > the original column names.
+>
+> **Re-verified 2026-08-18** — the live e2e grid still renders these two columns as **Allow Special Rate**
+> and **Special Rate Start Date**; the 2026-08-12 re-labelling above is still current and no further drift
+> has occurred. Evidence: `TC-DOP-OPT-002` in
+> `clients/encore/tests/discount-optimization/discount-optimization-locations.spec.ts` asserts this exact
+> four-header set and passes. Corroborated by a live enumeration on the same date, which emitted the header
+> keys `struct:th|Allow Special Rate|...` and `struct:th|Special Rate Start Date|...`, and by the app's
+> own internal field names `allowSpecialRate` / `startAllowSpecialRate`, which never changed. The
+> observation rows below remain deliberately preserved under their original column names, per the note above.
 
 This file covers **Tab 2 — Special Rate Exemptions by Service Type**. The companion file
 `discount-optimization-locations-2026-08-11.md` covers Tab 1 — Discount Optimization (the Locations grid).
