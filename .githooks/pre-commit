@@ -84,7 +84,8 @@ fi
 # the behavioural content (Steps / Expected / Data / Preconditions). Metadata,
 # comments, and the MCP_VERIFICATION_LOG pass through.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/specs_planning/test-cases/.+\.md$'; then
+     | grep -E '^clients/[^/]+/specs_planning/test-cases/.+\.md$' \
+     | filter_authored_files "§2-tc-field-inventory" | grep -q .; then
   echo "[pre-commit] test-case MD changed — checking paired field-inventory artifact"
   node scripts/check-tc-has-fieldinventory.mjs
 fi
@@ -116,7 +117,8 @@ fi
 # and on the ID-grammar registry / blocked-reasons — parity now carries the
 # semantic guardrails 6/7 which key on those files.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/testcases/.+\.xlsx$|^export_test_cases/(module-codes|blocked-reasons)\.json$'; then
+     | grep -E '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/testcases/.+\.xlsx$|^export_test_cases/(module-codes|blocked-reasons)\.json$' \
+     | filter_authored_files "§5-tc-parity" | grep -q .; then
   echo "[pre-commit] spec file staged → running check:tc-parity (ALL-071)..." >&2
   if ! npm run --silent check:tc-parity; then
     echo "[pre-commit] HALT: ALL-071 parity gap. Fix MD/test-plan/XLSX before commit." >&2
@@ -134,7 +136,8 @@ fi
 # generators are committed (Check B). Fires whenever ANY workbook input is staged: a spec,
 # a test-case MD, the workbook itself, the builder, or blocked-reasons.json.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/specs_planning/test-cases/.+\.md$|^clients/[^/]+/testcases/.+\.xlsx$|^export_test_cases/.+\.(ts|json)$'; then
+     | grep -E '^clients/[^/]+/tests/.*\.spec\.ts$|^clients/[^/]+/specs_planning/test-cases/.+\.md$|^clients/[^/]+/testcases/.+\.xlsx$|^export_test_cases/.+\.(ts|json)$' \
+     | filter_authored_files "§5a-xlsx-freshness" | grep -q .; then
   echo "[pre-commit] workbook input staged → running xlsx freshness gate (rebuild + diff)..." >&2
   if ! npm run --silent xlsx:freshness; then
     echo "[pre-commit] HALT: the deliverable workbook is stale or was built from uncommitted generators." >&2
@@ -150,7 +153,8 @@ fi
 # vocab (data-testid, BUG-LI-NNN, spec helpers, backend symbols, MCP-N verified
 # dates, NM-NNN tickets, bare YYYY-MM-DD audit markers) in the shipped TC content.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '(^clients/[^/]+/testcases/.+\.xlsx$|^clients/[^/]+/specs_planning/test-cases/.+\.md$)'; then
+     | grep -E '(^clients/[^/]+/testcases/.+\.xlsx$|^clients/[^/]+/specs_planning/test-cases/.+\.md$)' \
+     | filter_authored_files "§5b-xlsx-vocab-lint" | grep -q .; then
   echo "[pre-commit] TC MD or XLSX staged → running xlsx vocab lint (Phase D gate)..." >&2
   if ! node scripts/xlsx-vocab-lint.mjs; then
     echo "[pre-commit] HALT: client-deliverable workbook contains internal/agent vocab." >&2
@@ -168,7 +172,8 @@ fi
 # now (the script exits 0 by default); ratchet to --enforce or --baseline once the
 # suite is confirmed clean (mirrors the C6 off→announce→deny measured rollout).
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+     | grep -E '^clients/[^/]+/tests/.*\.spec\.ts$' \
+     | filter_authored_files "§5c-vacuous-grid" | grep -q .; then
   echo "[pre-commit] spec file staged → scanning for vacuous grid loops (ALL-092, warn-only)..." >&2
   node scripts/check-vacuous-grid-assertions.mjs || true
 fi
@@ -180,7 +185,8 @@ fi
 # enable-only gap). Sibling of the ALL-071 parity gate; calls node directly (no npm script,
 # so no package.json edit). --staged scopes the gate to registered specs that are staged.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+     | grep -E '^clients/[^/]+/tests/.*\.spec\.ts$' \
+     | filter_authored_files "§5d-save-route-parity" | grep -q .; then
   echo "[pre-commit] spec file staged → running save-route parity (LR-066)..." >&2
   if ! node scripts/check-save-route-parity.mjs --staged; then
     echo "[pre-commit] HALT: a save-capable sibling route is not exercising a real Save (LR-066)." >&2
@@ -197,7 +203,8 @@ fi
 # the known gaps are waived pending their FCC subplan; new unguarded save-specs fail. --staged scopes
 # the gate to registered/save-capable specs that are staged.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+     | grep -E '^clients/[^/]+/tests/.*\.spec\.ts$' \
+     | filter_authored_files "§5e-per-test-baseline" | grep -q .; then
   echo "[pre-commit] spec file staged → running per-test baseline gate (LR-019)..." >&2
   if ! node scripts/check-per-test-baseline.mjs --staged; then
     echo "[pre-commit] HALT: a save-capable describe lacks a per-test baseline (LR-019)." >&2
@@ -214,7 +221,8 @@ fi
 # or a retry loop) and carries no `// save-verify-exempt:` marker. Sibling of Gate 5d (LR-066) / 5e
 # (LR-019); node-direct (no npm script). --staged scopes to staged page objects.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/src/pages/.*\.ts$'; then
+     | grep -E '^clients/[^/]+/src/pages/.*\.ts$' \
+     | filter_authored_files "§5f-save-honesty" | grep -q .; then
   echo "[pre-commit] page object staged → running save-honesty gate (LR-067)..." >&2
   if ! node scripts/check-save-honesty.mjs --staged; then
     echo "[pre-commit] HALT: a save primitive lies, or a restore persists shared state without verifying (LR-067)." >&2
@@ -229,7 +237,8 @@ fi
 # setTimeout sleep flakes and never confirms the transition it waits for — use expect.poll /
 # waitForFunction / waitFor instead. A legitimate prove-a-negative settle is exempt via `// sleep-ok:`.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+     | grep -E '^clients/[^/]+/tests/.*\.spec\.ts$' \
+     | filter_authored_files "§5g-spec-sleeps" | grep -q .; then
   echo "[pre-commit] spec file staged → scanning for fixed sleeps (spec-sleeps gate)..." >&2
   if ! node scripts/check-spec-sleeps.mjs --enforce; then
     echo "[pre-commit] HALT: a spec uses a fixed sleep. Replace with expect.poll / waitForFunction /" >&2
@@ -243,7 +252,8 @@ fi
 # unanchored digit regex (toMatch(/\d/)), and count>=0 tautologies — assertions that pass for
 # almost any value and so give false confidence.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+     | grep -E '^clients/[^/]+/tests/.*\.spec\.ts$' \
+     | filter_authored_files "§5h-unfailable-assertions" | grep -q .; then
   echo "[pre-commit] spec file staged → scanning for unfailable assertions..." >&2
   if ! node scripts/check-unfailable-assertions.mjs --enforce; then
     echo "[pre-commit] HALT: a spec has an assertion that cannot fail (swallow-to-benign, unanchored" >&2
@@ -257,7 +267,8 @@ fi
 # click / reload / save silently discards a real failure — annotate intentional best-effort swallows
 # with a `best-effort:` comment (a settle-only waitFor catch is not flagged).
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/src/pages/.*\.ts$'; then
+     | grep -E '^clients/[^/]+/src/pages/.*\.ts$' \
+     | filter_authored_files "§5i-swallowed-failures" | grep -q .; then
   echo "[pre-commit] page object staged → scanning for swallowed failures..." >&2
   if ! node scripts/check-swallowed-failures.mjs --enforce; then
     echo "[pre-commit] HALT: an empty catch on a click/reload/save discards a real failure." >&2
@@ -270,7 +281,8 @@ fi
 # Fires when a README.md or package.json is staged. A documented `npm run <name>` with no matching
 # script is a doc lie a collaborator will copy and hit.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '(^|/)README\.md$|(^|/)package\.json$'; then
+     | grep -E '(^|/)README\.md$|(^|/)package\.json$' \
+     | filter_authored_files "§5j-doc-script-parity" | grep -q .; then
   echo "[pre-commit] README/package.json staged → checking documented npm-run commands..." >&2
   if ! node scripts/check-doc-script-parity.mjs --enforce; then
     echo "[pre-commit] HALT: a README documents an 'npm run <name>' that its package.json lacks." >&2
@@ -284,7 +296,8 @@ fi
 # followed (within the method) by waitForAngularStable races the Angular re-bootstrap. Probe reloads
 # (`.reload(...).catch`) and reload closures are exempt; `// reload-wait-exempt:` overrides.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/src/pages/.*\.ts$'; then
+     | grep -E '^clients/[^/]+/src/pages/.*\.ts$' \
+     | filter_authored_files "§5k-reload-wait" | grep -q .; then
   echo "[pre-commit] page object staged → checking reloads stabilize the app..." >&2
   if ! node scripts/check-reload-wait.mjs --enforce; then
     echo "[pre-commit] HALT: a page.reload() is not followed by waitForAngularStable (race risk)." >&2
@@ -300,7 +313,8 @@ fi
 # module)" findings are INFO (internal use), not failures. Offline / tool-unavailable → WARN + pass
 # (never wedge a commit offline). Fail-green on the clean tree (12 baseline findings allowlisted).
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/(src|tests)/.*\.ts$'; then
+     | grep -E '^clients/[^/]+/(src|tests)/.*\.ts$' \
+     | filter_authored_files "§5l-dead-export" | grep -q .; then
   echo "[pre-commit] client source staged → running dead-export gate (ts-prune)..." >&2
   if ! node scripts/check-dead-exports.mjs --staged; then
     echo "[pre-commit] HALT: a staged client file exports a symbol nobody imports (dead export)." >&2
@@ -316,7 +330,8 @@ fi
 # fresh open()). Such a reset pins the last test's mutated state as the baseline for the next test.
 # Fail-green on the clean tree (the 2026-07-06 fleet audit found zero); catches a future regression.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/tests/.*\.spec\.ts$'; then
+     | grep -E '^clients/[^/]+/tests/.*\.spec\.ts$' \
+     | filter_authored_files "§5m-weak-reset" | grep -q .; then
   echo "[pre-commit] spec file staged → running weak-reset gate (LR-019/LR-067)..." >&2
   if ! node scripts/check-weak-reset.mjs --staged; then
     echo "[pre-commit] HALT: a save-capable describe resets by saving without restoring a baseline (weak reset)." >&2
@@ -331,7 +346,8 @@ fi
 # cannot see the live DOM, and LR-029 says only a live-DOM check decides whether a testid truly exists,
 # so this reminds — it never blocks (the golden rule explicitly allows a tracked fallback). Always exit 0.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/src/selectors/.*\.ts$'; then
+     | grep -E '^clients/[^/]+/src/selectors/.*\.ts$' \
+     | filter_authored_files "§5n-testid-preference" | grep -q .; then
   echo "[pre-commit] selector file staged → testid-preference reminder (gate #9, warn-only)..." >&2
   node scripts/check-testid-preference.mjs --staged || true
 fi
@@ -343,7 +359,8 @@ fi
 # do not call .page.<accessor>...<action> directly (which prints raw locator code as a step title).
 # --staged scopes the check to the about-to-commit files.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/(src/fixtures/pages\.fixture\.ts|src/pages/.*\.page\.ts|tests/.*\.spec\.ts)$'; then
+     | grep -E '^clients/[^/]+/(src/fixtures/pages\.fixture\.ts|src/pages/.*\.page\.ts|tests/.*\.spec\.ts)$' \
+     | filter_authored_files "§5o-step-label" | grep -q .; then
   echo "[pre-commit] fixture/page-object/spec staged → step-label readability gate..." >&2
   if ! node scripts/check-step-labels.mjs --enforce --staged; then
     echo "[pre-commit] HALT: step-label readability gate failed (unwrapped fixture / jargon label / raw .page. action)." >&2
@@ -359,7 +376,7 @@ fi
 # rows ADDED in this commit's staged diff — the only rows where backdating can be
 # introduced. This kills the false-positive class where a LATER commit legitimately
 # re-touches a file an OLDER, already-committed row referenced (LR-037 fix 2026-07-06).
-if git diff --cached --name-only --diff-filter=ACMR | grep -qE 'agent-activity-log\.md$'; then
+if git diff --cached --name-only --diff-filter=ACMR | grep -E 'agent-activity-log\.md$' | filter_authored_files "§6-activity-log" | grep -q .; then
   echo "[pre-commit] activity-log staged → validating LR-037 timestamps (staged rows)..." >&2
   if ! node scripts/validate-activity-log.mjs --staged --quiet; then
     echo "[pre-commit] HALT: activity-log row backdated relative to referenced file mtimes (LR-037)." >&2
@@ -414,7 +431,8 @@ fi
 # --- 8) Enforcement-claim lint (announce mode — LR-069 ramp). -------------------
 # Fires when any rule/doc/skill markdown in the claim corpus is staged.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^(CLAUDE\.md|\.claude/rules/|docs/read_only_docs/|\.claude/skills/|clients/[^/]+/CLAUDE\.md)'; then
+     | grep -E '^(CLAUDE\.md|\.claude/rules/|docs/read_only_docs/|\.claude/skills/|clients/[^/]+/CLAUDE\.md)' \
+     | filter_authored_files "§8-enforcement-claims" | grep -q .; then
   echo "[pre-commit] rule/doc/skill file staged → checking enforcement claims (announce)..." >&2
   node scripts/check-enforcement-claims.mjs --announce
 fi
@@ -435,7 +453,8 @@ fi
 # Sev: S1 (quality drift to commit/ship). Fires only on staged test-case MDs via --staged
 # so the pre-existing backlog does not block unrelated commits.
 if git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^clients/[^/]+/specs_planning/test-cases/.+\.md$'; then
+     | grep -E '^clients/[^/]+/specs_planning/test-cases/.+\.md$' \
+     | filter_authored_files "§10-tc-md-lint" | grep -q .; then
   # Guard: ts-node must be available (devDependency; absent after npm install --production).
   if [ ! -f node_modules/.bin/ts-node ] && ! command -v ts-node >/dev/null 2>&1; then
     echo "[pre-commit] WARNING: ts-node not available — skipping lint:testcases. Run 'npm install'." >&2
@@ -455,7 +474,8 @@ fi
 # Fires on staged added/renamed paths in shippable client scopes — catches ticket IDs
 # used as file/directory basenames before they reach the repo.
 if git diff --cached --name-only --diff-filter=AR \
-     | grep -qE '^clients/[^/]+/(tests|testcases|src|config|specs_planning/test-cases)/'; then
+     | grep -E '^clients/[^/]+/(tests|testcases|src|config|specs_planning/test-cases)/' \
+     | filter_authored_files "§LR-073-structural-names" | grep -q .; then
   echo "[pre-commit] shippable path added/renamed → running structural-names gate (LR-073)..." >&2
   if ! node scripts/lib/check-structural-names.mjs --staged; then
     echo "[pre-commit] HALT: LR-073 — rename using a feature-based name, not a ticket ID." >&2
@@ -468,7 +488,8 @@ fi
 # SHEET_NAMES/SHEET_DISPLAY_NAMES — the source of the original incident. These files live outside
 # clients/ and are Modified, not Added/Renamed, so the client-path trigger above never fires for them.
 if git diff --cached --name-only \
-     | grep -qE '^export_test_cases/(module-codes\.json|to-xlsx\.ts)$'; then
+     | grep -E '^export_test_cases/(module-codes\.json|to-xlsx\.ts)$' \
+     | filter_authored_files "§LR-073-structural-names-registry" | grep -q .; then
   echo "[pre-commit] registry/exporter file staged → running structural-names gate (LR-073)..." >&2
   if ! node scripts/lib/check-structural-names.mjs --staged; then
     echo "[pre-commit] HALT: LR-073 — rename using a feature-based name, not a ticket ID." >&2
