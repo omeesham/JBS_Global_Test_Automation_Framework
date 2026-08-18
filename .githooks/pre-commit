@@ -4,11 +4,79 @@
 
 set -e
 
+# --- 0) Merge-aware authored-file helper (LR-069, S0). ---------------------------
+# Graduating incident: two colleagues blocked by upstream plan defects during merge
+# (2026-08-18). The hook's staged-file model never modelled merge commits — convicted
+# scoped-wrong per guardrail-policy.md §3.5.
+#
+# During a merge, a staged file whose index blob is byte-identical to the same path
+# in ANY parent (HEAD or any MERGE_HEAD hash) is "not authored" — it arrived unchanged
+# and must not be graded. Files matching no parent ARE authored (conflict resolutions,
+# edits made mid-merge). With no merge in progress, every staged file is authored.
+#
+# Usage: is_authored_file <path>  → returns 0 (authored) or 1 (not authored, exempt)
+_MERGE_IN_PROGRESS=""
+_MERGE_PARENTS=()
+if git rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1; then
+  _MERGE_IN_PROGRESS="yes"
+  _MERGE_PARENTS+=("HEAD")
+  while IFS= read -r _mh; do
+    _mh="${_mh%$'\r'}"
+    [ -n "$_mh" ] && _MERGE_PARENTS+=("$_mh")
+  done < "$(git rev-parse --git-path MERGE_HEAD)"
+fi
+
+is_authored_file() {
+  local file="$1"
+  # No merge → always authored
+  if [ -z "$_MERGE_IN_PROGRESS" ]; then
+    return 0
+  fi
+  # Get the staged blob id for this file
+  local staged_blob
+  staged_blob=$(git rev-parse ":0:$file" 2>/dev/null) || return 0
+  # Compare against each parent's blob at the same path
+  local parent parent_blob
+  for parent in "${_MERGE_PARENTS[@]}"; do
+    parent_blob=$(git rev-parse "$parent:$file" 2>/dev/null) || continue
+    if [ "$staged_blob" = "$parent_blob" ]; then
+      return 1  # Not authored — matches a parent
+    fi
+  done
+  return 0  # Authored — matches no parent
+}
+
+# Filter a list of files (stdin, one per line) to only authored files.
+# Prints exempt files with a SKIP message to stderr.
+filter_authored_files() {
+  local check_name="${1:-pre-commit}"
+  while IFS= read -r f; do
+    if is_authored_file "$f"; then
+      echo "$f"
+    else
+      echo "[pre-commit] SKIP $f — arrived unchanged via merge, not graded here (upstream's defect)" >&2
+    fi
+  done
+}
+
 # --- 1) Keep plans/INDEX.md in sync with plans/pending/ and plans/done/. --------
+# Merge-aware (2026-08-18): only reindex if at least one authored plan file is staged.
+# Non-authored (upstream-identical) plans must not trigger reindex — they are exempt.
 if git diff --cached --name-only | grep -qE '^plans/(pending|done)/.*\.md$'; then
-  echo "[pre-commit] plans changed — regenerating plans/INDEX.md"
-  node scripts/plans-reindex.mjs --quiet
-  git add plans/INDEX.md
+  _has_authored_plan=""
+  while IFS= read -r _pf; do
+    if is_authored_file "$_pf"; then
+      _has_authored_plan="yes"
+      break
+    else
+      echo "[pre-commit] SKIP reindex for $_pf — arrived unchanged via merge" >&2
+    fi
+  done < <(git diff --cached --name-only | grep -E '^plans/(pending|done)/.*\.md$')
+  if [ -n "$_has_authored_plan" ]; then
+    echo "[pre-commit] plans changed — regenerating plans/INDEX.md"
+    node scripts/plans-reindex.mjs --quiet
+    git add plans/INDEX.md
+  fi
 fi
 
 # --- 2) SP-AAE-02: block TC MD edits lacking a fresh field-inventory artifact. ---
@@ -304,9 +372,22 @@ fi
 # Uses --staged (pre-commit blob mode) so the validator sees the about-to-be-committed
 # content, not the working-tree content. Only fires when a plan file is staged.
 # Defense-in-depth alongside PreToolUse plan-closure-gate.sh (catches git CLI / external editor commits).
+# Merge-aware (2026-08-18): non-authored plan files are passed via --skip-paths so the
+# validator excludes them without index surgery. No index mutation on the grading path.
 if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^plans/(pending|done)/.*\.md$'; then
+  _closure_skip_args=()
+  if [ -n "$_MERGE_IN_PROGRESS" ]; then
+    while IFS= read -r _pf; do
+      [[ "$_pf" =~ ^plans/(pending|done)/.*\.md$ ]] || continue
+      if ! is_authored_file "$_pf"; then
+        echo "[pre-commit] SKIP $_pf — arrived unchanged via merge, not graded here (upstream's defect)" >&2
+        _closure_skip_args+=("--skip-path=${_pf}")
+      fi
+    done < <(git -c core.quotePath=false diff --cached --name-only --diff-filter=ACMR)
+  fi
+  # Run closure check (validator skips exempt paths internally)
   echo "[pre-commit] plan file staged → running validate-plan-closure (LR-027 + LR-040)..." >&2
-  if ! node scripts/validate-plan-closure.mjs --staged --enforce; then
+  if ! node scripts/validate-plan-closure.mjs --staged --enforce "${_closure_skip_args[@]}"; then
     echo "[pre-commit] HALT: plan Status flip without Execution Summary OR closure-gate (a/b/c) gap." >&2
     exit 1
   fi
@@ -315,14 +396,18 @@ fi
 # --- 7b) Citation-deliverability check (announce mode — LR-069 ramp). -----------
 # Fires on staged plan files. Warns about non-deliverable citations (gitignored/untracked).
 # Respects citation_deliverability_mode knob: off = skip, announce = warn, deny = block.
+# Merge-aware: skips non-authored plan files (same logic as section 7).
 if git diff --cached --name-only --diff-filter=ACMR | grep -qE '^plans/(pending|done)/.*\.md$'; then
   _cd_mode=$(node -e "try{const c=JSON.parse(require('fs').readFileSync('.claude/guardrail-config.json','utf-8'));console.log(c.citation_deliverability_mode||'announce')}catch{console.log('announce')}" 2>/dev/null)
   if [ "$_cd_mode" != "off" ]; then
     echo "[pre-commit] plan file staged → checking citation deliverability (${_cd_mode})..." >&2
-    _cd_files=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^plans/(pending|done)/.*\.md$')
-    for _cd_f in $_cd_files; do
-      node scripts/check-citation-deliverability.mjs --file "$_cd_f"
-    done
+    while IFS= read -r _cd_f; do
+      if is_authored_file "$_cd_f"; then
+        node scripts/check-citation-deliverability.mjs --file "$_cd_f"
+      else
+        echo "[pre-commit] SKIP $_cd_f — arrived unchanged via merge, not graded here (upstream's defect)" >&2
+      fi
+    done < <(git diff --cached --name-only --diff-filter=ACMR | grep -E '^plans/(pending|done)/.*\.md$')
   fi
 fi
 

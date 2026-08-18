@@ -2048,3 +2048,7 @@ Append-only audit trail per LR-028. Format: `| YYYY-MM-DDThh:mm | agent | status
 | 2026-08-18T19:42 | CEO/copilot-worker | dispatch | (none) | [delegation] v29-c3-vouch-universally.md — gpt-5.5 build ok=true |
 | 2026-08-18T19:51 | CEO/copilot-worker | dispatch | (none) | [delegation] v33r-collab-tooling-bugs-corrected.md — gpt-5.5 build ok=true |
 | 2026-08-18T19:56 | CEO/copilot-worker | dispatch | (none) | [delegation] v36-mergeguard-prove-it.md — gpt-5.5 build ok=true |
+| 2026-08-18T20:10 | CEO/copilot-worker | dispatch | (none) | [delegation] v38-silent-pass-and-dup-parser.md — gpt-5.5 build ok=true |
+| 2026-08-18T20:30 | CEO/copilot-worker | dispatch | (none) | [delegation] v37-mergeguard-land-skippaths.md — claude-opus-4.6 build ok=true |
+| 2026-08-18T20:38 | CEO/copilot-worker | dispatch | (none) | [delegation] v39-prepush-instrument-then-fix.md — claude-opus-4.6 rca ok=true |
+| 2026-08-18T20:42 | CEO/copilot-worker | dispatch | (none) | [delegation] v40-case4-and-closure-parser.md — claude-opus-4.6 build ok=true |
