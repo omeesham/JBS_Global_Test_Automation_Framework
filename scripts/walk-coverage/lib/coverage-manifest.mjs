@@ -28,6 +28,7 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { isAbsolute, join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseMcpSessionDateField } from '../../lib/mcp-session-date.mjs';
 
 // REPO_ROOT = three levels up from this lib file (scripts/walk-coverage/lib/).
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -71,7 +72,8 @@ const ALL_DISPOSITIONS = ['covered-by-TC', 'affordance-probed', 'read-only-verif
 export function parseCoverageSignals(text) {
   const t = text || '';
   // Tolerate optional **bold** wrappers on frontmatter keys (real artifacts use both forms — SA-2).
-  const mcpDate = (t.match(/(?:\*\*)?MCP_Session_Date(?:\*\*)?\s*:\s*(\d{4}-\d{2}-\d{2})/i) || [])[1] || '';
+  const parsedSessionDate = parseMcpSessionDateField(t);
+  const mcpDate = parsedSessionDate.status === 'parsed' ? parsedSessionDate.sessionDate : '';
   const walkModeM = t.match(/(?:\*\*)?Walk_Mode(?:\*\*)?\s*:\s*(quick|deep)\b/i);
   const walkMode = walkModeM ? walkModeM[1].toLowerCase() : 'deep';
   const hasManifest = /^#{2,3}\s+Coverage Manifest/im.test(t) || /(?:\*\*)?Coverage_Ratio(?:\*\*)?\s*:/i.test(t);

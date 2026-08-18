@@ -19,7 +19,7 @@ import {
 
 function makeTmpRepo() { return fs.mkdtempSync(path.join(os.tmpdir(), 'aae05-stale-')); }
 
-function writeArtifact(repoRoot, { client = 'encore', module: moduleName, sessionDate, filenameDate, omitMcpDate = false }) {
+function writeArtifact(repoRoot, { client = 'encore', module: moduleName, sessionDate, filenameDate, omitMcpDate = false, plainMcpDate = false, rawMcpDateLine = null }) {
   const fnDate = filenameDate || sessionDate;
   const dir = path.join(repoRoot, 'clients', client, 'specs_planning', '_internal', 'field-inventories');
   fs.mkdirSync(dir, { recursive: true });
@@ -28,7 +28,8 @@ function writeArtifact(repoRoot, { client = 'encore', module: moduleName, sessio
     `**Module**: ${moduleName}`,
     `**Client**: ${client}`,
   ];
-  if (!omitMcpDate) lines.push(`**MCP_Session_Date**: ${sessionDate}`);
+  if (rawMcpDateLine !== null) lines.push(rawMcpDateLine);
+  else if (!omitMcpDate) lines.push(`${plainMcpDate ? '' : '**'}MCP_Session_Date${plainMcpDate ? '' : '**'}: ${sessionDate}`);
   lines.push(
     `**MCP_Session_Tool**: Claude in Chrome`,
     `**MCP_Tool_Reason**: test fixture`,
@@ -119,6 +120,22 @@ test('halt when MCP_Session_Date missing from frontmatter', () => {
   const arts = scanClient({ repoRoot: repo, client: 'encore', today: '2026-04-25', warnDays: 14, haltDays: 30 });
   assertEq(arts[0].verdict, 'halt');
   assertEq(arts[0].note, 'missing-mcp-session-date');
+});
+
+test('reads plain MCP_Session_Date frontmatter', () => {
+  const repo = makeTmpRepo();
+  writeArtifact(repo, { module: 'mod-a', sessionDate: '2026-04-25', plainMcpDate: true });
+  const arts = scanClient({ repoRoot: repo, client: 'encore', today: '2026-04-25', warnDays: 14, haltDays: 30 });
+  assertEq(arts[0].verdict, 'fresh');
+  assertEq(arts[0].sessionDate, '2026-04-25');
+});
+
+test('halt distinctly when MCP_Session_Date is present but unreadable', () => {
+  const repo = makeTmpRepo();
+  writeArtifact(repo, { module: 'mod-a', sessionDate: '2026-04-25', rawMcpDateLine: '**MCP_Session_Date**: yesterday' });
+  const arts = scanClient({ repoRoot: repo, client: 'encore', today: '2026-04-25', warnDays: 14, haltDays: 30 });
+  assertEq(arts[0].verdict, 'halt');
+  assert(arts[0].note.startsWith('unreadable-mcp-session-date:'), `expected unreadable note, got ${arts[0].note}`);
 });
 
 test('halt when filename date != MCP_Session_Date', () => {

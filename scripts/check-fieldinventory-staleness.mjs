@@ -4,7 +4,7 @@
  *
  * Walks every field-inventory artifact at
  *   clients/<client>/specs_planning/_internal/field-inventories/*.md
- * and parses the **MCP_Session_Date** frontmatter line. For each artifact,
+ * and parses the optional-bold MCP_Session_Date frontmatter line. For each artifact,
  * computes age vs `today` and emits a verdict:
  *
  *   age <= 14 days        → fresh   (silent in default output)
@@ -39,6 +39,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseMcpSessionDateField } from './lib/mcp-session-date.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_REPO_ROOT = path.resolve(__dirname, '..');
@@ -46,7 +47,6 @@ const DEFAULT_REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_WARN_DAYS = 14;
 const DEFAULT_HALT_DAYS = 30;
 const ARTIFACT_FILENAME_RE = /^(.+)-(\d{4}-\d{2}-\d{2})\.md$/;
-const MCP_SESSION_DATE_RE = /^\*\*MCP_Session_Date\*\*:\s*(\d{4}-\d{2}-\d{2})\s*$/m;
 
 // ---------- arg parsing ----------
 function parseArgs(argv) {
@@ -127,16 +127,21 @@ export function scanClient({ repoRoot, client, today, warnDays, haltDays }) {
 
     const full = path.join(dir, f);
     const content = fs.readFileSync(full, 'utf8');
-    const fmMatch = content.match(MCP_SESSION_DATE_RE);
+    const parsedSessionDate = parseMcpSessionDateField(content);
 
     let sessionDate, ageDays, verdict, note;
-    if (!fmMatch) {
+    if (parsedSessionDate.status === 'missing') {
       sessionDate = null;
       ageDays = Infinity;
       verdict = 'halt';
       note = 'missing-mcp-session-date';
+    } else if (parsedSessionDate.status === 'unreadable') {
+      sessionDate = null;
+      ageDays = Infinity;
+      verdict = 'halt';
+      note = `unreadable-mcp-session-date: ${parsedSessionDate.rawValue || '(empty)'}`;
     } else {
-      sessionDate = fmMatch[1];
+      sessionDate = parsedSessionDate.sessionDate;
       ageDays = daysBetween(sessionDate, today);
       if (sessionDate !== filenameDate) {
         verdict = 'halt';

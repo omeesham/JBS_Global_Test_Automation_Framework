@@ -79,6 +79,9 @@ ok('date one day before landing IS grandfathered', isGrandfathered('2026-06-18',
 const sig = parseCoverageSignals('**Coverage_Ratio**: 12/12 (100%)\n**CrossCheck**: clean\n## Coverage Manifest\n');
 ok('parser handles bolded frontmatter', sig.ratioComplete && sig.crossCheckClean && sig.hasManifest);
 
+const plainDateSig = parseCoverageSignals('MCP_Session_Date: 2026-06-20\nCoverage_Ratio: 1/1 (100%)\nCrossCheck: clean\n## Coverage Manifest\n');
+ok('parser handles plain MCP_Session_Date frontmatter', plainDateSig.mcpDate === '2026-06-20', `got: ${plainDateSig.mcpDate}`);
+
 // === Provenance sub-gate (SUBPLAN_CGS_B) — dates ON/AFTER 2026-06-24 are provenance-gated ===
 // Build a 100%/clean header so provenance is the only variable. Default ratio matches row count.
 const provHeader = (date, rows, ratio = '1/1 (100%)', options = {}) =>

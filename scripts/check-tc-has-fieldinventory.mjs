@@ -58,6 +58,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { parseMcpSessionDateField } from './lib/mcp-session-date.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_REPO_ROOT = path.resolve(__dirname, '..');
@@ -302,9 +303,9 @@ export function findLatestArtifact({ repoRoot, client, module: moduleName, today
 
     const full = path.join(dir, f);
     const content = fs.readFileSync(full, 'utf8');
-    const fmMatch = content.match(/^\*\*MCP_Session_Date\*\*:\s*(\d{4}-\d{2}-\d{2})\s*$/m);
-    if (!fmMatch) continue;
-    const sessionDate = fmMatch[1];
+    const parsedSessionDate = parseMcpSessionDateField(content);
+    if (parsedSessionDate.status !== 'parsed') continue;
+    const sessionDate = parsedSessionDate.sessionDate;
 
     const ageDays = daysBetween(sessionDate, today);
     const fresh = ageDays >= 0 && ageDays <= freshnessDays;
