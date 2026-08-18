@@ -310,6 +310,34 @@ function checkC2(body) {
 const CITED_PATH_RX_PLAIN = /(?<![A-Za-z0-9_])((?:\.[a-zA-Z]|[a-zA-Z0-9_-])(?:[a-zA-Z0-9_.-]|[\/\\])+\.(?:png|jpg|jpeg|mp4|webm|zip|json|trace|yml|yaml|html|svg|gif|pdf|log|txt|har|xml|md|csv|diff|patch))(?![A-Za-z0-9_])/g;
 const CITED_PATH_RX_MD = /\[[^\]]*\]\(([^)]+\.(?:png|jpg|jpeg|mp4|webm|zip|json|trace|yml|yaml|html|svg|gif|pdf|log|txt|har|xml|md|csv|diff|patch))\)/g;
 
+/**
+ * Check whether a repo-relative path is covered by a .gitignore rule.
+ * Uses `git check-ignore` which works even when the file does not exist on disk.
+ * Exit codes: 0 = ignored, 1 = not ignored, 128+ = error.
+ * On error, returns false (fail-closed: treat as not ignored → FAIL verdict preserved).
+ */
+function isPathGitignored(repoRelativePath) {
+  try {
+    execSync(`git check-ignore -q -- "${repoRelativePath.replace(/"/g, '\\"')}"`, {
+      cwd: REPO_ROOT,
+      stdio: 'pipe',
+    });
+    // Exit 0 → path is ignored
+    return true;
+  } catch (err) {
+    if (err.status === 1) {
+      // Exit 1 → path is NOT ignored
+      return false;
+    }
+    // Any other exit code (128, etc.) is an unexpected error.
+    // Fail-closed: treat as not ignored so C3 still catches it.
+    process.stderr.write(
+      `[C3] WARNING: git check-ignore returned unexpected exit code ${err.status} for "${repoRelativePath}"\n`
+    );
+    return false;
+  }
+}
+
 function extractCitedPaths(body) {
   const paths = new Set();
   const lines = body.split('\n');
@@ -398,6 +426,14 @@ function checkC3(body, planPath) {
     if (manifest && manifest.artifacts) {
       const match = manifest.artifacts.find(a => normalizePath(a.path) === resolved);
       if (match) continue;
+    }
+
+    // C3 gitignore-aware: a missing path that is gitignored cannot exist on any clone,
+    // so it is not a dead reference — it is an expected absence. Use `git check-ignore`
+    // which works even when the file does not exist on disk.
+    if (isPathGitignored(resolved)) {
+      items.push({ path: resolved, status: 'gitignored-missing', severity: 'INFO' });
+      continue;
     }
 
     items.push({ path: resolved, status: 'missing', severity: 'FAIL' });
