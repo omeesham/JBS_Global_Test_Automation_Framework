@@ -188,8 +188,9 @@ export const MODULE_CONFIG = {
     // No tab activation: Tab 1 is already the default, so there is nothing to activate.
     // (An earlier note here blamed the Tab-1 click for the undercount. That was wrong -- removing
     // the click changed nothing. The real cause was the ungated initial scan, fixed at the goto.)
-    // tbody tr - only resolves once a real data row has painted. Gates the initial resting scan.
-    contentMarker: 'tbody tr',
+    // The Locations grid IS the resting tab, so its 'tbody tr' marker is present at rest -- opt in to
+    // the initial-scan gate. (restingContentMarker, not contentMarker: this surface has no opener path.)
+    restingContentMarker: 'tbody tr',   // only resolves once a real data row has painted
     openerTestidPatterns: [],
     excludeOptionRoles: true,
     ...MC_DATA['discount-optimization-locations'],
@@ -198,8 +199,10 @@ export const MODULE_CONFIG = {
   'discount-optimization': {
     urlGroup: 'discount-optimization-settings',
     path: (office) => `${BASE}/locations/${office}/settings/discount-optimization-settings`,
-    // tbody tr - only resolves after virtual scroll paints at least one data row.
-    contentMarker: 'tbody tr',
+    // Tab 1 (Locations grid) is the resting tab, so 'tbody tr' is present at rest -> gate the initial
+    // scan on it. contentMarker keeps gating the Tab-2 opener path below (Tab 2 is also a tbody grid).
+    restingContentMarker: 'tbody tr',   // gates the initial resting scan (cycle 0)
+    contentMarker: 'tbody tr',          // gates the Tab-2 opener activation (cycle 1)
     openerTestidPatterns: [],
     // Tab 2 is activated as an OPENER, so this surface enumerates the whole page: Tab 1 at rest
     // (cycle 0) PLUS Tab 2's controls (cycle 1). Live 2026-08-18: 92 + 39 = 131.
@@ -1004,14 +1007,21 @@ async function main() {
     // A stability-based readiness can return during the quiet window BEFORE an async grid paints.
     // Observed live 2026-08-18 on discount-optimization-settings: for the SAME url, cycle 0 scanned
     // 117 DOM nodes on one run and 1042 on another, so the resting denominator came out 9 vs 95.
-    // contentMarker previously gated only the opener/tab path, never this initial resting scan --
-    // so a module could declare exactly the right marker and still be measured mid-render. When a
-    // module declares one, hold here until it resolves. Throws rather than enumerating a partial load.
-    if (cfg && cfg.contentMarker) {
+    //
+    // The gate keys off `restingContentMarker` -- a DISTINCT, opt-in key -- NOT the general
+    // `contentMarker`. The two are not the same thing: `contentMarker` gates the opener/tab path
+    // (e.g. service-charge's 'text=Modified By' lives on the History TAB, absent at rest), whereas
+    // `restingContentMarker` names a selector present on the INITIAL resting page. Keying the
+    // initial-scan gate on the general `contentMarker` broke every module whose marker is opener-only:
+    // verified 2026-08-18, service-charge timed out 120s waiting for 'Modified By' that never paints
+    // at rest, turning its known-good denominator (29) into a crash. So a module must opt in
+    // explicitly -- only then do we hold here until the resting marker resolves. Throws rather than
+    // enumerating a partial load; modules that never set the key keep their prior readiness unchanged.
+    if (cfg && cfg.restingContentMarker) {
       try {
-        await page.waitForSelector(cfg.contentMarker, { timeout: 120000 });
+        await page.waitForSelector(cfg.restingContentMarker, { timeout: 120000 });
       } catch {
-        throw new Error(`[WAIT_READY_TIMEOUT] initial content gate timed out after 120000ms: module "${moduleName}" contentMarker "${cfg.contentMarker}" never appeared after goto. Refusing to enumerate a partial page load.`);
+        throw new Error(`[WAIT_READY_TIMEOUT] initial content gate timed out after 120000ms: module "${moduleName}" restingContentMarker "${cfg.restingContentMarker}" never appeared after goto. Refusing to enumerate a partial page load.`);
       }
     }
     if (isLoginRedirect(page.url())) {
