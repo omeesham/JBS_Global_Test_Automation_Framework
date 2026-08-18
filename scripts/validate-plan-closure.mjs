@@ -34,7 +34,7 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, renameSync, appendFileSync } from 'node:fs';
 import { resolve, join, dirname, basename, relative, sep } from 'node:path';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { coverageVerdict, COVERAGE_GATE_LANDING_DATE } from './walk-coverage/lib/coverage-manifest.mjs';
@@ -311,18 +311,43 @@ const CITED_PATH_RX_PLAIN = /(?<![A-Za-z0-9_])((?:\.[a-zA-Z]|[a-zA-Z0-9_-])(?:[a
 const CITED_PATH_RX_MD = /\[[^\]]*\]\(([^)]+\.(?:png|jpg|jpeg|mp4|webm|zip|json|trace|yml|yaml|html|svg|gif|pdf|log|txt|har|xml|md|csv|diff|patch))\)/g;
 
 /**
- * Check whether a repo-relative path is covered by a .gitignore rule.
- * Uses `git check-ignore` which works even when the file does not exist on disk.
+ * Check whether a repo-relative path is covered by a PORTABLE .gitignore rule.
+ * Uses `git check-ignore -v` (no shell) to get the source file of the match,
+ * then accepts only matches from tracked .gitignore files — rules in
+ * .git/info/exclude or a user's global excludes file are local-only and would
+ * not apply in a colleague's clone, so those paths fall back to strict (FAIL).
+ *
+ * Defect 1 fix (g78-V17): execFileSync with argv array — no shell, so
+ * backticks, $(), quotes, semicolons in path names are never interpreted.
+ * Defect 2 fix (g78-V17): only portable .gitignore sources accepted.
+ *
  * Exit codes: 0 = ignored, 1 = not ignored, 128+ = error.
  * On error, returns false (fail-closed: treat as not ignored → FAIL verdict preserved).
  */
 function isPathGitignored(repoRelativePath) {
   try {
-    execSync(`git check-ignore -q -- "${repoRelativePath.replace(/"/g, '\\"')}"`, {
+    const out = execFileSync('git', ['check-ignore', '-v', '--', repoRelativePath], {
       cwd: REPO_ROOT,
-      stdio: 'pipe',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      encoding: 'utf-8',
     });
-    // Exit 0 → path is ignored
+    // Exit 0 → path is ignored by some rule. Parse the source file.
+    // Format: <source>:<linenum>:<pattern>\t<pathname>
+    // Accept only if source is a tracked .gitignore (not .git/info/exclude,
+    // not a global excludes file, not an empty/unrecognizable source).
+    const sourceFile = parseCheckIgnoreSource(out);
+    if (!sourceFile) {
+      process.stderr.write(
+        `[C3] WARNING: git check-ignore -v output not parseable for "${repoRelativePath}", treating as not ignored (fail-closed)\n`
+      );
+      return false;
+    }
+    if (!isPortableIgnoreSource(sourceFile)) {
+      process.stderr.write(
+        `[C3] INFO: "${repoRelativePath}" ignored by local-only rule in ${sourceFile}, treating as not ignored (not portable)\n`
+      );
+      return false;
+    }
     return true;
   } catch (err) {
     if (err.status === 1) {
@@ -336,6 +361,78 @@ function isPathGitignored(repoRelativePath) {
     );
     return false;
   }
+}
+
+/**
+ * Parse the source file from `git check-ignore -v` output.
+ * Format: <source>:<linenum>:<pattern>\t<pathname>
+ * Returns the source file path, or null if unparseable.
+ */
+function parseCheckIgnoreSource(output) {
+  if (!output || typeof output !== 'string') return null;
+  const line = output.split('\n')[0];
+  if (!line) return null;
+  // The format uses tab to separate the rule part from the pathname.
+  // The rule part is <source>:<linenum>:<pattern>.
+  // Source itself may contain colons (e.g., C:\...) on Windows — split from
+  // the right: find the tab first, then parse the left side.
+  const tabIdx = line.indexOf('\t');
+  const rulePart = tabIdx >= 0 ? line.slice(0, tabIdx) : line;
+  // Split rulePart as <source>:<linenum>:<pattern>.
+  // linenum is always numeric. Find the LAST two colons where the middle
+  // segment is numeric to handle Windows drive-letter paths (C:\foo).
+  const colonPositions = [];
+  for (let i = 0; i < rulePart.length; i++) {
+    if (rulePart[i] === ':') colonPositions.push(i);
+  }
+  // Need at least two colons: source:linenum:pattern
+  if (colonPositions.length < 2) return null;
+  // Try pairs of colons from the end to handle colons in the source path
+  for (let j = colonPositions.length - 1; j >= 1; j--) {
+    const patternStart = colonPositions[j] + 1;
+    const lineNumStart = colonPositions[j - 1] + 1;
+    const lineNumStr = rulePart.slice(lineNumStart, colonPositions[j]);
+    if (/^\d+$/.test(lineNumStr)) {
+      return rulePart.slice(0, colonPositions[j - 1]);
+    }
+  }
+  return null;
+}
+
+/**
+ * Check whether a check-ignore source file is portable (exists in every clone).
+ * Tracked .gitignore files are portable. .git/info/exclude and global excludes are not.
+ */
+function isPortableIgnoreSource(sourceFile) {
+  if (!sourceFile) return false;
+  // .git/info/exclude is never cloned
+  const normalized = sourceFile.replace(/\\/g, '/');
+  if (normalized.includes('.git/info/exclude')) return false;
+  // Global excludes file — typically outside the repo (home dir). If the source
+  // is not under REPO_ROOT, it cannot be a tracked file.
+  const repoRootNorm = REPO_ROOT.replace(/\\/g, '/');
+  if (!normalized.startsWith(repoRootNorm + '/') && !normalized.startsWith('./') && !isRelativeToRepo(normalized)) {
+    return false;
+  }
+  // Must be a .gitignore file (at any depth) that git tracks.
+  // Resolve to repo-relative and check with git ls-files.
+  const absSource = resolve(REPO_ROOT, sourceFile);
+  const relSource = relative(REPO_ROOT, absSource).replace(/\\/g, '/');
+  try {
+    const tracked = execFileSync('git', ['ls-files', '--', relSource], {
+      cwd: REPO_ROOT,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      encoding: 'utf-8',
+    });
+    return tracked.trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+/** Helper: check if a path is relative (no drive letter, no leading /) */
+function isRelativeToRepo(p) {
+  return !(/^[A-Za-z]:/.test(p) || p.startsWith('/'));
 }
 
 function extractCitedPaths(body) {
