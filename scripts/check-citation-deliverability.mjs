@@ -20,7 +20,7 @@
 import { readFileSync, existsSync, mkdirSync, writeFileSync, unlinkSync, readdirSync, rmdirSync } from 'node:fs';
 import { resolve, join, dirname, basename, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { fireTelemetry } from '../.claude/hooks/lib/hook-utils.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -87,13 +87,13 @@ function normalizePath(p) {
 function getGitStatus(repoRelPath) {
   // First check if tracked (git ls-files returns the path if tracked)
   try {
-    const out = execSync(`git ls-files -- "${repoRelPath}"`, { cwd: ROOT, encoding: 'utf-8', timeout: 5000 }).trim();
+    const out = execFileSync('git', ['ls-files', '--', repoRelPath], { cwd: ROOT, encoding: 'utf-8', timeout: 5000 }).trim();
     if (out.length > 0) return 'tracked';
   } catch { /* fall through */ }
 
   // Check if gitignored
   try {
-    execSync(`git check-ignore -q -- "${repoRelPath}"`, { cwd: ROOT, encoding: 'utf-8', timeout: 5000 });
+    execFileSync('git', ['check-ignore', '-q', '--', repoRelPath], { cwd: ROOT, encoding: 'utf-8', timeout: 5000 });
     return 'ignored'; // exit 0 = ignored
   } catch (e) {
     // exit 1 = not ignored; exit 128 = error

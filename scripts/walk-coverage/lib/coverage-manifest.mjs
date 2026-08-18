@@ -106,28 +106,19 @@ function splitTableRow(line) {
   const inner = line.replace(/^\s*\|/, '').replace(/\|\s*$/, '');
   const cells = [];
   let current = '';
+  let inCodeSpan = false;
   for (let i = 0; i < inner.length; i++) {
-    if (inner[i] === '\\' && i + 1 < inner.length) {
-      if (inner[i + 1] === '|') {
-        // Count consecutive backslashes before this position
-        let bsCount = 1;
-        let j = i - 1;
-        while (j >= 0 && inner[j] === '\\') { bsCount++; j--; }
-        // Odd backslash count (including this one): the pipe is escaped
-        // Even count: backslashes pair off, the pipe is a real delimiter
-        if (bsCount % 2 === 1) {
-          current += '\\|';
-          i++; // skip the bar
-        } else {
-          current += '\\';
-        }
-      } else if (inner[i + 1] === '\\') {
-        current += '\\';
-        // don't skip — next iteration handles the second backslash
-      } else {
-        current += '\\';
+    if (inner[i] === '`') {
+      inCodeSpan = !inCodeSpan;
+      current += inner[i];
+    } else if (inner[i] === '|' && !inCodeSpan) {
+      let bsCount = 0;
+      let j = i - 1;
+      while (j >= 0 && inner[j] === '\\') { bsCount++; j--; }
+      if (bsCount % 2 === 1) {
+        current += inner[i];
+        continue;
       }
-    } else if (inner[i] === '|') {
       cells.push(current);
       current = '';
     } else {

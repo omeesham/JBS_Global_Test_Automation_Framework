@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * validate-tcs.mjs — pre-flight check that a --tcs selector is accepted by
+ * validate-tcs.mjs — unwired helper intended to check that a --tcs selector is accepted by
  * BOTH spec-trim and xlsx-trim parsers and that they produce identical ID sets.
  *
- * Called from ship-branch.sh BEFORE any archiving so a syntax mismatch is
- * caught in well under a second, not after the expensive git-archive + trim.
+ * Not wired into ship-branch.sh. Do not treat this as delivery-path
+ * protection unless a future change explicitly wires and verifies it.
  *
  * Exit 0 = both parsers agree.  Exit 1 = mismatch or parse error.
  *

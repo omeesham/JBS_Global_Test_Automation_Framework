@@ -154,6 +154,104 @@ function pickRandom(arr, n) {
   return selected;
 }
 
+function probeEvidencePath(rawPath) {
+  return isAbsolute(rawPath) ? rawPath : resolve(REPO_ROOT, rawPath);
+}
+
+function validateProbeEvidence(state, moduleName, jsonPath, data, reasons) {
+  const evidence = state.evidence || '';
+  const m = evidence.match(/^probe:([^#]+)#(.+)$/);
+  if (!m) {
+    reasons.push(`probe evidence for "${state.label}" is malformed`);
+    return;
+  }
+
+  const [, rawPath, fragment] = m;
+  if (fragment !== state.label) {
+    reasons.push(`probe evidence fragment mismatch: expected "${state.label}", got "${fragment}"`);
+    return;
+  }
+
+  const artifactPath = probeEvidencePath(rawPath);
+  if (!existsSync(artifactPath)) {
+    reasons.push(`probe evidence not found: ${artifactPath}`);
+    return;
+  }
+
+  let probeData;
+  try {
+    probeData = JSON.parse(readFileSync(artifactPath, 'utf-8'));
+  } catch (err) {
+    reasons.push(`probe evidence not valid JSON: ${artifactPath} (${err.message})`);
+    return;
+  }
+
+  const entry = probeData?.[fragment];
+  if (!entry || typeof entry !== 'object') {
+    reasons.push(`probe evidence missing entry for "${fragment}"`);
+    return;
+  }
+
+  const requiredFields = [
+    'module',
+    'state_label',
+    'walk_artifact',
+    'trigger',
+    'observed_keys_before',
+    'observed_keys_after',
+    'generated_by',
+    'generated_at',
+    'git_head',
+  ];
+  const missingFields = requiredFields.filter(field => {
+    const value = entry[field];
+    if (Array.isArray(value)) return value.length === 0;
+    return value == null || value === '';
+  });
+  if (missingFields.length > 0) {
+    reasons.push(`probe evidence missing/empty fields for "${state.label}": ${missingFields.join(', ')}`);
+    return;
+  }
+
+  if (entry.module !== moduleName) {
+    reasons.push(`probe evidence module mismatch for "${state.label}": expected "${moduleName}", got "${entry.module}"`);
+    return;
+  }
+  if (entry.state_label !== state.label) {
+    reasons.push(`probe evidence state_label mismatch: expected "${state.label}", got "${entry.state_label}"`);
+    return;
+  }
+  if (resolve(entry.walk_artifact) !== resolve(jsonPath)) {
+    reasons.push(`probe evidence walk_artifact binding mismatch for "${state.label}": expected "${jsonPath}", got "${entry.walk_artifact}"`);
+    return;
+  }
+
+  const restingKeys = new Set(data.entries.map(e => normalize(e.key)).filter(Boolean));
+  if (restingKeys.size === 0) {
+    reasons.push(`probe evidence resting inventory missing for "${state.label}"`);
+    return;
+  }
+
+  const beforeKeys = entry.observed_keys_before.map(normalize).filter(Boolean);
+  const afterKeys = entry.observed_keys_after.map(normalize).filter(Boolean);
+  const newKeys = afterKeys.filter(key => !beforeKeys.includes(key));
+  if (newKeys.length === 0) {
+    reasons.push(`probe evidence no new keys for "${state.label}"`);
+    return;
+  }
+
+  const beforeNotInResting = beforeKeys.filter(key => !restingKeys.has(key));
+  if (beforeNotInResting.length > 0) {
+    reasons.push(`probe evidence observed_keys_before not in resting inventory for "${state.label}": ${beforeNotInResting.join(', ')}`);
+    return;
+  }
+
+  const afterNotInResting = afterKeys.filter(key => !restingKeys.has(key));
+  if (afterNotInResting.length === 0) {
+    reasons.push(`probe evidence no keys absent from resting inventory for "${state.label}"`);
+  }
+}
+
 // ---- verifyDenominator ----------------------------------------------------------------------
 /**
  * Verify the machine-enumerated denominator against the coverage manifest.
@@ -214,7 +312,7 @@ export function verifyDenominator(artifactText, jsonPath) {
   }
 
   // 6. requiredStates — parse Walk_State from artifactText, compare against MODULE_REQUIRED_STATES.
-  const walkLineM = artifactText.match(/Walk_State\s*:\s*([^\n]+)/i);
+  const walkLineM = artifactText.match(/(?:\*\*)?Walk_State(?:\*\*)?\s*:\s*([^\n]+)/i);
   if (!walkLineM) {
     reasons.push('Walk_State line missing/unparseable — cannot verify required states');
   } else {
@@ -230,9 +328,14 @@ export function verifyDenominator(artifactText, jsonPath) {
       );
       const requiredStates = MODULE_REQUIRED_STATES[moduleName]?.requiredStates ?? null;
       if (requiredStates !== null) {
-        for (const { label } of requiredStates) {
+        for (const state of requiredStates) {
+          const { label } = state;
           if (!walkedLabels.has(label)) {
-            reasons.push(`required walk state missing: "${label}" (module: ${moduleName})`);
+            if (state.evidence?.startsWith('probe:')) {
+              validateProbeEvidence(state, moduleName, jsonPath, data, reasons);
+            } else {
+              reasons.push(`required walk state missing: "${label}" (module: ${moduleName})`);
+            }
           }
         }
         // Item 1(c): a resting-only declaration must cite evidence (enumeration run reference).

@@ -32,7 +32,7 @@
 //   exit 2 (UNCHECKABLE) and the catch hard-coded FAIL. Cr/Ci now carry a third status,
 //   UNCHECKABLE, which is reported but never folds into the plan verdict.
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, renameSync, appendFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, renameSync, appendFileSync, statSync } from 'node:fs';
 import { resolve, join, dirname, basename, relative, sep } from 'node:path';
 import { execSync, execFileSync } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
@@ -187,7 +187,7 @@ function gitExec(cmd, opts = {}) {
 
 // === SHA-256 helper ===
 function sha256(content) {
-  return createHash('sha256').update(content, 'utf-8').digest('hex');
+  return createHash('sha256').update(content).digest('hex');
 }
 
 // === Config hash (validator regex fingerprint) ===
@@ -470,6 +470,48 @@ function normalizePath(p) {
   return p.replace(/\\/g, '/');
 }
 
+function resolveRepoPathFromCitation(rawP) {
+  const norm = normalizePath(rawP);
+  let resolved = norm;
+  if (/^[A-Z]:[\/]/.test(rawP) || rawP.startsWith('/')) {
+    const rel = relative(REPO_ROOT, rawP.replace(/\\/g, sep));
+    if (rel.startsWith('..')) return null;
+    resolved = normalizePath(rel);
+  }
+  return resolved;
+}
+
+function collectVouchableIgnoredArtifacts(body, planPath) {
+  const artifacts = [];
+  const seen = new Set();
+  const planBasename = basename(planPath);
+  for (const rawP of extractCitedPaths(body)) {
+    const norm = normalizePath(rawP);
+    if (/^https?:\/\//.test(norm)) continue;
+    if (!norm.includes('/')) continue;
+    if (/^node_modules\/|^dist\/|^build\/|^coverage\//.test(norm)) continue;
+    if (/<|>|\{|\}/.test(norm)) continue;
+    if (/^[A-Z][A-Z0-9_]*_(?:DIR|PATH|ROOT)\//.test(norm)) continue;
+    if (/(?:^|\/)(?:foo|bar|baz|qux|example|placeholder|sample)\.[a-z]+$/i.test(norm)) continue;
+    if (/^(?:Users|home)\/[^/]+\/\.claude\//i.test(norm)) continue;
+    if (/^~\//.test(rawP) || /^~\//.test(norm)) continue;
+    if (/^\.claude\/plans\//.test(norm)) continue;
+    if (norm === `plans/done/${planBasename}`) continue;
+    if (norm === `plans/pending/${planBasename}`) continue;
+    if (norm === `plans/_closure_manifests/${planBasename}.manifest.json`) continue;
+    const resolved = resolveRepoPathFromCitation(rawP);
+    if (!resolved || seen.has(resolved)) continue;
+    const absPath = join(REPO_ROOT, resolved);
+    if (!existsSync(absPath)) continue;
+    if (!isPathGitignored(resolved)) continue;
+    const fileStat = statSync(absPath);
+    if (!fileStat.isFile()) continue;
+    artifacts.push({ path: resolved, sha256: sha256(readFileSync(absPath)) });
+    seen.add(resolved);
+  }
+  return artifacts;
+}
+
 function checkC3(body, planPath) {
   const rawPaths = extractCitedPaths(body);
   const planBasename = basename(planPath);
@@ -507,29 +549,31 @@ function checkC3(body, planPath) {
     if (norm === `plans/pending/${planBasename}`) continue;
     if (norm === `plans/_closure_manifests/${planBasename}.manifest.json`) continue;
 
-    let resolved = norm;
-    if (/^[A-Z]:[\/]/.test(rawP) || rawP.startsWith('/')) {
-      const rel = relative(REPO_ROOT, rawP.replace(/\\/g, sep));
-      if (rel.startsWith('..')) {
-        items.push({ path: rawP, status: 'external-path', severity: 'WARN' });
-        continue;
-      }
-      resolved = normalizePath(rel);
+    const resolvedPath = resolveRepoPathFromCitation(rawP);
+    if (!resolvedPath) {
+      items.push({ path: rawP, status: 'external-path', severity: 'WARN' });
+      continue;
     }
+    const resolved = resolvedPath;
 
     const absPath = join(REPO_ROOT, resolved);
     if (existsSync(absPath)) continue;
 
-    if (manifest && manifest.artifacts) {
-      const match = manifest.artifacts.find(a => normalizePath(a.path) === resolved);
-      if (match) continue;
-    }
-
-    // C3 gitignore-aware: a missing path that is gitignored cannot exist on any clone,
-    // so it is not a dead reference — it is an expected absence. Use `git check-ignore`
-    // which works even when the file does not exist on disk.
+    // C3 gitignore-aware: a missing path that is gitignored cannot exist on any clone.
+    // A tracked closure manifest is therefore required to carry the author's vouch
+    // that the file existed where the plan was closed.
     if (isPathGitignored(resolved)) {
-      items.push({ path: resolved, status: 'gitignored-missing', severity: 'INFO' });
+      const vouched = manifest && manifest.artifacts && manifest.artifacts.find(a => normalizePath(a.path) === resolved);
+      if (vouched) {
+        items.push({ path: resolved, status: 'gitignored-vouched', severity: 'INFO' });
+        continue;
+      }
+      items.push({
+        path: resolved,
+        status: 'gitignored-unvouched',
+        severity: 'FAIL',
+        message: `Cited path "${resolved}" is absent and gitignored. The path must be listed in ${basename(manifestPath)} artifacts. Run --write-manifest where the file exists, or remove the citation.`,
+      });
       continue;
     }
 
@@ -1388,7 +1432,7 @@ function writeManifestFile(planPath, body, result) {
     validator_config_sha256: configHash(),
     validator_self_hash: selfHash(),
     validator_invocation_id: invocationId,
-    artifacts: [],
+    artifacts: collectVouchableIgnoredArtifacts(body, planPath),
     provisional: false,
   };
 
@@ -1831,6 +1875,93 @@ function runSelfTest() {
     } else {
       console.log(`  [FAIL] ${tc.name}: ${tc.file} → plan ${result.status}, ${tc.expectCheck} ${check ? check.status : 'missing'}; expected plan ${tc.expectPlan}, ${tc.expectCheck} ${tc.expectCheckStatus}`);
       failed++;
+    }
+  }
+
+  // Targeted C3 voucher assertions (TICKET-g78-V29): missing portable-ignored paths
+  // require a tracked manifest voucher, even when the plan has no manifest.
+  const c3Cases = [
+    {
+      name: 'C3-IGNORED-VOUCHED-PASSES',
+      file: 'good-c3-gitignored-vouched.md',
+      expectPlan: 'PASS',
+      expectStatus: 'gitignored-vouched',
+    },
+    {
+      name: 'C3-IGNORED-UNVOUCHED-FAILS',
+      file: 'bad-c3-gitignored-unvouched.md',
+      expectPlan: 'FAIL',
+      expectStatus: 'gitignored-unvouched',
+    },
+    {
+      name: 'C3-IGNORED-NO-MANIFEST-FAILS',
+      file: 'good-c3-gitignored-no-manifest.md',
+      expectPlan: 'FAIL',
+      expectStatus: 'gitignored-unvouched',
+    },
+    {
+      name: 'C3-MISSING-NOT-IGNORED-FAILS',
+      file: 'bad-c3-missing-not-ignored.md',
+      expectPlan: 'FAIL',
+      expectStatus: 'missing',
+    },
+    {
+      name: 'C3-PRESENT-PASSES',
+      file: 'good-c3-present-artifact.md',
+      expectPlan: 'PASS',
+      expectStatus: null,
+    },
+  ];
+  for (const tc of c3Cases) {
+    const fixturePath = join(FIXTURE_DIR, tc.file);
+    if (!existsSync(fixturePath)) {
+      console.log(`  [FAIL] ${tc.name}: fixture missing: ${fixturePath}`);
+      failed++;
+      continue;
+    }
+    const body = readFileSync(fixturePath, 'utf-8');
+    const result = validatePlan(body, fixturePath, {
+      overrideMode: 'enforce', forceCheck: true, c6Mode: 'off', coverageMode: 'off',
+      testStatusMode: 'off', recurrenceTrialMode: 'off', interactionCoverageMode: 'off',
+    });
+    const c3 = (result.checks || []).find(c => c.check === 'C3');
+    const itemStatus = c3 && c3.items && c3.items[0] ? c3.items[0].status : null;
+    if (result.status === tc.expectPlan && itemStatus === tc.expectStatus) {
+      console.log(`  [PASS] ${tc.name}: ${tc.file} → plan ${result.status}, C3 item ${itemStatus}`);
+      passed++;
+    } else {
+      console.log(`  [FAIL] ${tc.name}: ${tc.file} → plan ${result.status}, C3 item ${itemStatus}; expected plan ${tc.expectPlan}, C3 item ${tc.expectStatus}`);
+      failed++;
+    }
+  }
+
+  // .git/info/exclude is local-only, so it must not authorize a missing citation.
+  const infoExcludeFixture = join(FIXTURE_DIR, 'bad-c3-info-exclude-only.md');
+  if (!existsSync(infoExcludeFixture)) {
+    console.log(`  [FAIL] C3-INFO-EXCLUDE-STRICT: fixture missing: ${infoExcludeFixture}`);
+    failed++;
+  } else {
+    const infoExcludePath = join(REPO_ROOT, '.git', 'info', 'exclude');
+    const originalExclude = existsSync(infoExcludePath) ? readFileSync(infoExcludePath, 'utf-8') : '';
+    try {
+      const marker = '\nout-info-exclude/local-only-c3-info-exclude-g78.txt\n';
+      writeFileSync(infoExcludePath, `${originalExclude}${originalExclude.endsWith('\n') ? '' : '\n'}${marker}`, 'utf-8');
+      const body = readFileSync(infoExcludeFixture, 'utf-8');
+      const result = validatePlan(body, infoExcludeFixture, {
+        overrideMode: 'enforce', forceCheck: true, c6Mode: 'off', coverageMode: 'off',
+        testStatusMode: 'off', recurrenceTrialMode: 'off', interactionCoverageMode: 'off',
+      });
+      const c3 = (result.checks || []).find(c => c.check === 'C3');
+      const itemStatus = c3 && c3.items && c3.items[0] ? c3.items[0].status : null;
+      if (result.status === 'FAIL' && itemStatus === 'missing') {
+        console.log('  [PASS] C3-INFO-EXCLUDE-STRICT: local-only ignored path → plan FAIL, C3 item missing');
+        passed++;
+      } else {
+        console.log(`  [FAIL] C3-INFO-EXCLUDE-STRICT: plan ${result.status}, C3 item ${itemStatus}; expected plan FAIL, C3 item missing`);
+        failed++;
+      }
+    } finally {
+      writeFileSync(infoExcludePath, originalExclude, 'utf-8');
     }
   }
 
