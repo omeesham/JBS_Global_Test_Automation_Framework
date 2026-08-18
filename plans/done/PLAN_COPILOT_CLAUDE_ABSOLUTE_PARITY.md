@@ -30,10 +30,10 @@ Until now Claude was the driver with access to everything (skills, rules, hooks,
 - Staged outside-repo control surface → `.claude/state/parity-staging/home/` (claude: settings/hooks/delegation/memory; copilot: agents). **Re-run the staging block below if `find .claude/state/parity-staging -type f | wc -l` is 0.**
 - Authored 6 tickets in `~/.claude/delegation/tickets/`:
   - **Wave 1 (dispatched, background, council-worker/sonnet-4.6, --work-type research)**:
-    - `TICKET-parity-claude-inv.md` → run-id `parity-claude-inv` → `.claude/state/parity-recon/CLAUDE_CAPABILITY_INVENTORY.md`
-    - `TICKET-parity-copilot-inv.md` → run-id `parity-copilot-inv` → `.claude/state/parity-recon/COPILOT_WORKER_RUNTIME_INVENTORY.md`
-    - `TICKET-parity-plans-sweep.md` → run-id `parity-plans-sweep` → `.claude/state/parity-recon/PLANS_AND_INFLIGHT_MAP.md`
-    - `TICKET-parity-bughunt.md` → run-id `parity-bughunt` → `.claude/state/parity-recon/DELEGATION_STACK_BUGS.md`
+    - `TICKET-parity-claude-inv.md` → run-id `parity-claude-inv` → the Claude capability inventory in the local parity-recon store
+    - `TICKET-parity-copilot-inv.md` → run-id `parity-copilot-inv` → the Copilot worker runtime inventory in the local parity-recon store
+    - `TICKET-parity-plans-sweep.md` → run-id `parity-plans-sweep` → the plans-and-in-flight map in the local parity-recon store
+    - `TICKET-parity-bughunt.md` → run-id `parity-bughunt` → the delegation-stack bug list in the local parity-recon store
   - **Wave 2 (council-planner/opus-4.6)**:
     - `TICKET-parity-gap-matrix.md` → `PARITY_GAP_MATRIX.md` — **DONE** (52-row matrix, run `parity-gap-matrix`; verified inline by Opus during synthesis)
     - `TICKET-parity-inject-draft.md` → **HELD / SUPERSEDED** — NOT dispatched. Reason (Opus CEO call): the injection-design core is innovation-class (non-delegable, worker-ext CLAUDE-ONLY #9); AND a foreign session's `worker-skills-design-v2-0712` is actively revising the skills-routing core (RED-verdicted v1). Dispatching a competing opus inject-draft would collide + duplicate. Opus authored the design directly instead → `SUBPLAN_PARITY_INJECTION_SYSTEM.md`.
