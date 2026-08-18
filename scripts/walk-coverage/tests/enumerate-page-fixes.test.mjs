@@ -815,12 +815,19 @@ console.log('\nT-counts: occurrence counting in mergeEntries');
 // g78-V9 tests: URL-to-config resolution, hydration-131 mock
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// ─── T-url-resolves-config: pricing URL with --url only resolves pricing cfg ─
-console.log('\nT-url-resolves-config: pricing URL resolves to pricing config');
+// ─── T-url-resolves-config: pricing URL with --module resolves pricing cfg ───
+console.log('\nT-url-resolves-config: pricing URL with --module resolves to pricing config');
 {
   const BASE = 'https://cloudapps-e2e.encoreglobal.com/navigator';
   const pricingUrl = `${BASE}/locations/1604/settings/location`;
-  const rc = resolveRunConfig({ url: pricingUrl }, MODULE_CONFIG);
+  // URL-only resolves to pricing (no urlGroup siblings in production config — stand-in removed).
+  // The urlGroup mechanism is still tested with test-local fixtures in T-urlgroup-ambiguity below.
+  const rcAlone = resolveRunConfig({ url: pricingUrl }, MODULE_CONFIG);
+  assert('T-url-resolves-config: URL-only resolves pricing (no siblings)',
+    rcAlone.moduleName === 'pricing' && !rcAlone.error,
+    `got: ${JSON.stringify({ moduleName: rcAlone.moduleName, error: rcAlone.error, exitCode: rcAlone.exitCode })}`);
+  // With --module, resolves correctly
+  const rc = resolveRunConfig({ url: pricingUrl, module: 'pricing' }, MODULE_CONFIG);
   assert('T-url-resolves-config: moduleName=pricing', rc.moduleName === 'pricing',
     `got moduleName=${rc.moduleName}`);
   assert('T-url-resolves-config: cfg is not null', rc.cfg !== null,
@@ -873,7 +880,7 @@ console.log('\nT-provenance: resolved values reflect URL, not defaults');
 {
   const BASE = 'https://cloudapps-e2e.encoreglobal.com/navigator';
   const rc = resolveRunConfig(
-    { url: `${BASE}/locations/9999/settings/location` },
+    { url: `${BASE}/locations/9999/settings/location`, module: 'pricing' },
     MODULE_CONFIG
   );
   assert('T-provenance: office=9999 (from URL)', rc.office === '9999',
@@ -1047,7 +1054,10 @@ console.log('\nT-all-configs-own-path: each config resolves from its own generat
   for (const [name, cfg] of Object.entries(MODULE_CONFIG)) {
     let url;
     try { url = cfg.path(office); } catch { results.push({ name, status: 'SKIP (path() throws)' }); continue; }
-    const rc = resolveRunConfig({ url }, MODULE_CONFIG);
+    // Shared-URL configs (urlGroup) require --module; others resolve by URL alone
+    const rc = cfg.urlGroup
+      ? resolveRunConfig({ url, module: name }, MODULE_CONFIG)
+      : resolveRunConfig({ url }, MODULE_CONFIG);
     if (rc.error) {
       results.push({ name, status: `ERROR: ${rc.error}` });
     } else if (rc.moduleName !== name) {
@@ -1061,6 +1071,43 @@ console.log('\nT-all-configs-own-path: each config resolves from its own generat
     assert(`T-all-configs-own-path: ${r.name}`,
       r.status === 'OK', r.status);
   }
+}
+
+// ─── T-urlgroup-ambiguity: shared URL without --module refuses ───────────────
+console.log('\nT-urlgroup-ambiguity: shared-URL configs refuse URL-only resolution');
+{
+  const sharedConfig = {
+    tabA: { urlGroup: 'shared', path: (o) => `https://x.com/locations/${o}/page` },
+    tabB: { urlGroup: 'shared', path: (o) => `https://x.com/locations/${o}/page` },
+  };
+  const rc = resolveRunConfig(
+    { url: 'https://x.com/locations/1604/page' },
+    sharedConfig
+  );
+  assert('T-urlgroup-ambiguity: exitCode=2', rc.exitCode === 2,
+    `got exitCode=${rc.exitCode}`);
+  assert('T-urlgroup-ambiguity: error names tabA', rc.error && rc.error.includes('tabA'),
+    `error: ${rc.error}`);
+  assert('T-urlgroup-ambiguity: error names tabB', rc.error && rc.error.includes('tabB'),
+    `error: ${rc.error}`);
+  // With --module, resolves correctly
+  const rc2 = resolveRunConfig(
+    { url: 'https://x.com/locations/1604/page', module: 'tabB' },
+    sharedConfig
+  );
+  assert('T-urlgroup-ambiguity: --module=tabB resolves', rc2.moduleName === 'tabB',
+    `got moduleName=${rc2.moduleName}`);
+}
+
+// ─── T-no-silent-default: missing --module or --office errors ────────────────
+console.log('\nT-no-silent-default: no --module and no --url errors');
+{
+  const rc = resolveRunConfig({ office: '1604' }, MODULE_CONFIG);
+  assert('T-no-silent-default: missing --module → error', rc.exitCode === 2,
+    `got: ${JSON.stringify(rc)}`);
+  const rc2 = resolveRunConfig({ module: 'pricing' }, MODULE_CONFIG);
+  assert('T-no-silent-default: missing --office → error', rc2.exitCode === 2,
+    `got: ${JSON.stringify(rc2)}`);
 }
 
 console.log(`\n=== ${passed} passed, ${failed} failed ===`);

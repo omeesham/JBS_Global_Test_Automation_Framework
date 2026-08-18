@@ -75,6 +75,7 @@ function readGuardrailMode() {
 // whitelist makes the validated pricing path deterministic + bounded.
 export const MODULE_CONFIG = {
   pricing: {
+    urlGroup: 'location-settings',
     path: (office) => `${BASE}/locations/${office}/settings/location`,
     // Activate the Radix sub-tab by TESTID, not role — the pilot proved getByRole did not flip the
     // sub-tab; the trusted testid click does (O2). After click, wait for a pricing-content marker to
@@ -88,6 +89,19 @@ export const MODULE_CONFIG = {
     excludeOptionRoles: true,                   // cmdk option lists are NOT denominator elements (M2)
     ...MC_DATA.pricing,
   },
+
+  // ─── urlGroup example (for adding sibling sub-tabs that share pricing's URL) ───
+  // To add another Location Settings sub-tab surface, declare:
+  //   'location-<tab>': {
+  //     urlGroup: 'location-settings',          // groups surfaces sharing a URL
+  //     path: (office) => `${BASE}/locations/${office}/settings/location`,
+  //     activateTabs: ['<real-data-testid>'],    // Radix sub-tab testid (MCP-verified)
+  //     contentMarker: '[data-testid="<real>"]', // last-to-render marker (MCP-verified)
+  //     openerTestidPatterns: [],
+  //     excludeOptionRoles: true,
+  //     requiredStates: [{ label: 'resting' }],
+  //   },
+  // When two+ entries share a urlGroup, --url alone exits 2 requiring --module.
 
   // ===========================================================================================
   // Corporate Pricing — 5 surfaces (RCA M2: applies the existing LR-062 enumerator to the module
@@ -789,10 +803,24 @@ export function resolveRunConfig(inputArgs, moduleConfig) {
       const names = ties.map(m => m.name).join(', ');
       return { error: `--url matches multiple configs with equal specificity: ${names}. Use --module to disambiguate.`, exitCode: 2 };
     }
+    // urlGroup guard: if the winning config declares a urlGroup, check for siblings.
+    // A shared URL cannot identify a single surface — require --module.
+    if (best.cfg && best.cfg.urlGroup) {
+      const siblings = Object.entries(moduleConfig)
+        .filter(([n, c]) => c.urlGroup === best.cfg.urlGroup && n !== best.name)
+        .map(([n]) => n);
+      if (siblings.length > 0) {
+        const all = [best.name, ...siblings].sort().join(', ');
+        return { error: `URL maps to multiple surfaces sharing urlGroup "${best.cfg.urlGroup}": ${all}. Use --module to name the surface explicitly.`, exitCode: 2 };
+      }
+    }
     return { office, moduleName: best.name, cfg: best.cfg, url: inputArgs.url };
   }
-  const office = inputArgs.office || '1604';
-  const moduleName = inputArgs.module || 'pricing';
+  // No --url path: both --module and --office are required (no silent defaults).
+  if (!inputArgs.module) return { error: 'No --url and no --module specified. Provide --module=<name> to select a surface.', exitCode: 2 };
+  if (!inputArgs.office) return { error: 'No --url and no --office specified. Provide --office=<id>.', exitCode: 2 };
+  const office = inputArgs.office;
+  const moduleName = inputArgs.module;
   const cfg = moduleConfig[moduleName];
   if (!cfg) return { error: `No config for module "${moduleName}" and no --url given.`, exitCode: 2 };
   return { office, moduleName, cfg, url: cfg.path(office) };
