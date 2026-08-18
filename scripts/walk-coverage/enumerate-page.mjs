@@ -175,17 +175,34 @@ export const MODULE_CONFIG = {
     ...MC_DATA['service-charge'],
   },
 
-  'discount-optimization': {
+  // --- Discount Optimization Settings - TWO surfaces behind ONE URL ---
+  // Tab 1 (Locations grid) and Tab 2 (Special Rate Exemptions by Service Type) both answer to
+  // `/settings/discount-optimization-settings`. A single config can only ever finish on one tab, so
+  // whichever tab the walk ended on became the entire denominator - that is why this page reported
+  // 92 (Tab 1 only) or 48 (Tab 2 only) depending on invocation. They share a urlGroup, so `--url`
+  // alone exits 2 and demands `--module` rather than silently walking a sibling. Module names match
+  // the two dated field inventories this module already maintains.
+  'discount-optimization-locations': {
+    urlGroup: 'discount-optimization-settings',
     path: (office) => `${BASE}/locations/${office}/settings/discount-optimization-settings`,
-    // Tab 1 is the default; clicking it (already selected, aria-selected=true) forces
-    // activateTabByRoleText to enter the contentMarker-wait path immediately.
-    activateTabsByRoleText: [
-      { role: 'tab', text: 'Discount Optimization' },
-    ],
-    // tbody tr — only resolves after virtual scroll paints at least one data row.
+    // No tab activation: Tab 1 is already the default, so there is nothing to activate.
+    // (An earlier note here blamed the Tab-1 click for the undercount. That was wrong -- removing
+    // the click changed nothing. The real cause was the ungated initial scan, fixed at the goto.)
+    // tbody tr - only resolves once a real data row has painted. Gates the initial resting scan.
     contentMarker: 'tbody tr',
     openerTestidPatterns: [],
-    // Tab 2 activated as an opener so its columns enter the denominator on cycle 1.
+    excludeOptionRoles: true,
+    ...MC_DATA['discount-optimization-locations'],
+  },
+
+  'discount-optimization': {
+    urlGroup: 'discount-optimization-settings',
+    path: (office) => `${BASE}/locations/${office}/settings/discount-optimization-settings`,
+    // tbody tr - only resolves after virtual scroll paints at least one data row.
+    contentMarker: 'tbody tr',
+    openerTestidPatterns: [],
+    // Tab 2 is activated as an OPENER, so this surface enumerates the whole page: Tab 1 at rest
+    // (cycle 0) PLUS Tab 2's controls (cycle 1). Live 2026-08-18: 92 + 39 = 131.
     openerRoleTextPatterns: [
       { role: 'tab', text: 'Special Rate Exemptions by Service Type', branch: 'tab:service-type-exemptions' },
     ],
@@ -984,6 +1001,19 @@ async function main() {
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await waitReady(page);
+    // A stability-based readiness can return during the quiet window BEFORE an async grid paints.
+    // Observed live 2026-08-18 on discount-optimization-settings: for the SAME url, cycle 0 scanned
+    // 117 DOM nodes on one run and 1042 on another, so the resting denominator came out 9 vs 95.
+    // contentMarker previously gated only the opener/tab path, never this initial resting scan --
+    // so a module could declare exactly the right marker and still be measured mid-render. When a
+    // module declares one, hold here until it resolves. Throws rather than enumerating a partial load.
+    if (cfg && cfg.contentMarker) {
+      try {
+        await page.waitForSelector(cfg.contentMarker, { timeout: 120000 });
+      } catch {
+        throw new Error(`[WAIT_READY_TIMEOUT] initial content gate timed out after 120000ms: module "${moduleName}" contentMarker "${cfg.contentMarker}" never appeared after goto. Refusing to enumerate a partial page load.`);
+      }
+    }
     if (isLoginRedirect(page.url())) {
       const msg = `[ABORT-S1] redirected to login (${page.url()}). The saved session is stale — refresh ${authPath} via 'playwright-cli open --persistent' then 'state-save', and re-run. NOT enumerating the login page.`;
       console.error(msg);
