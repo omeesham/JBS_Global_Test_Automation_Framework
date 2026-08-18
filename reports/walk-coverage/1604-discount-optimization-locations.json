@@ -1,0 +1,1944 @@
+{
+  "state": "1604-discount-optimization-locations",
+  "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/discount-optimization-settings",
+  "office": "1604",
+  "module": "discount-optimization-locations",
+  "authPath": ".\\clients\\encore\\.auth\\encore-state.json",
+  "date": "2026-08-18",
+  "cycles": [
+    {
+      "cycle": 0,
+      "action": "resting",
+      "scanned": 1042,
+      "shadowHosts": 0,
+      "candidates": 0,
+      "g1hits": 0,
+      "accum": 95,
+      "restingObserved": true
+    },
+    {
+      "cycle": 1,
+      "openersClicked": 0,
+      "added": 0,
+      "accum": 95
+    },
+    {
+      "cycle": "confirm",
+      "added": 0,
+      "accum": 95
+    },
+    {
+      "cycle": "portal-scan",
+      "portalElements": 0,
+      "added": 0,
+      "accum": 95
+    }
+  ],
+  "branches": [],
+  "_restingObserved": true,
+  "base_state": {
+    "atRest": [
+      "Discount Optimization"
+    ],
+    "atEmit": [
+      "Discount Optimization"
+    ]
+  },
+  "stateGraphExhaustion": {
+    "containersFound": 59,
+    "neverOpened": 59,
+    "samples": [
+      {
+        "testid": "",
+        "role": "button",
+        "name": "1604Parker Palm Springs",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Home",
+        "tag": "a"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Inbox",
+        "tag": "a"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Actions",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Commissions",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Tax",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Setup",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Studio",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Order Search",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Job Search",
+        "tag": "a"
+      }
+    ],
+    "verdict": "ANNOUNCE"
+  },
+  "denominator": 92,
+  "rawBeforeArchetypeCollapse": 95,
+  "setAlgebra": {
+    "union": 92,
+    "intersection": 84,
+    "symDiff": 8
+  },
+  "symDiffReview": [
+    {
+      "key": "struct:tablist|Discount OptimizationSpecial Rate Exempt|div/div/div/div/div/div",
+      "role": "tablist",
+      "name": "Discount OptimizationSpecial Rate Exempt",
+      "in": "B-only",
+      "disabled": false
+    },
+    {
+      "key": "testid:discount-optimization-settings-table-container",
+      "role": "div",
+      "name": "SaveAddIDLocation NameAllow Special Rate",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div",
+      "role": "button",
+      "name": "Save",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:th||div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:th|ID|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "ID",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:th|Location Name|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Location Name",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:th|Allow Special Rate|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Allow Special Rate",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:th|Special Rate Start Date|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Special Rate Start Date",
+      "in": "A-only",
+      "disabled": false
+    }
+  ],
+  "g1Recovered": [],
+  "entries": [
+    {
+      "key": "struct:button|trigger-button|skip/div/div/div/div/div",
+      "role": "button",
+      "name": "trigger-button",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:tablist|Discount OptimizationSpecial Rate Exempt|div/div/div/div/div/div",
+      "role": "tablist",
+      "name": "Discount OptimizationSpecial Rate Exempt",
+      "why": "focusable",
+      "inA": false,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_v_-trigger-locations",
+      "role": "tab",
+      "name": "Discount Optimization",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_v_-trigger-serviceTypeExemptions",
+      "role": "tab",
+      "name": "Special Rate Exemptions by Service Type",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_v_-content-locations",
+      "role": "tabpanel",
+      "name": "SaveAddIDLocation NameAllow Special Rate",
+      "why": "tabindex",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "testid:discount-optimization-settings-table-container",
+      "role": "div",
+      "name": "SaveAddIDLocation NameAllow Special Rate",
+      "why": "testid",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:input|Search by location number or location na|div/div/discount-optimization-settings-table-container/div/div/div",
+      "role": "input",
+      "name": "Search by location number or location na",
+      "why": "native:input",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div",
+      "role": "button",
+      "name": "Save",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Add|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div",
+      "role": "button",
+      "name": "Add",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:th||div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:th|ID|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "ID",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_#_ [archetype×4]",
+      "role": "button",
+      "name": "ID",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "archetype": true,
+      "rowCount": 4
+    },
+    {
+      "key": "struct:button|Resize column locationNo|div/div/table/thead/tr/th",
+      "role": "button",
+      "name": "Resize column locationNo",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:th|Location Name|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Location Name",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Resize column locationName|div/div/table/thead/tr/th",
+      "role": "button",
+      "name": "Resize column locationName",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:th|Allow Special Rate|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Allow Special Rate",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Resize column allowSpecialRate|div/div/table/thead/tr/th",
+      "role": "button",
+      "name": "Resize column allowSpecialRate",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:th|Special Rate Start Date|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Special Rate Start Date",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Resize column startAllowSpecialRate|div/div/table/thead/tr/th",
+      "role": "button",
+      "name": "Resize column startAllowSpecialRate",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Abbey Resort|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Abbey Resort",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Abbey Resort|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Abbey Resort",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:input|Select date|tr/td/div/div/div/div",
+      "role": "input",
+      "name": "Select date",
+      "why": "native:input",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 36,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Open calendar|td/div/div/div/div/div",
+      "role": "button",
+      "name": "Open calendar",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 36,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove InterContinental Chicago|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove InterContinental Chicago",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for InterContinental |div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for InterContinental ",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 2,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Dagny|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Dagny",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Dagny|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Dagny",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Boston Marriott Copley Place|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Boston Marriott Copley Place",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Boston Marriott C|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Boston Marriott C",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hotel del Coronado|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hotel del Coronado",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Hotel del Coronad|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Hotel del Coronad",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hitlon Arlington National Landing|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hitlon Arlington National Landing",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Hitlon Arlington |div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Hitlon Arlington ",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Sheraton Stamford Hotel deactivat|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Sheraton Stamford Hotel deactivat",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Sheraton Stamford|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Sheraton Stamford",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Renaissance Baton Rouge Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Renaissance Baton Rouge Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Renaissance Baton|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Renaissance Baton",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hilton Dallas/Park Cities|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hilton Dallas/Park Cities",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Hilton Dallas/Par|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Hilton Dallas/Par",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The St. Regis Bal Harbour Resort|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The St. Regis Bal Harbour Resort",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The St. Regis Bal|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The St. Regis Bal",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Sheraton Pentagon City Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Sheraton Pentagon City Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Sheraton Pentagon|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Sheraton Pentagon",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Westin New York Grand Central|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Westin New York Grand Central",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Westin New Yo|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Westin New Yo",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Westin Kansas City at Crown C|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Westin Kansas City at Crown C",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Westin Kansas|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Westin Kansas",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Sheraton Kansas City Hotel at Cro|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Sheraton Kansas City Hotel at Cro",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Sheraton Kansas C|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Sheraton Kansas C",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Fairmont Olympic Hotel, Seattle|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Fairmont Olympic Hotel, Seattle",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Fairmont Olympic |div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Fairmont Olympic ",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Kahala Hotel & Resort|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Kahala Hotel & Resort",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Kahala Hotel |div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Kahala Hotel ",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hyatt Regency Valencia|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hyatt Regency Valencia",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Hyatt Regency Val|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Hyatt Regency Val",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hilton Columbus Downtown|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hilton Columbus Downtown",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Hilton Columbus D|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Hilton Columbus D",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Seaview, A Dolce Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Seaview, A Dolce Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Seaview, A Dolce |div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Seaview, A Dolce ",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Westin St. Francis on Union S|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Westin St. Francis on Union S",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Westin St. Fr|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Westin St. Fr",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Viewline Snowmass|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Viewline Snowmass",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Viewline Snowmass|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Viewline Snowmass",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Salt Palace Convention Center|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Salt Palace Convention Center",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Salt Palace Conve|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Salt Palace Conve",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Westin Bonaventure Hotel & Su|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Westin Bonaventure Hotel & Su",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Westin Bonave|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Westin Bonave",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove DoubleTree by Hilton Hotel Philad|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove DoubleTree by Hilton Hotel Philad",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for DoubleTree by Hil|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for DoubleTree by Hil",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Bellevue Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Bellevue Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Bellevue Hote|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Bellevue Hote",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Westin Cincinnati Fountain Sq|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Westin Cincinnati Fountain Sq",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Westin Cincin|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Westin Cincin",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove InterContinental Los Angeles Cent|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove InterContinental Los Angeles Cent",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Maxwell NYC Hotel - Deactivat|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Maxwell NYC Hotel - Deactivat",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Maxwell NYC H|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Maxwell NYC H",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hilton DFW Lakes Executive Confer|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hilton DFW Lakes Executive Confer",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Hilton DFW Lakes |div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Hilton DFW Lakes ",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hilton Anatole|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hilton Anatole",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Hilton Anatole|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Hilton Anatole",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hyatt Regency Coconut Point Resor|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hyatt Regency Coconut Point Resor",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Hyatt Regency Coc|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Hyatt Regency Coc",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Condado Vanderbilt Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Condado Vanderbilt Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Condado Vanderbil|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Condado Vanderbil",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Ocean Place Resort & Spa- DEACTIV|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Ocean Place Resort & Spa- DEACTIV",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Ocean Place Resor|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Ocean Place Resor",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hyatt Regency Columbus|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hyatt Regency Columbus",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Hyatt Regency Col|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Hyatt Regency Col",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Sheraton Columbus onCapitol S|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Sheraton Columbus onCapitol S",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for The Sheraton Colu|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for The Sheraton Colu",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hyatt Regency Princeton|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hyatt Regency Princeton",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Allow Special Rate for Hyatt Regency Pri|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Allow Special Rate for Hyatt Regency Pri",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    }
+  ],
+  "derived_types": {
+    "struct:button|trigger-button|skip/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:tablist|Discount OptimizationSpecial Rate Exempt|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=DIV role=tablist",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_v_-trigger-locations": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=tab",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_v_-trigger-serviceTypeExemptions": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=tab",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_v_-content-locations": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
+    },
+    "testid:discount-optimization-settings-table-container": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
+    },
+    "struct:input|Search by location number or location na|div/div/discount-optimization-settings-table-container/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=INPUT",
+      "probe": "resting"
+    },
+    "struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Add|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:th||div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
+    },
+    "struct:th|ID|div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
+    },
+    "id:radix-_r_#_ [archetype×4]": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Resize column locationNo|div/div/table/thead/tr/th": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:th|Location Name|div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
+    },
+    "struct:button|Resize column locationName|div/div/table/thead/tr/th": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:th|Allow Special Rate|div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
+    },
+    "struct:button|Resize column allowSpecialRate|div/div/table/thead/tr/th": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:th|Special Rate Start Date|div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
+    },
+    "struct:button|Resize column startAllowSpecialRate|div/div/table/thead/tr/th": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Abbey Resort|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Abbey Resort|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Abbey Resort|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:input|Select date|tr/td/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=INPUT",
+      "probe": "resting"
+    },
+    "struct:button|Open calendar|td/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove InterContinental Chicago|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove InterContinental Chicago|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for InterContinental |div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Dagny|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Dagny|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Dagny|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Boston Marriott Copley Place|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Boston Marriott Copley Place|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Boston Marriott C|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hotel del Coronado|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hotel del Coronado|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Hotel del Coronad|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hitlon Arlington National Landing|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hitlon Arlington National Landing|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Hitlon Arlington |div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Sheraton Stamford Hotel deactivat|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Sheraton Stamford Hotel deactivat|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Sheraton Stamford|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Renaissance Baton Rouge Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Renaissance Baton Rouge Hotel|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Renaissance Baton|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hilton Dallas/Park Cities|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hilton Dallas/Park Cities|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Hilton Dallas/Par|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The St. Regis Bal Harbour Resort|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The St. Regis Bal Harbour Resort|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The St. Regis Bal|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Sheraton Pentagon City Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Sheraton Pentagon City Hotel|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Sheraton Pentagon|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Westin New York Grand Central|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Westin New York Grand Central|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Westin New Yo|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Westin Kansas City at Crown C|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Westin Kansas City at Crown C|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Westin Kansas|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Sheraton Kansas City Hotel at Cro|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Sheraton Kansas City Hotel at Cro|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Sheraton Kansas C|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Fairmont Olympic Hotel, Seattle|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Fairmont Olympic Hotel, Seattle|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Fairmont Olympic |div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Kahala Hotel & Resort|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Kahala Hotel & Resort|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Kahala Hotel |div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hyatt Regency Valencia|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hyatt Regency Valencia|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Hyatt Regency Val|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hilton Columbus Downtown|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hilton Columbus Downtown|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Hilton Columbus D|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Seaview, A Dolce Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Seaview, A Dolce Hotel|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Seaview, A Dolce |div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Westin St. Francis on Union S|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Westin St. Francis on Union S|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Westin St. Fr|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Viewline Snowmass|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Viewline Snowmass|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Viewline Snowmass|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Salt Palace Convention Center|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Salt Palace Convention Center|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Salt Palace Conve|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Westin Bonaventure Hotel & Su|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Westin Bonaventure Hotel & Su|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Westin Bonave|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove DoubleTree by Hilton Hotel Philad|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove DoubleTree by Hilton Hotel Philad|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for DoubleTree by Hil|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Bellevue Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Bellevue Hotel|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Bellevue Hote|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Westin Cincinnati Fountain Sq|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Westin Cincinnati Fountain Sq|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Westin Cincin|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove InterContinental Los Angeles Cent|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove InterContinental Los Angeles Cent|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Maxwell NYC Hotel - Deactivat|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Maxwell NYC Hotel - Deactivat|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Maxwell NYC H|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hilton DFW Lakes Executive Confer|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hilton DFW Lakes Executive Confer|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Hilton DFW Lakes |div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hilton Anatole|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hilton Anatole|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Hilton Anatole|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hyatt Regency Coconut Point Resor|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hyatt Regency Coconut Point Resor|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Hyatt Regency Coc|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Condado Vanderbilt Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Condado Vanderbilt Hotel|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Condado Vanderbil|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Ocean Place Resort & Spa- DEACTIV|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Ocean Place Resort & Spa- DEACTIV|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Ocean Place Resor|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hyatt Regency Columbus|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hyatt Regency Columbus|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Hyatt Regency Col|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Sheraton Columbus onCapitol S|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Sheraton Columbus onCapitol S|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for The Sheraton Colu|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hyatt Regency Princeton|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hyatt Regency Princeton|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Allow Special Rate for Hyatt Regency Pri|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    }
+  },
+  "completion_record": {
+    "version": 1,
+    "status": "complete",
+    "surfaces_attempted": [
+      "1604-discount-optimization-locations"
+    ],
+    "surfaces_enumerated": [
+      "1604-discount-optimization-locations"
+    ],
+    "element_count": 92,
+    "raw_before_collapse": 95,
+    "halt_reasons": [],
+    "content_sha256": "a5178f09c62f45890538b18b65f8aa480d4db191d5151f1469886a10c2e370ee"
+  }
+}

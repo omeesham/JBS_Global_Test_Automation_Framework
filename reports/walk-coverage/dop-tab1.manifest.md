@@ -1,0 +1,164 @@
+## Coverage Manifest (machine-enumerated)
+
+<!-- Frontmatter keys to copy into the artifact header (LR-062): -->
+<!--
+Coverage_Ratio: 0/148 (0%)   # update as you disposition; closure Cx requires 100%
+Walk_State: office=1604 module=discount-optimization walked=[resting,tab:service-type-exemptions]
+CrossCheck: <pending>          # "clean" once every A△B review-set element is classified
+Completion_Record: reports/walk-coverage/dop-tab1.json (status=complete, elements=148)
+-->
+
+Machine denominator: **148** element(s). Provenance JSON: `reports/walk-coverage/dop-tab1.json`.
+Disposition every row (no blanks): `covered-by-TC: <TC-ID>` / `affordance-probed: <LR-057 token>` / `read-only-verified` / `out-of-scope: <reason ≥20 chars>`.
+Grid / list / table / result surfaces ALSO carry `behavior-cases: <families>` (LR-065 — §3 surface families: result-fidelity/pagination/sorting/combination/render-state/empty-vol/persistence; ≥1 QUICK TC per applicable family, inapplicable → `out-of-scope:<family>=<reason ≥20 chars>`). Sub-rules: link-cell → render assertion; file-control → file-I/O.
+
+| element-key | role | machine-found (date) | disposition |
+|---|---|---|---|
+| `id:radix-_r_#_ [archetype×7]` | button | 2026-08-11 | _undispositioned_ |
+| `struct:a|Home|div/div/div/div/ul/li` | a | 2026-08-11 | _undispositioned_ |
+| `struct:a|Inbox|div/div/div/div/ul/li` | a | 2026-08-11 | _undispositioned_ |
+| `id:radix-_r_a_` | button | 2026-08-11 | _undispositioned_ |
+| `id:radix-_r_d_` | button | 2026-08-11 | _undispositioned_ |
+| `id:radix-_r_g_` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Order Search|div/div/div/div/ul/li` _(A∖B review)_ _(disabled)_ | button | 2026-08-11 | _undispositioned_ |
+| `struct:a|Job Search|div/div/div/div/ul/li` | a | 2026-08-11 | _undispositioned_ |
+| `struct:a|Asset Search|div/div/div/div/ul/li` | a | 2026-08-11 | _undispositioned_ |
+| `struct:a|Customer Search|div/div/div/div/ul/li` | a | 2026-08-11 | _undispositioned_ |
+| `struct:button|DRO Search|div/div/div/div/ul/li` _(A∖B review)_ _(disabled)_ | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Payment Search|div/div/div/div/ul/li` _(A∖B review)_ _(disabled)_ | button | 2026-08-11 | _undispositioned_ |
+| `struct:a|Item Search|div/div/div/div/ul/li` | a | 2026-08-11 | _undispositioned_ |
+| `struct:button|ECT Search|div/div/div/div/ul/li` _(A∖B review)_ _(disabled)_ | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Event Agendas|div/div/div/div/ul/li` _(A∖B review)_ _(disabled)_ | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Navigator Assistant|div/div/div/div/ul/li` | button | 2026-08-11 | _undispositioned_ |
+| `id:radix-_r_t_` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Click to restore sidebar|body/div/div/div/div/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|trigger-button|skip/div/div/div/div/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:tablist|Discount OptimizationSpecial Rate Exempt|div/div/div/div/div/div` _(B∖A review)_ | tablist | 2026-08-11 | _undispositioned_ |
+| `id:radix-_r_v_-trigger-locations` | tab | 2026-08-11 | _undispositioned_ |
+| `id:radix-_r_v_-trigger-serviceTypeExemptions` | tab | 2026-08-11 | _undispositioned_ |
+| `id:radix-_r_v_-content-locations` | tabpanel | 2026-08-11 | _undispositioned_ |
+| `testid:discount-optimization-settings-table-container` _(A∖B review)_ | div | 2026-08-11 | _undispositioned_ |
+| `struct:input|Search by location number or location na|div/div/discount-optimization-settings-table-container/div/div/div` | input | 2026-08-11 | _undispositioned_ |
+| `struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div` _(A∖B review)_ _(disabled)_ | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Add|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:th||div/div/div/table/thead/tr` _(A∖B review)_ | th | 2026-08-11 | _undispositioned_ |
+| `struct:th|ID|div/div/div/table/thead/tr` _(A∖B review)_ | th | 2026-08-11 | _undispositioned_ |
+| `struct:button|Resize column locationNo|div/div/table/thead/tr/th` | button | 2026-08-11 | _undispositioned_ |
+| `struct:th|Location Name|div/div/div/table/thead/tr` _(A∖B review)_ | th | 2026-08-11 | _undispositioned_ |
+| `struct:button|Resize column locationName|div/div/table/thead/tr/th` | button | 2026-08-11 | _undispositioned_ |
+| `struct:th|No Implied Discount|div/div/div/table/thead/tr` _(A∖B review)_ | th | 2026-08-11 | _undispositioned_ |
+| `struct:button|Resize column allowSpecialRate|div/div/table/thead/tr/th` | button | 2026-08-11 | _undispositioned_ |
+| `struct:th|No Implied Start|div/div/div/table/thead/tr` _(A∖B review)_ | th | 2026-08-11 | _undispositioned_ |
+| `struct:button|Resize column startAllowSpecialRate|div/div/table/thead/tr/th` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Abbey Resort|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Abbey Resort|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:input|Select date|tr/td/div/div/div/div` | input | 2026-08-11 | _undispositioned_ |
+| `struct:button|Open calendar|td/div/div/div/div/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove InterContinental Chicago|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for InterContinental|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Dagny|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Dagny|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Boston Marriott Copley Place|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Boston Marriott |div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Hotel del Coronado|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Hotel del Corona|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Hitlon Arlington National Landing|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Hitlon Arlington|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Sheraton Stamford Hotel deactivat|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Sheraton Stamfor|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Renaissance Baton Rouge Hotel|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Renaissance Bato|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Hilton Dallas/Park Cities|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Hilton Dallas/Pa|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The St. Regis Bal Harbour Resort|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The St. Regis Ba|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Sheraton Pentagon City Hotel|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Sheraton Pentago|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Westin New York Grand Central|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Westin New Y|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Westin Kansas City at Crown C|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Westin Kansa|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Sheraton Kansas City Hotel at Cro|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Sheraton Kansas |div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Fairmont Olympic Hotel, Seattle|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Fairmont Olympic|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Kahala Hotel & Resort|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Kahala Hotel|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Hyatt Regency Valencia|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Hyatt Regency Va|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Hilton Columbus Downtown|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Hilton Columbus |div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Seaview, A Dolce Hotel|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Seaview, A Dolce|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Westin St. Francis on Union S|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Westin St. F|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Viewline Snowmass|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Viewline Snowmas|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Salt Palace Convention Center|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Salt Palace Conv|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Westin Bonaventure Hotel & Su|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Westin Bonav|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove DoubleTree by Hilton Hotel Philad|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for DoubleTree by Hi|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Bellevue Hotel|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Bellevue Hot|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Westin Cincinnati Fountain Sq|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Westin Cinci|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove InterContinental Los Angeles Cent|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Maxwell NYC Hotel - Deactivat|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Maxwell NYC |div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Hilton DFW Lakes Executive Confer|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Hilton DFW Lakes|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Hilton Anatole|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Hilton Anatole|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Hyatt Regency Coconut Point Resor|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Hyatt Regency Co|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Condado Vanderbilt Hotel|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Condado Vanderbi|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Ocean Place Resort & Spa- DEACTIV|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Ocean Place Reso|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Hyatt Regency Columbus|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove The Sheraton Columbus onCapitol S|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for The Sheraton Col|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Remove Hyatt Regency Princeton|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|No implied discount for Hyatt Regency Pr|div/table/tbody/tr/td/div` | button | 2026-08-11 | _undispositioned_ |
+| `struct:section|Notifications alt+T|html/body` _(A∖B review)_ | section | 2026-08-11 | _undispositioned_ |
+| `id:radix-_r_v_-content-serviceTypeExemptions` | tabpanel | 2026-08-11 | _undispositioned_ |
+| `struct:input|Search by service type|div/radix-_r_v_-content-serviceTypeExemptions/div/div/div/div` | input | 2026-08-11 | _undispositioned_ |
+| `struct:button|Cancel|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div` _(A∖B review)_ _(disabled)_ | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Save|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div` _(A∖B review)_ _(disabled)_ | button | 2026-08-11 | _undispositioned_ |
+| `struct:th|Service Type|div/div/div/table/thead/tr` _(A∖B review)_ | th | 2026-08-11 | _undispositioned_ |
+| `id:radix-_r_2e_` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Resize column serviceTypeName|div/div/table/thead/tr/th` | button | 2026-08-11 | _undispositioned_ |
+| `struct:th|Exempt|div/div/div/table/thead/tr` _(A∖B review)_ | th | 2026-08-11 | _undispositioned_ |
+| `id:radix-_r_2g_` | button | 2026-08-11 | _undispositioned_ |
+| `struct:button|Resize column isSpecialRateAllowed|div/div/table/thead/tr/th` | button | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Computer Rental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Concise Equipment|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Digital Branding|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Digital Services Equipment|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Digital Services Subrental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Equipment Rental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt HSIA - Equipment|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt HSIA - Subrental Equipment|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt HSIA - Wi-Fi Services|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt HSIA Services|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Lighting|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Lighting Subrental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Photographic Services|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Power Infrastructure|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Power Rental Equipment|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Power Sub-rental Equipment|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Rigging Equipment - Subrental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Rigging Equipment Rental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Scenic Equipment Rental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Scenic Sub-Rental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Sub-Rental Equipment|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Telecom Equipment|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Telecom Services|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Telecom Subrental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Venue Equipment Rental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Virtual Events Equipment|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Virtual Events Professional Servi|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt Wedding Event Equipment Rental|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |
+| `struct:checkbox|Exempt ZSub Rental Specialty|div/div/table/tbody/tr/td` | checkbox | 2026-08-11 | _undispositioned_ |

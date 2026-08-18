@@ -1,0 +1,3021 @@
+{
+  "state": "dop-tab2",
+  "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/discount-optimization-settings",
+  "office": "1604",
+  "module": "discount-optimization",
+  "authPath": ".\\clients\\encore\\.auth\\encore-state.json",
+  "date": "2026-08-11",
+  "cycles": [
+    {
+      "cycle": 0,
+      "action": "resting",
+      "scanned": 1331,
+      "shadowHosts": 1,
+      "candidates": 0,
+      "g1hits": 0,
+      "accum": 115,
+      "restingObserved": true
+    },
+    {
+      "cycle": 1,
+      "openersClicked": 1,
+      "added": 39,
+      "accum": 154
+    },
+    {
+      "cycle": 2,
+      "openersClicked": 0,
+      "added": 0,
+      "accum": 154
+    },
+    {
+      "cycle": "portal-scan",
+      "portalElements": 0,
+      "added": 0,
+      "accum": 154
+    }
+  ],
+  "branches": [
+    {
+      "branch": "tab:service-type-exemptions",
+      "openerText": "Special Rate Exemptions by Service Type",
+      "addedKeys": 0,
+      "ok": true
+    }
+  ],
+  "tabActivateRoleText": [
+    {
+      "role": "tab",
+      "text": "Discount Optimization",
+      "ok": true,
+      "attempts": 1
+    }
+  ],
+  "_restingObserved": true,
+  "stateGraphExhaustion": {
+    "containersFound": 21,
+    "neverOpened": 21,
+    "samples": [
+      {
+        "testid": "",
+        "role": "button",
+        "name": "1604Parker Palm Springs",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Home",
+        "tag": "a"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Inbox",
+        "tag": "a"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Actions",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Commissions",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Tax",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Setup",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Studio",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Order Search",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Job Search",
+        "tag": "a"
+      }
+    ]
+  },
+  "denominator": 148,
+  "rawBeforeArchetypeCollapse": 154,
+  "setAlgebra": {
+    "union": 148,
+    "intersection": 130,
+    "symDiff": 18
+  },
+  "symDiffReview": [
+    {
+      "key": "struct:button|Order Search|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "Order Search",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:button|DRO Search|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "DRO Search",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:button|Payment Search|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "Payment Search",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:button|ECT Search|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "ECT Search",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:button|Event Agendas|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "Event Agendas",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:tablist|Discount OptimizationSpecial Rate Exempt|div/div/div/div/div/div",
+      "role": "tablist",
+      "name": "Discount OptimizationSpecial Rate Exempt",
+      "in": "B-only",
+      "disabled": false
+    },
+    {
+      "key": "testid:discount-optimization-settings-table-container",
+      "role": "div",
+      "name": "SaveAddIDLocation NameNo Implied Discoun",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div",
+      "role": "button",
+      "name": "Save",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:th||div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:th|ID|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "ID",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:th|Location Name|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Location Name",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:th|No Implied Discount|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "No Implied Discount",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:th|No Implied Start|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "No Implied Start",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:section|Notifications alt+T|html/body",
+      "role": "section",
+      "name": "Notifications alt+T",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:button|Cancel|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div",
+      "role": "button",
+      "name": "Cancel",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:button|Save|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div",
+      "role": "button",
+      "name": "Save",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:th|Service Type|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Service Type",
+      "in": "A-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:th|Exempt|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Exempt",
+      "in": "A-only",
+      "disabled": false
+    }
+  ],
+  "g1Recovered": [],
+  "entries": [
+    {
+      "key": "id:radix-_r_#_ [archetype×7]",
+      "role": "button",
+      "name": "1604Parker Palm Springs",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "archetype": true,
+      "rowCount": 7
+    },
+    {
+      "key": "struct:a|Home|div/div/div/div/ul/li",
+      "role": "a",
+      "name": "Home",
+      "why": "native:a[href]",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:a|Inbox|div/div/div/div/ul/li",
+      "role": "a",
+      "name": "Inbox",
+      "why": "native:a[href]",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "id:radix-_r_a_",
+      "role": "button",
+      "name": "Tax",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "id:radix-_r_d_",
+      "role": "button",
+      "name": "Setup",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "id:radix-_r_g_",
+      "role": "button",
+      "name": "Studio",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|Order Search|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "Order Search",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:a|Job Search|div/div/div/div/ul/li",
+      "role": "a",
+      "name": "Job Search",
+      "why": "native:a[href]",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:a|Asset Search|div/div/div/div/ul/li",
+      "role": "a",
+      "name": "Asset Search",
+      "why": "native:a[href]",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:a|Customer Search|div/div/div/div/ul/li",
+      "role": "a",
+      "name": "Customer Search",
+      "why": "native:a[href]",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|DRO Search|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "DRO Search",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|Payment Search|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "Payment Search",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:a|Item Search|div/div/div/div/ul/li",
+      "role": "a",
+      "name": "Item Search",
+      "why": "native:a[href]",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|ECT Search|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "ECT Search",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|Event Agendas|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "Event Agendas",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|Navigator Assistant|div/div/div/div/ul/li",
+      "role": "button",
+      "name": "Navigator Assistant",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "id:radix-_r_t_",
+      "role": "button",
+      "name": "PCprd click auto",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|Click to restore sidebar|body/div/div/div/div/div",
+      "role": "button",
+      "name": "Click to restore sidebar",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|trigger-button|skip/div/div/div/div/div",
+      "role": "button",
+      "name": "trigger-button",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:tablist|Discount OptimizationSpecial Rate Exempt|div/div/div/div/div/div",
+      "role": "tablist",
+      "name": "Discount OptimizationSpecial Rate Exempt",
+      "why": "focusable",
+      "inA": false,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "id:radix-_r_v_-trigger-locations",
+      "role": "tab",
+      "name": "Discount Optimization",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "id:radix-_r_v_-trigger-serviceTypeExemptions",
+      "role": "tab",
+      "name": "Special Rate Exemptions by Service Type",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "id:radix-_r_v_-content-locations",
+      "role": "tabpanel",
+      "name": "SaveAddIDLocation NameNo Implied Discoun",
+      "why": "tabindex",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "testid:discount-optimization-settings-table-container",
+      "role": "div",
+      "name": "SaveAddIDLocation NameNo Implied Discoun",
+      "why": "testid",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:input|Search by location number or location na|div/div/discount-optimization-settings-table-container/div/div/div",
+      "role": "input",
+      "name": "Search by location number or location na",
+      "why": "native:input",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div",
+      "role": "button",
+      "name": "Save",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Add|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div",
+      "role": "button",
+      "name": "Add",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:th||div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:th|ID|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "ID",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Resize column locationNo|div/div/table/thead/tr/th",
+      "role": "button",
+      "name": "Resize column locationNo",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:th|Location Name|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Location Name",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Resize column locationName|div/div/table/thead/tr/th",
+      "role": "button",
+      "name": "Resize column locationName",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:th|No Implied Discount|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "No Implied Discount",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Resize column allowSpecialRate|div/div/table/thead/tr/th",
+      "role": "button",
+      "name": "Resize column allowSpecialRate",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:th|No Implied Start|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "No Implied Start",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Resize column startAllowSpecialRate|div/div/table/thead/tr/th",
+      "role": "button",
+      "name": "Resize column startAllowSpecialRate",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Abbey Resort|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Abbey Resort",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Abbey Resort|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Abbey Resort",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:input|Select date|tr/td/div/div/div/div",
+      "role": "input",
+      "name": "Select date",
+      "why": "native:input",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Open calendar|td/div/div/div/div/div",
+      "role": "button",
+      "name": "Open calendar",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove InterContinental Chicago|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove InterContinental Chicago",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for InterContinental|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for InterContinental",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Dagny|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Dagny",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Dagny|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Dagny",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Boston Marriott Copley Place|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Boston Marriott Copley Place",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Boston Marriott |div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Boston Marriott ",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hotel del Coronado|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hotel del Coronado",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Hotel del Corona|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Hotel del Corona",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hitlon Arlington National Landing|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hitlon Arlington National Landing",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Hitlon Arlington|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Hitlon Arlington",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Sheraton Stamford Hotel deactivat|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Sheraton Stamford Hotel deactivat",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Sheraton Stamfor|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Sheraton Stamfor",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Renaissance Baton Rouge Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Renaissance Baton Rouge Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Renaissance Bato|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Renaissance Bato",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hilton Dallas/Park Cities|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hilton Dallas/Park Cities",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Hilton Dallas/Pa|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Hilton Dallas/Pa",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The St. Regis Bal Harbour Resort|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The St. Regis Bal Harbour Resort",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The St. Regis Ba|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The St. Regis Ba",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Sheraton Pentagon City Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Sheraton Pentagon City Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Sheraton Pentago|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Sheraton Pentago",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Westin New York Grand Central|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Westin New York Grand Central",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Westin New Y|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Westin New Y",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Westin Kansas City at Crown C|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Westin Kansas City at Crown C",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Westin Kansa|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Westin Kansa",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Sheraton Kansas City Hotel at Cro|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Sheraton Kansas City Hotel at Cro",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Sheraton Kansas |div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Sheraton Kansas ",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Fairmont Olympic Hotel, Seattle|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Fairmont Olympic Hotel, Seattle",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Fairmont Olympic|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Fairmont Olympic",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Kahala Hotel & Resort|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Kahala Hotel & Resort",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Kahala Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Kahala Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hyatt Regency Valencia|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hyatt Regency Valencia",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Hyatt Regency Va|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Hyatt Regency Va",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hilton Columbus Downtown|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hilton Columbus Downtown",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Hilton Columbus |div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Hilton Columbus ",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Seaview, A Dolce Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Seaview, A Dolce Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Seaview, A Dolce|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Seaview, A Dolce",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Westin St. Francis on Union S|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Westin St. Francis on Union S",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Westin St. F|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Westin St. F",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Viewline Snowmass|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Viewline Snowmass",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Viewline Snowmas|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Viewline Snowmas",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Salt Palace Convention Center|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Salt Palace Convention Center",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Salt Palace Conv|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Salt Palace Conv",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Westin Bonaventure Hotel & Su|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Westin Bonaventure Hotel & Su",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Westin Bonav|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Westin Bonav",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove DoubleTree by Hilton Hotel Philad|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove DoubleTree by Hilton Hotel Philad",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for DoubleTree by Hi|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for DoubleTree by Hi",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Bellevue Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Bellevue Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Bellevue Hot|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Bellevue Hot",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Westin Cincinnati Fountain Sq|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Westin Cincinnati Fountain Sq",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Westin Cinci|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Westin Cinci",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove InterContinental Los Angeles Cent|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove InterContinental Los Angeles Cent",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Maxwell NYC Hotel - Deactivat|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Maxwell NYC Hotel - Deactivat",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Maxwell NYC |div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Maxwell NYC ",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hilton DFW Lakes Executive Confer|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hilton DFW Lakes Executive Confer",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Hilton DFW Lakes|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Hilton DFW Lakes",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hilton Anatole|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hilton Anatole",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Hilton Anatole|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Hilton Anatole",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hyatt Regency Coconut Point Resor|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hyatt Regency Coconut Point Resor",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Hyatt Regency Co|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Hyatt Regency Co",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Condado Vanderbilt Hotel|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Condado Vanderbilt Hotel",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Condado Vanderbi|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Condado Vanderbi",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Ocean Place Resort & Spa- DEACTIV|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Ocean Place Resort & Spa- DEACTIV",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Ocean Place Reso|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Ocean Place Reso",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hyatt Regency Columbus|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hyatt Regency Columbus",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove The Sheraton Columbus onCapitol S|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove The Sheraton Columbus onCapitol S",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for The Sheraton Col|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for The Sheraton Col",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Remove Hyatt Regency Princeton|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "Remove Hyatt Regency Princeton",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|No implied discount for Hyatt Regency Pr|div/table/tbody/tr/td/div",
+      "role": "button",
+      "name": "No implied discount for Hyatt Regency Pr",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:section|Notifications alt+T|html/body",
+      "role": "section",
+      "name": "Notifications alt+T",
+      "why": "tabindex",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "branches": [
+        "resting",
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "id:radix-_r_v_-content-serviceTypeExemptions",
+      "role": "tabpanel",
+      "name": "CancelSave[data-radix-scroll-area-viewpo",
+      "why": "tabindex",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:input|Search by service type|div/radix-_r_v_-content-serviceTypeExemptions/div/div/div/div",
+      "role": "input",
+      "name": "Search by service type",
+      "why": "native:input",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|Cancel|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div",
+      "role": "button",
+      "name": "Cancel",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|Save|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div",
+      "role": "button",
+      "name": "Save",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:th|Service Type|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Service Type",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "id:radix-_r_2e_",
+      "role": "button",
+      "name": "Service Type",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|Resize column serviceTypeName|div/div/table/thead/tr/th",
+      "role": "button",
+      "name": "Resize column serviceTypeName",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:th|Exempt|div/div/div/table/thead/tr",
+      "role": "th",
+      "name": "Exempt",
+      "why": "draggable",
+      "inA": true,
+      "inB": false,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "id:radix-_r_2g_",
+      "role": "button",
+      "name": "Exempt",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:button|Resize column isSpecialRateAllowed|div/div/table/thead/tr/th",
+      "role": "button",
+      "name": "Resize column isSpecialRateAllowed",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Computer Rental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Computer Rental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Concise Equipment|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Concise Equipment",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Digital Branding|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Digital Branding",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Digital Services Equipment|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Digital Services Equipment",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Digital Services Subrental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Digital Services Subrental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Equipment Rental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Equipment Rental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt HSIA - Equipment|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt HSIA - Equipment",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt HSIA - Subrental Equipment|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt HSIA - Subrental Equipment",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt HSIA - Wi-Fi Services|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt HSIA - Wi-Fi Services",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt HSIA Services|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt HSIA Services",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Lighting|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Lighting",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Lighting Subrental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Lighting Subrental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Photographic Services|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Photographic Services",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Power Infrastructure|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Power Infrastructure",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Power Rental Equipment|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Power Rental Equipment",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Power Sub-rental Equipment|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Power Sub-rental Equipment",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Rigging Equipment - Subrental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Rigging Equipment - Subrental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Rigging Equipment Rental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Rigging Equipment Rental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Scenic Equipment Rental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Scenic Equipment Rental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Scenic Sub-Rental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Scenic Sub-Rental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Sub-Rental Equipment|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Sub-Rental Equipment",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Telecom Equipment|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Telecom Equipment",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Telecom Services|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Telecom Services",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Telecom Subrental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Telecom Subrental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Venue Equipment Rental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Venue Equipment Rental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Virtual Events Equipment|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Virtual Events Equipment",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Virtual Events Professional Servi|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Virtual Events Professional Servi",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt Wedding Event Equipment Rental|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt Wedding Event Equipment Rental",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    },
+    {
+      "key": "struct:checkbox|Exempt ZSub Rental Specialty|div/div/table/tbody/tr/td",
+      "role": "checkbox",
+      "name": "Exempt ZSub Rental Specialty",
+      "why": "role:checkbox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "branches": [
+        "expand-1",
+        "expand-2"
+      ]
+    }
+  ],
+  "derived_types": {
+    "id:radix-_r_#_ [archetype×7]": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:a|Home|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=A",
+      "probe": "edit-mode-click"
+    },
+    "struct:a|Inbox|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=A",
+      "probe": "edit-mode-click"
+    },
+    "id:radix-_r_a_": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_d_": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_g_": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Order Search|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:a|Job Search|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=A",
+      "probe": "edit-mode-click"
+    },
+    "struct:a|Asset Search|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=A",
+      "probe": "edit-mode-click"
+    },
+    "struct:a|Customer Search|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=A",
+      "probe": "edit-mode-click"
+    },
+    "struct:button|DRO Search|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Payment Search|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:a|Item Search|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=A",
+      "probe": "edit-mode-click"
+    },
+    "struct:button|ECT Search|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Event Agendas|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Navigator Assistant|div/div/div/div/ul/li": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_t_": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Click to restore sidebar|body/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|trigger-button|skip/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:tablist|Discount OptimizationSpecial Rate Exempt|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_v_-trigger-locations": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_v_-trigger-serviceTypeExemptions": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_v_-content-locations": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "testid:discount-optimization-settings-table-container": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:input|Search by location number or location na|div/div/discount-optimization-settings-table-container/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Add|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:th||div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:th|ID|div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Resize column locationNo|div/div/table/thead/tr/th": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:th|Location Name|div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Resize column locationName|div/div/table/thead/tr/th": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:th|No Implied Discount|div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Resize column allowSpecialRate|div/div/table/thead/tr/th": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:th|No Implied Start|div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Resize column startAllowSpecialRate|div/div/table/thead/tr/th": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Abbey Resort|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Abbey Resort|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Abbey Resort|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:input|Select date|tr/td/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Open calendar|td/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove InterContinental Chicago|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove InterContinental Chicago|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for InterContinental|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Dagny|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Dagny|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Dagny|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Boston Marriott Copley Place|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Boston Marriott Copley Place|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Boston Marriott |div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hotel del Coronado|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hotel del Coronado|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Hotel del Corona|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hitlon Arlington National Landing|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hitlon Arlington National Landing|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Hitlon Arlington|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Sheraton Stamford Hotel deactivat|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Sheraton Stamford Hotel deactivat|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Sheraton Stamfor|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Renaissance Baton Rouge Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Renaissance Baton Rouge Hotel|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Renaissance Bato|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hilton Dallas/Park Cities|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hilton Dallas/Park Cities|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Hilton Dallas/Pa|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The St. Regis Bal Harbour Resort|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The St. Regis Bal Harbour Resort|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The St. Regis Ba|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Sheraton Pentagon City Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Sheraton Pentagon City Hotel|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Sheraton Pentago|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Westin New York Grand Central|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Westin New York Grand Central|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Westin New Y|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Westin Kansas City at Crown C|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Westin Kansas City at Crown C|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Westin Kansa|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Sheraton Kansas City Hotel at Cro|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Sheraton Kansas City Hotel at Cro|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Sheraton Kansas |div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Fairmont Olympic Hotel, Seattle|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Fairmont Olympic Hotel, Seattle|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Fairmont Olympic|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Kahala Hotel & Resort|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Kahala Hotel & Resort|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Kahala Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hyatt Regency Valencia|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hyatt Regency Valencia|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Hyatt Regency Va|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hilton Columbus Downtown|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hilton Columbus Downtown|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Hilton Columbus |div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Seaview, A Dolce Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Seaview, A Dolce Hotel|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Seaview, A Dolce|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Westin St. Francis on Union S|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Westin St. Francis on Union S|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Westin St. F|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Viewline Snowmass|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Viewline Snowmass|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Viewline Snowmas|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Salt Palace Convention Center|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Salt Palace Convention Center|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Salt Palace Conv|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Westin Bonaventure Hotel & Su|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Westin Bonaventure Hotel & Su|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Westin Bonav|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove DoubleTree by Hilton Hotel Philad|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove DoubleTree by Hilton Hotel Philad|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for DoubleTree by Hi|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Bellevue Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Bellevue Hotel|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Bellevue Hot|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Westin Cincinnati Fountain Sq|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Westin Cincinnati Fountain Sq|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Westin Cinci|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove InterContinental Los Angeles Cent|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove InterContinental Los Angeles Cent|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Maxwell NYC Hotel - Deactivat|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Maxwell NYC Hotel - Deactivat|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Maxwell NYC |div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hilton DFW Lakes Executive Confer|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hilton DFW Lakes Executive Confer|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Hilton DFW Lakes|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hilton Anatole|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hilton Anatole|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Hilton Anatole|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hyatt Regency Coconut Point Resor|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hyatt Regency Coconut Point Resor|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Hyatt Regency Co|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Condado Vanderbilt Hotel|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Condado Vanderbilt Hotel|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Condado Vanderbi|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Ocean Place Resort & Spa- DEACTIV|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Ocean Place Resort & Spa- DEACTIV|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Ocean Place Reso|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hyatt Regency Columbus|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hyatt Regency Columbus|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove The Sheraton Columbus onCapitol S|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove The Sheraton Columbus onCapitol S|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for The Sheraton Col|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Remove Hyatt Regency Princeton|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Remove Hyatt Regency Princeton|div/table/tbody/tr/td/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|No implied discount for Hyatt Regency Pr|div/table/tbody/tr/td/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:section|Notifications alt+T|html/body": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=SECTION role=",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_v_-content-serviceTypeExemptions": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:input|Search by service type|div/radix-_r_v_-content-serviceTypeExemptions/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Cancel|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Cancel|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:button|Save|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Save|div/div/radix-_r_v_-content-serviceTypeExemptions/div/div/div\" accessibleName=\"1604Parker Palm Springs\"",
+      "probe": "unresolved"
+    },
+    "struct:th|Service Type|div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_2e_": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Resize column serviceTypeName|div/div/table/thead/tr/th": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:th|Exempt|div/div/div/table/thead/tr": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_2g_": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Resize column isSpecialRateAllowed|div/div/table/thead/tr/th": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Computer Rental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Concise Equipment|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Digital Branding|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Digital Services Equipment|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Digital Services Subrental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Equipment Rental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt HSIA - Equipment|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt HSIA - Subrental Equipment|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt HSIA - Wi-Fi Services|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt HSIA Services|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Lighting|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Lighting Subrental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Photographic Services|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Power Infrastructure|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Power Rental Equipment|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Power Sub-rental Equipment|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Rigging Equipment - Subrental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Rigging Equipment Rental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Scenic Equipment Rental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Scenic Sub-Rental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Sub-Rental Equipment|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Telecom Equipment|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Telecom Services|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Telecom Subrental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Venue Equipment Rental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Virtual Events Equipment|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Virtual Events Professional Servi|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt Wedding Event Equipment Rental|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:checkbox|Exempt ZSub Rental Specialty|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    }
+  },
+  "completion_record": {
+    "version": 1,
+    "status": "complete",
+    "surfaces_attempted": [
+      "dop-tab2"
+    ],
+    "surfaces_enumerated": [
+      "dop-tab2"
+    ],
+    "element_count": 148,
+    "raw_before_collapse": 154,
+    "halt_reasons": [],
+    "content_sha256": "e689d29f18530108169ad62c86576c0a122a6dc658bc7684edce2193b0cfa2cf"
+  }
+}
