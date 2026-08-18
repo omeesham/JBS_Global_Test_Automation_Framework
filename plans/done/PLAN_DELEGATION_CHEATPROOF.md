@@ -12,7 +12,7 @@
 ## BOOTSTRAP (read before anything)
 
 1. Read `.claude/skills/ultra-agents/worker-ext.md` in full (delegation doctrine; you are the dispatcher, never the executor of substantive work).
-2. Read `.claude/state/ua-worker/assistant-flow/rca-A.md` + `rca-B.md` (the settled root-cause: schema-conforming fabrication) and `.claude/state/ua-worker/assistant-flow/VERDICT.md` (labor-gate design).
+2. Read the `rca-A` and `rca-B` reports and the `VERDICT` note from the assistant-flow run store (local to the machine that ran it, not carried by the repo). The settled root-cause is schema-conforming fabrication; VERDICT carries the labor-gate design.
 3. Private answer key (NEVER share with any worker/chief; it is outside their path-confinement by design):
    originally in the temp scratchpad of the authoring session (file `fixture-corpus-PRIVATE`) (Fable session d1a3be89's temp dir — purgeable)
    ⚠ **Phase 0 step 1 copied it to the durable private location** — canonical home is now the private directory of the home-folder delegation store (file `fixture-corpus-PRIVATE`, JSON; machine-local by design, never in the repo) (sha256 `b773f0a8…` verified match at copy time).
@@ -81,7 +81,7 @@ Graduating incident (2026-07-14, parallel session): a hardgate demanded the owne
 2. Stage the equivalent patch for the chief seat file (`chief.agent.md` in the home copilot agents dir) + council seats as exact OLD→NEW patch specs (FAIL LOUDLY on mismatch). **Applying to `~/.copilot/agents/` = Rutvik's** (outside repo, seat layer) — include in the Phase 7 checklist. Note: the pending `proposed-chief.agent.md` DISPATCH/GUARANTEE rewrite from the labor-gate wave lands in the same apply step; fold both into one owner command.
 
 ### Phase 5 — Labor-gate over-block fix, executed as the first live drill of the new protocol
-1. Re-issue the data-vs-code fix (the 3 over-block cases: heredoc bodies, redirect payloads, echo/printf strings, grep patterns must ALLOW; real executions must still DENY — the full case list is in `.claude/state/ua-worker/assistant-flow/bounce-brief.md`, still correct).
+1. Re-issue the data-vs-code fix (the 3 over-block cases: heredoc bodies, redirect payloads, echo/printf strings, grep patterns must ALLOW; real executions must still DENY — the full case list is in the `bounce-brief` note from that run store, still correct).
 2. **2 fighters, blind, separate dirs** (`fix2-A/`, `fix2-B/`), envelope before, verify-run after. This is precisely the round that was fabricated three times — if the new protocol works, fabrication is now impossible to accept.
 3. Referee on machine facts; my acceptance battery (8 canonical cases) re-run by the executor directly:
    heredoc-ticket ALLOW · grep-mention ALLOW · echo-mention ALLOW · real-run DENY · data-then-real-run DENY · version-tag DENY · `npm run e2e` DENY · `npm run build` ALLOW.
