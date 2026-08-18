@@ -59,7 +59,7 @@ if (args.help) {
     '    --completion-record=<path>   path to enumerate-page.mjs JSON output\n' +
     '    --inventory=<path>           path to field-inventory markdown artifact\n' +
     '    [--taxonomy=<path>]          override path to field-case-generation.md\n' +
-    '    [--json]                     output JSON instead of NDJSON rows\n' +
+    '    [--json]                     compatibility no-op; output is JSON\n' +
     '    [--out=<path>]               write output to file instead of stdout\n' +
     '    [--merge]                    when used with --out, merge new rows into an existing\n' +
     '                                 file by replacing rows with the same source_artifact\n' +
@@ -334,14 +334,14 @@ const summary = {
 };
 
 // ── Silent-pass guard (mandatory) ────────────────────────────────────────────
-// Always print the machine-readable summary line first so callers can parse it
-// even when we subsequently exit non-zero.
+// Always print the machine-readable summary line first on stderr so callers can parse it
+// even when we subsequently exit non-zero, while stdout/outfile remain valid JSON.
 
 const summaryLine =
   `CASE-ROWS: controls=${controlKeys.length} rows=${totalCases} ` +
   `widened=${widenedCount} parity_gaps=${parityGaps.length}`;
 
-process.stdout.write(summaryLine + '\n');
+process.stderr.write(summaryLine + '\n');
 
 if (controlKeys.length > 0 && totalCases === 0) {
   process.stderr.write(
@@ -352,15 +352,7 @@ if (controlKeys.length > 0 && totalCases === 0) {
 
 // ── Assemble output ──────────────────────────────────────────────────────────
 
-let outputText;
-if (args.json) {
-  outputText = JSON.stringify({ summary, rows, parity_gaps: parityGaps }, null, 2) + '\n';
-} else {
-  // NDJSON: one row per line, followed by a summary object
-  const ndjson = rows.map(r => JSON.stringify(r)).join('\n');
-  const summaryJson = JSON.stringify({ summary, parity_gaps: parityGaps }, null, 2);
-  outputText = (ndjson ? ndjson + '\n' : '') + summaryJson + '\n';
-}
+const outputText = JSON.stringify({ summary, rows, parity_gaps: parityGaps }, null, 2) + '\n';
 
 if (args.out) {
   const outPath = resolve(args.out);
@@ -391,7 +383,7 @@ if (args.out) {
       };
       const mergedOutput = JSON.stringify({ summary: mergedSummary, rows: merged }, null, 2) + '\n';
       writeFileSync(outPath, mergedOutput, 'utf-8');
-      process.stdout.write(
+      process.stderr.write(
         `MERGED: kept ${kept.length} existing rows + ${rows.length} new (source_artifact=${sourceArtifact}) → ${merged.length} total\n`
       );
     } catch (err) {
@@ -405,8 +397,6 @@ if (args.out) {
   } else {
     writeFileSync(outPath, outputText, 'utf-8');
   }
-  // Summary JSON echoed to stdout when redirected to a file
-  process.stdout.write(JSON.stringify({ summary, parity_gaps: parityGaps }, null, 2) + '\n');
 } else {
   process.stdout.write(outputText);
 }

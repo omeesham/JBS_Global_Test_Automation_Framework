@@ -156,7 +156,7 @@ Added by PLAN_EXHAUSTIVE_WALK_GUARANTEE (landed 2026-06-19). This section is **a
 
 ### New frontmatter keys (present ONLY when a Coverage Manifest section is present)
 - `Coverage_Ratio: N/N (100%)` — dispositioned union elements / total union elements. Closure check Cx (LR-055) DENIES `Status: DONE` on a citing plan if this is < 100%.
-- `Walk_State: <office + currency + cascade branches>` — the state the denominator was measured in (e.g. `office=1604 currency=USD cascade=alt-off+alt-on`). Element sets are per-state (PLAN M2): office 1604 = 5 pricing dropdowns; 1605 = 15.
+- `Walk_State: module=<module-name> walked=[<state-labels>]` — the structured state list the denominator was measured in (for example, `module=pricing walked=[resting,cascade:alt-on]`). Add office/currency/tab tokens as needed, but `module=` and `walked=[...]` are required so `verify-denominator.mjs` can prove every required state was walked.
 - `CrossCheck: clean | <divergence list>` — `clean` ⇔ every union (A∪B) element is dispositioned AND every symmetric-difference (A△B) review-set element is classified (PLAN M4). Cx DENIES if ≠ `clean`.
 
 ### The manifest table

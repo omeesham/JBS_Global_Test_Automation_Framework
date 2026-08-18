@@ -56,7 +56,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { SHARED_PATHS, frameworkRoot } from './shared-paths.mjs';
 
@@ -193,7 +193,7 @@ export function extractFiles(cell) {
 function gitCommitTimeAsOf(relPath, asOfMs) {
   try {
     const untilIso = new Date(asOfMs).toISOString();
-    const out = execSync(`git log -1 --until="${untilIso}" --format=%cI -- "${relPath}"`, {
+    const out = execFileSync('git', ['log', '-1', `--until=${untilIso}`, '--format=%cI', '--', relPath], {
       cwd: REPO_ROOT,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
@@ -209,7 +209,7 @@ function gitCommitTimeAsOf(relPath, asOfMs) {
 /** Get git last-commit time (ms) for a file, or null if not tracked / no commits. */
 function gitCommitTimeMs(relPath) {
   try {
-    const out = execSync(`git log -1 --format=%cI -- "${relPath}"`, {
+    const out = execFileSync('git', ['log', '-1', '--format=%cI', '--', relPath], {
       cwd: REPO_ROOT,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],

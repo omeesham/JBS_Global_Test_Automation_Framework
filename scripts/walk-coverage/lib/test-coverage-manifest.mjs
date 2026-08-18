@@ -165,7 +165,7 @@ ok('F1 forged outside-module row (no cross-module evidence) → NOT complete',
 // F2. Genuine shell row: control appears in another module's inventory → excluded from denominator
 const GENUINE_SHELL_ROW = '| `struct:a|Home|div/div/div/div/ul/li` | a | 2026-07-01 | `out-of-scope: outside-module — global navigation link, not a module element` |\n';
 const genuineArtifact = header('2026-07-01', '2/2 (100%)', 'clean', undefined, { completionRecord: '' }) + COVERED_ROW + GENUINE_SHELL_ROW;
-const registryWithHome = new Map([['struct:a', new Set(['service-charge-history', 'service-charge-basic-information'])]]);
+const registryWithHome = new Map([['struct:a|Home|div/div/div/div/ul/li', new Set(['service-charge-history', 'service-charge-basic-information'])]]);
 v = coverageVerdict(genuineArtifact, LANDING, { crossModuleControls: registryWithHome, artifactPath: POST_COVERAGE_PRE_MANDATE_TRACKED_ARTIFACT });
 ok('F2 genuine shell row (cross-module evidence) → complete (excluded from denominator)',
   v.applicable && v.complete, JSON.stringify(v.reasons));
@@ -190,6 +190,13 @@ ok('E1 escaped-bar key parses to unescaped form',
   escapedRows.length === 1 && escapedRows[0].controlRef === 'struct:a|Home|div/div/div/div/ul/li',
   `got: ${escapedRows[0]?.controlRef}`);
 
+// E1b. A backtick-wrapped key with raw bars also stays intact; older generated manifests used this form.
+const BACKTICK_RAW_BAR_ROW = '| `struct:button|Order Search|div/div` | button | 2026-07-01 | read-only-verified |\n';
+const rawBarRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + BACKTICK_RAW_BAR_ROW).manifestRows;
+ok('E1b backtick-wrapped raw-bar key parses intact',
+  rawBarRows.length === 1 && rawBarRows[0].controlRef === 'struct:button|Order Search|div/div',
+  `got: ${rawBarRows[0]?.controlRef}`);
+
 // E2. An invented key (not in any enumeration) is still rejected by the cross-module gate
 const INVENTED_ROW = '| `testid:totally-invented-xyz` | button | 2026-07-01 | `out-of-scope: outside-module — invented element` |\n';
 const inventedArtifact = header('2026-07-01', '2/2 (100%)', 'clean') + COVERED_ROW + INVENTED_ROW;
@@ -204,8 +211,8 @@ ok('E3 case-mismatched escaped key parses with original case preserved',
   caseMismatchRows.length === 1 && caseMismatchRows[0].controlRef === 'STRUCT:A|HOME|DIV/DIV',
   `got: ${caseMismatchRows[0]?.controlRef}`);
 
-// E4. Doubled backslash (\\|) should NOT unescape to a pipe — it is a literal backslash + delimiter
-const DOUBLED_BS_ROW = '| `struct:a\\\\|home` | a | 2026-07-01 | covered-by-TC: TC-100 |\n';
+// E4. Doubled backslash (\\|) outside a code span is literal backslash + delimiter
+const DOUBLED_BS_ROW = '| struct:a\\\\|home | a | 2026-07-01 | covered-by-TC: TC-100 |\n';
 const doubledBsRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', 'clean', undefined, { completionRecord: '' }) + DOUBLED_BS_ROW).manifestRows;
 ok('E4 doubled backslash is literal backslash + cell delimiter (key truncates at delimiter)',
   doubledBsRows.length === 1 && doubledBsRows[0].controlRef === 'struct:a\\\\',

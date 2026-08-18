@@ -24,7 +24,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -60,7 +60,7 @@ function norm(p) { return String(p).replace(/\\/g, '/').replace(/^\/+/, ''); }
 /** Git blob sha for the content of a file (sha1 of "blob <size>\0<content>"). */
 function blobSha(filePath) {
   try {
-    return execSync(`git hash-object "${filePath}"`, { cwd: REPO_ROOT, encoding: 'utf-8' }).trim();
+    return execFileSync('git', ['hash-object', '--', filePath], { cwd: REPO_ROOT, encoding: 'utf-8' }).trim();
   } catch {
     return null;
   }
@@ -210,7 +210,7 @@ async function main() {
         } else {
           let objType = null;
           try {
-            objType = execSync(`git cat-file -t ${ref}`, {
+            objType = execFileSync('git', ['cat-file', '-t', '--', ref], {
               cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'],
             }).trim();
           } catch { /* git cat-file failed — object does not exist */ }

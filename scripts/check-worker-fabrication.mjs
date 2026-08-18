@@ -21,7 +21,7 @@
 
 import { readFileSync, existsSync, mkdirSync, writeFileSync, rmSync, readdirSync, statSync, appendFileSync } from 'node:fs';
 import { join, resolve, isAbsolute, dirname, basename } from 'node:path';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { tmpdir, homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -517,7 +517,7 @@ function checkF1(report, repoRoot, findings) {
       // Double-check with git: maybe the file was deleted intentionally
       let inGit = false;
       try {
-        execSync(`git ls-files --error-unmatch "${resolved}"`, { cwd: repoRoot, encoding: 'utf8', stdio: 'pipe' });
+        execFileSync('git', ['ls-files', '--error-unmatch', resolved], { cwd: repoRoot, encoding: 'utf8', stdio: 'pipe' });
         inGit = true;
       } catch { /* not tracked or deleted */ }
 
@@ -838,8 +838,7 @@ function findByHash(claimedHash, repoRoot) {
 // Bug 3: check git history for text that appeared in a diff removal line
 function wasEverInGitHistory(text, repoRoot) {
   try {
-    const safe = text.replace(/"/g, '\\"').substring(0, 200);
-    const out = execSync(`git log -S "${safe}" --oneline`, {
+    const out = execFileSync('git', ['log', `-S${text.substring(0, 200)}`, '--oneline'], {
       cwd: repoRoot, encoding: 'utf8', stdio: 'pipe', timeout: 8000,
     });
     return out.trim().length > 0;

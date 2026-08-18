@@ -29,6 +29,13 @@ place — the hook treats unfilled placeholders as authoring laziness).
 **Author_Identity**: <GIVER | OWNER | WATCHDOG>
 **Page_URL**: <full URL including query params, e.g. https://app.example.com/section/sub-section>
 **Test_Entity**: <client-specific test entity, e.g. Office 1604, Account ACME-123, Tenant 42>
+**Walk_Mode**: <quick | deep>
+**Walk_State**: module=<module-kebab> walked=[<state-label-1>,<state-label-2>]
+**Coverage_Ratio**: <covered>/<total> (<percent>%)
+**CrossCheck**: <clean | divergence summary>
+
+When a Coverage Manifest is present, keep `Walk_State` in the structured form above. `module=` and
+`walked=[...]` are required; office/currency/tab tokens may be added around them when useful.
 
 ---
 

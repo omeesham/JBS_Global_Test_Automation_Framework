@@ -56,7 +56,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -510,7 +510,7 @@ export function gitStagedTcFilesWithStatus(repoRoot) {
 
 function gitShow(repoRoot, ref) {
   try {
-    return execSync(`git show "${ref}"`, {
+    return execFileSync('git', ['show', ref], {
       cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
     });
   } catch {
@@ -548,7 +548,7 @@ export function detectMergeHeads(repoRoot) {
  */
 function blobAt(repoRoot, treeish, relPath) {
   try {
-    const out = execSync(`git rev-parse "${treeish}:${relPath}"`, {
+    const out = execFileSync('git', ['rev-parse', `${treeish}:${relPath}`], {
       cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
     });
     return out.trim() || null;

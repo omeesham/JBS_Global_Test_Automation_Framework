@@ -14,7 +14,7 @@
 
 import { readFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { resolve, join, dirname, basename, relative } from 'node:path';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { randomBytes } from 'node:crypto';
@@ -347,7 +347,7 @@ function main() {
         if (!pathGitignored.has(p)) {
           // Determine if gitignored or simply absent from git
           try {
-            const checkResult = execSync(`git check-ignore -q "${p}"`, { cwd: REPO_ROOT, encoding: 'utf-8', stdio: 'pipe' });
+            const checkResult = execFileSync('git', ['check-ignore', '-q', '--', p], { cwd: REPO_ROOT, encoding: 'utf-8', stdio: 'pipe' });
             pathGitignored.set(p, true);
           } catch {
             pathGitignored.set(p, false);
