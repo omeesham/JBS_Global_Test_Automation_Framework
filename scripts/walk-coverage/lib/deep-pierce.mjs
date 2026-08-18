@@ -183,8 +183,10 @@ export function inPageEnumerate(rootSelector) {
       var e = map[key];
       if (!e) {
         e = { key: key, role: role0 || tag(el), name: accName(el),
-              why: reasonA || 'focusable', inA: false, inB: false, disabled: isDisabled(el) };
+              why: reasonA || 'focusable', inA: false, inB: false, disabled: isDisabled(el), occurrences: 1 };
         map[key] = e; order.push(key);
+      } else {
+        e.occurrences = (e.occurrences || 1) + 1;
       }
       if (reasonA) { e.inA = true; if (e.why === 'focusable') e.why = reasonA; }
       if (focB) e.inB = true;
@@ -313,7 +315,7 @@ export function setAlgebra(entries) {
  * column is emitted UNFILLED — the agent dispositions every row; Coverage_Ratio starts at 0/N.
  * @param {object} o  { walkState, entries, machineFoundDate, sourceJson }
  */
-export function renderManifest({ walkState, entries, machineFoundDate, sourceJson, completionRecord }) {
+export function renderManifest({ walkState, entries, machineFoundDate, sourceJson, completionRecord, baseState }) {
   const N = entries.length;
   const lines = [];
   lines.push('## Coverage Manifest (machine-enumerated)');
@@ -326,6 +328,9 @@ export function renderManifest({ walkState, entries, machineFoundDate, sourceJso
   if (completionRecord) {
     lines.push(`Completion_Record: ${sourceJson} (status=${completionRecord.status}, elements=${completionRecord.element_count})`);
   }
+  if (baseState) {
+    lines.push(`base_state: atRest=[${(baseState.atRest || []).join(', ')}] atEmit=[${(baseState.atEmit || []).join(', ')}]`);
+  }
   lines.push('-->');
   lines.push('');
   lines.push(`Machine denominator: **${N}** element(s). Provenance JSON: \`${sourceJson}\`.`);
@@ -337,7 +342,8 @@ export function renderManifest({ walkState, entries, machineFoundDate, sourceJso
   for (const e of entries) {
     const lens = e.inA && e.inB ? '' : (e.inA ? ' _(A∖B review)_' : ' _(B∖A review)_');
     const dis = e.disabled ? ' _(disabled)_' : '';
-    lines.push(`| \`${e.key}\`${lens}${dis} | ${e.role} | ${machineFoundDate} | _undispositioned_ |`);
+    const occ = e.occurrences && e.occurrences > 1 ? ` (×${e.occurrences} live)` : '';
+    lines.push(`| \`${e.key}\`${lens}${dis}${occ} | ${e.role} | ${machineFoundDate} | _undispositioned_ |`);
   }
   lines.push('');
   return lines.join('\n');

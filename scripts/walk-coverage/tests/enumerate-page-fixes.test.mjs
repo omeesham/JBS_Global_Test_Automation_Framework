@@ -4,7 +4,7 @@
 // No browser required — mocks are used for page-dependent paths.
 // Each test is structured so it FAILS against the pre-fix code.
 
-import { deriveFieldType, waitReady, waitReadyContent, enumerateState, renavigateToOrigin, deriveAllFieldTypes, entryKeyToSelector, resolveBranchOpener, MODULE_CONFIG } from '../enumerate-page.mjs';
+import { deriveFieldType, waitReady, waitReadyContent, enumerateState, renavigateToOrigin, deriveAllFieldTypes, entryKeyToSelector, resolveBranchOpener, MODULE_CONFIG, resolveRunConfig, expandToFixpoint, mergeEntries } from '../enumerate-page.mjs';
 import { inPageEnumerate } from '../lib/deep-pierce.mjs';
 
 let passed = 0;
@@ -629,6 +629,438 @@ console.log('\ng76 Finding 2: genuine evaluate errors are surfaced in timeout me
   assert('timeout message includes WAIT_READY_TIMEOUT', msg.includes('[WAIT_READY_TIMEOUT]'), `got: ${msg}`);
   assert('timeout message includes the actual error text', msg.includes('Serialization failed'),
     `error not surfaced in timeout: ${msg}`);
+}
+
+console.log(`\n=== ${passed} passed, ${failed} failed ===`);
+if (failed > 0) process.exit(1);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// g78-V7 tests: fixpoint timing, adhoc config, occurrence counts
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Shared mock factory: a page whose enumerateState returns entries from a sequence.
+// Each enumerateState call consumes from scanSequence; repeats the last one forever.
+function mockEnumPage(scanSequence) {
+  let callCount = 0;
+  const frame = {
+    evaluate: async () => {
+      const idx = Math.min(callCount, scanSequence.length - 1);
+      callCount++;
+      return scanSequence[idx];
+    },
+  };
+  return {
+    get scanCount() { return callCount; },
+    frames: () => [frame],
+    mainFrame: () => frame,
+    waitForTimeout: async () => {},
+  };
+}
+
+function makeEnumResult(n) {
+  const entries = Array.from({ length: n }, (_, i) => ({
+    key: `testid:field-${i}`, role: 'input', name: `field ${i}`,
+    why: 'testid', inA: true, inB: false, disabled: false,
+  }));
+  return { entries, candidates: [], stats: { scanned: n, shadowHosts: 0, uniqueKeys: n } };
+}
+
+// ─── T-race: pre-fix RED, post-fix GREEN ─────────────────────────────────────
+// Mock page: scan calls return 9, 9, 48, 48, 95, 95, 95... (pairs per cycle)
+console.log('\nT-race (RED — pre-fix legacy || break)');
+{
+  const seq = [
+    makeEnumResult(9), makeEnumResult(9),     // cycle 1: top=9, bottom=9
+    makeEnumResult(48), makeEnumResult(48),   // cycle 2: top=48, bottom=48
+    makeEnumResult(95), makeEnumResult(95),   // cycle 3+: stable at 95
+    makeEnumResult(95), makeEnumResult(95),
+    makeEnumResult(95), makeEnumResult(95),
+    makeEnumResult(95), makeEnumResult(95),
+  ];
+  const page = mockEnumPage(seq);
+  const accum = new Map();
+  const report = { cycles: [], branches: [] };
+  const result = await expandToFixpoint(page, accum, null, false, 10, report, { _testLegacyBreak: true });
+  console.log(`  PRE-FIX: accum=${accum.size} (expected <95)`);
+  assert('T-race RED: pre-fix accum below 95', accum.size < 95,
+    `got accum=${accum.size} — legacy || should break on clicked=0 before all keys arrive`);
+}
+
+console.log('\nT-race (GREEN — post-fix && break + confirmation)');
+{
+  const seq = [
+    makeEnumResult(9), makeEnumResult(9),
+    makeEnumResult(48), makeEnumResult(48),
+    makeEnumResult(95), makeEnumResult(95),
+    makeEnumResult(95), makeEnumResult(95),
+    makeEnumResult(95), makeEnumResult(95),
+    makeEnumResult(95), makeEnumResult(95),
+    makeEnumResult(95), makeEnumResult(95),
+  ];
+  const page = mockEnumPage(seq);
+  const accum = new Map();
+  const report = { cycles: [], branches: [] };
+  const result = await expandToFixpoint(page, accum, null, false, 10, report);
+  console.log(`  POST-FIX: accum=${accum.size}, settled=${result.settled}`);
+  assert('T-race GREEN: post-fix captures all 95', accum.size === 95,
+    `got accum=${accum.size}`);
+  assert('T-race GREEN: settled=true', result.settled === true);
+  // Verify late keys are tagged 'resting'
+  const lateKeys = [...accum.values()].filter(e => parseInt(e.key.split('-')[1]) >= 9);
+  const allResting = lateKeys.every(e => e.branches && e.branches.includes('resting'));
+  assert('T-race GREEN: every late key tagged resting', allResting,
+    `found non-resting late key`);
+}
+
+// ─── T-positive-control: forever-growing page MUST halt ──────────────────────
+console.log('\nT-positive-control: forever-growing page ends in halted path');
+{
+  // Each scan adds 5 more keys, forever
+  let n = 0;
+  const frame = {
+    evaluate: async () => {
+      n += 5;
+      return makeEnumResult(n);
+    },
+  };
+  const page = {
+    frames: () => [frame],
+    mainFrame: () => frame,
+    waitForTimeout: async () => {},
+  };
+  const accum = new Map();
+  const report = { cycles: [], branches: [] };
+  const result = await expandToFixpoint(page, accum, null, false, 6, report);
+  console.log(`  settled=${result.settled}, msg=${(result.msg || '').slice(0, 80)}`);
+  assert('T-positive-control: settled=false (halted)', result.settled === false,
+    `expected halted path but got settled=true with accum=${accum.size}`);
+  assert('T-positive-control: msg contains FIXPOINT-EXHAUSTED',
+    result.msg && result.msg.includes('FIXPOINT-EXHAUSTED'),
+    `got msg: ${result.msg}`);
+  assert('T-positive-control: msg contains "Refusing to emit"',
+    result.msg && result.msg.includes('Refusing to emit'),
+    `got msg: ${result.msg}`);
+}
+
+// ─── T-stable-small: 9-key page completes at exactly 9 ──────────────────────
+console.log('\nT-stable-small: stable 9-key page completes correctly');
+{
+  const seq = Array(20).fill(makeEnumResult(9));
+  const page = mockEnumPage(seq);
+  const accum = new Map();
+  const report = { cycles: [], branches: [] };
+  const result = await expandToFixpoint(page, accum, null, false, 6, report);
+  console.log(`  accum=${accum.size}, settled=${result.settled}`);
+  assert('T-stable-small: accum is exactly 9', accum.size === 9,
+    `got accum=${accum.size} — fix must not inflate a genuinely small page`);
+  assert('T-stable-small: settled=true', result.settled === true);
+}
+
+// ─── T-adhoc: resolveRunConfig produces adhoc for --url without --module ─────
+console.log('\nT-adhoc: resolveRunConfig adhoc and validation');
+{
+  const rc1 = resolveRunConfig(
+    { url: 'https://x/navigator/locations/1607/settings/foo' },
+    MODULE_CONFIG
+  );
+  assert('T-adhoc: module=adhoc', rc1.moduleName === 'adhoc',
+    `got moduleName=${rc1.moduleName}`);
+  assert('T-adhoc: office=1607', rc1.office === '1607',
+    `got office=${rc1.office}`);
+  assert('T-adhoc: cfg=null', rc1.cfg === null,
+    `got cfg=${JSON.stringify(rc1.cfg)}`);
+  assert('T-adhoc: no error', rc1.error === undefined);
+
+  // --url with --module=pricing should exit 2 when URL doesn't match
+  const rc2 = resolveRunConfig(
+    { url: 'https://x/navigator/locations/1607/settings/foo', module: 'pricing' },
+    MODULE_CONFIG
+  );
+  assert('T-adhoc: --url + --module mismatch → exitCode 2', rc2.exitCode === 2,
+    `got exitCode=${rc2.exitCode}, error=${rc2.error}`);
+}
+
+// ─── T-counts: mergeEntries preserves max occurrences; manifest renders ×N ───
+console.log('\nT-counts: occurrence counting in mergeEntries');
+{
+  const accum = new Map();
+  // First merge: 36 occurrences of the same key
+  const entries1 = [{ key: 'struct:input|Date|grid/row', role: 'input', name: 'Date',
+    why: 'native:input', inA: true, inB: false, disabled: false, occurrences: 36 }];
+  mergeEntries(accum, entries1, 'resting', false);
+  assert('T-counts: first merge sets occurrences=36',
+    accum.get('struct:input|Date|grid/row').occurrences === 36,
+    `got ${accum.get('struct:input|Date|grid/row').occurrences}`);
+
+  // Second merge: same key with 20 occurrences — max should stay 36
+  const entries2 = [{ key: 'struct:input|Date|grid/row', role: 'input', name: 'Date',
+    why: 'native:input', inA: true, inB: false, disabled: false, occurrences: 20 }];
+  mergeEntries(accum, entries2, 'expand-1', false);
+  assert('T-counts: max-merge keeps 36 (not overwritten by 20)',
+    accum.get('struct:input|Date|grid/row').occurrences === 36,
+    `got ${accum.get('struct:input|Date|grid/row').occurrences}`);
+
+  // Verify renderManifest produces ×N
+  const { renderManifest } = await import('../lib/deep-pierce.mjs');
+  const manifest = renderManifest({
+    walkState: 'test', entries: [...accum.values()],
+    machineFoundDate: '2026-08-18', sourceJson: 'test.json'
+  });
+  assert('T-counts: manifest renders (×36 live)',
+    manifest.includes('(×36 live)'),
+    `manifest does not contain (×36 live)`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// g78-V9 tests: URL-to-config resolution, hydration-131 mock
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── T-url-resolves-config: pricing URL with --url only resolves pricing cfg ─
+console.log('\nT-url-resolves-config: pricing URL resolves to pricing config');
+{
+  const BASE = 'https://cloudapps-e2e.encoreglobal.com/navigator';
+  const pricingUrl = `${BASE}/locations/1604/settings/location`;
+  const rc = resolveRunConfig({ url: pricingUrl }, MODULE_CONFIG);
+  assert('T-url-resolves-config: moduleName=pricing', rc.moduleName === 'pricing',
+    `got moduleName=${rc.moduleName}`);
+  assert('T-url-resolves-config: cfg is not null', rc.cfg !== null,
+    `got cfg=${rc.cfg}`);
+  assert('T-url-resolves-config: office=1604', rc.office === '1604',
+    `got office=${rc.office}`);
+  assert('T-url-resolves-config: no error', rc.error === undefined);
+  const rcModule = resolveRunConfig({ module: 'pricing', office: '1604' }, MODULE_CONFIG);
+  assert('T-url-resolves-config: cfg matches --module=pricing cfg',
+    rc.cfg === rcModule.cfg, 'config objects differ');
+}
+
+// ─── T-url-no-match: URL matching no config → adhoc ─────────────────────────
+console.log('\nT-url-no-match: unrecognized URL resolves to adhoc');
+{
+  const rc = resolveRunConfig(
+    { url: 'https://cloudapps-e2e.encoreglobal.com/navigator/locations/1607/settings/unknown-page' },
+    MODULE_CONFIG
+  );
+  assert('T-url-no-match: moduleName=adhoc', rc.moduleName === 'adhoc',
+    `got moduleName=${rc.moduleName}`);
+  assert('T-url-no-match: cfg=null', rc.cfg === null,
+    `got cfg=${JSON.stringify(rc.cfg)}`);
+  assert('T-url-no-match: office=1607', rc.office === '1607',
+    `got office=${rc.office}`);
+  assert('T-url-no-match: no error', rc.error === undefined);
+}
+
+// ─── T-url-ambiguous: URL matching two configs exits 2 ──────────────────────
+console.log('\nT-url-ambiguous: ambiguous URL exits 2 naming both candidates');
+{
+  const ambiguousConfig = {
+    modA: { path: (o) => `https://example.com/locations/${o}/settings/shared` },
+    modB: { path: (o) => `https://example.com/locations/${o}/settings/shared` },
+  };
+  const rc = resolveRunConfig(
+    { url: 'https://example.com/locations/1604/settings/shared/page' },
+    ambiguousConfig
+  );
+  assert('T-url-ambiguous: exitCode=2', rc.exitCode === 2,
+    `got exitCode=${rc.exitCode}`);
+  assert('T-url-ambiguous: error names modA', rc.error && rc.error.includes('modA'),
+    `error: ${rc.error}`);
+  assert('T-url-ambiguous: error names modB', rc.error && rc.error.includes('modB'),
+    `error: ${rc.error}`);
+}
+
+// ─── T-provenance: resolved module/office in return, never a default ─────────
+console.log('\nT-provenance: resolved values reflect URL, not defaults');
+{
+  const BASE = 'https://cloudapps-e2e.encoreglobal.com/navigator';
+  const rc = resolveRunConfig(
+    { url: `${BASE}/locations/9999/settings/location` },
+    MODULE_CONFIG
+  );
+  assert('T-provenance: office=9999 (from URL)', rc.office === '9999',
+    `got office=${rc.office}`);
+  assert('T-provenance: moduleName=pricing (resolved)', rc.moduleName === 'pricing',
+    `got moduleName=${rc.moduleName}`);
+  assert('T-provenance: url preserved', rc.url.includes('9999'),
+    `got url=${rc.url}`);
+}
+
+// ─── T-hydration-131: mock reproducing the colleague's shape ─────────────────
+// Phase 1: resting hydration (no openers, cfg=null) — page hydrates 9→92 across scans.
+// Legacy || break: clicked=0 on cycle 1 → breaks at 9. Post-fix &&: continues until added=0 → 92.
+// Phase 2: with cfg resolved (opener activates tab, adds 39) → total 131.
+console.log('\nT-hydration-131: hydration mock reaches 131 post-fix');
+{
+  function makeNamedEntries(start, count, prefix) {
+    return Array.from({ length: count }, (_, i) => ({
+      key: `testid:${prefix}-${start + i}`, role: 'input', name: `${prefix} ${start + i}`,
+      why: 'testid', inA: true, inB: false, disabled: false,
+    }));
+  }
+  function makeResultFrom(entries) {
+    return { entries, candidates: [], stats: { scanned: entries.length, shadowHosts: 0, uniqueKeys: entries.length } };
+  }
+
+  const baseEntries9 = makeNamedEntries(0, 9, 'field');
+  const baseEntries48 = makeNamedEntries(0, 48, 'field');
+  const baseEntries92 = makeNamedEntries(0, 92, 'field');
+  const tabEntries39 = makeNamedEntries(92, 39, 'field');
+  const allEntries131 = [...baseEntries92, ...tabEntries39];
+
+  // Phase 1: resting hydration WITHOUT cfg — clicked is always 0
+  console.log('  Phase 1: resting hydration (no cfg)');
+  {
+    const seq = [
+      makeResultFrom(baseEntries9), makeResultFrom(baseEntries9),     // cycle 1
+      makeResultFrom(baseEntries48), makeResultFrom(baseEntries48),   // cycle 2
+      makeResultFrom(baseEntries92), makeResultFrom(baseEntries92),   // cycle 3
+      makeResultFrom(baseEntries92), makeResultFrom(baseEntries92),   // cycle 4 stable
+      makeResultFrom(baseEntries92),                                  // confirm
+      makeResultFrom(baseEntries92),
+    ];
+    // Legacy run — clicked=0 always → || breaks cycle 1
+    const pageL = mockEnumPage([...seq]);
+    const accumL = new Map();
+    const reportL = { cycles: [], branches: [] };
+    await expandToFixpoint(pageL, accumL, null, false, 10, reportL, { _testLegacyBreak: true });
+    console.log(`    LEGACY:   accum=${accumL.size} (expected <=9)`);
+    assert('T-hydration-131: legacy resting stops at <=9', accumL.size <= 9,
+      `got accum=${accumL.size}`);
+
+    // Post-fix run — && requires both clicked=0 AND added=0
+    const pageF = mockEnumPage([...seq]);
+    const accumF = new Map();
+    const reportF = { cycles: [], branches: [] };
+    await expandToFixpoint(pageF, accumF, null, false, 10, reportF);
+    console.log(`    POST-FIX: accum=${accumF.size} (expected 92)`);
+    assert('T-hydration-131: post-fix resting reaches 92', accumF.size === 92,
+      `got accum=${accumF.size}`);
+  }
+
+  // Phase 2: with cfg resolved (opener activates tab, adds 39)
+  console.log('  Phase 2: with cfg (tab activation adds 39 -> 131)');
+  {
+    const tabOpenerKey = 'testid:activate-tab-1';
+    const tabOpenerEntry = { key: tabOpenerKey, role: 'button', name: 'Tab 1',
+      why: 'testid', inA: true, inB: false, disabled: false };
+    const mockCfg = { openerTestidPatterns: [/activate-tab/i] };
+
+    const seq = [
+      makeResultFrom([...baseEntries92, tabOpenerEntry]),  // cycle 1 top: see opener
+      makeResultFrom(allEntries131),                        // cycle 1 bottom: tab revealed 39
+      makeResultFrom(allEntries131),                        // cycle 2 top
+      makeResultFrom(allEntries131),                        // cycle 2 bottom
+      makeResultFrom(allEntries131),                        // confirm
+      makeResultFrom(allEntries131),
+    ];
+    const page = mockEnumPage(seq);
+    page.locator = () => ({ count: async () => 1, first: () => ({ click: async () => {} }) });
+    const accum = new Map();
+    const report = { cycles: [], branches: [] };
+    const result = await expandToFixpoint(page, accum, mockCfg, false, 10, report);
+    console.log(`    POST-FIX: accum=${accum.size}, settled=${result.settled}`);
+    assert('T-hydration-131: with cfg reaches 131', accum.size === 131,
+      `got accum=${accum.size}`);
+    assert('T-hydration-131: settled=true', result.settled === true);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// g78-V13 tests: segment-boundary matching, longest-prefix-wins, provenance guard
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── T-segment-boundary: /settings/aardvark does NOT match /settings/a config ─
+console.log('\nT-segment-boundary: prefix must end at segment boundary');
+{
+  const segConfig = {
+    short: { path: (o) => `https://example.com/locations/${o}/settings/a` },
+    longer: { path: (o) => `https://example.com/locations/${o}/settings/ab` },
+  };
+  const rc = resolveRunConfig(
+    { url: 'https://example.com/locations/1604/settings/aardvark' },
+    segConfig
+  );
+  assert('T-segment-boundary: /settings/aardvark → adhoc (not short)',
+    rc.moduleName === 'adhoc', `got moduleName=${rc.moduleName}`);
+
+  // But /settings/a/sub DOES match short (segment boundary /)
+  const rc2 = resolveRunConfig(
+    { url: 'https://example.com/locations/1604/settings/a/sub' },
+    segConfig
+  );
+  assert('T-segment-boundary: /settings/a/sub → short',
+    rc2.moduleName === 'short', `got moduleName=${rc2.moduleName}`);
+
+  // Exact match works
+  const rc3 = resolveRunConfig(
+    { url: 'https://example.com/locations/1604/settings/a' },
+    segConfig
+  );
+  assert('T-segment-boundary: exact /settings/a → short',
+    rc3.moduleName === 'short', `got moduleName=${rc3.moduleName}`);
+}
+
+// ─── T-longest-prefix: nested configs resolve to most specific ───────────────
+console.log('\nT-longest-prefix: longest prefix wins among segment-boundary matches');
+{
+  const nestedConfig = {
+    parent: { path: (o) => `https://x.com/locations/${o}/settings/corporate-pricing` },
+    child:  { path: (o) => `https://x.com/locations/${o}/settings/corporate-pricing/pg-override` },
+  };
+  const rc = resolveRunConfig(
+    { url: 'https://x.com/locations/1604/settings/corporate-pricing/pg-override' },
+    nestedConfig
+  );
+  assert('T-longest-prefix: pg-override URL → child (not parent)',
+    rc.moduleName === 'child', `got moduleName=${rc.moduleName}`);
+
+  const rc2 = resolveRunConfig(
+    { url: 'https://x.com/locations/1604/settings/corporate-pricing' },
+    nestedConfig
+  );
+  assert('T-longest-prefix: parent URL → parent',
+    rc2.moduleName === 'parent', `got moduleName=${rc2.moduleName}`);
+}
+
+// ─── T-provenance-guard: --module naming wrong (shorter) config for longer URL ─
+console.log('\nT-provenance-guard: --module=parent with child URL exits 2');
+{
+  const nestedConfig = {
+    parent: { path: (o) => `https://x.com/locations/${o}/settings/corporate-pricing` },
+    child:  { path: (o) => `https://x.com/locations/${o}/settings/corporate-pricing/pg-override` },
+  };
+  const rc = resolveRunConfig(
+    { url: 'https://x.com/locations/1604/settings/corporate-pricing/pg-override', module: 'parent' },
+    nestedConfig
+  );
+  assert('T-provenance-guard: exitCode=2', rc.exitCode === 2,
+    `got exitCode=${rc.exitCode}, error=${rc.error}`);
+  assert('T-provenance-guard: error names child',
+    rc.error && rc.error.includes('child'),
+    `error: ${rc.error}`);
+}
+
+// ─── T-all-configs-own-path: every MODULE_CONFIG resolves from its own path ──
+console.log('\nT-all-configs-own-path: each config resolves from its own generated URL');
+{
+  const office = '1604';
+  const results = [];
+  for (const [name, cfg] of Object.entries(MODULE_CONFIG)) {
+    let url;
+    try { url = cfg.path(office); } catch { results.push({ name, status: 'SKIP (path() throws)' }); continue; }
+    const rc = resolveRunConfig({ url }, MODULE_CONFIG);
+    if (rc.error) {
+      results.push({ name, status: `ERROR: ${rc.error}` });
+    } else if (rc.moduleName !== name) {
+      results.push({ name, status: `WRONG: resolved as ${rc.moduleName}` });
+    } else {
+      results.push({ name, status: 'OK' });
+    }
+  }
+  for (const r of results) {
+    console.log(`    ${r.name}: ${r.status}`);
+    assert(`T-all-configs-own-path: ${r.name}`,
+      r.status === 'OK', r.status);
+  }
 }
 
 console.log(`\n=== ${passed} passed, ${failed} failed ===`);
