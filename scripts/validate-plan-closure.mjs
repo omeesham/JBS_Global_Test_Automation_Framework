@@ -881,7 +881,23 @@ function splitTableRow(line) {
   if (s.endsWith('|')) s = s.slice(0, -1);
   const PLACEHOLDER = '';
   s = s.replace(/\\\|/g, PLACEHOLDER);
-  return s.split('|').map(c => c.replace(new RegExp(PLACEHOLDER, 'g'), '\\|').trim());
+  // Split on | only when not inside a backtick code span
+  const cells = [];
+  let current = '';
+  let inCodeSpan = false;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === '`') {
+      inCodeSpan = !inCodeSpan;
+      current += s[i];
+    } else if (s[i] === '|' && !inCodeSpan) {
+      cells.push(current.replace(new RegExp(PLACEHOLDER, 'g'), '\\|').trim());
+      current = '';
+    } else {
+      current += s[i];
+    }
+  }
+  cells.push(current.replace(new RegExp(PLACEHOLDER, 'g'), '\\|').trim());
+  return cells;
 }
 
 // Locate "## Per-Identity Satisfaction" (h2 or h3); return null if absent (C6 skip),
@@ -1654,11 +1670,18 @@ function runAll(opts) {
 function runStaged(opts) {
   let stagedFiles;
   try {
-    stagedFiles = gitExec('git diff --cached --name-only').split('\n').filter(Boolean);
+    // Use core.quotePath=false so paths with spaces/special chars are not C-quoted
+    stagedFiles = gitExec('git -c core.quotePath=false diff --cached --name-only').split('\n').map(s => s.replace(/\r$/, '')).filter(Boolean);
   } catch {
     stagedFiles = [];
   }
-  const plans = stagedFiles.filter(f => /^plans\/(pending|done)\/.*\.md$/.test(f));
+  const skipSet = opts.skipPaths instanceof Set ? opts.skipPaths : new Set();
+  const allPlans = stagedFiles.filter(f => /^plans\/(pending|done)\/.*\.md$/.test(f));
+  const skipped = allPlans.filter(f => skipSet.has(f));
+  const plans = allPlans.filter(f => !skipSet.has(f));
+  for (const s of skipped) {
+    console.log(`[SKIP] ${basename(s)} — exempt via --skip-path (merge guard)`);
+  }
   if (plans.length === 0) return { status: 'PASS', plans: [] };
 
   let anyFail = false;
@@ -1666,7 +1689,8 @@ function runStaged(opts) {
   for (const p of plans) {
     let body;
     try {
-      body = gitExec(`git show :${p}`);
+      // Use execFileSync to avoid shell word-splitting on paths with spaces
+      body = execFileSync('git', ['show', `:${p}`], { cwd: REPO_ROOT, encoding: 'utf-8' }).trim();
     } catch { continue; }
 
     const absPath = join(REPO_ROOT, p);
@@ -2035,6 +2059,11 @@ if (args.includes('--self-test')) {
   const interactionCoverageMode = interactionCoverageModeArg ? interactionCoverageModeArg.split('=')[1] : undefined;
   const coverageTierModeArg = args.find(a => a.startsWith('--coverage-tier-mode='));
   const coverageTierMode = coverageTierModeArg ? coverageTierModeArg.split('=')[1] : undefined;
+  // --skip-path=<path> (repeated, one per path) — merge guard exemption for unchanged upstream plans.
+  // Errors resolve toward grading: empty/missing values are silently ignored (not exempted).
+  const skipPaths = new Set(
+    args.filter(a => a.startsWith('--skip-path=')).map(a => a.slice('--skip-path='.length)).filter(Boolean)
+  );
 
   if (all) {
     const result = runAll({ json, reportOnly: reportOnly || !enforce, rewriteManifests, coverageMode, testStatusMode, c6Mode, recurrenceTrialMode, interactionCoverageMode, coverageTierMode, dryRun });
@@ -2046,7 +2075,7 @@ if (args.includes('--self-test')) {
     const result = runChanged({ json });
     process.exit(result.status === 'FAIL' ? 1 : 0);
   } else if (staged) {
-    const result = runStaged({ json });
+    const result = runStaged({ json, skipPaths });
     process.exit(result.status === 'FAIL' ? 1 : 0);
   } else if (planPath) {
     const result = runSingle(planPath, {

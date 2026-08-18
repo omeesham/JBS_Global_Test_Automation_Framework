@@ -32,14 +32,14 @@ function withTmpRepo(fn) {
   try { return fn(dir); } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 }
 
-function writeArtifact(repoRoot, { client = 'encore', module: moduleName, date, sessionDate }) {
+function writeArtifact(repoRoot, { client = 'encore', module: moduleName, date, sessionDate, plainMcpDate = false }) {
   const dir = path.join(repoRoot, 'clients', client, 'specs_planning', '_internal', 'field-inventories');
   fs.mkdirSync(dir, { recursive: true });
   const filename = `${moduleName}-${date}.md`;
   const body = [
     `**Module**: ${moduleName}`,
     `**Client**: ${client}`,
-    `**MCP_Session_Date**: ${sessionDate || date}`,
+    `${plainMcpDate ? '' : '**'}MCP_Session_Date${plainMcpDate ? '' : '**'}: ${sessionDate || date}`,
     `**MCP_Session_Tool**: Claude in Chrome`,
     `**MCP_Tool_Reason**: test fixture`,
     `**Author_Identity**: GIVER`,
@@ -214,6 +214,18 @@ test('Fixture 1b: staged TC edit + artifact exactly 14 days old -> PASS (boundar
     today: '2026-04-23',
   });
   assertEq(result.ok, true, '14-day-old artifact should still be fresh (inclusive)');
+}));
+
+test('Fixture 1c: staged TC edit + plain MCP_Session_Date artifact -> PASS', () => withTmpRepo(repoRoot => {
+  writeArtifact(repoRoot, { module: MODULE, date: '2026-04-23', sessionDate: '2026-04-23', plainMcpDate: true });
+  const result = evaluate({
+    repoRoot,
+    files: [{ path: TC_PATH, oldContent: tcBase, newContent: tcChangedStep }],
+    today: '2026-04-23',
+  });
+  assertEq(result.ok, true, 'plain MCP_Session_Date artifact should satisfy the field-inventory gate');
+  const art = findLatestArtifact({ repoRoot, client: 'encore', module: MODULE, today: '2026-04-23', freshnessDays: 14 });
+  assertEq(art.sessionDate, '2026-04-23', 'plain date form should be parsed');
 }));
 
 test('Fixture 2: staged TC edit + NO artifact -> FAIL', () => withTmpRepo(repoRoot => {

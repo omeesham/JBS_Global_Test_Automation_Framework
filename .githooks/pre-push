@@ -1,13 +1,84 @@
 #!/usr/bin/env bash
 # Pre-push hook — Path A ship-discipline enforcement.
+# Sev S1 — graduating incident: two colleagues blocked by upstream plans with
+# broken closure (2026-08-18). Prior-fix verdict: commit-time check is
+# scoped-wrong — it sits on the machine where the defect is invisible.
 # Register with: npm run plans:hooks:install (sets core.hooksPath = .githooks)
 
 set -e
+set -o pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+
+# 1. Plan-closure gate — grade only plans whose content changed in this push.
+# stdin format per git: <local_ref> <local_sha> <remote_ref> <remote_sha>
+# Save stdin to fd 3 so commands inside the loop cannot consume the ref list.
+exec 3<&0
+PLAN_GATE_FAILED=0
+REFS_PROCESSED=0
+while read -r local_ref local_sha remote_ref remote_sha <&3; do
+  REFS_PROCESSED=$((REFS_PROCESSED + 1))
+
+  # Skip delete pushes
+  if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+    continue
+  fi
+
+  # Determine baseline: if remote has no such ref, no baseline — skip grading.
+  if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    echo "[pre-push/plan-closure] New branch — no remote baseline; skipping plan-closure grading." >&2
+    continue
+  fi
+
+  # Find plan files whose content changed in the push range
+  changed_plans=()
+  while IFS= read -r -d '' pfile; do
+    changed_plans+=("$pfile")
+  done < <(git diff -z --name-only --diff-filter=d "$remote_sha".."$local_sha" -- 'plans/*.md' 'plans/**/*.md')
+
+  if [ ${#changed_plans[@]} -eq 0 ]; then
+    continue
+  fi
+
+  for plan in "${changed_plans[@]}"; do
+    # Validate directly: write blob to temp file, feed to validator without a pipe
+    # so the exit code is measured from the validator alone, never masked by pipefail.
+    PLAN_TMPFILE="$(mktemp)"
+    if ! git show "${local_sha}:${plan}" > "$PLAN_TMPFILE" 2>/dev/null; then
+      echo "[pre-push/plan-closure] DENY: cannot retrieve ${plan} at ${local_sha:0:12} — treating as closure failure." >&2
+      rm -f "$PLAN_TMPFILE"
+      PLAN_GATE_FAILED=1
+      continue
+    fi
+    PLAN_BYTES="$(wc -c < "$PLAN_TMPFILE")"
+    if [ "$PLAN_BYTES" -eq 0 ]; then
+      echo "[pre-push/plan-closure] DENY: ${plan} is empty at ${local_sha:0:12} — treating as closure failure." >&2
+      rm -f "$PLAN_TMPFILE"
+      PLAN_GATE_FAILED=1
+      continue
+    fi
+    if ! node scripts/validate-plan-closure.mjs --content-from-stdin --plan "$plan" --enforce < "$PLAN_TMPFILE" 2>&1; then
+      echo "[pre-push/plan-closure] DENY: $plan fails closure check." >&2
+      mkdir -p .claude/state
+      echo "plan-closure-prepush, $(date -u +%Y-%m-%dT%H:%M:%SZ), deny, $plan" >> .claude/state/gate-fires.log
+      PLAN_GATE_FAILED=1
+    fi
+    rm -f "$PLAN_TMPFILE"
+  done
+done
+exec 3<&-
+
+if [ "$REFS_PROCESSED" -eq 0 ]; then
+  echo "[pre-push/plan-closure] WARNING: no refs received on stdin — hook had nothing to evaluate." >&2
+fi
+
+if [ "$PLAN_GATE_FAILED" -eq 1 ]; then
+  echo "[pre-push/plan-closure] Push rejected — fix the plan(s) above before pushing." >&2
+  exit 1
+fi
 
 # 3. Per-file deny-list grep against pushed commits.
 # Scans the commits actually being pushed (origin/$BRANCH..HEAD); when no upstream
