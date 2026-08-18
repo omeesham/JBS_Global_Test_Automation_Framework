@@ -603,11 +603,11 @@ never self-grades work from the same session (AUD-017).
 
 | Identity | Owned artifact this plan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HUNTER | Jira crossref · old-site baseline · interaction maps · walk evidence · field inventory | `clients/encore/specs_planning/_internal/jira-defect-crossref-discount-optimization-<DATE>.md`<br>`clients/encore/specs_planning/_internal/old-site-baseline/discount-optimization-<DATE>.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-discount-optimization-<DATE>.md`<br>`clients/encore/specs_planning/_internal/field-inventories/discount-optimization-<DATE>.md`<br>`scripts/walk-coverage/interaction-maps/discount-optimization-<DATE>.json` | `node scripts/check-interaction-coverage.mjs --file scripts/walk-coverage/interaction-maps/discount-optimization-<DATE>.json` |
-| GIVER | field-case catalog · §3 rbac template row · **two** test-case MDs · **two** test plans · XLSX workbook | `clients/encore/specs_planning/_internal/field-case-catalogs/discount-optimization-<DATE>.md`<br>`clients/encore/specs_planning/_internal/field-case-generation.md`<br>`clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_locations_test_cases.md`<br>`clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_exemptions_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/discount-optimization/`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` |
-| BUILDER | selectors · page objects · shared dialog component · **two** specs | `clients/encore/src/selectors/discount-optimization/`<br>`clients/encore/src/pages/discount-optimization/`<br>`clients/encore/src/pages/components/change-local-office.component.ts`<br>`clients/encore/tests/discount-optimization/discount-optimization.spec.ts`<br>`clients/encore/tests/discount-optimization/special-rate-exemptions.spec.ts` | `npx playwright test --list` |
+| HUNTER | Jira crossref · old-site baseline · interaction maps · walk evidence · field inventory | `clients/encore/specs_planning/_internal/jira-defect-crossref-discount-optimization-2026-08-10.md`<br>`clients/encore/specs_planning/_internal/old-site-baseline/discount-optimization-2026-08-10.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-discount-optimization-2026-08-11.md`<br>`clients/encore/specs_planning/_internal/field-inventories/discount-optimization-2026-08-11.md` (unified; companions `-locations-` and `-exemption-2026-08-11.md`)<br>`scripts/walk-coverage/interaction-maps/discount-optimization-2026-08-11.json` | `node scripts/check-interaction-coverage.mjs --file scripts/walk-coverage/interaction-maps/discount-optimization-2026-08-11.json` |
+| GIVER | field-case catalog · §3 rbac template row · **two** test-case MDs · **two** test plans · XLSX workbook | `(skipped: module authored with ordinary 3-segment TCs — TC-DOP-OPT-NNN / TC-DOP-EXM-NNN — not the FCC paradigm; no field-case catalog produced. See Gap Ledger G3.)`<br>`clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_locations_test_cases.md`<br>`clients/encore/specs_planning/test-cases/setup/discount-optimization/discount_optimization_exemption_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/discount-optimization/discount_optimization_locations_test_plan.md`<br>`clients/encore/specs_planning/test-plans/setup/discount-optimization/discount_optimization_exemption_test_plan.md`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` |
+| BUILDER | selectors · page objects · shared dialog component · **two** specs | `clients/encore/src/selectors/discount-optimization.ts`<br>`clients/encore/src/pages/discount-optimization.page.ts`<br>`(skipped: Change Local Office dialog not enumerated or built — out of scope for a 1604-only delivery; the office-switcher is the multi-office mechanism, deferred with G1/G2 in the Gap Ledger.)`<br>`clients/encore/tests/discount-optimization/discount-optimization-locations.spec.ts`<br>`clients/encore/tests/discount-optimization/discount-optimization-exemptions.spec.ts` | `npx playwright test --list` |
 | HEALER | (none) — no pre-existing failing specs on this module | (none) | (none) |
-| WATCHDOG | completeness · bifurcation-integrity · Jira-lead · bug-loop findings | `clients/encore/specs_planning/_internal/audit-discount-optimization-<DATE>.md` | `npm run check:spec-quality` |
+| WATCHDOG | completeness · bifurcation-integrity · Jira-lead · bug-loop findings | `clients/encore/specs_planning/_internal/audit-discount-optimization-2026-08-11.md` | `npm run check:spec-quality` |
 | GARDENER | (none) | (none) | (none) |
 | OWNER | ID registry · navigation registry · module registry | `export_test_cases/module-codes.json`<br>`export_test_cases/types.ts`<br>`.claude/context/navigation.md` | `npm run check:tc-parity` |
 
@@ -670,3 +670,76 @@ named but not run is a closure violation.
 Handoff goes in **chat only**, never into a file (LR-039 — and no blockers in it). It states: what
 landed, what was flagged, what NM-3340 will invalidate when it ships, and what the next session picks
 up. Deviations from this plan are logged before `/final-q`, not after.
+
+---
+
+## Execution Summary (LR-027) + Gap Ledger — 2026-08-18
+
+This section records what actually landed, resolves the two live-denominator question, and puts every
+open gap in the plan body with a named unlock (nothing lives only in chat).
+
+### What landed (verified)
+
+- **Tests: 40, all passing.** `npx playwright test --list` (run twice) = 34 in
+  `discount-optimization-locations.spec.ts` + 6 in `discount-optimization-exemptions.spec.ts` = **40**.
+  A full run finished with `test-results/.last-run.json` = `{"status":"passed","failedTests":[]}`. The
+  list reporter printed "41 passed" because `retries:1` (local) makes its running counter tick once for
+  a single flaky test that failed its first attempt and passed on retry — 40 unique tests, zero
+  failures. ("40 exist" and "40 pass" are now both true and both in the repo.)
+- **Two specs, two selectors/pages, both submodule TC files + test plans, XLSX parity** — all present;
+  the Per-Identity matrix above now cites the real filenames (not `<DATE>` placeholders).
+- **Walk evidence committed** (was absent from git; `reports/walk-coverage/*` is gitignored at
+  `.gitignore:45`, so force-added, matching the `service-charge-basic-info.json` precedent): the
+  authoritative `dop-tab1.json` / `dop-tab2.json` (148-element enumeration) plus the 2026-08-18
+  re-enumeration diagnostics `1604-discount-optimization[-locations|-exemption].json`.
+
+### Denominator resolution — ONE authoritative source
+
+There are not two live denominators. The **tracked field inventories are authoritative**:
+`discount-optimization-2026-08-11.md` = **148** machine-enumerated elements (union across both tabs),
+split into two overlapping views — `-locations-` = **108** (21 shared + 87 Locations-specific) and
+`-exemption-` = **61** (21 shared + 40 Exemptions-specific); 108 + 61 − 21 shared = 148. All three are
+`Coverage_Ratio 100%`, `CrossCheck: clean`, dispositioned, and cite `dop-tab1/dop-tab2.json` as their
+Completion_Record.
+
+The **92 / 131** numbers are NOT a competing denominator — they are the output of the 2026-08-18
+re-enumeration run whose only purpose was to verify the `restingContentMarker` initial-scan fix. They
+are lower than 148 because (a) the grid is data-driven — the live Locations grid had fewer painted rows
+on 2026-08-18 than on 2026-08-11 — and (b) they were produced by the post-split configs
+(`discount-optimization-locations` = 92 resting-only; `discount-optimization` = 131 = 92 + 39 Tab-2
+controls). A re-enumeration is a dated snapshot, not a new denominator of record. The inventories are
+NOT rewritten to 92/131 (an indefensible live number must never overwrite a dispositioned artifact).
+
+### Enumerator fix — GLOBAL in nature, now SCOPED (correction: verify before graft)
+
+Commit `3790bf4` added an initial-scan content gate to stop the enumerator measuring a mid-render page
+(the discount-optimization moving denominator: cycle 0 scanned 117 DOM nodes on one run, 1042 on
+another). As first written it keyed off `cfg.contentMarker`, which **changes page-readiness for every
+module that declares a contentMarker** — exactly the global blast radius flagged for pre-graft review.
+The cross-module check found a real regression: **service-charge**'s `contentMarker` (`text=Modified
+By`) marks its History TAB, absent at rest, so the initial-scan gate waited 120 s and threw
+`[WAIT_READY_TIMEOUT]` — turning its known-good denominator (29) into a crash.
+
+Fix (`868c8af`): the initial-scan gate now keys off a distinct opt-in key, **`restingContentMarker`**,
+set only on the two discount-optimization configs (Tab 1 grid is the resting tab). Re-verified on 1604:
+service-charge enumerates clean again (EXIT 0); `discount-optimization-locations` = 92 and
+`discount-optimization` = 131 (stable, EXIT 0). Modules that do not set the key keep prior readiness
+unchanged — so the change is safe to graft.
+
+### Gap Ledger (every open item + its named unlock)
+
+| ID | Gap | Named unlock |
+|---|---|---|
+| G1 | **Change Local Office dialog never separately enumerated** — Phase 3 wanted 3 enumerations (tab 1, tab 2, dialog); only tab-based enumerations + one interaction-map exist. | Open the dialog on the DOP page and run `enumerate-page.mjs` against it in its opened state (needs a dialog config entry or `--url`), emit a 3rd interaction-map. Deferred: the office-switcher is the multi-office mechanism and this delivery is 1604-only (see G4). |
+| G2 | **`change-local-office.component.ts` not built** (BUILDER matrix cell). | Author the page-object component once G1 enumerates the dialog. Depends on G1; both deferred with G4. |
+| G3 | **No FCC field-case catalog** — the GIVER matrix cell expected `field-case-catalogs/discount-optimization-<DATE>.md`; the module was authored with ordinary 3-segment TCs, not the FCC paradigm, and the TC MDs carry no FCC section. | If DOP is later chosen for FCC depth, author the catalog + `@fcc` describe blocks under a DEEP coverage subplan. Not required for the current QUICK deliverable — ordinary TCs are covered by `check:tc-parity`. |
+| G4 | **7 of 8 offices never probed** — the walk, inventories, and specs cover office **1604 only**. | This is the plan's declared scope (acceptance criterion: "Denominator and specs are on office 1604"). Multi-office DOP validation is a separate subplan; unlock = author `SUBPLAN_DOP_MULTI_OFFICE` if the client wants cross-office coverage. Not a defect of this delivery. |
+| G5 | **Two announce-mode enumerator warnings on the locations surface** — `TOOTHLESS-SURFACE` (no non-resting requiredStates, no opener patterns) and `STATE-GRAPH-EXHAUSTION` (containers never opened, incl. shell chrome: Home / Inbox / office-switcher). | Both are announce-mode (non-blocking). TOOTHLESS-SURFACE is inherent to a single-grid resting surface with no openers; the denominator is verified by the passing specs. STATE-GRAPH-EXHAUSTION's unopened containers are shell chrome, correctly out-of-scope for the DOP surface. Accepted, not filled; unlock if ever needed = declare requiredStates/opener patterns for the locations config. |
+
+### Closure status
+
+Status stays **PENDING**. The specs pass on e2e/1604 and the six correction items are complete, but
+G1–G3 are acceptance-criteria items this delivery did not produce (dialog enumeration + component, FCC
+catalog). They are recorded here with unlocks rather than silently dropped. Flipping to DONE is a
+scope decision for Rutvik: accept the 1604-only, ordinary-TC, dialog-deferred scope (G1–G3 re-scoped
+out) → DONE; or fill G1–G3 first. Not self-deciding a scope reduction to force a green closure gate.
