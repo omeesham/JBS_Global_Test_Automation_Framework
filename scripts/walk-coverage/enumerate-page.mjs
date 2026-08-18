@@ -75,6 +75,7 @@ function readGuardrailMode() {
 // whitelist makes the validated pricing path deterministic + bounded.
 export const MODULE_CONFIG = {
   pricing: {
+    urlGroup: 'location-settings',
     path: (office) => `${BASE}/locations/${office}/settings/location`,
     // Activate the Radix sub-tab by TESTID, not role — the pilot proved getByRole did not flip the
     // sub-tab; the trusted testid click does (O2). After click, wait for a pricing-content marker to
@@ -88,6 +89,19 @@ export const MODULE_CONFIG = {
     excludeOptionRoles: true,                   // cmdk option lists are NOT denominator elements (M2)
     ...MC_DATA.pricing,
   },
+
+  // ─── urlGroup example (for adding sibling sub-tabs that share pricing's URL) ───
+  // To add another Location Settings sub-tab surface, declare:
+  //   'location-<tab>': {
+  //     urlGroup: 'location-settings',          // groups surfaces sharing a URL
+  //     path: (office) => `${BASE}/locations/${office}/settings/location`,
+  //     activateTabs: ['<real-data-testid>'],    // Radix sub-tab testid (MCP-verified)
+  //     contentMarker: '[data-testid="<real>"]', // last-to-render marker (MCP-verified)
+  //     openerTestidPatterns: [],
+  //     excludeOptionRoles: true,
+  //     requiredStates: [{ label: 'resting' }],
+  //   },
+  // When two+ entries share a urlGroup, --url alone exits 2 requiring --module.
 
   // ===========================================================================================
   // Corporate Pricing — 5 surfaces (RCA M2: applies the existing LR-062 enumerator to the module
@@ -341,7 +355,7 @@ async function activateTabByTestid(page, testid, contentMarker) {
 }
 
 // ---- merge enumerated entries into the accumulator (union by key; OR the A/B membership) ----
-function mergeEntries(accum, entries, branch, excludeOptionRoles) {
+export function mergeEntries(accum, entries, branch, excludeOptionRoles) {
   let added = 0;
   for (const e of entries) {
     if (excludeOptionRoles && e.role === 'option') continue;   // M2: option-sets not denominator elements
@@ -352,6 +366,9 @@ function mergeEntries(accum, entries, branch, excludeOptionRoles) {
     } else {
       prev.inA = prev.inA || e.inA;
       prev.inB = prev.inB || e.inB;
+      if (e.occurrences && (!prev.occurrences || e.occurrences > prev.occurrences)) {
+        prev.occurrences = e.occurrences;
+      }
       if (branch && !prev.branches.includes(branch)) prev.branches.push(branch);
     }
   }
@@ -748,12 +765,178 @@ async function readActiveElementObservation(page) {
   });
 }
 
+// ---- segment-boundary URL matching (g78-V13: fixes prefix-without-boundary defect) ----------
+// A config path matches a URL only if the URL equals the path exactly or continues at a path
+// segment boundary (/, ?, #). Prevents /settings/service-charge matching /settings/service-charger.
+function matchesAtSegmentBoundary(url, prefix) {
+  if (!url.startsWith(prefix)) return false;
+  if (url.length === prefix.length) return true;
+  const next = url[prefix.length];
+  return next === '/' || next === '?' || next === '#';
+}
+
+// ---- run-config resolution (Build 1: kill silent defaults) ----------------------------------
+// --url without --module: adhoc mode (cfg=null, office parsed from URL).
+// --url with --module: validate URL matches config path; exit 2 on mismatch.
+// No --url: existing behavior (module config required).
+// g78-V13: segment-boundary matching + longest-prefix-wins resolves nested corporate-pricing paths.
+export function resolveRunConfig(inputArgs, moduleConfig) {
+  if (inputArgs.url) {
+    const officeMatch = inputArgs.url.match(/\/locations\/(\d+)\//);
+    const parsedOffice = officeMatch ? officeMatch[1] : 'unknown';
+    const office = inputArgs.office || parsedOffice;
+    if (inputArgs.module) {
+      const cfg = moduleConfig[inputArgs.module];
+      if (!cfg) return { error: `No config for module "${inputArgs.module}".`, exitCode: 2 };
+      const expectedPrefix = cfg.path(office);
+      if (!matchesAtSegmentBoundary(inputArgs.url, expectedPrefix))
+        return { error: `--url "${inputArgs.url}" does not match config path for "${inputArgs.module}" (expected prefix: "${expectedPrefix}").`, exitCode: 2 };
+      // Verify no more-specific config matches this URL (prevents naming a shorter module for a longer path)
+      for (const [name, mcfg] of Object.entries(moduleConfig)) {
+        if (name === inputArgs.module) continue;
+        try {
+          const otherPrefix = mcfg.path(office);
+          if (otherPrefix.length > expectedPrefix.length && matchesAtSegmentBoundary(inputArgs.url, otherPrefix))
+            return { error: `--url matches more-specific config "${name}" (path: "${otherPrefix}"), not "${inputArgs.module}".`, exitCode: 2 };
+        } catch { /* path() may throw — skip */ }
+      }
+      return { office, moduleName: inputArgs.module, cfg, url: inputArgs.url };
+    }
+    // Match URL against every MODULE_CONFIG entry by segment-boundary prefix
+    const matches = [];
+    for (const [name, mcfg] of Object.entries(moduleConfig)) {
+      try {
+        const prefix = mcfg.path(office);
+        if (matchesAtSegmentBoundary(inputArgs.url, prefix)) matches.push({ name, cfg: mcfg, prefixLen: prefix.length });
+      } catch { /* path() may throw for configs needing extra args — skip */ }
+    }
+    if (matches.length === 0) {
+      return { office, moduleName: 'adhoc', cfg: null, url: inputArgs.url };
+    }
+    // Longest prefix wins (most specific config)
+    matches.sort((a, b) => b.prefixLen - a.prefixLen);
+    const best = matches[0];
+    const ties = matches.filter(m => m.prefixLen === best.prefixLen);
+    if (ties.length > 1) {
+      const names = ties.map(m => m.name).join(', ');
+      return { error: `--url matches multiple configs with equal specificity: ${names}. Use --module to disambiguate.`, exitCode: 2 };
+    }
+    // urlGroup guard: if the winning config declares a urlGroup, check for siblings.
+    // A shared URL cannot identify a single surface — require --module.
+    if (best.cfg && best.cfg.urlGroup) {
+      const siblings = Object.entries(moduleConfig)
+        .filter(([n, c]) => c.urlGroup === best.cfg.urlGroup && n !== best.name)
+        .map(([n]) => n);
+      if (siblings.length > 0) {
+        const all = [best.name, ...siblings].sort().join(', ');
+        return { error: `URL maps to multiple surfaces sharing urlGroup "${best.cfg.urlGroup}": ${all}. Use --module to name the surface explicitly.`, exitCode: 2 };
+      }
+    }
+    return { office, moduleName: best.name, cfg: best.cfg, url: inputArgs.url };
+  }
+  // No --url path: both --module and --office are required (no silent defaults).
+  if (!inputArgs.module) return { error: 'No --url and no --module specified. Provide --module=<name> to select a surface.', exitCode: 2 };
+  if (!inputArgs.office) return { error: 'No --url and no --office specified. Provide --office=<id>.', exitCode: 2 };
+  const office = inputArgs.office;
+  const moduleName = inputArgs.module;
+  const cfg = moduleConfig[moduleName];
+  if (!cfg) return { error: `No config for module "${moduleName}" and no --url given.`, exitCode: 2 };
+  return { office, moduleName, cfg, url: cfg.path(office) };
+}
+
+// ---- selected-tab snapshot (Build 3: base_state) -------------------------------------------
+async function getSelectedTabs(page) {
+  return page.evaluate(() =>
+    [...document.querySelectorAll('[role="tab"][aria-selected="true"]')]
+      .map(el => (el.getAttribute('aria-label') || el.textContent || '').trim().slice(0, 40))
+  );
+}
+
+// ---- fixpoint expansion loop (Build 2: extracted for testability) ---------------------------
+// Runs the self-expand-to-fixpoint loop: scan, click openers, re-scan until no new keys.
+// Returns { settled, activated, msg }. Caller handles the halted path.
+// _testLegacyBreak: when true, restores the pre-fix || break for T-race red evidence.
+export async function expandToFixpoint(page, accum, cfg, excludeOptions, maxCycles, report, { _testLegacyBreak = false } = {}) {
+  const activated = new Set();
+  for (let cycle = 1; cycle <= maxCycles; cycle++) {
+    const cur = await enumerateState(page);
+    const openerKeys = cur.entries.filter(e => {
+      if (activated.has(e.key)) return false;
+      const k = e.key.toLowerCase();
+      if (cfg && cfg.openerTestidPatterns && cfg.openerTestidPatterns.some(re => re.test(k))) return true;
+      return false;
+    });
+    let clicked = 0;
+    for (const e of openerKeys) {
+      const sel = e.key.startsWith('testid:') ? `[data-testid="${e.key.slice(7)}"]` : null;
+      if (!sel) continue;
+      try {
+        const loc = page.locator(sel);
+        if (await loc.count()) { await loc.first().click({ timeout: 5000 }); await waitReady(page); clicked++; activated.add(e.key); }
+      } catch { activated.add(e.key); }
+    }
+    if (cfg && cfg.openerRoleTextPatterns) {
+      for (const pattern of cfg.openerRoleTextPatterns) {
+        const activatedKey = `roletext:${pattern.role}:${pattern.text}`;
+        if (activated.has(activatedKey)) continue;
+        try {
+          const loc = pattern.selector
+            ? page.locator(pattern.selector)
+            : page.getByRole(pattern.role, { name: pattern.text, exact: true });
+          if (!(await loc.count())) { activated.add(activatedKey); continue; }
+          await loc.first().click({ timeout: 5000 });
+          await waitReady(page);
+          const inlinePortals = await scanPortalElements(page);
+          const branch = pattern.branch || `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`;
+          mergeEntries(accum, inlinePortals, branch, false);
+          report.branches.push({ branch, openerText: pattern.text, addedKeys: inlinePortals.length, ok: true });
+          clicked++;
+          activated.add(activatedKey);
+          await page.keyboard.press('Escape');
+          await page.waitForTimeout(300);
+        } catch (err) { report.branches.push({ branch: pattern.branch || `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`, openerText: pattern.text, error: String(err).slice(0, 120), ok: false }); activated.add(`roletext:${pattern.role}:${pattern.text}`); }
+      }
+    }
+    const after = await enumerateState(page);
+    const fixBranch = clicked === 0 ? 'resting' : `expand-${cycle}`;
+    const added = mergeEntries(accum, after.entries, fixBranch, excludeOptions);
+    report.cycles.push({ cycle, openersClicked: clicked, added, accum: accum.size });
+    if (_testLegacyBreak ? (clicked === 0 || added === 0) : (clicked === 0 && added === 0)) break;
+    if (clicked === 0) await page.waitForTimeout(1000);
+  }
+
+  // Confirmation scan: one extra pass to verify the fixpoint holds
+  // (skipped in legacy mode — pre-fix code had no confirmation)
+  if (!_testLegacyBreak) {
+    await page.waitForTimeout(1000);
+    const confirmState = await enumerateState(page);
+    const confirmAdded = mergeEntries(accum, confirmState.entries, 'resting', excludeOptions);
+    report.cycles.push({ cycle: 'confirm', added: confirmAdded, accum: accum.size });
+    if (confirmAdded > 0) {
+      // Not settled — resume resting scans within remaining maxCycles budget
+      const usedCycles = report.cycles.filter(c => typeof c.cycle === 'number' && c.cycle > 0).length;
+      for (let cycle = usedCycles + 1; cycle <= maxCycles; cycle++) {
+        await page.waitForTimeout(1000);
+        const s = await enumerateState(page);
+        const a = mergeEntries(accum, s.entries, 'resting', excludeOptions);
+        report.cycles.push({ cycle, openersClicked: 0, added: a, accum: accum.size });
+        if (a === 0) break;
+      }
+      const finalState = await enumerateState(page);
+      const finalAdded = mergeEntries(accum, finalState.entries, 'resting', excludeOptions);
+      report.cycles.push({ cycle: 'final-confirm', added: finalAdded, accum: accum.size });
+      if (finalAdded > 0) {
+        return { settled: false, activated, msg: `[FIXPOINT-EXHAUSTED] maxCycles=${maxCycles} exhausted; keys still growing (accum=${accum.size}). Refusing to emit a complete record for a page that never settled.` };
+      }
+    }
+  }
+  return { settled: true, activated };
+}
+
 async function main() {
-  const office = args.office || '1604';
-  const moduleName = args.module || 'pricing';
-  const cfg = MODULE_CONFIG[moduleName];
-  if (!cfg && !args.url) { console.error(`No config for module "${moduleName}" and no --url given.`); process.exit(2); }
-  const url = args.url || cfg.path(office);
+  const rc = resolveRunConfig(args, MODULE_CONFIG);
+  if (rc.error) { console.error(rc.error); process.exit(rc.exitCode); }
+  const { office, moduleName, cfg, url } = rc;
   const state = (args.state || `${office}-${moduleName}`) + (args.branch ? `--${args.branch.replace(/[^a-z0-9:]+/g, '-')}` : '');
   const authPath = args.auth || (existsSync(DEFAULT_AUTH) ? DEFAULT_AUTH : FALLBACK_AUTH);
   const maxCycles = parseInt(args['max-cycles'] || '6', 10);
@@ -880,60 +1063,16 @@ async function main() {
     }
     report.cycles.push({ cycle: 0, action: 'resting', scanned: cur.stats.scanned, shadowHosts: cur.stats.shadowHosts,
                          candidates: cur.candidates.length, g1hits: g1hits.length, accum: accum.size, restingObserved: report._restingObserved });
+    report.base_state = { atRest: await getSelectedTabs(page), atEmit: [] };
 
-    // --- self-expand to fixpoint: activate NEW openers each cycle until no new keys ---
-    const activated = new Set();
-    for (let cycle = 1; cycle <= maxCycles; cycle++) {
-      cur = await enumerateState(page);
-      // openers = configured testid patterns only (matched against cfg.openerTestidPatterns).
-      // NOTE: generic aria-based openers (role=tab unselected, aria-expanded=false) are NOT
-      // implemented here — the filter returns false for any entry not matched by a configured
-      // testid pattern. Role/text openers are handled separately below via openerRoleTextPatterns.
-      // GAP: surfaces whose openers carry neither a data-testid nor a matching openerRoleTextPatterns
-      // entry will not be self-expanded by either pass.
-      const openerKeys = cur.entries.filter(e => {
-        if (activated.has(e.key)) return false;
-        const k = e.key.toLowerCase();
-        if (cfg && cfg.openerTestidPatterns && cfg.openerTestidPatterns.some(re => re.test(k))) return true;
-        return false;   // non-matching entries are skipped; generic aria-opener not implemented
-      });
-      let clicked = 0;
-      for (const e of openerKeys) {
-        const sel = e.key.startsWith('testid:') ? `[data-testid="${e.key.slice(7)}"]` : null;
-        if (!sel) continue;
-        try {
-          const loc = page.locator(sel);
-          if (await loc.count()) { await loc.first().click({ timeout: 5000 }); await waitReady(page); clicked++; activated.add(e.key); }
-        } catch { activated.add(e.key); }
-      }
-      // Role/text opener pass: click buttons matched by role+text (e.g. Import ▾ which has no data-testid).
-      // Each opener is clicked, portals scanned inline, entries merged, then menu closed before next opener.
-      if (cfg && cfg.openerRoleTextPatterns) {
-        for (const pattern of cfg.openerRoleTextPatterns) {
-          const activatedKey = `roletext:${pattern.role}:${pattern.text}`;
-          if (activated.has(activatedKey)) continue;
-          try {
-            const loc = pattern.selector
-              ? page.locator(pattern.selector)
-              : page.getByRole(pattern.role, { name: pattern.text, exact: true });
-            if (!(await loc.count())) { activated.add(activatedKey); continue; }
-            await loc.first().click({ timeout: 5000 });
-            await waitReady(page);
-            const inlinePortals = await scanPortalElements(page);
-            const branch = pattern.branch || `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`;
-            mergeEntries(accum, inlinePortals, branch, false);
-            report.branches.push({ branch, openerText: pattern.text, addedKeys: inlinePortals.length, ok: true });
-            clicked++;
-            activated.add(activatedKey);
-            await page.keyboard.press('Escape');
-            await page.waitForTimeout(300);
-          } catch (err) { report.branches.push({ branch: pattern.branch || `expand:${pattern.text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-menu`, openerText: pattern.text, error: String(err).slice(0, 120), ok: false }); activated.add(`roletext:${pattern.role}:${pattern.text}`); }
-        }
-      }
-      const after = await enumerateState(page);
-      const added = mergeEntries(accum, after.entries, `expand-${cycle}`, excludeOptions);
-      report.cycles.push({ cycle, openersClicked: clicked, added, accum: accum.size });
-      if (clicked === 0 || added === 0) break;   // fixpoint: a full pass added zero new keys
+    // --- self-expand to fixpoint (extracted — Build 2) ---
+    const fixResult = await expandToFixpoint(page, accum, cfg, excludeOptions, maxCycles, report);
+    const activated = fixResult.activated;
+    if (!fixResult.settled) {
+      console.error(fixResult.msg);
+      writeHaltedRecord(args, state, accum.size, accum.size, fixResult.msg);
+      await browser.close();
+      process.exit(3);
     }
 
     // --- cascade lifecycle (detect → toggle → accumulate → restore) ---
@@ -1152,6 +1291,7 @@ async function main() {
     // --- completion_record: attach before JSON write; self-hash for anti-tamper ---
     // Build the record first (without content_sha256), serialize, compute sha256 over that,
     // then embed the hash.  Any file mutation after this point will fail the gate's re-verify.
+    report.base_state.atEmit = await getSelectedTabs(page);
     report.completion_record = {
       version: 1,
       status: 'complete',
@@ -1179,7 +1319,7 @@ async function main() {
     const walkStateStr = `office=${office} module=${moduleName} walked=[${walkedStateLabels.join(',')}]`;
     const manifestMd = renderManifest({ walkState: walkStateStr, entries,
       machineFoundDate: report.date, sourceJson: `reports/walk-coverage/${state}.json`,
-      completionRecord: report.completion_record });
+      completionRecord: report.completion_record, baseState: report.base_state });
     const mdPath = jsonPath.replace(/\.json$/, '.manifest.md');
     writeFileSync(mdPath, manifestMd, 'utf-8');
 

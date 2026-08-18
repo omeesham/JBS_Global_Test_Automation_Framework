@@ -70,6 +70,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes — currently skipped in `service-charge-text.spec.ts`
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Type a new value into the Service Charge Name cell of the first row | The typed value appears in the cell |
@@ -83,6 +84,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row | A new empty row is added to the grid |
@@ -95,6 +97,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row | A new empty row is added to the grid |
@@ -109,6 +112,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and at least one row already has a Service Charge Name.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row and complete every required field with unique values | Save becomes enabled |
@@ -121,6 +125,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row and complete every required field with unique values | Save becomes enabled |
@@ -134,6 +139,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Enter a 300 character value into a Service Charge Name cell | The full value is accepted and retained |
@@ -145,6 +151,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Enter a 300 character value into a Service Charge Name cell | The full value is accepted |
@@ -157,6 +164,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row and complete every field except Service Charge Name | Save remains disabled |
@@ -169,6 +177,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Enter a Service Charge Name containing punctuation and accented characters | The value appears exactly as typed |
@@ -181,6 +190,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change a Service Charge Name to a different unique value | Save becomes enabled |
@@ -193,6 +203,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Open the page level Language filter | The list shows All, English (Canada), US English, Spanish (Mexico), and French (Canada) |
@@ -204,6 +215,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page has just been opened for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Read the current value of the page level Language filter | The filter shows US English |
@@ -215,6 +227,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Note the number of rows currently displayed | The row count is recorded |
@@ -228,6 +241,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select a single language in the page level filter and note the row count | The row count for that language is recorded |
@@ -240,6 +254,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Edit a Service Charge Name so the page has unsaved changes | Save becomes enabled |
@@ -254,6 +269,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Open the Language control on the first grid row | A list of languages is displayed for that row |
@@ -265,6 +281,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Open the Language control on the first grid row | The list shows the four languages and does not include All |
@@ -276,6 +293,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Click the Service Charge Text cell of the first row | The rich text editor opens and shows that row's content |
@@ -287,6 +305,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and Save is disabled.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Click the Service Charge Text cell of the first row | The editor opens with that row's content |
@@ -299,6 +318,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page has just been opened for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Read the state of the rich text editor before selecting any row | The editor is not available for typing |
@@ -310,6 +330,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Click a Service Charge Text cell to open the editor | The editor opens with that row's content |
@@ -322,6 +343,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Open the editor for one row and type additional text | The typed text appears in the editor |
@@ -335,6 +357,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and a row has no Service Charge Text content.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Click the Service Charge Text cell of that row | The editor opens showing a default starting layout rather than a blank area |
@@ -346,6 +369,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Note the current number of grid rows | The row count is recorded |
@@ -358,6 +382,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and Save is disabled.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select Add row | A new empty row is added |
@@ -370,6 +395,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select Add row | A new empty row is added and Save stays disabled |
@@ -382,6 +408,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Note the current number of grid rows | The row count is recorded |
@@ -395,6 +422,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select a specific language in the page level filter | Every visible row shows the selected language |
@@ -408,6 +436,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Read the grid column headers | The headers read Language, Service Charge Name, Service Charge Display Name, Report Column Name, and Service Charge Text |
@@ -420,6 +449,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Read the number of data rows in the grid | The grid reports its full set of data rows |
@@ -433,6 +463,7 @@ Display Name, Report Column Name, and Service Charge Text.
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change a Service Charge Display Name to a new unique value and save | The change is accepted and Save returns to disabled |
@@ -446,6 +477,7 @@ Display Name, Report Column Name, and Service Charge Text.
 
 **Automatable**: Yes
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Name of the first US English row to a different unique value | Save becomes enabled |
@@ -460,6 +492,7 @@ Display Name, Report Column Name, and Service Charge Text.
 
 **Automatable**: Yes
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Display Name of the first US English row to a different unique value | Save becomes enabled |
@@ -475,6 +508,7 @@ Display Name, Report Column Name, and Service Charge Text.
 
 **Automatable**: Yes
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Name, Service Charge Display Name, and Report Column Name of one US English row to three different unique values | Save becomes enabled |
@@ -515,6 +549,7 @@ F2 × F3 pairs and how each is covered or excluded:
 
 Grand totals: 38 pairs; 37 covered; 1 excluded as impossible. Every valid 2-way pair appears in at least one row of the array. This test case covers the All and English (Canada) filters plus the three second-row constructions for F2 × F3 completeness.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select All in the language filter and read the Save button state without editing any field | Save is disabled |
@@ -547,6 +582,7 @@ Grand totals: 38 pairs; 37 covered; 1 excluded as impossible. Every valid 2-way 
 
 This test case completes the 20-row covering array begun in TC-035, covering array rows 9–20 (US English, Spanish (Mexico), and French (Canada) filters).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select US English in the language filter and read the Save button state without editing any field | Save is disabled |
@@ -573,6 +609,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row | A new empty row is added and Save stays disabled |
@@ -586,6 +623,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row | A new empty row is added and Save stays disabled |
@@ -599,6 +637,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row | A new empty row is added and Save stays disabled |
@@ -612,6 +651,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row | A new empty row is added and Save stays disabled |
@@ -625,6 +665,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row | A new empty row is added and Save stays disabled |
@@ -638,6 +679,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row | A new empty row is added and Save stays disabled |
@@ -651,6 +693,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row | A new empty row is added and Save stays disabled |
@@ -664,6 +707,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row | A new empty row is added and Save stays disabled |
@@ -677,6 +721,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and Save is disabled.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Verify Save is disabled | Save is disabled |
@@ -691,6 +736,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Report Column Name of the first row to a different unique value | Save becomes enabled |
@@ -705,6 +751,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Name of the first US English row to a different unique value | Save becomes enabled |
@@ -721,6 +768,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Name of the first US English row to a different unique value | Save becomes enabled |
@@ -735,6 +783,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and Save is disabled.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Clear the Service Charge Name field on the first row | Save stays disabled |
@@ -750,6 +799,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Service Charge Display Name of the first row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Display Name of the first row to a different unique value | Save becomes enabled |
@@ -763,6 +813,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604. The Service Charge Name of the first US English row is known. The uniqueness constraint for Service Charge Names applies within a language only; the same name is valid across different languages.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select French (Canada) in the language filter and note the Service Charge Name of the first visible row | The French (Canada) name is recorded |
@@ -777,6 +828,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Add a new row and fill all three required fields with unique values | Save becomes enabled |
@@ -790,6 +842,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and no row has been selected.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Verify that the rich text editor area is not available for typing | The rich text editor is not present or not editable |
@@ -804,6 +857,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 with the US English filter active.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select Spanish (Mexico) in the page level filter | The grid shows at least one row and every visible row has language Spanish (Mexico) |
@@ -819,6 +873,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Click the Service Charge Name cell of the first row to place focus there | The Service Charge Name input has keyboard focus |
@@ -834,6 +889,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Service Charge Display Name of the first US English row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Display Name of the first US English row to a new unique value | Save becomes enabled |
@@ -850,6 +906,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Service Charge Display Name values for the first and second US English rows are known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Display Name of the first US English row to a different unique value | Save becomes enabled |
@@ -866,6 +923,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Name of the first US English row to a different unique value | Save becomes enabled |
@@ -884,6 +942,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Service Charge Display Name of the first US English row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Intercept network requests to the save endpoint | Network interception is active |
@@ -901,6 +960,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select US English in the page level filter and count the rows | At least one row is displayed and every visible row has language US English; record this count as N_US |
@@ -916,6 +976,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 with the US English filter active.
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Search for a row whose Service Charge Name is known but whose position in the list is beyond the visible viewport | The row is found by its Service Charge Name |
@@ -929,6 +990,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original rich text content of a US English row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Click the Service Charge Text cell of the first US English row to open the rich text editor | The editor opens showing the current content |
@@ -945,6 +1007,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the current row count under the active filter is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Click Add row | A new empty row appears at the bottom of the grid |
@@ -960,6 +1023,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 with the All filter active and the original language of the target row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Open the per-row language dropdown on a row and select a different language | Save becomes enabled |
@@ -975,6 +1039,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Report Column Name of the first US English row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Report Column Name of the first US English row to a new unique value | Save becomes enabled |
@@ -990,6 +1055,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Display Name of the first US English row and the original rich text content of the second US English row are known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Display Name of the first US English row to a new unique value | Save becomes enabled |
@@ -1006,6 +1072,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 with the All filter active and the original language and Name of the target row are known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Open the per-row language dropdown on a row and select a different language | Save becomes enabled |
@@ -1022,6 +1089,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Display Name of one row per language is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select US English in the page filter, edit the Display Name of the first row to a new value, and click Save | Save returns to disabled |
@@ -1042,6 +1110,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Name of the first US English row to a value that duplicates another row in the same language | Save becomes disabled due to the duplicate |
@@ -1057,6 +1126,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Display Name of the first US English row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Display Name of the first US English row to a new unique value | Save becomes enabled |
@@ -1072,6 +1142,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Display Name of the first US English row to a new unique value | Save becomes enabled |
@@ -1087,6 +1158,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Open the rich text editor on the first US English row and change its content without touching any metadata field | Save becomes enabled |
@@ -1102,6 +1174,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Display Name of the first US English row to a new unique value | Save becomes enabled |
@@ -1121,6 +1194,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Use keyboard Tab and arrow keys to reach the page level language filter and activate it with Enter or Space | The filter opens and options are navigable by keyboard |
@@ -1140,6 +1214,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Display Name of the first US English row to a new unique value | Save becomes enabled |
@@ -1156,6 +1231,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 with at least two rows in the same language.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Name of one row to match an existing name in the same language | Save becomes disabled |
@@ -1171,6 +1247,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 in two separate browser contexts (A and B) and the original Display Name of the first US English row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | In context A, change the Display Name of the first US English row to value X | Save becomes enabled in context A |
@@ -1188,6 +1265,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes — currently skipped in `service-charge-text.spec.ts`
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Display Name of the first US English row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Change the Service Charge Display Name of the first US English row to a new unique value | Save becomes enabled |
@@ -1205,6 +1283,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Intercept the language filter data endpoint to return a 500 error on the next request | Network interception is active |
@@ -1219,6 +1298,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original language of the target row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Intercept the row language options endpoint to return a 500 error on the next request | Network interception is active |
@@ -1233,6 +1313,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Display Name of the first US English row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Intercept network traffic on the save endpoint | Network listener is active |
@@ -1250,6 +1331,7 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604 and the original Display Name of the single Spanish (Mexico) row is known.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Select Spanish (Mexico) in the page level filter | The grid shows exactly one row |
@@ -1261,15 +1343,16 @@ This test case completes the 20-row covering array begun in TC-035, covering arr
 **Notes**: TC-063 proves the one-row count. This case proves that a minimal filtered view remains fully functional for editing and saving, using a content anchor rather than a row index.
 **Surface_Family**: empty-vol (DEEP)
 
-## TC-SCT-CORE-083: An empty filtered result set renders a recovery state without row-index errors
+## TC-SCT-CORE-083: An empty filtered result set renders a recovery state without row rendering errors
 
 **Automatable**: Yes
 **Preconditions**: The Service Charge Text page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|---|---|
 | 1 | Intercept the grid data endpoint to return an empty row list for the next request | Network interception is active |
-| 2 | Trigger a page reload or filter change that fetches grid data | The grid displays a visible no-results or empty state without JavaScript errors or broken row-index references |
+| 2 | Trigger a page reload or filter change that fetches grid data | The grid displays a visible no-results or empty state without JavaScript errors or broken row rendering |
 | 3 | Remove the interception and reload the page | The grid loads normally with the expected rows and filtering works correctly |
 
 **Notes**: All current filter options return at least one row. This case uses API interception to simulate an empty result set and proves the grid handles zero rows gracefully without attempting to access row indices that do not exist.

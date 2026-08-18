@@ -58,6 +58,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604 and the page is in its default state.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Service Charge page on the Basic Information tab | The tab loads and 79 rows are visible |
@@ -74,6 +75,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604 with the Audio Conferencing row showing `24.00 %`.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Service Charge page on the Basic Information tab | The tab loads and 79 rows are visible |
@@ -90,6 +92,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Service Charge page on the Basic Information tab | The tab loads |
@@ -106,6 +109,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604 and the Audio Conferencing percentage (`service-charge-percentage-8`) has its default value `24.00 %`.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Service Charge page on the Basic Information tab | The tab loads |
@@ -123,6 +127,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -139,6 +144,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -155,6 +161,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -170,6 +177,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604 with the zero-default field APP Downloaded (`service-charge-percentage-0`) at `0.00 %`.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads and Save is disabled |
@@ -185,6 +193,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -201,6 +210,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -217,6 +227,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -233,6 +244,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -248,6 +260,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to the Basic Information tab | The tab loads |
@@ -263,6 +276,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to the Basic Information tab | The tab loads |
@@ -278,6 +292,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to the Basic Information tab | The tab loads |
@@ -293,6 +308,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to the Basic Information tab | The tab loads |
@@ -309,6 +325,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604 with inputs enabled.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to the Basic Information tab | The tab loads and inputs are enabled |
@@ -323,6 +340,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604 and Save is disabled (no unsaved edits).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | Save (`service-charge-save`) is disabled |
@@ -338,6 +356,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604 and Save is disabled.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | Save is disabled |
@@ -353,6 +372,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604 and the Audio Conferencing field shows `24.00 %`.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads with Audio Conferencing showing `24.00 %` |
@@ -370,6 +390,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604 and Audio Conferencing shows `24.00 %`.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -388,6 +409,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -404,6 +426,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -422,6 +445,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -437,6 +461,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -452,6 +477,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page for office 1604 has just been loaded with no prior unsaved changes.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The page loads |
@@ -466,6 +492,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Automatable**: Yes
 **Preconditions**: The Service Charge Basic Information page is open for office 1604 and Save is disabled.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | Save is disabled |
@@ -482,6 +509,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Surface_Family**: render-state (QUICK)
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -497,6 +525,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Surface_Family**: empty-vol (QUICK)
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |
@@ -514,6 +543,7 @@ The representative field used for boundary and negative cases is `service-charge
 **Surface_Family**: persistence (QUICK)
 **Preconditions**: The Service Charge Basic Information page is open for office 1604.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to Location Settings for office 1604 and open the Basic Information tab | The tab loads |

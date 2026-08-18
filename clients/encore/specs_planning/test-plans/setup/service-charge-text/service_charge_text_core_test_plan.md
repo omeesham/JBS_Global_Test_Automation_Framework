@@ -132,7 +132,7 @@ carries 114 rows of wording.
 | TC-SCT-CORE-080 | Per-row language dropdown recovers from a load failure without changing the row's language | Yes |
 | TC-SCT-CORE-081 | The save response body reflects the committed metadata payload | Yes |
 | TC-SCT-CORE-082 | A one-row filtered view remains editable and saveable | Yes |
-| TC-SCT-CORE-083 | An empty filtered result set renders a recovery state without row-index errors | Yes |
+| TC-SCT-CORE-083 | An empty filtered result set renders a recovery state without row rendering errors | Yes |
 
 ## 5b. Coverage Notes
 

@@ -423,15 +423,30 @@ function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function stripSourceCodeLiterals(cellValue, tcId) {
+function transformSourceCodeLiterals(cellValue, tcId, { removeBalancedSpans = false } = {}) {
   const value = String(cellValue ?? '');
   const literals = getSourceCodeLiteralsByTc().get(tcId);
   if (!literals?.size) return value;
   let stripped = value;
   for (const literal of [...literals].sort((a, b) => b.length - a.length)) {
-    stripped = stripped.replace(new RegExp(escapeRegExp(literal), 'g'), 'quoted literal');
+    const escapedLiteral = escapeRegExp(literal);
+    if (removeBalancedSpans) {
+      stripped = stripped
+        .replace(new RegExp('```[^\\n`]*\\n?[ \\t]*' + escapedLiteral + '[ \\t]*\\n?```', 'g'), '')
+        .replace(new RegExp('\\([ \\t]*`[ \\t]*' + escapedLiteral + '[ \\t]*`[ \\t]*\\)', 'g'), '')
+        .replace(new RegExp('`[ \\t]*' + escapedLiteral + '[ \\t]*`', 'g'), '');
+    }
+    stripped = stripped.replace(new RegExp(escapedLiteral, 'g'), 'quoted literal');
   }
   return stripped;
+}
+
+function stripSourceCodeLiterals(cellValue, tcId) {
+  return transformSourceCodeLiterals(cellValue, tcId);
+}
+
+function stripSourceCodeLiteralSpans(cellValue, tcId) {
+  return transformSourceCodeLiterals(cellValue, tcId, { removeBalancedSpans: true });
 }
 
 /**
@@ -552,9 +567,10 @@ export function lintWorkbook(xlsxPath) {
     //    2026-06-05); this is the fail-green backstop. Runs on continuation rows too. ──
     for (const col of CHECKED_COLS) {
       const v = stripSourceCodeLiterals(r[col], hitTcId);
-      if (!v) continue;
+      const scanV = stripSourceCodeLiteralSpans(r[col], hitTcId);
+      if (!scanV) continue;
       for (const c of CORRUPTION) {
-        const m = v.match(c.re);
+        const m = scanV.match(c.re);
         if (m) integrityViolations.push({
           code: 'C7', sheet: r.sheet, tcId: hitTcId,
           detail: `${c.name} in ${col}: "${m[0].trim()}" :: ${v.length > 80 ? v.slice(0, 80) + '…' : v}`,

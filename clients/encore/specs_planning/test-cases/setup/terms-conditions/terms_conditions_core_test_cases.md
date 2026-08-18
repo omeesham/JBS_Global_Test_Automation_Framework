@@ -98,6 +98,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Open the page-level Language filter | The list shows five options: All, English (Canada), US English, Spanish (Mexico), and French (Canada) |
@@ -111,6 +112,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page has just been opened for office 1604 in a fresh navigation. Language: US English (expected default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Read the current value of the page-level Language filter | The filter shows US English |
@@ -124,6 +126,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Note the rows currently displayed under the US English filter | The row count is recorded |
@@ -140,6 +143,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Select a single language and note the row count | The row count for that language is recorded |
@@ -154,6 +158,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes — currently skipped in `terms-conditions.spec.ts` while saving this content returns HTTP 500
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Open the page-level Language filter | The first option in the list is All |
@@ -167,6 +172,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Open the page-level Language filter | The last option in the list is French (Canada) |
@@ -182,6 +188,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Open the Language dropdown on a grid row | The list shows four options: English (Canada), US English, Spanish (Mexico), and French (Canada) |
@@ -195,6 +202,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). An existing row with a globally unique name is visible.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Note the current language of a row | The language is recorded |
@@ -209,6 +217,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: All (to see all rows). An existing row with a globally unique name is visible. The grid contains no residue rows with malformed content that can make the bulk save fail.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change the row's language from its current value to a different language | Save becomes enabled |
@@ -226,6 +235,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). An existing row with a globally unique name is visible.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change a row's language to a different value | Save becomes enabled |
@@ -242,6 +252,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Add a new row | A new row appears at the bottom of the grid with language US English |
@@ -256,6 +267,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Enter a unique 50-character value into a Name field | The full value appears in the field; Save becomes enabled |
@@ -269,6 +281,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Enter a unique 260-character value into a Name field | The full 260-character value is accepted; Save becomes enabled |
@@ -282,6 +295,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). The grid contains no residue rows with malformed content that can make the bulk save fail.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Enter a unique name containing special characters into a Name field (proven string: `< > & " ' / \ % # Café Ñoño 中文`) | The value appears exactly as typed; Save becomes enabled |
@@ -298,6 +312,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Add a new row | A new row appears at the bottom |
@@ -312,6 +327,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). At least one US English row with a known name exists.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Add a new row (defaults to US English) | A new row appears |
@@ -326,6 +342,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: All (to see all rows). A row with a known name exists under one language.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Add a new row | A new row appears (defaults to US English) |
@@ -341,6 +358,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). An existing row with a known name is visible.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change the row's Name to a different unique value | Save becomes enabled |
@@ -358,6 +376,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change an existing row's Name to a different unique value | Save becomes enabled |
@@ -372,6 +391,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). An existing row with a name is visible.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Clear the Name field of an existing row (select all and delete) | Save remains disabled; the Name input has `aria-invalid="true"` and a red border (destructive color from design system) |
@@ -388,6 +408,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of a row | The Tiptap rich text editor panel opens and displays that row's Left Column content |
@@ -401,6 +422,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). Save is disabled.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of a row | The editor opens |
@@ -415,6 +437,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of a row to open the editor | The editor opens |
@@ -429,6 +452,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). An existing row with a known name is visible.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of the row to open the editor | The editor opens with existing content |
@@ -447,6 +471,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). An existing row with a known name is visible.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Right Column cell of the row to open the editor | The editor opens with existing content |
@@ -465,6 +490,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). An existing row with a known name is visible.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Bottom Column cell of the row to open the editor | The editor opens with existing content |
@@ -485,6 +511,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: All (to see the full row set).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Note the last row currently in the grid | The last row is recorded |
@@ -504,6 +531,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page has just been opened for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Read the state of the Save button without making any edits | Save is disabled |
@@ -517,6 +545,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). The page has a valid unsaved edit (e.g. a name change to a unique value).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click Save | The save operation completes; no confirmation dialog appears |
@@ -536,6 +565,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: result-fidelity (QUICK)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Select Spanish (Mexico) in the page-level filter | The grid reloads |
@@ -556,6 +586,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: combination (QUICK)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Select English (Canada) in the page-level filter | The grid shows only English (Canada) rows |
@@ -574,6 +605,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: render-state (QUICK)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Read the Left Column cell content of a row that has rich text | The cell displays rendered HTML (e.g. bold text renders as bold), not raw markup tags |
@@ -589,6 +621,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: empty-vol (QUICK)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Add row button | A new empty row is added |
@@ -606,6 +639,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (QUICK)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change the row's Name to a different unique value | Save becomes enabled (dirty gate) |
@@ -625,6 +659,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (QUICK)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change an existing row's Name to a different unique value | Save becomes enabled |
@@ -641,6 +676,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (QUICK)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Drag a column resize handle to change a column width | The column width changes visually |
@@ -660,6 +696,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). Two rows with different Left Column content exist.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of row A to open the editor | The editor shows row A's content |
@@ -678,6 +715,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). An existing row with a known name is visible. The grid contains no residue rows that can make the bulk save return HTTP 500.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of a row to open the editor | The editor opens |
@@ -697,6 +735,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of a row to open the editor | The editor opens |
@@ -713,6 +752,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of a row to open the editor | The editor opens |
@@ -730,10 +770,11 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change an existing row's Name to a different unique value | Save becomes enabled |
-| 2 | Select a different language in the page-level filter | An alertdialog appears with text: "Unsaved changes — Are you sure you want to leave this view? Any unsaved changes will be lost." and buttons Stay / Discard |
+| 2 | Select a different language in the page-level filter | A warning dialog appears with title "Unsaved changes", body "Are you sure you want to leave this view? Any unsaved changes will be lost.", and buttons Stay / Discard |
 | 3 | Click Stay | The dialog closes; the filter has not changed; the edited value is still present; Save is still enabled |
 | 4 | Restore the original name | Save returns to disabled |
 
@@ -746,6 +787,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of a row | The editor opens showing the Left Column content |
@@ -763,6 +805,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes — expected to PASS (documents absence of guard)
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). At least two rows are visible.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change row A's Name to a different unique value | Save becomes enabled |
@@ -780,6 +823,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes — currently skipped in `terms-conditions.spec.ts`
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). The grid contains at least one residue row with extreme content (e.g. 260-char name, special-character name, or RTE probe sentinels from prior test runs).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change a clean row's language to a different value | Save becomes enabled |
@@ -797,6 +841,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes — expected to FAIL (documents confirmed defect)
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). A save has just returned a non-2xx response (trigger: grid containing residue rows that can make bulk saves return HTTP 500, or any server-side failure).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Observe the UI immediately after the failed save | The Save button transitions from enabled to disabled — identical to a successful save |
@@ -814,6 +859,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes — currently skipped in `terms-conditions.spec.ts`
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of a row to open the editor | The editor opens |
@@ -874,6 +920,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of the target row | The editor opens showing existing content |
@@ -892,6 +939,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of the target row | The editor opens |
@@ -910,6 +958,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Right Column cell of the target row | The editor opens |
@@ -928,6 +977,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Bottom Column cell of the target row | The editor opens |
@@ -946,6 +996,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell | The editor opens with existing content |
@@ -964,6 +1015,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Right Column cell of the target row | The editor opens |
@@ -982,6 +1034,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell of the target row | The editor opens |
@@ -1000,6 +1053,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Hover over the cell containing the stored `&amp;nbsp;` content | A tooltip appears |
@@ -1020,6 +1074,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click the Left Column cell | The editor shows "LEFT-CONTENT-A" |
@@ -1037,6 +1092,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click Row A's Left Column cell | The editor shows Row A's Left Column content |
@@ -1054,6 +1110,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click Row 1 Left Column cell | Editor shows "AAA" |
@@ -1076,6 +1133,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click Row A's Left Column cell and change content to "ENGLISH-MODIFIED" | Editor shows modified content |
@@ -1094,6 +1152,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Find or create a row with language Spanish (Mexico) | The Spanish row is visible |
@@ -1115,6 +1174,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change Row A's name to "BATCH-ROW-A-MODIFIED" | Save becomes enabled |
@@ -1133,6 +1193,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change a clean row's language to a different value | Save becomes enabled |
@@ -1154,6 +1215,7 @@ for and not resolved; no test case asserts them as fact.
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change a row's name to trigger dirty state | Save becomes enabled |
@@ -1175,6 +1237,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes — currently skipped in `terms-conditions.spec.ts`
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Clear a row's Name field and type a single unique character "X" | `aria-invalid` is false; Save becomes enabled |
@@ -1190,6 +1253,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Clear a row's Name field and type a 260-character unique string | `aria-invalid` is false; Save becomes enabled; no truncation |
@@ -1205,6 +1269,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). A row has an existing name.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Clear the row's Name field entirely | `aria-invalid="true"` appears; border color changes to red-orange (oklch(0.577 0.245 27.325)); Save becomes disabled |
@@ -1219,6 +1284,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Clear a row's Name field and type three spaces | `aria-invalid="true"` appears; Save is disabled |
@@ -1233,6 +1299,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default). An existing row has name "EXISTING-NAME".
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change a different row's Name to "EXISTING-NAME" | `aria-invalid="true"` appears; Save is disabled; NO visible error message or tooltip |
@@ -1247,6 +1314,7 @@ for and not resolved; no test case asserts them as fact.
 **Automatable**: Yes
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Clear a row's Name field and type `< > & " ' / \ % # Cafe Nono 中文` | `aria-invalid` is false; Save becomes enabled |
@@ -1297,6 +1365,7 @@ for and not resolved; no test case asserts them as fact.
 | 11 | French (Canada) | middle | Name | empty/cleared |
 | 12 | French (Canada) | last | Left | existing-edit |
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | For each trial 1–12: navigate to the specified row (by position anchor), target the specified column, apply the specified data state operation | The edit succeeds without error for valid operations; invalid states (empty Name) show `aria-invalid` |
@@ -1342,6 +1411,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Verify Save is disabled (Clean state) | Save button has `disabled` attribute |
@@ -1356,6 +1426,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Verify Save is disabled (Clean state) | Save button has `disabled` attribute |
@@ -1372,6 +1443,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Verify Save is disabled (Clean state) | Save button has `disabled` attribute |
@@ -1388,6 +1460,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click Save | The save request fires; Save transitions to disabled during the request |
@@ -1403,6 +1476,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click Save (intercepted to return 500) | The save request fires |
@@ -1419,6 +1493,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Attempt to navigate away (e.g., click browser back or navigate to a different URL) | The native `beforeunload` dialog fires |
@@ -1435,9 +1510,10 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
-| 1 | Click the Language filter and select a different option | The alertdialog fires: "Unsaved changes — Are you sure you want to leave this view? Any unsaved changes will be lost." |
+| 1 | Click the Language filter and select a different option | The warning dialog opens with title "Unsaved changes" and body "Are you sure you want to leave this view? Any unsaved changes will be lost." |
 | 2 | Click Stay | The dialog dismisses; form remains dirty; Save still enabled; filter unchanged |
 
 **Expected**: Language filter change on dirty form raises guard dialog; Stay preserves dirty state
@@ -1451,9 +1527,10 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
-| 1 | Click the Language filter and select a different option | The alertdialog fires |
+| 1 | Click the Language filter and select a different option | The warning dialog opens |
 | 2 | Click Discard | The dialog dismisses; edits are discarded; grid reloads with the new filter; Save is disabled (Clean) |
 
 **Expected**: Discard on the guard dialog drops unsaved changes and applies the filter change
@@ -1465,6 +1542,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click Row B's Name input | Focus moves to Row B; NO guard dialog fires |
@@ -1481,10 +1559,11 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Verify Save is disabled and input shows `aria-invalid="true"` | Validation error state confirmed |
-| 2 | Fix the name (type a unique, non-empty value) | `aria-invalid` clears; Save becomes enabled (Dirty state) |
+| 2 | Fix the name (type a unique, non-empty value) | `aria-invalid` clears; Save becomes enabled because the corrected name is an unsaved change |
 
 **Expected**: Fixing a validation error transitions back to Dirty state with Save enabled
 
@@ -1495,6 +1574,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change the row's name to "TEMP-DIFFERENT" | Save becomes enabled (Dirty) |
@@ -1511,6 +1591,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click a sibling settings tab (if one exists) | UNCONFIRMED — whether a guard dialog fires on tab-to-tab navigation has not been tested (no tab link found in any probe) |
@@ -1534,6 +1615,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Change a row's name to a unique sentinel value (e.g., "HISTORY-TRACE-SENTINEL") and Save | Save completes |
@@ -1551,6 +1633,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Navigate to the Legal tab for office 1604 | The Legal tab loads (reuse `the Location Legal page object`) |
@@ -1571,6 +1654,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 **Automatable**: Yes | **Implemented**: `terms-conditions.spec.ts`
 **Preconditions**: The Terms and Conditions page is open for office 1604. The form is dirty (Save enabled).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Rapidly double-click the Save button | Only one save request fires; Save disables after the first click; no duplicate submission |
@@ -1583,6 +1667,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 **Automatable**: Yes — expected to FAIL while failed-save retry is unavailable | **Implemented**: `terms-conditions.spec.ts`
 **Preconditions**: The Terms and Conditions page is open for office 1604. The form is dirty. First save will fail (route interception returns 500), then interception is removed.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click Save (intercepted: 500 returned) | Save should stay enabled for retry (correct expectation) |
@@ -1597,6 +1682,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 **Automatable**: Yes | **Implemented**: `terms-conditions.spec.ts`
 **Preconditions**: The Terms and Conditions page is open for office 1604. The editor is open with unsaved content in a row's Left Column.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | While the editor has unsaved content, change the same row's language dropdown | The unsaved-changes guard fires (for the language filter change path) OR the language change applies without losing the RTE edit (for the per-row dropdown) |
@@ -1611,6 +1697,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 **Automatable**: Yes | **Implemented**: `terms-conditions.spec.ts`
 **Preconditions**: The Terms and Conditions page is open for office 1604. A save was just completed successfully (form is Clean).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Click browser Back | Navigation proceeds without any `beforeunload` dialog (form is Clean) |
@@ -1627,6 +1714,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 **Automatable**: Yes | **Implemented**: `terms-conditions.spec.ts`
 **Preconditions**: The Terms and Conditions page is open for office 1604. Language: US English (default).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Press Tab repeatedly from the first focusable element | Focus moves in a logical order through: Language filter, grid rows (Language dropdown, Name input, column cells), Add row button, Save button |
@@ -1641,6 +1729,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 **Automatable**: Yes | **Implemented**: `terms-conditions.spec.ts`
 **Preconditions**: The Terms and Conditions page is open for office 1604. A Left Column cell is visible.
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Tab into the Left Column cell (or activate it via Enter/Space on the launcher button) | The RTE gains focus — the cursor is inside the contenteditable |
@@ -1656,9 +1745,10 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 **Automatable**: Yes | **Implemented**: `terms-conditions.spec.ts` | currently skipped
 **Preconditions**: The Terms and Conditions page is open for office 1604. The form is dirty. The language filter is about to be changed (triggers the guard dialog).
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
-| 1 | Select a language filter option to trigger the guard dialog | The alertdialog appears; focus moves INTO the dialog |
+| 1 | Select a language filter option to trigger the guard dialog | The warning dialog appears; keyboard focus moves into it (accessibility focus behavior) |
 | 2 | Press Tab within the dialog | Focus cycles between Stay and Discard buttons (focus trapped within dialog) |
 | 3 | Press Escape or click Stay | The dialog closes; focus returns to the element that triggered the dialog (the language filter) |
 
@@ -1677,6 +1767,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: persistence (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Edit a row: set Name to "NET-PAYLOAD-TEST", type "PAYLOAD-CONTENT" into Left Column | Save becomes enabled |
@@ -1698,6 +1789,7 @@ Trials 3–12 each require a non-US-English language OR a row-position factor OR
 
 **Surface_Family**: empty-vol (DEEP)
 
+**Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
 | 1 | Count all visible rows in the grid | All rows (~51 including residue) render in a single scroll view — no pagination controls present |

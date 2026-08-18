@@ -16,7 +16,7 @@
 
 ## Context
 
-The client returned comments that our spec files and the xlsx workbooks are out of sync on steps, and shipped a zip (`Downloads/tests.zip`, 167-file tree rooted at `tests/`) showing the structure they expect — TestRail-ready, no written instructions. This plan reshapes our deliverable into that shape, fixes every md↔xlsx↔spec↔manifest divergence **at the source**, and installs gates so the defect class cannot ship again.
+The client returned comments that our spec files and the xlsx workbooks are out of sync on steps, and shipped a zip ((a local Downloads folder file — never part of the repo), 167-file tree rooted at `tests/`) showing the structure they expect — TestRail-ready, no written instructions. This plan reshapes our deliverable into that shape, fixes every md↔xlsx↔spec↔manifest divergence **at the source**, and installs gates so the defect class cannot ship again.
 
 **Provenance**: authored 2026-08-06 as `PLAN-DRAFT.md` in the evidence chip below; held unsaved pending Rutvik's interrogation. Recovered and promoted 2026-08-14 unchanged in substance — the ten decision gates are still open.
 
@@ -48,6 +48,235 @@ The client returned comments that our spec files and the xlsx workbooks are out 
   - `clients/encore/specs_planning/_internal/field-inventory-spec.md`
   - This plan's evidence root (above)
 - **Standing constraints**: Jira READ-ONLY. Ship only via `npm run client:ship` / `scripts/ship-client.sh`. Phase 5.3 push needs a fresh explicit in-chat GO from Rutvik.
+
+---
+
+## DELEGATION LAW (owner directive — governs every phase below)
+
+This plan is large, and the way it is worked matters as much as what it produces. Everything here was
+learned the expensive way — each law below cost a dead run, a wrong claim, or a wasted round before it
+was written down. **This section is binding on every phase and may not be weakened by any agent,
+including a future Claude.** If a phase seems to justify an exception, that is a finding to report, not
+a licence to proceed.
+
+Sources, for anyone who wants the long form: `.claude/skills/delegation-temp/SKILL.md`,
+`.claude/skills/ultra-agents/worker-ext.md`, and the burn analysis in
+`plans/pending/PLAN_75_DELEGATION_BURN_AND_LOSSLESS_GUARANTEE.md`. **PLAN_75 has not run yet.** It will
+later replace some of the guidance here with measured numbers; until it does, this section is the
+operating standard, and nothing below waits on it.
+
+### §D1 — The one rule everything else serves
+
+**Claude thinks. Workers do.**
+
+The brain is never economised and the hands are never Claude's. Two ways to break it, and both are
+failures regardless of what they save:
+
+- Pushing **judgment** down to a worker — classification, disposition, accept/reject, "is this a bug",
+  "does this coverage hold". A worker gathers evidence; it does not decide.
+- Pulling **doing** up to Claude — running specs, walking surfaces, grepping the repo wide, drafting
+  rows, reading artifacts to reconstruct what happened.
+
+The test for any task: *does this need a decision, or does it need hands?* Decisions stay. Hands go out.
+
+### §D2 — What Claude does itself, and nothing more
+
+Claude's own work on this plan is exactly this list:
+
+Talking to Rutvik · writing tickets and dispatching them · reading verdicts and deciding
+accept/reject/bounce · identity switches, activity-log rows, plan-status ceremony · edits to protected
+control files · the final judgment on any disputed finding · publishing — the git push, the Jira write,
+the client ship.
+
+**Everything else is delegated.** In particular, on this plan: the spec runs (Phase 5.1), the workbook
+comparisons (Phase 1), the tree diffs (Phase 2.5), the gate live-fires (Phase 4.6), the dependency
+reconciliation (Phase 2.1b), and every count in the "re-measure at execution" list.
+
+**The Bash tripwire.** Stop and write a ticket before running any of these yourself: `npx playwright` ·
+any `npm test|lint|check|run` of substance · `playwright-cli` · a pipe chain with two or more greps ·
+a repo-wide grep · any command over ~200 characters carrying repo paths · reading more than two files
+to understand something · drafting anything · reading logs or artifacts to work out what went wrong.
+
+Free to run inline, always: a single `cat`/`head`/`grep` over one file · `git log|diff|status` ·
+`ls`/`echo` · the dispatch commands themselves · reading a worker's report.
+
+### §D3 — The seven moments you are about to do a worker's job
+
+Each is a real moment where the discipline slips. Name it out loud when it fires:
+
+1. **Just after a compaction** — the role erodes into rule-text. Re-read this section.
+2. **Urgency** — "just quickly" is the tell.
+3. **A worker has stalled** — the rescue urge. See §D7.
+4. **The task looks small** — "it's one line."
+5. **The third read in a row** — the first read was legitimate, the second borderline; the third *is*
+   the investigation you should have ticketed.
+6. **You have the technique loaded** — you just read how the worker does it, so you reach for it.
+7. **The worker just came back** — and you want to redo it yourself rather than check it.
+
+### §D4 — The fight protocol (review is never terminal)
+
+**Required shape**: seat 1 works → seat 2 reviews → **seat 1 defends** → they go back and forth until
+aligned → only the aligned result reaches Claude.
+
+**Forbidden shape**: seat 1 works → seat 2 reviews → Claude acts on the review. A review that reaches
+Claude without the author defending is a protocol defect — send it back.
+
+Two further requirements:
+- **Cross-provider.** The reviewer's provider must differ from the author's, recursively. No provider
+  grades its own homework. Two seats from the same family that never disagree are not a council; that
+  exact mistake wasted a full round on 2026-08-16 and was caught only on re-reading the skill.
+- **Off-repo work gets re-executed, not read.** For anything not provable from the repo diff — a live
+  walk, a spec run, a browser observation — the reviewer independently repeats the actions. Paper review
+  can never green off-repo work. Reviewer stance: the worker is guilty until its evidence proves
+  otherwise.
+
+Applies to this plan's own phases too: Phase 1's divergence worklists, Phase 2's tree diff, and Phase 4's
+gate live-fires each need an author seat and a defending fight, not a single pass.
+
+### §D5 — Ticket mechanics that decide whether a run lives or dies
+
+These are not style notes. Each one has killed a run.
+
+**Paths and output**
+- The output path is written **literally and absolutely** in the ticket. A worker does not know its own
+  run id and cannot expand a variable you had in mind.
+- Create the output directory at dispatch time. The wrapper refuses to start a run whose output
+  directory already exists, and a duplicate run id hard-exits — that guard exists to stop two runs
+  sharing a verdict file.
+- **`ls` every path the ticket asserts exists.** A worklist's file column is a claim, not a fact.
+
+**Commands the worker will run**
+- `set -o pipefail` at the top of every verify block, or a failing command inside a pipe reports success.
+- **Tee everything.** A worker that dies takes its unwritten report with it, and another session's
+  cleanup can remove an untee'd file. Evidence has to outlive both the run and the repo.
+- **No quoted payloads on the command line.** The ticket text rides the command line and Defender scans
+  it; an exit 126 means the scanner ate it, and retrying in a loop will not help. Probes go in files, and
+  never carry literal secrets.
+- **One command must finish inside roughly twenty minutes.** Past that the worker is killed mid-flight
+  and reports nothing, or worse, reports a misleading zero. Shard the work.
+
+**Scope**
+- **Edit exactly one file per dispatch, create none.** Multi-file tickets come back partial.
+- Parallel tickets must not touch the same files *or run the same commands* — two Playwright runs share
+  auth state and truncate each other.
+- Split large work into disjoint lots, run in parallel; more than five parallel needs Rutvik's go.
+- **Never edit `copilot-worker.sh` while a dispatch is in flight.**
+
+**Sizing**
+- `--max-credits` is **mandatory**, sized at **twice** your estimate. Credit exhaustion is the most
+  common cause of a run that dies producing nothing at all. The wrapper enforces a per-work-type floor
+  and will raise a cap it thinks is too low, but a floor is a backstop against a typo, not a sizing
+  strategy.
+- `--work-type` is mandatory — the wrapper hard-exits without it.
+- Always pass `--session-id` and `--parent-run-id` so the run is traceable to this plan.
+
+### §D6 — Dispatch discipline
+
+- **Preflight every dispatch**: `node scripts/dispatch-preflight.mjs --ticket <t> --run-id <id>
+  --model <m> --work-type <wt>`. It checks the output anchor, run-id uniqueness against both the ledger
+  and disk, the work-type, the model/effort pairing, and the credit floor, then prints the canonical
+  command. **Exit 1 means do not dispatch.** Use the command it prints — a hand-assembled variant with a
+  swapped profile once burned four hours for zero output with credits untouched, and `--timeout` did not
+  bound it.
+- **Carry the doctrine in.** A worker starts with a fraction of Claude's context. Run
+  `node scripts/ticket-skill-scan.mjs --goal "<goal>" --work-type <type>` and cite what it returns; match
+  the ticket's paths against `.claude/rules/*.md` and cite every rule that matches. A build, RCA or draft
+  ticket with no doctrine cited is a dispatcher defect, not a worker defect.
+- **Ask before building.** On high-risk or novel scope, send a read-only clarifying probe first — the
+  worker returns either `NO-QUESTIONS` or at most three questions. No build dispatch until each question
+  has a recorded answer.
+- **Demand assumptions.** Every ticket requires an `## ASSUMPTIONS-MADE` section. Missing means the
+  report is incomplete. Two workers whose assumptions conflict is a stop-and-surface, not a merge.
+- **Every dispatch must be visible.** It runs through the wrapper, in the foreground of a tracked tool
+  call. No detachment — no `&`, `nohup`, `setsid`, `Start-Process`, `schtasks`, or any other way of
+  putting a run behind one more layer. A run Rutvik cannot see is indistinguishable from one hidden on
+  purpose (LR-074).
+
+### §D7 — Reading what comes back without being fooled
+
+- **Write your trap questions before you read.** Three to seven questions predicting where a lazy run
+  would slip. Then read. Then check at least three of its claims against what is actually on disk.
+- **Machine facts beat prose.** Read the ledger row — `exit`, `ok`, `exit_reason` — before believing a
+  report's story. A killed run can leave good-looking files and no real result.
+- **Recognise a dead run that looks alive.** An output file whose first line is the wrapper's
+  `NO DELIVERABLE` stub means nothing was produced, whatever else the ledger says. Scan the first couple
+  of thousand characters of any result for `VERDICT: NOT-FIXED`, `SESSION LIMIT REACHED`, "no
+  implementation completed", or "result.md was not written" — any hit is a failure, regardless of the
+  exit code. Never accept a worker's own admission of failure as a success.
+- **A non-empty `## ASK` blocks acceptance** until every item has a recorded answer.
+- **Re-run the grep yourself.** Worker acceptance is a claim. So is "that's out of scope" — prove it with
+  blame or diff before believing it.
+- **Facts yes, diagnoses no.** Workers are good at observing and bad at concluding. Take the observation;
+  do the diagnosis yourself.
+- **Don't re-read a green diff.** That is redoing the reviewer's job — the §D3.7 trigger.
+- **A positive control must exercise the same primitive** as the thing it licenses. A control that only
+  reads cannot license a verdict about clicking.
+- **A green check can be an artifact of invisibility.** If a check passes on everything and has never
+  failed on anything, it is not yet evidence.
+- **Copilot output is untrusted by default**, and a worker cannot enforce this framework's rules on
+  itself — that is what your reading is for.
+
+### §D8 — When a run dies
+
+- **Never rescue it yourself.** Wait for the timeout, or dispatch a fresh worker with the same ticket
+  plus the stall context. Self-rescue is the failure this whole section exists to prevent.
+- **Check the locks first.** A silent death is most often a stale slot lock, not a broken ticket.
+- **Stopping the tracked call does not stop the worker.** The shell dies; the underlying process keeps
+  running and keeps writing. Verify by process and kill the tree.
+- **At the second attempt, stop and look at the ticket**, not the worker. Ambiguous goal? Missing
+  doctrine? Wrong model? Scoped past the wall clock? Fix the ticket before spending a third attempt.
+- **Every death gets a cause**, recorded as one row: run id, cause, the permanent change that stops it
+  recurring. Never a prose "be careful" note.
+- **Bounce, don't self-fix.** A defect the review found goes back to the worker that made it. Fix it
+  yourself only after a bounce has failed.
+- **Classify the fault honestly**: your ticket's fault (costs no bounce) · a capability gap (escalate a
+  tier) · environment flake (one retry, then declare it blocked) · genuine worker defect (bounce).
+
+### §D9 — Not burning Claude
+
+The point of all of the above is that Claude spends its tokens on judgment and nothing else.
+
+- **Dispatch, then end the turn.** While a worker runs: no polling, no sleeping, no "just checking", no
+  filler analysis. Fire every dispatch you can in one turn and stop. You will be woken.
+- **Fire independent dispatches together**, not one at a time.
+- **Read for the verdict, not the story.** If a report's verdict line answers the question, that is the
+  read. Reports that bury the verdict should be bounced for shape.
+- **A solved workflow gets written down once**, as a short runbook, so the next session does not
+  rediscover it. Rediscovery is pure burn.
+- **Keep the worker's technique out of your own context.** When a worker errs, the technique goes into
+  its profile and you keep a one-line pointer. When you err, that goes to memory. When the system errs,
+  that becomes a plan.
+- **Known tax to watch for on this plan**: test output is UTF-16, so a plain `grep` over a run log
+  silently finds nothing and reads as "the test never ran". That exact mistake has already produced a
+  wrong report. Read run output accordingly.
+
+### §D10 — Where delegation is not the answer
+
+Three of the most expensive things observed are caused by delegation going *wrong*, not by Claude doing
+too much: oversized tickets that die on the clock, bad tool error messages that cost diagnosis turns, and
+the wrong council shape. **Delegating harder makes all three worse.** Before prescribing "delegate it",
+classify: is this Claude doing a worker's job, is it the delegation machinery failing, or is it a broken
+tool? A finding can be more than one, and a fix has to address every class it carries.
+
+And the standing limit, stated plainly: **delegating still costs quality today.** A worker gets a
+fraction of Claude's context. That is why §D6 makes carrying the doctrine in mandatory — it is not a
+reason to do the work yourself.
+
+### §D11 — Close-out for this plan
+
+At the end of the work, record:
+
+```
+Receipt
+- Worker jobs: <N> total, <N> passed, <N> failed, <N> retried
+- Agents dispatched: <N> — <model> ×<N> (<work type>), ...
+- Reviewed by: <who, and their verdict in plain words>
+- I did myself: <plain list + why each was non-substantive, or "nothing">
+- Self-work incidents: <N>   |   Uncapped dispatches: <N>    (both should be zero)
+- Waste: <"none — could not have been fewer runs", or the honest admission>
+```
+
+**"I did myself: nothing" is the target.**
 
 ---
 
@@ -88,8 +317,8 @@ Run `/questionnaire` in Decision Mode over D1–D10. Every gate needs a recorded
   - **Decisive reason**: a derived label (`openBasicInfo` → "Open basic info") can never equal the documented step sentence ("Switch to the Basic Information tab"). Our deliverable's value rests on spec step labels matching the workbook `Steps (Step)` text, and `check:step-label-parity` gates exactly that. Their own `handLabels` override map concedes the point — they hand-write the labels that matter anyway, paying our cost without our guarantee.
   - **Their one real advantage, and how we close it**: their wrapper cannot forget a method; our decorator can be omitted on a new one. Phase 4 therefore adds a lint rule failing any public async page-object method with no `@step`. That is the cheap half of their benefit without porting a proxy across every page object we own. Gate authored per LR-069 (announce-ramp first).
   - **`handLabels` / `jargonMap` migration**: D6 keeping ours means their label data is the loser schema in Phase 3.3 — their `handLabels` entries are read as a source of better step wording where ours is thin, then discarded. The schema does not ship.
-- **D7.** TestRail case-id allocation: client exports ids to us vs we submit cases and generate the mapping. → **ANSWER (2026-08-14): WE SUBMIT, TESTRAIL RETURNS THE IDS.** One script pushes every case in via `add_case` with `refs = <our TC code>`, captures the server-assigned `id` from each response, and writes `config/testrail/case-mapping.json`. Same script re-runs for future cases, new codes only. Covers **all** modules, including every D2 additive one.
-  - **Research provenance**: `.claude/state/ua-worker/testrail-ids-0814/report.md` (run `testrail-ids-0814`, 2026-08-14, official TestRail docs cited throughout; verified non-stub, 9 citations, ASSUMPTIONS-MADE present).
+- **D7.** TestRail case-id allocation: client exports ids to us vs we submit cases and generate the mapping. → **ANSWER (2026-08-14): WE SUBMIT, TESTRAIL RETURNS THE IDS.** One script pushes every case in via `add_case` with `refs = <our TC code>`, captures the server-assigned `id` from each response, and writes (the referenced TestRail config was a proposed path that was never created). Same script re-runs for future cases, new codes only. Covers **all** modules, including every D2 additive one.
+  - **Research provenance**: a scratch/ephemeral file (not tracked in git) (run `testrail-ids-0814`, 2026-08-14, official TestRail docs cited throughout; verified non-stub, 9 citations, ASSUMPTIONS-MADE present).
   - **Why ids cannot be pre-agreed**: TestRail case ids are **server-assigned**. `add_case` has no `id` parameter and mints the integer itself, returning it in the response body. Any plan premised on choosing or reserving ids is invalid.
   - **The `refs` field is what makes this durable**: `refs` is a writable free-text system field, settable at create time (API *and* the CSV import wizard), returned on every `get_case`/`get_cases`, filterable via `get_cases?refs=`, and tracked in case history. Storing our TC code there means `case-mapping.json` is **regenerable from TestRail alone** — a lost or stale mapping file is recoverable, not fatal. This is the anti-drift mechanism; do not skip writing `refs`.
   - **Operating assumption (Rutvik, 2026-08-14)**: the collaborator resets TestRail and we load all our cases fresh. Under a reset there is no duplicate risk and the bulk create is unconditional.
@@ -197,7 +426,7 @@ Every gate authored here follows LR-069: severity rubric, announce-ramp before e
 | GIVER | `clients/encore/specs_planning/test-cases/**/*.md`, `clients/encore/testcases/encore_test_cases.xlsx`, per-module workbooks | `clients/encore/testcases/encore_test_cases.xlsx`<br>`clients/encore/specs_planning/test-cases/` (Phase 1.1b triage classification written into the md sources) | `npm run check:tc-parity` exit 0 |
 | BUILDER | `clients/encore/tests/**/*.spec.ts` | `clients/encore/tests/` (Phase 1.3–1.7 title/id fixes + 1.6 new implementations) | `npx playwright test --list` resolves all TC ids |
 | HEALER | per-fix md Status sync | `(skipped: no RCA-driven fixes in scope; every Phase 1 edit is a source-sync correction, not a failure repair)` | `(none)` |
-| WATCHDOG | findings table / false-green sweep | `.claude/state/ua-worker/chips/testrail-restructure/out/re-review-G1.md`<br>`.claude/state/ua-worker/chips/testrail-restructure/out/re-review-G4.md` | per-mode acceptance (already closed by the 2026-08-06 council) |
+| WATCHDOG | findings table / false-green sweep | worker chip output (ephemeral — not tracked in git)<br>worker chip output (ephemeral — not tracked in git) | per-mode acceptance (already closed by the 2026-08-06 council) |
 | GARDENER | structural refactor citation | `clients/encore/` restructured tree (Phase 2 dir moves only; no spec logic changes) | `npm run typecheck` clean |
 | OWNER | `export_test_cases/module-codes.json`, `.githooks/pre-commit`, `scripts/ship-client.sh` | `export_test_cases/module-codes.json`<br>`.githooks/pre-commit`<br>`scripts/ship-client.sh` | `npm run xlsx:freshness` exit 0 |
 
@@ -216,6 +445,6 @@ Every gate authored here follows LR-069: severity rubric, announce-ramp before e
 - Any md-vs-xlsx authority flip [D1] rewrites text at scale — reversible only via git, so it lands as its own commit.
 - The audit counts (1123/948/998, 305, 155, 72, 50) are as-of-2026-08-06 snapshots. Re-measure at execution time before treating any number as a worklist length. **Re-measured by the audit 2026-08-15** (use these, then re-measure again at execution): md/xlsx/spec = **1168 / 1168 / 1058** via canonical `check:tc-parity` (110 md-only, planned-not-implemented) · spec-absent-from-xlsx = **0** · D1 expected-result divergences = **172** across 1057 matched pairs · corporate-override edited TCs = **47** (was 50; the old count included source filenames in the row signature) · terms-conditions = **44** md↔xlsx / **45** xlsx↔spec, pending-automation = **0**.
 - **Unsized backlog found by the audit 2026-08-15 (Phase 1.8 must scope it)**: empty `Steps (Expected Result)` cells in OUR workbooks — `terms-conditions-core` **93** (92 of them carrying the placeholder Step `1. (no steps defined)`), `service-charge-text-core` **84**, `service-charge-basic-info` **31**. Related: 1.8's premise that TNC keeps its steps in `Preconditions` matches **0** rows — the real pattern is placeholder-Step + empty-Expected.
-- **Their-side content to handle that no phase currently names (audit 2026-08-15)**: `docs/powerbi-testrail-dashboard-plan.md` is theirs-only and Phase 2.1 adopts no `docs/` content; their non-TestRail scripts (`test-cli.js`, `clean-run.js`, `share-for-debugging.js`) are adopted by 2.1 unread (never content-diffed by any lot); their root workbook's Overview carries a dead hyperlink to a `corporate_pricing_override` sheet that does not exist (actual sheets are `pgo_*`) — do not inherit it, alongside the already-noted stale pgo total of 166.
+- **Their-side content to handle that no phase currently names (audit 2026-08-15)**: (the referenced dashboard plan was a proposed file that was never created) is theirs-only and Phase 2.1 adopts no `docs/` content; their non-TestRail scripts (`test-cli.js`, `clean-run.js`, `share-for-debugging.js`) are adopted by 2.1 unread (never content-diffed by any lot); their root workbook's Overview carries a dead hyperlink to a `corporate_pricing_override` sheet that does not exist (actual sheets are `pgo_*`) — do not inherit it, alongside the already-noted stale pgo total of 166.
 - **Execution-environment note (audit 2026-08-15)**: run the Phase 2.5 / 5.2 `git archive … | tar -t` verification under Git Bash. A PowerShell-native binary pipeline corrupts the tar stream (bsdtar reports "Damaged tar archive"); Git Bash GNU tar lists all 629 entries cleanly. Not a plan defect — an invocation constraint.
 - **Open owner decision (audit 2026-08-15, unresolved)**: `clients/encore/testcases/encore-qa-tracker.xlsx` is tracked, matches no deny-glob, and has no disposition anywhere in this plan — so it ships today by default. Decide keep-or-exclude before the Track-A ship.

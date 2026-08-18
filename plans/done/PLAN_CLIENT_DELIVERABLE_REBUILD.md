@@ -32,7 +32,7 @@ Verified: `clients/encore/` lacks `package.json`, `playwright.config.ts`, `tscon
 
 ### Why we now own the packaging (pivot from SP-MT-07)
 
-[plans/done/SUBPLAN_MT_07_DELIVERY_PACKAGER.md](../done/SUBPLAN_MT_07_DELIVERY_PACKAGER.md) (closed 2026-04-17) explicitly decided NOT to build a packager: *"we ship to colleague, they will ship to client, we ship everything in new structure, colleague decides what to give and what to not give."* That decision held until today — when the user shipped DIRECTLY to a client-accessible private repo, bypassing the colleague step. **The colleague-as-packager assumption is broken.** This plan re-internalizes packaging discipline: ship-from-source becomes structurally enforced, no human curation needed at ship time.
+[plans/done/SUBPLAN_MT_07_DELIVERY_PACKAGER.md](SUBPLAN_MT_07_DELIVERY_PACKAGER.md) (closed 2026-04-17) explicitly decided NOT to build a packager: *"we ship to colleague, they will ship to client, we ship everything in new structure, colleague decides what to give and what to not give."* That decision held until today — when the user shipped DIRECTLY to a client-accessible private repo, bypassing the colleague step. **The colleague-as-packager assumption is broken.** This plan re-internalizes packaging discipline: ship-from-source becomes structurally enforced, no human curation needed at ship time.
 
 ### What's verified (no assumptions; LR-020 compliance)
 
@@ -45,17 +45,17 @@ Verified: `clients/encore/` lacks `package.json`, `playwright.config.ts`, `tscon
   - `src/worker/{index,worker-manager,sdk-executor,progress-extractor}.ts` — ~1300 lines of agent worker runtime.
   - `src/utils/agent-notification-writer.ts`, `src/utils/agent-reporter.ts` — agent-coupled utils (one stays, one moves; see Workstream B).
   - `clients/encore/CLAUDE.md` (12,087 bytes ≈ 12 KB, verified via `ls -la`).
-  - `clients/encore/specs_planning/audits/archive/MASTER_AUDIT_2026-03-06.md` + 13 sibling internal audit files.
+  - the archived master audit dated 2026-03-06 under `clients/encore/specs_planning/audits/archive/`, plus 13 sibling internal audit files.
   - `clients/encore/specs_planning/catalogs/hist-root-map-*.md` — internal MCP exploration logs.
-  - `clients/encore/docs/read_only_docs/AGENT_RULES_ENCORE.md` — internal Jira IDs (NM-1264, BUG-LI-001), §E1–§E6 agent rules.
+  - the Encore agent-rules doc under `clients/encore/docs/read_only_docs/` — internal Jira IDs (NM-1264, BUG-LI-001), §E1–§E6 agent rules.
   - `clients/encore/docs/read_only_docs/Functional Requirement -v1.docx`, `Encore-Requirements-V2.docx`, NM-1331/NM-1334 PriceGuide `.docx` files — internal Jira-tagged requirements.
 - Root `tests/` and `dist/` and `.ci/` **DO** still exist (the prior plan-draft incorrectly claimed they didn't). Stragglers in root `tests/` that should never reach a client: `tests/unit/agent-notification-writer.test.ts`, `tests/hooks/fixtures/*.json[l]`.
-- `.auth/encore-state.json` (18 KB) is session-state only (`grep -c 'v-rutvik\|khosariya'` = 0). `.auth/nav4-state.json` (19 KB) **is cred-bearing** (`grep -c 'v-rutvik\|khosariya'` = 1 — `v-rutvik.khosariya@psav.com` baked into a localStorage TTL value). `.auth/chrome-profile/` is a full Chrome user profile.
+- the encore session-state file under `.auth/` (18 KB) is session-state only (`grep -c 'v-rutvik\|khosariya'` = 0). the nav4 session-state file under `.auth/` (19 KB) **is cred-bearing** (`grep -c 'v-rutvik\|khosariya'` = 1 — `<automation-user>` baked into a localStorage TTL value). `.auth/chrome-profile/` is a full Chrome user profile.
 - Encore-specific stragglers in source root that must move into `clients/encore/`:
   - [config/environments/.env.local](../../config/environments/.env.local) — `cloudapps-e2e.encoreglobal.com` URLs, office 1604, real cred for `s-prd-clickauto@psav.com` at line 11.
-  - [scripts/build-claim-vs-actual-diff.mjs](../../scripts/build-claim-vs-actual-diff.mjs) — hardcoded `cloudapps-e2e.encoreglobal.com`, office 1604, `v-rutvik.khosariya@psav.com` (line 152, 188; `office 1604` mention at line 182).
+  - [scripts/build-claim-vs-actual-diff.mjs](../../scripts/build-claim-vs-actual-diff.mjs) — hardcoded `cloudapps-e2e.encoreglobal.com`, office 1604, `<automation-user>` (line 152, 188; `office 1604` mention at line 182).
   - [scripts/owner-dom-walk-2026-04-29.mjs](../../scripts/owner-dom-walk-2026-04-29.mjs) — hardcoded `BASE_URL` (line 10), `OFFICE = '1604'` (line 14), `APP_HOST = 'cloudapps-e2e.encoreglobal.com'` (line 18).
-- `TEMP_RUTVIK_EXPERIMENT` markers exist in **7 production / config files** (verified via grep): `playwright.config.ts:63,136`, `playwright.config.ci.ts:82`, `clients/encore/tests/setup/auth.setup.ts:8`, `clients/encore/tests/setup/auth-storage.ts:6`, `clients/encore/tests/setup/fixtures.ts:139`, `clients/encore/CLAUDE.md`, `.github/workflows/playwright-tests.yml:12,13,16,43`. Plus 11 `.playwright-cli/` snapshot files (gitignored). Any deny-list grep that fires on the literal string `TEMP_RUTVIK_EXPERIMENT` will fail today — production files leak the marker. Workstream D resolves this by renaming the marker to its non-PII alias `EXP-AUTH-STATE-SHARED` (already used alongside it in the same files).
+- `TEMP_RUTVIK_EXPERIMENT` markers exist in **7 production / config files** (verified via grep): `playwright.config.ts:63,136`, `playwright.config.ci.ts:82`, `clients/encore/tests/setup/auth.setup.ts:8`, `clients/encore/tests/setup/auth-storage.ts:6`, `clients/encore/tests/setup/fixtures.ts:139`, `clients/encore/CLAUDE.md`, the playwright-tests workflow at lines 12, 13, 16, and 43. Plus 11 `.playwright-cli/` snapshot files (gitignored). Any deny-list grep that fires on the literal string `TEMP_RUTVIK_EXPERIMENT` will fail today — production files leak the marker. Workstream D resolves this by renaming the marker to its non-PII alias `EXP-AUTH-STATE-SHARED` (already used alongside it in the same files).
 - Cross-references that break if `src/orchestrator/`, `src/server/`, `src/worker/`, `src/utils/agent-notification-writer.ts` move to `pipeline/` (verified via repo-wide grep — 14 distinct production-relevant locations, fully enumerated in Workstream C).
 
 ### Path A — chosen approach (the simplest contract)
@@ -192,7 +192,7 @@ Compiles framework `src/` (minus pipeline-only files, see B3) into each `clients
 - Input: `tsconfig.build.json` + `--client=<id>` flag.
 - Output: `clients/<id>/dist/framework/{*.js,*.d.ts}` mirroring `src/` tree (excluding `__tests__/`, excluding any path moved to `pipeline/`).
 - Idempotent: re-running on unchanged `src/` produces byte-identical output.
-- Vendor-fresh check: emits a `clients/<id>/dist/framework/.vendor-meta.json` with `{srcCommit, srcMtimes, builtAt}`. Pre-commit hook reads this to detect drift.
+- Vendor-fresh check: emits the vendor metadata JSON file under `clients/<id>/dist/framework/` with `{srcCommit, srcMtimes, builtAt}`. Pre-commit hook reads this to detect drift.
 - Error: refuses to run if `pipeline/` (Workstream B output) doesn't exist after Workstream B is complete (catch-out-of-order execution).
 
 Add npm script: `"vendor:build": "ts-node scripts/build-framework-vendor.ts --client=encore"` and `"vendor:build:all": "node scripts/build-framework-vendor-all.mjs"` (loops over all `clients/*/`).
@@ -204,7 +204,7 @@ Each move below is a `git mv` + import-path rewrite + reference-update step. Eve
 | From | To | Action |
 |---|---|---|
 | `config/environments/.env.local` | `clients/encore/config/environments/.env.local` | `git mv`. Already gitignored at both root (`config/environments/.env.local`) and per-client (`clients/*/config/environments/.env.local`). Verify with `git check-ignore`. |
-| `scripts/build-claim-vs-actual-diff.mjs` | `clients/encore/scripts/build-claim-vs-actual-diff.mjs` | `git mv`. Update any npm scripts in root `package.json` (none today; verify). The hardcoded `cloudapps-e2e.encoreglobal.com` / `1604` / `v-rutvik.khosariya@psav.com` strings stay client-scoped — acceptable now that file is under `clients/encore/`. |
+| `scripts/build-claim-vs-actual-diff.mjs` | `clients/encore/scripts/build-claim-vs-actual-diff.mjs` | `git mv`. Update any npm scripts in root `package.json` (none today; verify). The hardcoded `cloudapps-e2e.encoreglobal.com` / `1604` / `<automation-user>` strings stay client-scoped — acceptable now that file is under `clients/encore/`. |
 | `scripts/owner-dom-walk-2026-04-29.mjs` | `clients/encore/scripts/owner-dom-walk-2026-04-29.mjs` | `git mv`. Same rationale. |
 | `tests/unit/agent-notification-writer.test.ts` | `pipeline/tests/unit/agent-notification-writer.test.ts` | `git mv` (Workstream B). Update import from `../../src/utils/agent-notification-writer` → `../../utils/agent-notification-writer`. |
 | `tests/hooks/fixtures/*` | `pipeline/tests/hooks/fixtures/*` | `git mv` (Workstream B). |
@@ -329,8 +329,8 @@ Each row is a **mandatory edit**, with the file + line + old → new. Failure to
 | File | Action |
 |---|---|
 | `BUNDLE_MANIFEST.md` | Full rewrite for Path A (Workstream G3). Old "DELETE list" of `src/orchestrator/`, `src/server/`, `src/worker/`, `src/utils/agent-notification-writer.ts` becomes irrelevant — those paths no longer exist in `src/`. |
-| `clients/encore/readable_externals/jbs/2026-04-23_multi-tenant-handoff/source.md` line 67 | Add a footnote dating the doc and noting the post-2026-04-30 path change. Do NOT rewrite — it's a dated handoff record. |
-| `clients/encore/readable_externals/jbs/2026-04-23_multi-tenant-handoff/index.html` line 98 | Same footnote treatment. |
+| the multi-tenant handoff source doc under Encore readable externals, line 67 | Add a footnote dating the doc and noting the post-2026-04-30 path change. Do NOT rewrite — it's a dated handoff record. |
+| the multi-tenant handoff HTML index under Encore readable externals, line 98 | Same footnote treatment. |
 | Plans in `plans/done/` that reference old paths | Leave untouched — they are historical records (LR per Plans Discipline). |
 | Plans in `plans/pending/` that reference old paths (`PLAN_BUG_HUNTING_RULEBOOK_V2.md`, `PLAN_CHAT_UI_BUGS.md`, `PLAN_CODEBASE_CLEANUP.md`, `PLAN_FULL_CHAIN_AUDIT.md`) | Update grep-globally — these are forward-looking plans whose execution will hit the new paths. Each plan needs a one-line "Path note: post-2026-04-30 PLAN_CLIENT_DELIVERABLE_REBUILD, internal runtime moved from `src/{orch,serv,work}/` to `pipeline/{orch,serv,work}/`." Then any line citing the old path is updated. |
 
@@ -370,7 +370,7 @@ For each file, replace `TEMP_RUTVIK_EXPERIMENT` with `EXP-AUTH-STATE-SHARED` and
 | `clients/encore/tests/setup/auth-storage.ts` | 6 | Same. |
 | `clients/encore/tests/setup/fixtures.ts` | 139 | Same. |
 | `clients/encore/tests/specs/_verification/auth-experiment.spec.ts` | 2 | Rename JSDoc `(TEMP_RUTVIK_EXPERIMENT 2026-04-30)` → `(EXP-AUTH-STATE-SHARED 2026-04-30)`. (Throwaway verification spec — DEVIATION-added during /execute Phase 1 gap analysis; plan originally enumerated 7 prod files but D4 strict grep target=zero requires all 8 hits cleared.) |
-| `.github/workflows/playwright-tests.yml` | 12, 13, 16, 43 | **Special**: this file documents that `NAVIGATOR_MFA_SECRET` is set "while the shared automation user is broken — temp account is Rutvik's personal MFA-enabled account." That's a real human-name reference that should be moved to internal docs, not committed CI. Replace the multi-paragraph TEMP_RUTVIK_EXPERIMENT block with a 1-line `EXP-AUTH-STATE-SHARED` reference, and move the "Rutvik's personal MFA-enabled account" detail to `clients/encore/specs_planning/_internal/active-experiments.md` (gitignored). |
+| the playwright-tests workflow | 12, 13, 16, 43 | **Special**: this file documents that `NAVIGATOR_MFA_SECRET` is set "while the shared automation user is broken — temp account is Rutvik's personal MFA-enabled account." That's a real human-name reference that should be moved to internal docs, not committed CI. Replace the multi-paragraph TEMP_RUTVIK_EXPERIMENT block with a 1-line `EXP-AUTH-STATE-SHARED` reference, and move the "Rutvik's personal MFA-enabled account" detail to `clients/encore/specs_planning/_internal/active-experiments.md` (gitignored). |
 | `clients/encore/CLAUDE.md` | (whole file is gitignored under per-client rules — no rename needed; agent-only) | No-op. |
 
 ### D3. New file: `clients/encore/specs_planning/_internal/active-experiments.md`
@@ -382,7 +382,7 @@ Single tracked log of in-flight production-touching experiments. Gitignored (per
 
 | ID | Started | Owner | Files touched | Reason | Removal trigger |
 |---|---|---|---|---|---|
-| EXP-AUTH-STATE-SHARED | 2026-04-30 | Rutvik | playwright.config*.ts, tests/setup/{auth.setup,auth-storage,fixtures}.ts, .github/workflows/playwright-tests.yml | Shared storageState across workers using personal MFA account while shared automation user is broken | Encore IT provisions MFA-less auto-user; revert to single-worker auth |
+| EXP-AUTH-STATE-SHARED | 2026-04-30 | Rutvik | playwright.config*.ts, tests/setup/{auth.setup,auth-storage,fixtures}.ts, playwright-tests workflow | Shared storageState across workers using personal MFA account while shared automation user is broken | Encore IT provisions MFA-less auto-user; revert to single-worker auth |
 ```
 
 ### D4. Acceptance for Workstream D
@@ -459,7 +459,7 @@ The Bash here is intentional — Windows users have Git Bash (already the config
 
 ### E2. Verifier: `scripts/verify-vendor-fresh.mjs`
 
-Reads `clients/$CLIENT/dist/framework/.vendor-meta.json` (written by `scripts/build-framework-vendor.ts`). Compares stored `srcCommit` + `srcMtimes` vs. current. Refuses with non-zero exit if drift detected.
+Reads the vendor metadata JSON file under `clients/$CLIENT/dist/framework/` (written by `scripts/build-framework-vendor.ts`). Compares stored `srcCommit` + `srcMtimes` vs. current. Refuses with non-zero exit if drift detected.
 
 ### E3. Verifier: `scripts/verify-no-forbidden.mjs`
 
@@ -471,7 +471,7 @@ Two modes:
 Deny-list (the single source of truth — hooks reference this list):
 
 ```
-**/CLAUDE.md
+any CLAUDE doc
 **/specs_planning/**
 **/readable_externals/**
 **/docs/read_only_docs/**
@@ -553,7 +553,7 @@ fi
 node scripts/verify-no-forbidden.mjs --staged-diff
 ```
 
-### E6. CI smoke test: `.github/workflows/ship-smoke.yml`
+### E6. CI smoke test: the ship-smoke workflow
 
 ```yaml
 name: Ship Smoke
@@ -870,18 +870,18 @@ Every box must be checked before `Status: DONE` is set. Strict, grep-verifiable.
 ### D. Ship discipline (Workstream E)
 
 - [ ] `scripts/ship-client.sh` exists, executable, refuses on dirty tree without `--force`.
-- [ ] `scripts/build-framework-vendor.ts` exists; `npm run vendor:build:all` produces `clients/encore/dist/framework/.vendor-meta.json`.
+- [ ] `scripts/build-framework-vendor.ts` exists; `npm run vendor:build:all` produces the vendor metadata JSON file under `clients/encore/dist/framework/`.
 - [ ] `scripts/verify-vendor-fresh.mjs` and `scripts/verify-no-forbidden.mjs` exist.
 - [ ] `.githooks/pre-push` exists, executable.
 - [ ] `.githooks/pre-commit` has the new "Section 3" appended.
-- [ ] `.github/workflows/ship-smoke.yml` exists; CI passes on Ubuntu + Windows matrix.
+- [ ] the ship-smoke workflow exists; CI passes on Ubuntu + Windows matrix.
 - [ ] LR-049 added to `.claude/rules/pipeline.md`.
 
 ### E. Deliverable repo cleanup (Workstream F)
 
 - [ ] `git tag pre-rebuild-2026-04-30` pushed to `RutviK-JBS/encore_deliverables_test`.
 - [ ] Force-pushed clean rebuild lands on `main`.
-- [ ] `git ls-tree -r HEAD --name-only` on the deliverable returns ZERO matches for `orchestrator|server/db|worker|CLAUDE\.md|specs_planning|read_only_docs|TEMP_RUTVIK`.
+- [ ] `git ls-tree -r HEAD --name-only` on the deliverable returns ZERO matches for `orchestrator|server/db|worker|CLAUDE-dot-md|specs_planning|read_only_docs|TEMP_RUTVIK`.
 - [ ] Local `C:/Users/rutvi/projects/encore_deliverables_test/` deleted (after tag pushed).
 
 ### F. Verification (Workstream H)
@@ -1037,7 +1037,7 @@ Post-execution, agents (Claude or otherwise) operating in this repo see the new 
 - `scripts/verify-vendor-fresh.mjs`
 - `scripts/verify-no-forbidden.mjs`
 - `.githooks/pre-push`
-- `.github/workflows/ship-smoke.yml`
+- the ship-smoke workflow
 
 ### Modified
 
@@ -1046,7 +1046,7 @@ Post-execution, agents (Claude or otherwise) operating in this repo see the new 
 - `tsconfig.build.json` (add exclude for safety)
 - `playwright.config.ts` (D2 marker rename only — agent-reporter path stays)
 - `playwright.config.ci.ts` (D2 marker rename only)
-- `.github/workflows/playwright-tests.yml` (D2 marker rename + multi-paragraph block trim)
+- the playwright-tests workflow (D2 marker rename + multi-paragraph block trim)
 - `.githooks/pre-commit` (E5 append section)
 - `.gitignore` (G2 reconcile per-client `dist/framework/` allowlist)
 - `.claude/launch.json` (C3)
@@ -1087,7 +1087,7 @@ Post-execution, agents (Claude or otherwise) operating in this repo see the new 
 
 ---
 
-## Execution Summary (2026-05-01)
+## Execution Summary
 
 Plan `/execute`d under OWNER identity, then re-audited (audit-of-audit RED verdict surfaced 15 acceptance-gate misses + 3 NEW structural findings F16/F17/F18 over the original audit's F1–F15). R1 fix-pass applied 11 inline corrections; R3 commit-chain landed in 9 commits (167ed4d baseline → 503882a final). Total deviations logged: 37 rows in `clients/encore/specs_planning/_internal/PLAN_CLIENT_DELIVERABLE_REBUILD-deviations.md` (gitignored — agent-only audit trail; not in deliverable).
 
@@ -1099,14 +1099,14 @@ Plan `/execute`d under OWNER identity, then re-audited (audit-of-audit RED verdi
 | **B** Pipeline structural rebuild | DONE — `src/{orchestrator,server,worker,utils/agent-notification-writer}/` → `pipeline/{...}/`; `tsconfig.server.json` → `pipeline/tsconfig.json`. ts-node mode PASS. tsc compilation has 5 remaining errors (4 rootDir + 1 pre-existing) → SUBPLAN_PIPELINE_TSC_HARDEN.md. |
 | **C** Cross-references | DONE — strict grep (line 839, post-Q1=A 5-carve-out amendment) returns 0 hits. Plus 3 mechanical post-move imports fixed in R3.A (`pipeline/scripts/healer-post-complete.ts:20-21`, `pipeline/utils/agent-notification-writer.ts:13`). |
 | **D** EXP-AUTH-STATE-SHARED rename | DONE — strict grep (line 843) returns 0 hits for `TEMP_RUTVIK_EXPERIMENT` in code. Marker context relocated to `clients/encore/specs_planning/_internal/active-experiments.md` (gitignored). |
-| **E** Ship discipline (3-layer defense) | DONE — Layer 1: per-client `.gitignore` + `git rm --cached` for 82 legacy-tracked files (F16). Layer 2: 6 scripts (`vendor:build:all`, `client:ship.{sh,ps1}`, `verify-{vendor-fresh,no-forbidden}.mjs`, `build-framework-vendor-all.mjs`). Layer 3: `.githooks/{pre-push,pre-commit}` ACTIVE (`core.hooksPath=.githooks`). CI: `.github/workflows/ship-smoke.yml` (Ubuntu+Windows matrix). |
+| **E** Ship discipline (3-layer defense) | DONE — Layer 1: per-client `.gitignore` + `git rm --cached` for 82 legacy-tracked files (F16). Layer 2: 6 scripts (`vendor:build:all`, `client:ship.{sh,ps1}`, `verify-{vendor-fresh,no-forbidden}.mjs`, `build-framework-vendor-all.mjs`). Layer 3: `.githooks/{pre-push,pre-commit}` ACTIVE (`core.hooksPath=.githooks`). CI: the ship-smoke workflow (Ubuntu+Windows matrix). |
 | **F** Mock-repo rebuild + force-push + local-folder delete | **NOT EXECUTED — STOP-GATE held per Auto Mode rule 5 + R3-Q5 disposition.** Destructive on shared remote (`RutviK-JBS/encore_deliverables_test:main`) + local data (`rm -rf C:/Users/rutvi/projects/encore_deliverables_test/`). Held until user authorizes. Recommended sequence: clone deliverable, tag `pre-rebuild-2026-04-30` at SHA `febff02` first, push tag, THEN force-push rebuilt main, THEN delete local clone. |
 | **G** Docs + rules | DONE — `CLAUDE.md` G1 Repo-Structure section; `BUNDLE_MANIFEST.md` G3 full rewrite (Path A + 3-layer table); `LR-049` in `.claude/rules/pipeline.md` (ship-via-git-archive only); plan body amended with A2.1 + Q1=A line 839 carve-outs + audit-fix metadata rows; `SUBPLAN_PIPELINE_TSC_HARDEN.md` authored. |
 | **H1** Standalone install | PASS — `cp -r` + `npm install` resolves all deps post-F17 (knex + @aws-sdk/client-s3 + proper-lockfile added); `npx playwright test --list` resolves **1310 test entries** post-F18 (testDir + glob fix). |
 | **H2** Server/worker bootstrap | PASS — both `npm run server:start` and `npm run worker:start` load modules cleanly under ts-node; runtime checks (DB, Claude CLI auth) fail as expected in dev env. **Note**: `npm run build:server` (tsc compile mode) blocked on rootDir architecture → SUBPLAN_PIPELINE_TSC_HARDEN. |
 | **H3** Idempotency | PASS — `diff -r --exclude='reports' --exclude='node_modules' --exclude='.auth' --exclude='package-lock.json' /tmp/encore-d1 /tmp/encore-d2` returns exit 0 (byte-identical shipped output across consecutive `npm run client:ship` runs). |
 | **H4** Deny-list defense | PASS — caught in flight at first commit (build-claim-vs-actual-diff.mjs personal identifier, deviation #33), at second commit (verifier self-reference, deviation #34). All 3 layers exercised live. |
-| **H5** CI smoke | NOT YET TRIGGERED (no PR open) — `.github/workflows/ship-smoke.yml` will fire on next PR touching `src/`/`pipeline/`/`clients/`/`scripts/`/`package.json`/`tsconfig*`. |
+| **H5** CI smoke | NOT YET TRIGGERED (no PR open) — the ship-smoke workflow will fire on next PR touching `src/`/`pipeline/`/`clients/`/`scripts/`/`package.json`/`tsconfig*`. |
 
 ### Commit chain (9 commits)
 

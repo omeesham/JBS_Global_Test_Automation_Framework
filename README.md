@@ -1,13 +1,13 @@
 # Encore Framework — Multi-Tenant Playwright Harness
 
-Framework-level README for maintainers and the colleague routing bundles to end-clients. **This is not the client-facing runbook** — that lives at [`clients/encore/README.md`](clients/encore/README.md) and travels with the bundle.
+Framework-level README for maintainers and colleague routing bundles. **This is not the client-facing runbook** — that lives at [`clients/encore/README.md`](clients/encore/README.md) and travels with the bundle.
 
 ---
 
 ## Audience
 
 - **Framework maintainers** (us) — everything in this repo, including `src/`, `scripts/`, `plans/`, `.claude/`, `.github/`, `docs/`.
-- **Colleague packaging bundles** — see [`HANDOFF_TO_COLLEAGUE.md`](HANDOFF_TO_COLLEAGUE.md) for the repo ↔ client seam, IP inventory, and what ships vs. what stays.
+- **Colleague packaging bundles** — see [`BUNDLE_MANIFEST.md`](BUNDLE_MANIFEST.md) for what ships vs. what stays internal.
 - **End-client** (Encore) — does **not** read this file; they get the stripped bundle + [`clients/encore/README.md`](clients/encore/README.md).
 
 ---
@@ -38,7 +38,7 @@ Credentials are not committed — create `.env.local` (see [docs/SETUP.md](docs/
 - `scripts/` — pipeline, validation, and operational scripts
 - `plans/` — cross-client planning artifacts (pending/done + auto-regenerated INDEX)
 - `.claude/` — Claude Code agent skills, context, identity, commands
-- `.github/` — pipeline agent prompts + Copilot instructions
+- `.claude/agents/` — pipeline agent prompts
 - `website/` — separate SaaS product surface (frontend + backend)
 - `docs/` — framework documentation
 
@@ -52,9 +52,9 @@ See [`BUNDLE_MANIFEST.md`](BUNDLE_MANIFEST.md) for the authoritative list of wha
 - [Architecture Overview](docs/read_only_docs/ARCHITECTURE.md)
 - [Agent Shared Rules](docs/read_only_docs/AGENT_SHARED_RULES.md)
 - [Commenting Standards](docs/read_only_docs/COMMENTING_STANDARDS.md)
-- [MCP Browser Guide](docs/read_only_docs/MCP_BROWSER_GUIDE.md)
+- [CLI Browser Guide](docs/read_only_docs/CLI_BROWSER_GUIDE.md)
 
-Client-specific: [`clients/encore/docs/`](clients/encore/docs/) (REQUIREMENTS.md, MODULE_REGISTRY.md, AGENT_RULES_ENCORE.md).
+Client-specific: [`clients/encore/docs/`](clients/encore/docs/) (REQUIREMENTS.md, MODULE_REGISTRY.md).
 
 ---
 
@@ -62,8 +62,8 @@ Client-specific: [`clients/encore/docs/`](clients/encore/docs/) (REQUIREMENTS.md
 
 - `ACTIVE_CLIENT` env var selects `clients/<id>/`. Defaults to `encore` via `scripts/shared-paths.ts` / `.mjs`.
 - All pipeline scripts resolve client paths through `SHARED_PATHS`. No hard-coded client strings remain in framework code.
-- Agent prompts (`.github/agents/*.agent.md`) read product context from the active client's `docs/REQUIREMENTS.md` and `MODULE_REGISTRY.md`.
-- To onboard a second client: see [`HANDOFF_TO_COLLEAGUE.md §7`](HANDOFF_TO_COLLEAGUE.md).
+- Agent prompts (`.claude/agents/*.md`) read product context from the active client's `docs/REQUIREMENTS.md` and `MODULE_REGISTRY.md`.
+- To onboard a second client, mirror the `clients/<id>/` structure and route shared tooling through `scripts/shared-paths.ts` / `.mjs`.
 
 ---
 

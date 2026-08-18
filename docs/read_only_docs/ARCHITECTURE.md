@@ -19,48 +19,48 @@
 
 ## High-Level Overview
 
-Hybrid Playwright TypeScript framework: UI + API testing, multi-source data-driven, manual + AI-generated tests.
+Hybrid Playwright TypeScript framework: client-specific UI tests plus shared framework and pipeline tooling.
 
 ### Directory Structure
 
 ```
 encore_framework/
-├── src/                    # Framework implementation (reusable)
-│   ├── common/             # Base classes (BasePage, credential-loader)
+├── src/                    # Shared framework helpers and contracts
+│   ├── common/             # Shared credential loading
 │   ├── data/               # Data adapters (Excel, JSON, DB, S3)
-│   ├── framework-contracts/# TypeScript type definitions (IConfig, ILocator)
-│   ├── integrations/       # External integrations (SharePoint)
-│   ├── pages/              # Page objects (LoginPage, HomePage)
-│   ├── selectors/          # TypeScript selector repository
-│   ├── utils/              # Utilities (logger, common-methods)
-│   └── index.ts            # Barrel export (single entry point)
-├── dist/                   # Compiled output (tsc → dist/)
-├── tests/                  # Test specifications (.spec.ts files)
-├── api-testing/            # API test framework (helpers, contracts, tests)
-├── config/                 # Environment configuration
+│   ├── framework-contracts/# TypeScript type definitions
+│   ├── utils/              # Shared utilities
+│   └── index.ts            # Framework barrel export
+├── clients/<id>/           # Client-owned Playwright surface
+│   ├── src/pages/          # Page objects and components
+│   ├── src/selectors/      # Selector repositories
+│   ├── src/data/           # Client test data
+│   ├── src/fixtures/       # Playwright fixtures
+│   ├── tests/              # Test specifications
+│   └── config/             # Client report/config assets
+├── pipeline/               # Internal orchestration runtime
+├── config/                 # Framework/pipeline configuration
 ├── docs/                   # Documentation
-├── specs_planning/         # Test plans (Markdown for Playwright Agents)
 ├── export_test_cases/      # XLSX (primary deliverable) / JSON / Jira / TestMo converters
 ├── scripts/                # Build, packaging, pipeline tooling
-├── .github/                # GitHub automation (CI/CD workflows)
+├── .claude/agents/         # Pipeline agent prompts
 └── [config files]          # playwright.config.ts, tsconfig.json, etc.
 ```
 
-`src/` = reusable framework code, `tests/` = test implementations.
+`src/` = shared framework code, `clients/<id>/` = client implementation and tests.
 
 ---
 
 ## Component Breakdown
 
-### `src/core/` — Base Classes
+### Client page base classes
 
 | File | Purpose | Extended By |
 |------|---------|-------------|
-| `base-page.ts` | UI base: `clickWithRetry`, `fillWithValidation`, `getLocator` | All page objects |
-| `credential-loader.ts` | Multi-source credential loading | — |
-| `ui-common.ts` | Shared UI utilities | — |
+| `clients/<id>/src/pages/base.page.ts` | UI base: `clickWithRetry`, `fillWithValidation`, `getLocator` | Client page objects |
+| `clients/<id>/src/pages/components/location-form-helpers.component.ts` | Shared Location Settings helpers | Location Settings page objects |
 
-#### `base-page.ts` — Key Methods
+#### `clients/<id>/src/pages/base.page.ts` — Key Methods
 
 ```typescript
 export class BasePage {
@@ -71,9 +71,9 @@ export class BasePage {
 }
 ```
 
-### `src/pages/` — Page Object Model
+### `clients/<id>/src/pages/` — Page Object Model
 
-> **Path note (post-2026-05-19 notes-structure mirror)**: Each client is self-contained under `clients/<id>/src/{core,pages,selectors,types,utils}/` + `clients/<id>/tests/`. Root `src/{utils,framework-contracts}/` is framework-internal (used by `pipeline/`) and is NOT vendored to clients. Snippets below show the *pattern*; actual files live under the active client (e.g. `clients/encore/src/pages/...`).
+Each client is self-contained under `clients/<id>/src/{pages,selectors,data,fixtures,types,utils}/` plus `clients/<id>/tests/`. Root `src/` is shared framework code and is not where client page objects live.
 
 All page objects extend `BasePage`. No direct `page.click()` / `page.fill()` — selector resolution via `BasePage.getLocator()` → `clients/<id>/src/selectors/index.ts`.
 
@@ -89,12 +89,13 @@ export class LoginPage extends BasePage {
 
 | File | Purpose |
 |------|---------|
-| `login.page.ts` | Login interactions (Microsoft SSO) |
-| `home.page.ts` | Home/dashboard page |
+| `clients/encore/src/pages/auth/login.page.ts` | Login interactions (Microsoft SSO) |
+| `clients/encore/src/pages/locations/location-local-info.page.ts` | Location Settings Local Information tab |
+| `clients/encore/src/pages/locations/location-currency.page.ts` | Location Settings Currency tab |
 
-### `src/data/` — Data Source Adapters
+### Data sources
 
-Factory pattern: `AdapterFactory.createAdapter('excel', {...})` creates the correct adapter implementing `IAdapter`. DB/S3 adapters use stub mode if credentials are missing.
+Root `src/data/adapters/` contains reusable data adapters. Client-specific test data lives under `clients/<id>/src/data/`.
 
 ```typescript
 const adapter = AdapterFactory.createAdapter('excel', {
@@ -113,13 +114,13 @@ const result = await adapter.load();
 | `dbAdapter.ts` | Database query execution |
 | `s3Adapter.ts` | AWS S3 object loading |
 
-### `src/utils/` — Utilities
+### Utilities
 
 | File | Purpose |
 |------|---------|
-| `logger.ts` | Centralized logging (console + file) |
-| `common-methods.ts` | Config loading (`initProp`) |
-| `app-constants.ts` | Timeouts, feature flags |
+| `src/utils/logger.ts` | Shared framework logging |
+| `src/utils/common-methods.ts` | Shared config loading (`initProp`) |
+| `clients/<id>/src/utils/logger.ts` | Client test logging |
 
 #### Key Method Signatures
 
@@ -137,73 +138,43 @@ export class CommonMethods {
 }
 ```
 
-### `src/framework-contracts/` — Type Definitions
+### `src/framework-contracts/` — Shared Type Definitions
 
 `IConfig`, `ILocator`, `TestMarker`, etc. in `src/framework-contracts/index.ts` (renamed from `.d.ts` for compilation to `dist/`).
-
-### `api-testing/` — API Test Framework
-
-Inheritance: `base-api.ts` (generic HTTP/axios) → extended by domain clients.
-
-```typescript
-// api-testing/api-helpers/auth-api.ts
-export class AuthApiClient extends BaseApiClient {
-  async login(username: string, password: string): Promise<LoginResponse> {
-    return await this.post('/api/auth/login', { username, password });
-  }
-}
-```
-
-| Path | Purpose |
-|------|---------|
-| `api-testing/api-helpers/base-api.ts` | Base HTTP client (axios, retries, logging) |
-| `api-testing/api-helpers/auth-api.ts` | Auth endpoints (login, logout, refresh) |
-| `api-testing/api-contracts/common.api.ts` | TypeScript interfaces for API responses |
-| `api-testing/api-tests/` | API test specs |
-
----
 
 ## Class Hierarchy
 
 ### UI Layer
 
 ```
-BasePage (src/core/base-page.ts)
+BasePage (clients/encore/src/pages/base.page.ts)
 ├── clickWithRetry(elementName)
 ├── fillWithValidation(elementName, value)
 ├── waitForElement(elementName)
-└── getLocator(elementName) → src/selectors/index.ts
+└── getLocator(elementName) → clients/encore/src/selectors/index.ts
     ↑ extends
-    ├── LoginPage (src/pages/auth/login.page.ts)
-    ├── HomePage (src/pages/auth/home.page.ts)
-    └── LocationFormHelpers (src/pages/locations/location-form-helpers.page.ts) [abstract]
+    ├── LoginPage (clients/encore/src/pages/auth/login.page.ts)
+    ├── LocationFormHelpers (clients/encore/src/pages/components/location-form-helpers.component.ts) [abstract]
         ↑ extends
-        ├── LocationLocalInfoPage (src/pages/locations/location-local-info.page.ts)
-        └── LocationCurrencyPage (src/pages/locations/location-currency.page.ts)
+        └── LocationLocalInfoPage (clients/encore/src/pages/locations/location-local-info.page.ts)
+    └── LocationCurrencyPage (clients/encore/src/pages/locations/location-currency.page.ts)
 ```
 
 ### API Layer
 
-```
-BaseApiClient (api-testing/api-helpers/base-api.ts)
-├── get(), post(), put(), delete()
-├── Auth headers, retry logic, logging
-    ↑ extends
-    ├── AuthApiClient (api-testing/api-helpers/auth-api.ts)
-    └── [future API clients]
-```
+No tracked API-client layer exists in the current repository.
 
-**Integration flow**: Tests → Page Objects / API Clients → Base Classes → Selectors / Utils → Playwright / Axios
+**Integration flow**: Tests → Page Objects → BasePage → Selectors / Utils → Playwright
 
 ---
 
 ## Selector Architecture
 
-All selectors centralized in `src/selectors/index.ts`. Page objects reference by name; `BasePage.getLocator()` resolves via `getTsSelector()`.
+Client selectors are centralized in `clients/<id>/src/selectors/index.ts`. Page objects reference by name; `BasePage.getLocator()` resolves via `getTsSelector()`.
 
 ```typescript
-// src/selectors/index.ts
-export const LoginSelectors = {
+// clients/encore/src/selectors/index.ts
+export const MicrosoftLoginSelectors = {
   txtUsername: 'input[name="username"]',
   btnLogin: 'button[type="submit"]',
 } as const;
@@ -219,34 +190,34 @@ export function getTsSelector(elementName: string): string | null {
 
 ## Build & Distribution
 
-Compilation pipeline: `tsconfig.build.json` → `tsc` → `src/` compiled to `dist/` (JS + `.d.ts`) → `scripts/client-package.ts` → `client-delivery/`.
+Build pipeline: `tsconfig.build.json` → `tsc` → root framework output. Client delivery uses `npm run client:ship` → `scripts/ship-client.sh`.
 
 
 | Command | Purpose |
 |---------|---------|
 | `npm run build` | Compile `src/` → `dist/` |
 | `npm run build:clean` | Clean `dist/` + rebuild |
-| `npm run client:package` | 7-step packaging → `client-delivery/` |
+| `npm run client:ship` | Archive a self-contained `clients/<id>/` bundle to the requested output path |
 
-**Key files**: `tsconfig.build.json` (build config), `src/index.ts` (barrel export), `scripts/client-package.ts` (packaging pipeline).
+**Key files**: `tsconfig.build.json` (build config), `src/index.ts` (barrel export), `scripts/ship-client.sh` (client shipping pipeline).
 
-**Includes**: `dist/`, `tests/`, `config/`, `scripts/setup/`  
-**Excludes**: `src/`, `specs_planning/`, `.github/agents/`
+**Includes**: `clients/<id>/src/`, `clients/<id>/tests/`, `clients/<id>/config/`, client package/config files.  
+**Excludes**: client-planning artifacts, auth state, local server env files, and internal framework/pipeline directories.
 
 `dist/`, `client-delivery/`, `test-results/` hidden from VS Code explorer via `files.exclude`.
 
 ### Agent Integration
 
-Agents modify selectively: `src/selectors/index.ts` (Planner adds), `src/pages/**/*.page.ts` (Generator adds methods), `specs/*.spec.ts` (Generator creates, Healer fixes).
+Agents modify selectively: `clients/<id>/src/selectors/index.ts`, `clients/<id>/src/pages/**/*.page.ts`, and `clients/<id>/tests/**/*.spec.ts`.
 
-Agents never modify: `src/core/`, `src/utils/`, `src/security/`, `config/`.
+Agents never modify unrelated framework internals or client configuration without an explicit ticket.
 
 #### Test Fixture Pattern
 
 Tests consume page objects via Playwright fixtures (never `new LoginPage(page)`):
 
 ```typescript
-import { test, expect } from '../../setup/fixtures';
+import { test, expect } from '../../src/fixtures/pages.fixture';
 test('should login successfully', async ({ loginPage, config }) => {
   expect(await loginPage.login(config.username, config.password)).toBe(true);
 });
@@ -260,21 +231,19 @@ test('should login successfully', async ({ loginPage, config }) => {
 
 | What are you adding? | Where does it go? | Example |
 |---------------------|-------------------|---------|
-| New page object | `src/pages/{module}/` | `locations/contacts.page.ts` |
-| New API endpoint | `api-testing/api-helpers/` | `contacts-api-client.ts` |
-| New API response type | `api-testing/api-contracts/` | `contact-response.ts` |
+| New page object | `clients/<id>/src/pages/{module}/` | `locations/contacts.page.ts` |
 | New data adapter | `src/data/adapters/` | `graphqlAdapter.ts` |
-| New utility function | `src/utils/` | `crypto-utils.ts` |
-| New base class | `src/core/` | `base-api-page.ts` |
-| New test | `specs/` | `contact-crud.spec.ts` |
-| New element selectors | `src/selectors/index.ts` | Add to appropriate selector group |
-| New environment config | `.env.{environment}` | `.env.e2e` |
+| New client utility | `clients/<id>/src/utils/` | `grid-utils.ts` |
+| New shared utility | `src/utils/` | `crypto-utils.ts` |
+| New test | `clients/<id>/tests/{module}/` | `contact-crud.spec.ts` |
+| New element selectors | `clients/<id>/src/selectors/{module}/` | Add to appropriate selector group |
+| New client data | `clients/<id>/src/data/{module}/` | `contacts.ts` |
 
 ---
 
 ## Related Documentation
 
-- [REQUIREMENTS.md](../REQUIREMENTS.md) — Feature specifications
+- [REQUIREMENTS.md](../../clients/encore/docs/REQUIREMENTS.md) — Encore feature specifications
 - [README.md](./README.md) — Framework quick start
 
 ---

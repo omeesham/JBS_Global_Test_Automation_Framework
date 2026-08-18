@@ -12,7 +12,7 @@
 > **HALT + ASK RUTVIK** if: a proposed change touches a protected control file · a burn reduction cannot be paired with a quality check that would catch its regression · Phase 0's measurement contradicts §2's observed corpus by more than a third.
 >
 > **NOT a HALT**: Phase 1's missing go — record the ask, skip Phase 1, continue (see Phase 1's GO handling).
-> **Review freshness**: §9's review covered the 2026-08-16 draft; this plan was materially edited 2026-08-17 (§9b), so the §0 cross-family attack MUST be re-run on the current text before Phase 1 — a recorded review does not survive material edits.
+> **Review freshness**: §9's review covered the 2026-08-16 draft; this plan was materially edited 2026-08-17 (§9b) and again 2026-08-18 (§2b — the truth-failure corpus and mechanism set, authored by Fable at Rutvik's direction), so the §0 cross-family attack MUST be re-run on the current text before Phase 1 — a recorded review does not survive material edits.
 
 ---
 
@@ -110,6 +110,22 @@ that disagrees with lived experience is either a better instrument or a broken o
 | B6 | **Tooling defects burning Claude time** | A stray line printed above the validator's JSON made a closure gate fail with a misleading error, costing multiple diagnosis turns before the cause was found. | Bad error messages are a Claude-burn tax. |
 | B7 | **Reading whole reports for one verdict** | Worker reports read in full where a single verdict line was the decision input. | No verdict-first report contract enforced at read time. |
 | B8 | **The forbidden fight shape** | Two seats dispatched as a "council" that were the same provider and never fought; the protocol violation was found only on re-reading the skill. Wasted a full round. | The skill's own rules are not checked at dispatch time. |
+| B9 | **Workers cannot spawn bash — and every ticket example assumes they can** | Added 2026-08-17 from a second session (PLAN_68 wave 1), and **corrected the same day after a second death disproved the first diagnosis.** Attempt 1, `p68-lotA-0817`: died at 46s producing nothing (`exit:0 ok:false exit_reason:no-deliverable death_class:C3 report_sections:0`); its report shows it planned to "execute them with `bash -lc` from PowerShell", narrated that intent three times, and never crossed the boundary. First diagnosis was "the ticket was written in the wrong shell dialect", so the dispatcher wrote a finished bash script to disk and the ticket said only "run this file". Attempt 2, `p68-lotA2-0817`, died anyway — `exit_reason:wall_ceiling` at 605s — and returned the real cause: **`"Permission denied and could not request permission from user"`. A worker on this machine cannot spawn bash AT ALL.** Not a dialect problem, not a missing binary: the runtime refuses the spawn and cannot prompt, so it denies, and the worker burned its entire wall clock finding that out. `node`, `npm` and `git` spawn normally — every other lot in the wave used them. Attempt 3 replaced the control with a Node script and stopped mentioning bash entirely. **Distinct from B1**: attempt 1 died in 46 seconds with credits untouched, nowhere near any clock. | Ticket-authoring examples throughout the doctrine use `tee`, `${PIPESTATUS[0]}`, `sha256sum`, `set -o pipefail` — all bash. A worker that follows the examples faithfully cannot execute them. Two candidate fixes, both control-surface: state the executable shell contract in the ticket template, or have the wrapper announce the available interpreters at dispatch. **Needs Rutvik's go, so it is recorded here rather than applied.** The transferable lesson is cheaper than either fix: **prepared controls are Node, never shell.** |
+
+**Why B9 is worth more than one row**: the first diagnosis was wrong, and it was wrong in the direction that flatters the diagnostician — "I wrote the script in the wrong dialect" is a fixable authoring slip, while "workers cannot run shell scripts at all" invalidates a whole class of ticket. The cheap fix was tried first and cost a second death. A burn measurement that only records the final cause will under-count this class; the wasted attempt belongs in the number.
+
+**Recurrence note on B3 (2026-08-17)**: encoding blindness fired again in the same wave — run
+`p68-lotB-0817` produced a UTF-16 run log, and a plain read of it shows spaced-out characters that a
+naive grep would return nothing for. B3 is therefore not a one-off; it is a standing tax on this
+machine. Per LR-069 §3.5 a recurrence puts the prior fix on trial, and B3's prior fix was prose only
+("a known failure mode with no helper") — which is to say there was no mechanism to convict. Any B3 fix
+this plan proposes must be a helper or a wrapper behaviour, not another note telling the next session to
+remember.
+
+**Second-order observation worth more than either row**: both B9 and the B3 recurrence are *invisible to
+exit codes*. The harness reported "exit code 0" for a run that produced nothing, and a UTF-16 log greps
+clean as "no matches". Any burn measurement built on exit codes will score both of these as successes.
+Phase 0's instrument must read the ledger's `ok` / `exit_reason` fields, never the process exit code.
 
 **A reviewer should treat this table as a claim.** It was written by the session that produced the burn,
 which is the least reliable narrator available.
@@ -129,6 +145,194 @@ leave no ledger row at all:
 **The plan as first drafted measured the delegated side and called it the burn.** That is measuring the
 half that happens to be instrumented. Phase 0 is corrected below to cover both, and to state plainly
 where the orchestrator side cannot be machine-measured rather than quietly omitting it.
+
+---
+
+## §2b The truth-failure corpus (goal g78, 2026-08-17/18) — wrong claims crossing three layers
+
+§2 measures where Claude burned tokens. This section measures where the chain burned **truth**. Authored
+by Fable (advisory seat, final-approval gate) at Rutvik's explicit direction — *"learn how to not let
+the fighters fuck up and you urself as opus fuckup… not trusting and submitting the fuckups that copilot
+does directly to me as nice work done by copilot! when its all a slop fuckup chain!"* — from the g78
+two-audience ship audit. The chain being named: CEO writes a ticket carrying a gap → worker fills the
+gap confidently and wrongly → CEO verifies sub-facts but not the conclusion → the false finding reaches
+Rutvik ranked and confident. Ten cases, with who said what and who caught it. Two were caught by nobody
+in the machine; Rutvik caught them, and his two were the biggest. That is the defect this section ends.
+
+### The ten cases
+
+| # | Claim as relayed | Copilot seats | Fable | Truth | Caught by |
+|---|---|---|---|---|---|
+| 1 | "SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md exists nowhere on disk" — a Prior-Fix-Trial row convicted a mechanism on the strength of it | F1 attacker: **AGREE** | `git ls-files '*<name>*'` → `plans/done/…` — it moved pending→done | Stale `pending/` cite in a skill; file exists, tracked | Fable |
+| 2 | K1 "deliverable BREAKS on the client's first `npm test` — ship `.env.local.example`, highest priority" | F2 attacker: **AGREE**; F2 defence (disagreeing on everything else): "I still rank K1 first" | Cold-start persona invented; the shipped README itself documents the human channel ("Ask the QA automation team for a test account") — none of three seats read it | Delivery is human; "PURE SLOP" (Rutvik, verbatim) | **Rutvik** |
+| 3 | "7 workbooks damaged" → corrected to "5 DEGRADED" | W1b2 invented a width-count metric + verdict; F2 attacker escalated ("destroyed"); F2 **defence measured** with a firing control: `lostWidthDefs=0`, columns 23→80 — widened, not damaged | (moot by then) | **1** workbook damaged, not 7, not 5 | Copilot — the seat asked to *measure* |
+| 4 | "The 122-row client report is gone and unrecoverable — we undershipped" | F1 attacker authored it; CEO re-verified every sub-fact (absent from disk, untracked, zero history with firing control, builder discarded by design) — **all true** — and escalated to "the finding of the audit" | Named it the archetype: absence-in-git read as world-failure | Rutvik hand-delivered it. The verification was flawless and the conclusion false; the deciding input was outside the repo | **Rutvik** |
+| 5 | "The fence was breached this sprint" | F2 attacker asserted it from a dated code comment | — | One atomic commit (`1a9f8d6d1`) — never an unfenced window. CEO checked history **before** relaying; nothing wrong reached Rutvik | CEO — the counter-example |
+| 6 | L2 "a whole capability is absent for colleagues — TRACK it" | F1: **AGREE** | Private-by-design reporting stack; the tracked *reference* is the anomaly | A deliberate privacy decision read as an accident | Fable |
+| 7 | L3 "SETUP.md requires copying a file that exists nowhere" | F1: **AGREE**; lot D "independently confirmed" | Read the actual line: `# cp … (if available)` — commented, optional, self-hedged | Everyone propagated a paraphrase; nobody opened the file | Fable |
+| 8 | L10 "stale index — likely downstream of L1" (labelled a guess) | F1 attacker: **DISAGREE** — re-ran in a clean clone, still `STALE` | — | Independent defect. The hedge drew the attack | Copilot |
+| 9 | G1 census: 25,360 rows, 10,232 "exist nowhere", `.bak` files ranked "halts first, SHOULD TRAVEL" | G1 authored it | — | Mechanical classification in judgment's costume; 28 usable rows in 1.4 MB | CEO |
+| 10 | Fable: "K7 = live credentials one empty exclusion list from shipping" | — | Severity escalated | CEO checked: `ship-client.sh` has `set -euo pipefail` (line 7) and two `verify-no-forbidden.mjs --target` aborts (lines 82, 100) — the ship dies before creds leave. Disposition survives; severity does not | CEO **catching Fable** |
+
+Score by layer: Copilot caught two of the CEO's errors; the CEO caught three (one *before* it shipped,
+one of Fable's); Fable caught four plus the pattern; **Rutvik caught two, and his were the biggest.**
+Every layer — including the advisory seat — produced at least one wrong confident claim. The design
+target is therefore a chain where every layer is checkable, never a chain with a trusted top.
+
+### What the corpus proves
+
+1. **Cross-family agreement never once functioned as validation.** Cases 1, 2, 6, 7: the attacker
+   agreed and was wrong. Seats consumed the CEO's framing embedded in the ticket and graded the
+   paraphrase, not the artifact.
+2. **Confidence suppresses attack.** The one disposition written as a guess (case 8) drew the one real
+   per-item attack. The author's certainty is currently a shield — backwards.
+3. **One command against the primary artifact decided it** in three of Fable's four overturns
+   (`git ls-files`; opening the cited file). Chains of two to four seats reasoned from a summary;
+   none ran the command.
+4. **Measurement beat judgment both times it was tried** (cases 3, 8). A seat handed a metric and a
+   control corrected a seat handed a question.
+5. **The two Rutvik-only catches share one shape**: the decisive input existed outside the repo (a
+   hand delivery; a documented human handover). No quantity of in-repo verification reaches it — case
+   4's checks all passed. An existence/experience claim needs the out-of-repo channel *named and ruled
+   out*, not more in-repo probes.
+
+### Prior-fix trial (LR-069 §3.5 — run before proposing anything new)
+
+| Prior fix (already doctrine) | Why it failed here | Verdict |
+|---|---|---|
+| Skill §Fight-Protocol "aligned joint result" | `AGREE` costs one token and satisfies alignment — rubber-stampable | **CONVICTED as worded** → rewired by M-B; §0's author-defends loop is untouched |
+| Skill §Acceptance "spot-audit ≥3 claims against disk" | Scoped to sub-facts inside the repo; silent on the conclusion layer and the out-of-repo channel — case 4 *passed* it | SURVIVES for its class; **extended** by M-A |
+| Skill §Acceptance "trap questions before reading" | Fired, but traps were authored from the same framing the ticket embedded | SURVIVES; the canary (M-B) is its falsifiable form |
+| PLAN_78 Evidence laws 3/4 (counts carry scope; absences name where they looked) | Prose in one plan; nothing keys on them at acceptance; "where it looked" never required the whole tree or the human channel | SURVIVES; M-A is the durable, schema-keyed home |
+| `## ASK` acceptance gate (LR-070 wave-1) | `ask_open: "missing-section"` on 16 of 17 g78 runs — including a report visibly carrying `ASK: none`. Either universal non-compliance or a broken detector; either way the uplink channel is decorative and nothing alarmed | **CONVICTED dead/never-fired** → F7 RCA rider below |
+
+### The nine failure types (F1–F9) — named so they are recognizable before, not after
+
+| Type | Signature | Cases | §3 class |
+|---|---|---|---|
+| F1 ABSENCE LEAP | A probe's silence about X promoted to "X is gone / never existed / nobody can" | 1, 4, 7 (2 as persona variant) | machinery + operator |
+| F2 PARAPHRASE CASCADE | Seats consume the ticket's framing; `AGREE` scored as verification | 1, 2, 6, 7 | machinery |
+| F3 JUDGMENT COSTUME | A worker invents a metric/classification and returns verdict words | 3, 9 | machinery |
+| F4 TICKET STARVATION | The dispatch encodes less than the CEO knows — stages, tools, blocking mode, wall clock, provenance, log dir | 4 wall-ceiling deaths; a1/a1r; 3 null session-ids; 2 lost tee logs | machinery + tooling |
+| F5 TRUNCATION BLINDNESS | A partial capture read as a total ("209 of 241") | A2 | tooling |
+| F6 UNCONTROLLED PROBE | Zero-hit or all-hit probe with no same-primitive control (`reports.bugs` dot-regex; missing slash; case-glob; UTF-16 = §2 B3) | probe incidents | operator + tooling |
+| F7 DEAD SENSOR | A monitored field that never varies, alarming no one | `ask_open` 16/17 | machinery |
+| F8 BURIED METHOD SWAP | Denial → workaround → findings presented under the original method's authority, disclosed only in trailing BLOCKERS | F1 clone substitution; F2d in-memory blobs | machinery |
+| F9 CATHEDRAL SCOPE | Worklist inflation and priority rankings on invented problems, asserted confidently | 27 items → 6; K1 "highest priority" | operator |
+
+### The mechanism set (preference order: wrapper refusal > preflight > mandatory ticket section > acceptance gate > rule)
+
+Each is written in §1's four-component guarantee shape. Each enters Phase 3's council attack like any
+other proposal — pre-authored here, exempt from nothing.
+
+**M-A — the Findings Contract** (kills F1, F5, F6 — the answer to "what stops a wrong number reaching
+Rutvik"). Every findings-bearing report (lot, fight, census) and every finding the CEO writes into a
+tracked plan types each row with a declared claim class from a closed enum: `EXISTENCE` · `COUNT` ·
+`CAUSAL` · `OBSERVATION`. Two classes carry mandatory cells, refused at acceptance when empty:
+- `EXISTENCE` ("X missing / gone / nowhere / unrecoverable / breaks on arrival"): **probe** (exact
+  command) + **whole-tree cross-check** (`git ls-files '*<name>*'` move-search, plus history where
+  relevant) + **channel** (the out-of-repo route ruled out *by name* — who could have done this by
+  hand; for claims about a person's experience, the artifact's own documented channel counts and must
+  be quoted) + **control** (a same-primitive probe that fires).
+- `COUNT`: **enumeration command** + **scope** + the source's own **totals line quoted** (never a
+  re-grep of a capture that already carries totals — case 3's 7-vs-5).
+Every report ends with a terminal sentinel `## END-OF-REPORT <N sections>`; a report whose last line
+is not the sentinel is truncated and bounced unread (F5, mechanically).
+Deliberately **NOT** a lexical detector scanning prose for "does not exist" — that is the
+detector-a-description-can-trigger failure. The author declares the class; an undeclared row later
+shown to be an existence claim is itself an S1 mistake (LR-069 §3.2).
+*Mechanism*: schema fields + acceptance refusal (verify-run schema where wired, CEO refusal otherwise).
+*Threshold*: zero EXISTENCE/COUNT rows with empty cells reaching a plan or Rutvik. *Baseline*: four
+false existence claims reached plan text in g78. *Sample*: every report for the first 10 dispatches,
+then 1-in-5 — plus every row the CEO writes into a tracked plan, self-applied and Fable-spot-checked.
+
+**M-B — the fight rewire** (kills F2, F3 — the answer to "what makes an attacker attack a confident
+claim as hard as a hedged one").
+1. Fight tickets carry `## CLAIMS-UNDER-TEST`: each claim with its primary-artifact path, the probe
+   command that produced it, and the author's confidence tag. Claims and context never mix; no seat
+   may treat a claims-table row as ground truth.
+2. Legal per-claim verdicts: `RE-DERIVED-CONFIRM` (own command + output) · `RE-DERIVED-REFUTE` (same) ·
+   `ABSTAIN` (did not re-run). **`AGREE` is not a verdict.** An all-ABSTAIN review earns no credit and
+   does not count as the §0 adversarial pass. Alignment = both seats aligned on *re-derived evidence*;
+   the author-defends loop is unchanged.
+3. **The canary**: the CEO seeds ≥1 deliberately-false claim per fight ticket, recorded in a sealed
+   local note before dispatch. A review that fails to REFUTE the canary is invalid — bounced, no
+   credit, failure logged. This generalizes the only control that worked in g78 (W1b's seeded tracker)
+   and removes confidence-as-shield structurally: some confident claims are known-false by
+   construction, so a seat can no longer treat the author's certainty as evidence.
+4. **Measure, don't judge**: verdict vocabulary is reserved. A worker may emit verdict tokens only
+   when the ticket attached a rubric plus one control per verdict class; otherwise it returns
+   measurements and the CEO applies verdicts (case 3's defence is the model). Findings tables carry an
+   output budget (≤40 rows; remainder to an appendix file) — the G1 lesson.
+*Mechanism*: ticket sections (skill text — GO-gated) + acceptance refusal + canary check at read time.
+*Threshold*: canary refuted in 100% of fights; zero `AGREE` tokens accepted. *Baseline*: 4
+rubber-stamped agreements, 0 canaries, in g78. *Sample*: every fight.
+
+**M-C — the preflight refusal bundle** (kills F4 — mechanically removes the classes that killed 4
+workers and voided 3 runs' provenance). Extend `scripts/dispatch-preflight.mjs` (unprotected;
+council-reviewed edit; lands announce → refuse per LR-069 §3.3):
+1. Refuse dispatch when `--timeout` is not explicitly passed — `--work-type` silently setting the wall
+   clock killed 4 g78 workers; the same ticket re-run with `--timeout 1800` finished.
+2. Refuse `--session-id` empty or unset — 3 ledger rows carry `session_id: null`.
+3. Create-or-refuse the tee/log directory — 2 runs lost their logs silently.
+4. Grep the ticket for required sections (`OUTPUT` anchor already checked; add `## EXECUTION MODE` —
+   blocking-foreground statement + bulk-runners-available line — `## DENOMINATOR` on census/count
+   work, `## MEASUREMENT CONTRACT` on verify/review/walk, `## CLAIMS-UNDER-TEST` on fights,
+   `## METHOD DELTA` placed above FINDINGS): WARN until the skill text lands, then refuse.
+5. WARN — never refuse; gameable and false-positive-prone — when a ticket carries >2 sequential stages
+   or any single command's estimate exceeds 0.6× the effective ceiling; always print the effective
+   wall clock so the work-type coupling is visible at dispatch time.
+*Threshold*: zero dispatches lacking 1–3. *Baseline*: g78's 17 runs — 4 wall-ceiling deaths, 3 null
+session-ids, 2 lost logs. *Sample*: every dispatch, automatic.
+
+**Riders** (one line each, riding M-B/M-C's edits): `## METHOD DELTA` (intended method → actual method
+→ why results still hold, or downgraded) must precede FINDINGS — a substitution disclosed only in
+trailing BLOCKERS is a schema fail (F8). The Exit Receipt gains one **dead-sensor line**: any ledger
+field with zero variance across the goal's runs is named (F7). One-off RCA ticket on the `ask_open`
+detector — is `## ASK` parsing broken, or is compliance actually 0/17? — filed under this plan
+(boundary: if the RCA convicts a closure/safety *gate* implementation, the fix routes to PLAN_74 per
+§6; the detector-vs-compliance question itself is delegation machinery and lands here).
+
+**F9 stays un-mechanized, stated plainly.** No wrapper can refuse scope inflation — it is the judgment
+layer, and pretending otherwise would violate this plan's own north star. Two rules govern it: any
+worklist >10 items or any priority ranking bound for Rutvik passes a slop gate (Fable or `/slop`)
+**before** implementation dispatch (Rutvik's standing order, 2026-08-18); and the write-order rule from
+case 5 — a finding enters a tracked plan only WITH its M-A cells complete. Verify-then-write, never
+record-then-verify (the "fence breached" framing was written into a plan before the history check
+refuted it).
+
+**Killed as slop** (proposed during this work, rejected here so nobody rebuilds them): a lexical
+verdict-linter over report prose (detector-a-description-can-trigger); a standing zero-variance
+monitoring service (one receipt line suffices); hard refusal on stage-count (WARN only); any new
+PreToolUse/Stop hook for this corpus (everything lands in an existing script, ticket text, and
+acceptance behavior); and **more fight rounds** — rounds multiply paraphrase-consensus; the corpus
+shows a second round without re-derivation validates nothing.
+
+### The 80/20 verdict
+
+M-A + M-B + M-C cover cases 1–4, 6, 7, 9 and all four dispatch-mechanics classes — roughly eighty
+percent of the corpus by incident count, and all of it by severity. The rest is one-line riders or
+honestly un-mechanizable judgment. If only three things land, land those three.
+
+### Conflicts flagged (not silently layered)
+
+1. **Skill §Fight-Protocol (protected)**: M-B redefines *alignment* (re-derived evidence; canary; no
+   `AGREE` token). Amendment requires the same recorded Rutvik GO as Phase 1 — one GO can cover both
+   skill deltas. §0 is strengthened, not weakened: review still never terminal, author still defends.
+2. **Skill §Acceptance**: "spot-audit ≥3 claims" survives, extended by M-A. §2 B2's open criterion —
+   "no criterion distinguishes a claim backed by a re-runnable artifact from one backed by prose" —
+   is **answered by M-A's typed cells**; Phase 3 must not draft a second, parallel criterion.
+3. **PLAN_78 §Evidence law**: laws 3/4 are M-A's session-local ancestors. Once M-A lands, plans cite
+   the skill instead of restating private evidence laws.
+4. **Evidence-rides-the-ticket vs primary-artifact forcing**: no conflict, one clarification M-B
+   depends on — embedding *claims* stays (workers cannot read untracked scratch); embedding the CEO's
+   *framing as context* is what produced F2. The claims table quotes artifact lines with `file:line`
+   and carries re-runnable commands against the repo.
+5. **PLAN_61 boundary (§6)**: M-C extends `dispatch-preflight.mjs`, which PLAN_61 Phase 6 landed —
+   extension, never fork; the wall-clock refusal complements PLAN_61's credit floors (credits are not
+   seconds).
+6. **LR-070**: the `ask_open` finding is a wave-1 regression of the uplink law. The rider RCA is
+   scoped to the detector/compliance question only — not a redesign of the uplink.
 
 ---
 
@@ -196,7 +400,7 @@ would poison every saving computed against it.
 
 **Outputs (literal paths — create the directory)**: the re-runnable measurement script at
 `.claude/state/plan75/phase0-measure.mjs`, and the table it emits at
-`.claude/state/plan75/phase0-burn-baseline.md`.
+the Phase-0 burn-baseline table (the artifact this cited is gone; the claim is unverified).
 **Acceptance**: the table carries counts for **both** sides, reproduces by re-running the script, and
 labels every unmeasured cell as such.
 **Dispatch shape**: read-only research ticket(s) per `/delegation-temp` §Dispatch discipline — preflight
@@ -228,8 +432,8 @@ so the check can only pass if this phase actually landed.
 
 ### Phase 2 — Classify every burn finding (**Claude classifies; workers gather evidence**)
 
-Each Phase-0 finding, and each §2 row, carries every applicable class from §3: *Claude doing a worker's
-job*, *delegation machinery failing*, *tooling defect*.
+Each Phase-0 finding, each §2 row, **and each §2b type (F1–F9)** carries every applicable class from §3:
+*Claude doing a worker's job*, *delegation machinery failing*, *tooling defect*.
 
 **This phase was drafted as "delegated, cross-family" and that was wrong.** A reviewer caught it, and the
 catch is worth recording because the plan had already argued against the very thing it then did: §3 warns
@@ -246,7 +450,7 @@ So: **workers gather the evidence for each finding — what happened, where, how
 Claude does the classification and the fix synthesis.** A cross-family seat then attacks the finished
 classification, which is review, not authorship.
 
-**Output (literal path)**: `.claude/state/plan75/phase2-classification.md` — one row per finding:
+**Output**: Phase-2 classification table under the run's plan75 state area — one row per finding:
 the finding × every class it carries × the evidence pointer a worker gathered for it.
 
 ### Phase 3 — Propose fixes in saving-plus-guarantee pairs (Claude authors, council attacks)
@@ -257,7 +461,13 @@ rejected on sight. Order by saving-per-unit-of-risk, not by size of saving.
 **Design constraint**: no fix may move judgment to a worker. If a saving requires a worker to decide
 something rather than observe something, it is out of scope — that is the north star, not a preference.
 
-**Output (literal path)**: `.claude/state/plan75/phase3-proposals.md` — every proposal written in the
+**§2b input (2026-08-18, Fable)**: the mechanism set M-A / M-B / M-C plus riders enters Phase 3 as
+pre-authored proposals — attacked by the council like every other proposal, exempt from nothing. A
+§2b mechanism may be reshaped or rejected only with the refutation recorded; none may be silently
+dropped. Skill-text deltas (M-B ticket sections, §Fight-Protocol amendment) ride the same recorded
+Rutvik GO as Phase 1 — one GO may cover both.
+
+**Output**: Phase-3 proposals table under the run's plan75 state area — every proposal written in the
 §1 four-component guarantee shape (mechanism · threshold · baseline · sample), ordered
 saving-per-unit-of-risk with the ordering rationale recorded.
 
@@ -273,7 +483,7 @@ caught.
 **If losslessness cannot be demonstrated for a fix, that fix is reverted, not shipped with a caveat.**
 
 **Separate session is AUD-017, not preference** — the Phase-4 session must not be the session that
-landed the fixes. **Output (literal path)**: `.claude/state/plan75/phase4-losslessness-verdict.md` —
+landed the fixes. **Output**: Phase-4 losslessness verdict under the run's plan75 state area —
 per landed fix: the both-ways comparison, what each way caught, and the keep/revert verdict. The plan
 stays PENDING until this file exists; only the Phase-4 session flips Status to DONE.
 
@@ -331,7 +541,9 @@ goal/session; a Phase-0 number wildly off that order needs explaining, in either
 - [ ] Phase 2: `.claude/state/plan75/phase2-classification.md` — every Phase-0 finding and every §2 row carries every applicable class; classification attacked by a cross-family seat, author defended.
 - [ ] Phase 3: `.claude/state/plan75/phase3-proposals.md` — every proposal in the four-component guarantee shape; zero unpaired proposals.
 - [ ] Phase 4 (separate session): `.claude/state/plan75/phase4-losslessness-verdict.md` — every landed fix proven lossless or reverted.
-- [ ] §0 held: every stage's output got a cross-family adversarial pass with author defence, including the fresh pass on the 2026-08-17 text before Phase 1.
+- [ ] §0 held: every stage's output got a cross-family adversarial pass with author defence, including the fresh pass on the 2026-08-18 text (§2b included) before Phase 1.
+- [ ] §2b: every mechanism (M-A, M-B, M-C, riders) dispositioned in Phase 3 — landed, reshaped, or rejected with the refutation recorded; zero silently dropped. Skill deltas carry Rutvik's recorded GO or an open §8 ask row.
+- [ ] §2b rider: the `ask_open` detector RCA ran; verdict (broken detector vs zero compliance) + fix route recorded.
 - [ ] §8 reflects reality; closure ceremony per bootstrap item 8.
 
 ---

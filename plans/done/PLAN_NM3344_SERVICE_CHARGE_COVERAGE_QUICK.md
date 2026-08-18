@@ -306,9 +306,33 @@ npx playwright test clients/encore/tests/service-charge/service-charge-basic-inf
 node scripts/verify-no-forbidden.mjs --target=<clean-extract>   # exit 0 before any Phase-5 push
 ```
 
+### Coverage-check prerequisite for colleagues (locally-generated denominator)
+
+The walk-coverage Cx check reads a per-run denominator file that is not tracked in git
+(it is roughly 7 MB and regenerated every run). On a clean clone the check will fail
+because the file does not exist. To produce it from tracked inputs, run these two
+commands in order:
+
+```bash
+node scripts/walk-coverage/emit-case-rows.mjs --json \
+  --completion-record=reports/walk-coverage/service-charge-basic-info.json \
+  --inventory=clients/encore/specs_planning/_internal/field-inventories/service-charge-basic-information-2026-08-10.md \
+  --out=reports/walk-coverage/case-rows.json
+```
+
+```bash
+node scripts/walk-coverage/emit-case-rows.mjs --json --merge \
+  --completion-record=reports/walk-coverage/service-charge-history.json \
+  --inventory=clients/encore/specs_planning/_internal/field-inventories/service-charge-history-2026-08-10.md \
+  --out=reports/walk-coverage/case-rows.json
+```
+
+The `--json` flag is required on both invocations. Without it the first command emits
+NDJSON, and the second command's `--merge` fails because it expects a JSON array.
+
 ## Execution Summary
 
-**Status of this summary**: Phases 0–4 delivered and closed. Phase 5 (ship) has not run — it is deferred
+**Status of this summary**: Phases 0-4 delivered and closed. Phase 5 (ship) has not run — it is deferred
 by owner decision, recorded under `## Deferral Authorization`. Two findings are documented as open and
 deliberately not closed here — see "Known and not closed here" at the end of this section.
 
