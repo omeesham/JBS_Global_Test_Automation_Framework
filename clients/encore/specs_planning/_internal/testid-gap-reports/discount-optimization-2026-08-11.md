@@ -110,3 +110,15 @@ These controls appear in the enumeration because the enumerator walks the full p
 ## 5. Impact
 
 Automation against this module runs today on role, label text, placeholder text, and structural path fallbacks. These anchors work, but they are fragile in two specific ways. First, the two tab triggers use Radix auto-generated IDs whose middle counter changes between renders — any test that needs to click a tab must locate it by display text, which breaks silently if a tab is renamed. Second, the column sort buttons on Tab 2 also use unstable Radix IDs, so sorting assertions have no stable anchor at all. The remaining controls (search inputs, Save, Add, Cancel, per-row buttons) rely on label text or placeholder text; these are durable as long as copy does not change, but a wording update to any heading or button label would silently break every test that touches that control with no compile-time warning. Adding the 27 testids listed in §3 would make all selectors rename-proof and eliminate the Radix ID instability on the tabs and sort buttons. Automation is proceeding on tracked fallbacks; this report is the request to make it durable.
+
+## 6. Addendum 2026-08-19 — Change Local Office drawer
+
+Tab 1's **Add** button opens a **Change Local Office** drawer (enumerated on office 1604 this session; denominator 95, 3 direct controls). Its controls carry no `data-testid`; automation anchors as below. Two are fragile text-anchored gaps (rename-breaks-silently); the launcher has a stable element id.
+
+| # | Control | Current anchor | Preferred `data-testid` |
+|---|---|---|---|
+| 28 | Change Local Office — Cancel button | `button:text-is("Cancel")` (text-anchored, fragile) | `discount-optimization-change-office-cancel` |
+| 29 | Change Local Office — Update/confirm button | `button:text-is("Update")` (text-anchored, fragile; disabled on the current office) | `discount-optimization-change-office-update` |
+| — | Change Local Office — "Select a Location" launcher | `#discount-optimization-location` (stable element id — durable, no gap) | (already anchorable) |
+
+These roll into the same client ask as §3: the two fragile drawer controls would become rename-proof with the testids above. The nested location picker the launcher opens is empty on office 1604 (no selectable data), so its row-level controls could not be enumerated here.
