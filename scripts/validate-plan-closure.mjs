@@ -1248,6 +1248,7 @@ const RULE_EXEMPT_PATHS = [
   /\.claude[\/\\]rules[\/\\]plan-closure\.md$/,
   /\.claude[\/\\]skills[\/\\]audit[\/\\]SKILL\.md$/,
   /clients\/[^/]+\/specs_planning\/_internal\/agent-mistakes\.md$/,
+  /plans[\/\\]INDEX\.md$/,
 ];
 
 function isExempt(planPath, body) {
@@ -2016,6 +2017,36 @@ function runSelfTest() {
       console.log(`  [FAIL] C1-OVERRIDE-WITHOUT: checkC1(bad-c1-with-override-fixture.md) without overrides → expected FAIL, got ${c1Without.status}`);
       failed++;
     }
+  }
+
+  // INDEX-EXEMPT: plans/INDEX.md is exempt via RULE_EXEMPT_PATHS (auto-generated, LR-035).
+  // validatePlan with a path ending in plans/INDEX.md must return EXEMPT even with forceCheck.
+  const indexExemptPath = join(REPO_ROOT, 'plans', 'INDEX.md');
+  const indexExemptBody = '---\nStatus: DONE\n---\n# Plan Index\nAuto-generated.\n';
+  const indexExemptResult = validatePlan(indexExemptBody, indexExemptPath, {
+    overrideMode: 'enforce', forceCheck: true, c6Mode: 'off', coverageMode: 'off',
+    testStatusMode: 'off', recurrenceTrialMode: 'off', interactionCoverageMode: 'off',
+  });
+  if (indexExemptResult.status === 'EXEMPT') {
+    console.log('  [PASS] INDEX-EXEMPT: validatePlan(plans/INDEX.md) → EXEMPT');
+    passed++;
+  } else {
+    console.log(`  [FAIL] INDEX-EXEMPT: validatePlan(plans/INDEX.md) → expected EXEMPT, got ${indexExemptResult.status}`);
+    failed++;
+  }
+
+  // INDEX-EXEMPT-NO-OVERREACH: plans/pending/INDEX.md must NOT be exempt (different path).
+  const pendingIndexPath = join(REPO_ROOT, 'plans', 'pending', 'INDEX.md');
+  const pendingIndexResult = validatePlan(indexExemptBody, pendingIndexPath, {
+    overrideMode: 'enforce', forceCheck: true, c6Mode: 'off', coverageMode: 'off',
+    testStatusMode: 'off', recurrenceTrialMode: 'off', interactionCoverageMode: 'off',
+  });
+  if (pendingIndexResult.status !== 'EXEMPT') {
+    console.log('  [PASS] INDEX-EXEMPT-NO-OVERREACH: validatePlan(plans/pending/INDEX.md) → not EXEMPT');
+    passed++;
+  } else {
+    console.log(`  [FAIL] INDEX-EXEMPT-NO-OVERREACH: validatePlan(plans/pending/INDEX.md) → got EXEMPT (too broad)`);
+    failed++;
   }
 
   console.log(`\nSelf-test: ${passed} passed, ${failed} failed, ${fixtures.length} total`);
