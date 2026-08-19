@@ -156,3 +156,32 @@ export const COL_HEADERS_TAB2 = `${PANEL_EXEMPTIONS} thead th`;
  */
 export const chkExempt = (serviceTypeName: string): string =>
   `[role="checkbox"][aria-label*="${serviceTypeName}"]`;
+
+// ---- Change Local Office drawer ----
+
+/**
+ * The aside element that houses the Change Local Office drawer.
+ * Tab 1's Add button opens this panel on the right side of the page.
+ * It is an aside, not a [role="dialog"].
+ */
+export const DRAWER_CONTAINER = 'aside';
+
+/**
+ * The "Select a Location" launcher button inside the drawer.
+ * Clicking this opens the nested location picker.
+ * On the current office the picker contains no selectable rows — there is nothing to pick.
+ */
+export const BTN_SELECT_LOCATION = '#discount-optimization-location';
+
+/**
+ * The Cancel button scoped to the drawer container.
+ * Scoped under DRAWER_CONTAINER to avoid matching Tab 2's Cancel button.
+ */
+export const BTN_DRAWER_CANCEL = `${DRAWER_CONTAINER} button:text-is("Cancel")`;
+
+/**
+ * The Update (confirm) button scoped to the drawer container.
+ * Disabled when the current office is already the selected location —
+ * the app disables confirm when no change has been made.
+ */
+export const BTN_DRAWER_UPDATE = `${DRAWER_CONTAINER} button:text-is("Update")`;

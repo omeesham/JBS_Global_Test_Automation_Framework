@@ -213,6 +213,24 @@ export const MODULE_CONFIG = {
     ...MC_DATA['discount-optimization'],
   },
 
+  // --- Discount Optimization Settings - Change Local Office dialog ---
+  // Tab 1's `+ Add` button (accessible name: "Add", confirmed live 2026-08-19) opens the
+  // "Change Local Office" dialog. The dialog contains a Select-a-Location launcher, an
+  // Active/Inactive checkbox filter, row checkboxes, and Select/Cancel buttons.
+  // scanPortalElements captures [role="dialog"] contents including disabled controls (LR-012:
+  // Select is disabled when the current office row is selected).
+  'discount-optimization-add-dialog': {
+    urlGroup: 'discount-optimization-settings',
+    path: (office) => `${BASE}/locations/${office}/settings/discount-optimization-settings`,
+    restingContentMarker: 'tbody tr',        // gate initial resting scan (Q3)
+    openerTestidPatterns: [],
+    openerRoleTextPatterns: [
+      { role: 'button', text: 'Add', branch: 'dialog:change-local-office' },
+    ],
+    excludeOptionRoles: true,
+    ...MC_DATA['discount-optimization-add-dialog'],
+  },
+
   'corporate-pricing-override': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/pg-override`,
     contentMarker: 'h1:text-is("Product Group Override")',

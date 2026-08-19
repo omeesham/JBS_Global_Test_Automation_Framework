@@ -9,6 +9,13 @@
 // is not evidence — the evidence field must reference a dated walk artifact or run ID.
 
 export const MODULE_CONFIG = {
+  // Discount Optimization Settings — Tab 1 (Locations grid, resting) + Tab 2 (Special Rate Exemptions).
+  'discount-optimization': {
+    requiredStates: [
+      { label: 'resting' },
+      { label: 'tab:service-type-exemptions' },
+    ],
+  },
   // Service Charge — resting state (Basic Information tab default) + History tab state.
   'service-charge': {
     requiredStates: [

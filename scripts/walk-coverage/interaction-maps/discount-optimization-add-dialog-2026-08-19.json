@@ -1,0 +1,1172 @@
+{
+  "version": "1.0.0",
+  "surface": "discount-optimization-add-dialog",
+  "declaredScope": "1604",
+  "enumerationDate": "2026-08-19",
+  "walkedStates": [
+    "resting",
+    "dialog:change-local-office"
+  ],
+  "enumeratorArtifact": "reports/walk-coverage/1604-discount-optimization-add-dialog.json",
+  "elements": [
+    {
+      "elementId": "struct:button|trigger-button|skip/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Optimization surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Global navigation element not owned by Discount Optimization; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface"
+    },
+    {
+      "elementId": "struct:tablist|Discount OptimizationSpecial Rate Exempt|div/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: non-interactive structural container; coverage flows from child element probes",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Non-interactive structural container grouping child controls; not directly clickable or data-bearing",
+      "dataBlockedUnlock": "No unlock path; coverage attributed to child controls within this container"
+    },
+    {
+      "elementId": "id:radix-_r_v_-trigger-locations",
+      "class": "menu-disclosure",
+      "emissionStatus": "PROBED",
+      "disposition": "COVERED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "probes": [
+        {
+          "action": "click-activate-tab",
+          "before": {
+            "ariaSelected": false
+          },
+          "after": {
+            "ariaSelected": true,
+            "panelContent": "locations-grid-visible-with-tbody-rows"
+          }
+        }
+      ]
+    },
+    {
+      "elementId": "id:radix-_r_v_-trigger-serviceTypeExemptions",
+      "class": "menu-disclosure",
+      "emissionStatus": "PROBED",
+      "disposition": "COVERED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "probes": [
+        {
+          "action": "click-activate-tab",
+          "before": {
+            "ariaSelected": false
+          },
+          "after": {
+            "ariaSelected": true,
+            "panelContent": "service-type-exemptions-grid-visible"
+          }
+        }
+      ]
+    },
+    {
+      "elementId": "id:radix-_r_v_-content-locations",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: non-interactive structural container; coverage flows from child element probes",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Non-interactive structural container grouping child controls; not directly clickable or data-bearing",
+      "dataBlockedUnlock": "No unlock path; coverage attributed to child controls within this container"
+    },
+    {
+      "elementId": "testid:discount-optimization-settings-table-container",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: non-interactive structural container; coverage flows from child element probes",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Non-interactive structural container grouping child controls; not directly clickable or data-bearing",
+      "dataBlockedUnlock": "No unlock path; coverage attributed to child controls within this container"
+    },
+    {
+      "elementId": "struct:input|Search by location number or location na|div/div/discount-optimization-settings-table-container/div/div/div",
+      "class": "filter",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-005",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-005 (spec line 84): types known filter, verifies row reduction, clears, types no-match, verifies empty state",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-005 and TC-DOP-OPT-006; no additional probe required"
+    },
+    {
+      "elementId": "struct:button|Save|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-020",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-020 (spec line 201): isSaveDisabled true at pristine; toggleDiscount enables Save; isSaveEnabled asserted true. TC-DOP-OPT-050 exercises full save round-trip.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-020 and TC-DOP-OPT-050; no additional probe required"
+    },
+    {
+      "elementId": "struct:button|Add|radix-_r_v_-content-locations/div/div/discount-optimization-settings-table-container/div/div",
+      "class": "add-picker",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-060",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-060 (spec line 318): clickAdd() opens Add Location panel, Cancel discards, row count unchanged, Save remains disabled. TC-DOP-OPT-061 asserts Add button visible and enabled.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-060 and TC-DOP-OPT-061; no additional probe required"
+    },
+    {
+      "elementId": "struct:th||div/div/div/table/thead/tr",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: structural column header with no accessible name and no sort role on this surface",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Empty-label column header; structural placeholder for the action-button column, no sort or click handler",
+      "dataBlockedUnlock": "No unlock path; non-interactive structural element"
+    },
+    {
+      "elementId": "struct:th|ID|div/div/div/table/thead/tr",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-010",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-010 (spec line 122): opens ID sort menu, clicks Sort descending, asserts first-row value changes",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-010; no additional probe required"
+    },
+    {
+      "elementId": "id:radix-_r_#_ [archetype×4]",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Resize column locationNo|div/div/table/thead/tr/th",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: cosmetic column-width drag handle; no functional test coverage required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Column resize handle is a cosmetic UI preference control, not a data-bearing functional interaction",
+      "dataBlockedUnlock": "Exclude from functional coverage; include only in visual-regression suites"
+    },
+    {
+      "elementId": "struct:th|Location Name|div/div/div/table/thead/tr",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-011",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-011 (spec line 142): opens Location Name sort menu, clicks Sort descending, polls until first row changes",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-011; no additional probe required"
+    },
+    {
+      "elementId": "struct:button|Resize column locationName|div/div/table/thead/tr/th",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: cosmetic column-width drag handle; no functional test coverage required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Column resize handle is a cosmetic UI preference control, not a data-bearing functional interaction",
+      "dataBlockedUnlock": "Exclude from functional coverage; include only in visual-regression suites"
+    },
+    {
+      "elementId": "struct:th|Allow Special Rate|div/div/div/table/thead/tr",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Resize column allowSpecialRate|div/div/table/thead/tr/th",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: cosmetic column-width drag handle; no functional test coverage required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Column resize handle is a cosmetic UI preference control, not a data-bearing functional interaction",
+      "dataBlockedUnlock": "Exclude from functional coverage; include only in visual-regression suites"
+    },
+    {
+      "elementId": "struct:th|Special Rate Start Date|div/div/div/table/thead/tr",
+      "class": "sort",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Resize column startAllowSpecialRate|div/div/table/thead/tr/th",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: cosmetic column-width drag handle; no functional test coverage required",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Column resize handle is a cosmetic UI preference control, not a data-bearing functional interaction",
+      "dataBlockedUnlock": "Exclude from functional coverage; include only in visual-regression suites"
+    },
+    {
+      "elementId": "struct:button|Remove The Abbey Resort|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-040",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-040 (spec line 293): clickRemove(The Abbey Resort) opens confirmation dialog, Cancel clicked, row count unchanged. TC-DOP-OPT-041 also exercises this button.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-040 and TC-DOP-OPT-041; no additional probe required"
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Abbey Resort|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:input|Select date|tr/td/div/div/div/div",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-030",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-030 (spec line 228): setRowDate(The Abbey Resort) with valid date, Save enables. TC-DOP-OPT-031 invalid entry shows red border. TC-DOP-OPT-032 calendar picker. TC-DOP-OPT-033 digit-shift regression.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-030/031/032/033 and TC-DOP-OPT-050; no additional probe required"
+    },
+    {
+      "elementId": "struct:button|Open calendar|td/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DOP-OPT-032",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-032 (spec line 256): openCalendar(The Abbey Resort) opens date-picker [role=dialog], navigates month, clicks cell, popover closes. Also exercised by TC-DOP-OPT-050.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-032 and TC-DOP-OPT-050; no additional probe required"
+    },
+    {
+      "elementId": "struct:button|Remove InterContinental Chicago|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for InterContinental |div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove The Dagny|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Dagny|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Boston Marriott Copley Place|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Boston Marriott C|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Hotel del Coronado|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Hotel del Coronad|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Hitlon Arlington National Landing|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Hitlon Arlington |div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Sheraton Stamford Hotel deactivat|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Sheraton Stamford|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Renaissance Baton Rouge Hotel|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Renaissance Baton|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Hilton Dallas/Park Cities|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Hilton Dallas/Par|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove The St. Regis Bal Harbour Resort|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The St. Regis Bal|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Sheraton Pentagon City Hotel|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Sheraton Pentagon|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove The Westin New York Grand Central|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Westin New Yo|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove The Westin Kansas City at Crown C|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Westin Kansas|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Sheraton Kansas City Hotel at Cro|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Sheraton Kansas C|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Fairmont Olympic Hotel, Seattle|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Fairmont Olympic |div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove The Kahala Hotel & Resort|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Kahala Hotel |div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Hyatt Regency Valencia|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Hyatt Regency Val|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Hilton Columbus Downtown|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Hilton Columbus D|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Seaview, A Dolce Hotel|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Seaview, A Dolce |div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove The Westin St. Francis on Union S|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Westin St. Fr|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Viewline Snowmass|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Viewline Snowmass|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Salt Palace Convention Center|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Salt Palace Conve|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove The Westin Bonaventure Hotel & Su|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Westin Bonave|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove DoubleTree by Hilton Hotel Philad|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for DoubleTree by Hil|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove The Bellevue Hotel|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Bellevue Hote|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove The Westin Cincinnati Fountain Sq|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Westin Cincin|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove InterContinental Los Angeles Cent|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Remove The Maxwell NYC Hotel - Deactivat|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Maxwell NYC H|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Hilton DFW Lakes Executive Confer|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Hilton DFW Lakes |div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Hilton Anatole|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Hilton Anatole|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Hyatt Regency Coconut Point Resor|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Hyatt Regency Coc|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Condado Vanderbilt Hotel|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Condado Vanderbil|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Ocean Place Resort & Spa- DEACTIV|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Ocean Place Resor|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Hyatt Regency Columbus|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Hyatt Regency Col|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove The Sheraton Columbus onCapitol S|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for The Sheraton Colu|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "struct:button|Remove Hyatt Regency Princeton|div/table/tbody/tr/td/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "DIFFERENTIAL-DATA-REQUIRED",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization.manifest.md",
+      "dataBlockedReason": "Per-row Remove affordance not directly exercised for this location. Rung 1: Remove opens a confirmation dialog (non-destructive Cancel path proven working by TC-DOP-OPT-040 on The Abbey Resort). Rung 2: TC-DOP-OPT-040 and TC-DOP-OPT-041 confirm the identical Radix Remove+dialog+Cancel component works. Blocker: no dedicated per-row TC for this location.",
+      "dataBlockedUnlock": "Add a probe that clicks Remove for this location, verifies the confirmation dialog appears, then cancels",
+      "ladderEvidence": {
+        "rung": 2,
+        "attempted": "Searched both location spec files for a TC exercising this specific location Remove button; TC-DOP-OPT-040 covers The Abbey Resort only",
+        "surfaces": [
+          "discount-optimization-locations.spec.ts",
+          "discount-optimization-exemptions.spec.ts"
+        ]
+      }
+    },
+    {
+      "elementId": "struct:button|Allow Special Rate for Hyatt Regency Pri|div/table/tbody/tr/td/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "dataBlockedReason": "Tab-1 Locations grid control; disposition mirrored from the locations enumeration. No dedicated coverage entry in sibling map.",
+      "dataBlockedUnlock": "Covered by the locations enumeration (discount-optimization-2026-08-11.json); no independent probe required.",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json"
+    },
+    {
+      "elementId": "id:discount-optimization-location",
+      "class": "context-selector",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json",
+      "dataBlockedReason": "The location picker opened by this button has no selectable locations on office 1604; nothing to drive.",
+      "dataBlockedUnlock": "Switch to an office with location picker data to exercise this control.",
+      "secondSource": {
+        "type": "enumerator-artifact",
+        "ref": "reports/walk-coverage/1604-discount-optimization-add-dialog.json — branch dialog:change-local-office, no location rows present"
+      }
+    },
+    {
+      "elementId": "struct:button|Cancel|div/div/div/aside/div/div",
+      "class": "io",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json",
+      "dataBlockedReason": "Covered by TC-DOP-OPT-060 (spec line 318): clickAdd() opens Add Location panel, Cancel discards, row count unchanged.",
+      "dataBlockedUnlock": "Already exercised by TC-DOP-OPT-060; no additional probe required."
+    },
+    {
+      "elementId": "struct:button|Update|div/div/div/aside/div/div",
+      "class": "guard",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "read-only-verified",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-optimization-add-dialog.json",
+      "dataBlockedReason": "Update button is disabled on office 1604 because the current office row is already selected; no selectable state exists to drive.",
+      "dataBlockedUnlock": "Switch to an office where the Update button is enabled (another location selected) to exercise this control."
+    }
+  ]
+}

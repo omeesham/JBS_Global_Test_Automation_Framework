@@ -3,6 +3,7 @@ import { step } from '../../fixtures/step-decorator';
 import { BasePage } from '../base.page';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
+import { ChangeLocalOfficeComponent } from '../components/change-local-office.component';
 import {
   TAB_LIST,
   TAB_LOCATIONS,
@@ -69,6 +70,8 @@ const KEYSTROKE_DELAY_MS = 80;
  * - No fixed `waitForTimeout` substitutes for a real condition.
  */
 export class DiscountOptimizationPage extends BasePage {
+  readonly changeLocalOffice = new ChangeLocalOfficeComponent(this.page);
+
   constructor(page: Page, config?: IConfig) {
     super(page, config);
     Log.info('DiscountOptimizationPage initialized');
