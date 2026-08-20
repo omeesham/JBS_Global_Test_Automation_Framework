@@ -406,25 +406,17 @@ test.describe('Discount Optimization — Locations (Tab 1)', () => {
 
   test('TC-DOP-OPT-060: Add — opens the add affordance; Cancel discards cleanly', async ({ dependencyGate }) => {
     dependencyGate([]);
-    const pg = (dop as any).page;
     const countBefore = await dop.getRowCount();
     expect(await dop.isSaveDisabled()).toBe(true);
-    await dop.clickAdd();
-    // Add opens a right-side panel with Update and Cancel buttons — not a [role="dialog"].
-    const cancelBtn = pg.locator('button:text-is("Cancel")').first();
-    await expect(cancelBtn).toBeVisible({ timeout: 15_000 });
-    await cancelBtn.click();
-    await expect(cancelBtn).not.toBeVisible({ timeout: 5_000 });
+    await dop.changeLocalOffice.open();
+    await dop.changeLocalOffice.cancel();
     expect(await dop.getRowCount()).toBe(countBefore);
     expect(await dop.isSaveDisabled()).toBe(true);
   });
 
   test('TC-DOP-OPT-061: Add button is present and visible on the Locations tab', async ({ dependencyGate }) => {
     dependencyGate([]);
-    const pg = (dop as any).page;
-    const btn = pg.locator('[role="tabpanel"]:has([data-testid="discount-optimization-settings-table-container"]) button:text-is("Add")').first();
-    await expect(btn).toBeVisible();
-    expect(await btn.isEnabled()).toBe(true);
+    expect(await dop.changeLocalOffice.isAddAvailable()).toBe(true);
   });
 
   // ---------------------------------------------------------------- tab switching (NM-3066)
