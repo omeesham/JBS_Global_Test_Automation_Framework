@@ -270,7 +270,7 @@ test.describe('Service Charge History', () => {
     expect(counts.size).toBeGreaterThan(1);
   });
 
-  test('TC-SVC-HIS-012: Sorting the History grid by Modified On via the column header dropdown reorders rows', { timeout: 240_000 }, async ({
+  test('TC-SVC-HIS-012: Sorting the History grid by Modified On via the column header dropdown reorders rows', async ({
     dependencyGate,
   }) => {
     dependencyGate([]);
@@ -286,7 +286,7 @@ test.describe('Service Charge History', () => {
     // Sort ascending by Modified On (column index 3) and capture row 0.
     await sc.sortHistoryColumnViaDropdown('Modified On', 'ascending');
     const ascValues = await sc.getHistoryColumnCellValues(3);
-    const ascRow0 = ascValues[0];
+    const ascRow0 = ascValues[0] ?? '';
     expect(ascRow0.length).toBeGreaterThan(0);
 
     // Oracle 1: ascending row 0 carries the minimum date of all visible rows.

@@ -634,7 +634,7 @@ export class ServiceChargePage extends BasePage {
   async getFirstHistoryRowCellText(colIndex: number): Promise<string> {
     const rows = await this.getHistoryRows();
     if (rows.length === 0) return '';
-    return rows[0][colIndex] ?? '';
+    return rows[0]?.[colIndex] ?? '';
   }
 
   /**

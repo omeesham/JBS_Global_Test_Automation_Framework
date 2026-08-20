@@ -650,7 +650,7 @@ test.describe('Service Charge Basic Information', () => {
 
   // ---------------------------------------------------------------- persistence (QUICK surface)
 
-  test('TC-SVC-BAS-030: A saved value persists after page reload (surface persistence)', { timeout: 240_000 }, async ({
+  test('TC-SVC-BAS-030: A saved value persists after page reload (surface persistence)', async ({
     dependencyGate,
   }) => {
     test.setTimeout(240_000);
