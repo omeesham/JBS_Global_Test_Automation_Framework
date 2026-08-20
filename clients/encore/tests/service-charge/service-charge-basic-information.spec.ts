@@ -476,8 +476,7 @@ test.describe('Service Charge Basic Information', () => {
     // (type "beforeunload"). Register a one-shot listener before navigating so we can
     // capture and dismiss it. Dismissing a beforeunload dialog cancels the navigation,
     // keeping the page in place. In-app tab navigation shows the application's own
-    // "Unsaved changes" modal instead, which is a different path and is not
-    // exercised here.
+    // "Unsaved changes" modal instead — that path is covered by TC-SVC-HIS-014.
     let dialogFired = false;
     let dialogType = '';
     authPage.once('dialog', async (dlg) => {

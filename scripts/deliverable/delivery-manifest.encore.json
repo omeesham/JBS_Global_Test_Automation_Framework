@@ -1614,7 +1614,7 @@
   {
    "code": "SVC.HIS",
    "name": "Service Charge — History",
-   "status": "withheld",
+   "status": "approved-next",
    "specs": [
     "tests/service-charge/service-charge-history.spec.ts"
    ],
@@ -1653,8 +1653,7 @@
     "path": "scripts/deliverable/approval-log.md",
     "line": 53,
     "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
-   },
-   "withheld_reason": "Held back from the 2026-08-21 delivery. 14 of its 15 tests failed twice on 2026-08-20 against the live application: the History grid row reader returned zero rows for 30 seconds while the failure screenshot shows the grid fully populated. Its only passing runs (2026-08-15, 2026-08-16) predate the 2026-08-17 pin of @playwright/test to 1.60.0, which is the version the client receives, so it has never been proven green against the delivered dependency set. Service Charge Basic Information (SVC.BAS) passed 30/30 under that pin on the same night and ships. Ships once the reader is diagnosed and green."
+   }
   },
   {
    "code": "INTERNAL.UNIT",

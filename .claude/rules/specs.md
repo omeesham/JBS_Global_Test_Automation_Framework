@@ -258,6 +258,60 @@ Permitted: `await page.waitForFunction(...)` that polls for the actual transitio
 never confirm the transition actually happened.
 **Trigger**: any while/for loop containing a Playwright action followed by a count or
 state recheck.
+**See also LR-075** — this rule bans a deliberate sleep compounding across N iterations; LR-075
+bans the `await` round-trip itself compounding the same way. A loop with no sleep can still be the
+bug.
+
+## LR-075: Read a collection in ONE call — never one round-trip per element
+
+Forbidden in page objects and specs:
+
+```ts
+const n = await rows.count();
+for (let i = 1; i < n; i++) {
+  const cells = await rows.nth(i).getByRole('cell').allTextContents();  // one round-trip PER ROW
+}
+```
+
+Required: read the whole collection in a single call — `locator.allTextContents()`, or
+`locator.evaluateAll(els => els.map(...))` when you need per-element structure.
+
+**Reason**: every `await` on a locator is a round-trip to the browser, so a per-element loop
+costs N of them and the method's runtime is set by data volume, not by the app. When the
+collection is **append-only** — an audit log, a history grid, anything that gains a row on every
+save and never loses one — N grows every run and the method gets slower forever until it outlasts
+the timeout wrapped around it. That is a test guaranteed to break on a date nobody can predict,
+with no code change to blame.
+
+**The fatal case**: an O(N) read called from inside a fixed-budget wait (`expect.poll`,
+`waitForFunction`) can exceed the budget *within its first invocation*, so the predicate never
+returns even once. The error then reads `Timeout Nms exceeded while waiting on the predicate`,
+which is indistinguishable from the app being slow — and is not the app.
+
+**Diagnosing it**: count actions in the trace, do not pattern-match the symptom. App slowness =
+few actions, one long wait. Reader cost = hundreds of fast actions whose sum blows the budget.
+
+**When authoring cases**: if a surface is append-only, record that in the field inventory. Its
+tests must be O(1) in row count and must never assume the grid stays as small as it was the day
+they were written.
+
+**Gate**: `scripts/check-per-row-await.mjs` (self-test: `scripts/check-per-row-await.test.mjs`).
+Tier 1 exits non-zero on a per-element loop reachable from a fixed-timeout predicate; tier 2
+announces the broader per-element-loop population without failing. Verified 2026-08-21: fires on
+the real pre-fix source, silent on the fix, silent on the whole repo, and not triggerable by a
+comment describing the pattern. NOT YET wired into `check:spec-quality` — that is a `package.json`
+edit, which is owner-only. Until it is wired, run it by hand: `node scripts/check-per-row-await.mjs --enforce`.
+
+**Trigger**: any page-object method or spec reading more than one element from a collection; any
+`for`/`while` containing an `await` on a locator.
+
+**Related**: LR-052 bans a *deliberate sleep* compounding across N iterations; this bans the
+*round-trip itself* compounding the same way. Same harm, different cost source.
+
+**Graduated from**: 2026-08-20 Service Charge History — `getHistoryRows()` read 384 rows one at a
+time at 107 ms each, so a single call took 41.7 s inside a 30 s poll and 14 of 15 tests failed.
+The spec had passed five days earlier at a smaller row count. Two independent reviewers first
+blamed app render latency and a Playwright version pin.
 
 ## LR-053: No strict row-count assertions when an auto-empty-row bug is documented
 

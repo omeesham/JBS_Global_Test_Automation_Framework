@@ -648,18 +648,21 @@ export class ServiceChargePage extends BasePage {
 
   @step('Read all rows from the Service Charge History table')
   async getHistoryRows(): Promise<string[][]> {
-    const rows = this.page.getByRole('row');
-    const count = await rows.count();
-    const result: string[][] = [];
-    // Row at index 0 is the header row — start from 1.
-    for (let i = 1; i < count; i++) {
-      const cells = await rows.nth(i).getByRole('cell').allTextContents();
-      const clean = cells.map((c) => c.replace(/\s+/g, ' ').trim());
-      // Skip skeleton rows — they render as empty cells.
-      if (clean.some((c) => c.length > 0)) {
-        result.push(clean);
-      }
-    }
-    return result;
+    // Read every row in one pass inside the page. Reading them one at a time
+    // costs a separate browser round-trip per row, and this grid gains a row
+    // on every save and never loses one, so a per-row read keeps getting
+    // slower until it outlasts the wait that depends on it.
+    const rows = await this.page
+      .getByRole('row')
+      .evaluateAll((elements) =>
+        elements.map((row) =>
+          Array.from(row.querySelectorAll('td, [role="cell"]')).map((cell) =>
+            (cell.textContent ?? '').replace(/\s+/g, ' ').trim(),
+          ),
+        ),
+      );
+    // Row at index 0 is the header row, so start from 1.
+    // Skip skeleton rows, which render as empty cells.
+    return rows.slice(1).filter((cells) => cells.some((c) => c.length > 0));
   }
 }

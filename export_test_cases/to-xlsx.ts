@@ -204,7 +204,7 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   // Service Charge Text
   service_charge_text_core: 'Service Charge Text — Core',
   // Service Charge
-  service_charge_basic_info: 'Service Charge — Basic Information',
+  service_charge_basic_information: 'Service Charge — Basic Information',
   service_charge_history: 'Service Charge — History',
 };
 

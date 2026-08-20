@@ -315,8 +315,17 @@ test.describe('Service Charge History', () => {
     dependencyGate([]);
 
     const AUTOMATION_USER = 's-prd-clickauto@psav.com';
-    const today = new Date();
-    const todayDateStr = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+    // Build today's date in the timezone the browser renders in, not the timezone the
+    // machine running the tests happens to sit in. The grid stamps each row in the
+    // application's timezone, so a runner placed east of it reads a date that is already
+    // tomorrow and this comparison fails for every hour in between.
+    const renderTimeZone = test.info().project.use.timezoneId ?? 'UTC';
+    const todayDateStr = new Intl.DateTimeFormat('en-US', {
+      timeZone: renderTimeZone,
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+    }).format(new Date());
 
     // Record the baseline row count before making any change.
     await sc.switchToHistoryTab();
