@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # ship-branch.sh â€” per-module branch ship to the encore mock
-# (RutviK-JBS/encore_deliverables_test). INTERNAL tooling â€” NEVER ships, NEVER wired
+# (omeesham/EncoreGlobal_AI_Test_Framework). INTERNAL tooling â€” NEVER ships, NEVER wired
 # into client:ship / xlsx:build / hooks / CI. ON-DEMAND ONLY: run by hand when the
 # user explicitly says "ship module-wise" (PLAN_DELIVERABLE_MERGE_TESTRAIL_FORMAT
 # Â§Per-module branch ship constraint; navigation.md row 70).
@@ -38,7 +38,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REMOTE_NAME="encore-mock"
-REMOTE_URL="https://github.com/RutviK-JBS/encore_deliverables_test.git"
+REMOTE_URL="https://github.com/omeesham/EncoreGlobal_AI_Test_Framework.git"
 
 BRANCH=""; MODULES=""; SURFACE=""; TCS=""; DO_PUSH=0; KEEP_SCRATCH=0
 for arg in "$@"; do

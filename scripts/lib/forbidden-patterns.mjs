@@ -74,7 +74,7 @@ export const DENY_GLOBS = [
 // the bare word, unfuck*, fuckup*, fucked. (A rare base64 blob can contain the
 // substring; such report files live under deny-listed specs_planning and are not
 // normally committed — rename/exclude if one ever trips this.)
-export const MARKER_GREP = [/TEMP_RUTVIK_EXPERIMENT/, /v-rutvik/, /khosariya/, /f(?:u)ck/i];
+export const MARKER_GREP = [/TEMP_RUTVIK_EXPERIMENT/, /khosariya/, /f(?:u)ck/i];
 
 // ── Client-shipping-only markers (hard tokens) ───────────────────────────────
 // Scanned ONLY in client-shipping files (target output, or a staged path under
@@ -103,6 +103,15 @@ export const MARKER_GREP_CLIENT_ONLY = [
   /\bIntelliQE\b/i,
   /\bRutviK[-_]?JBS\b/,
   /\bencore_deliverables_test\b/,
+  // Remote/branch identity — moved here from MARKER_GREP 2026-08-21, when the push
+  // targets migrated to the omeesham org and `dev-rutvik` became the real Encore
+  // ship branch. Leaking it into a CLIENT payload is still wrong; naming it in a
+  // framework doc no longer is. `\bJBS\b` above does NOT cover `JBS_Global_...`
+  // because `_` is a word character, so that name needs its own entry.
+  /v-rutvik/,
+  /\bomeesham\b/i,
+  /\bJBS_Global_Test_Automation_Framework\b/,
+  /\bEncoreGlobal_AI_Test_Framework\b/,
   // Tooling identity
   /\.claude\//,
   /@agent-doc\b/,

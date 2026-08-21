@@ -1,18 +1,23 @@
 ---
-name: Encore Deliverable Channel — Mock vs Real Ship
-description: RutviK-JBS/encore_deliverables_test is a dry-run mock for testing git ship actions. Real ship to Encore client goes via JBS colleagues (not Rutvik, not Claude) outside git.
-type: project
-originSessionId: 849dfb50-6af8-469d-9172-2f9f4035fcdf
+name: project-encore-deliverable-channel
+description: Both push remotes moved to the omeesham org on 2026-08-21. The Encore deliverable target is now a SHARED team repo, not a private mock — force-push discipline changed.
+metadata:
+  type: project
 ---
-`RutviK-JBS/encore_deliverables_test` is a **dry-run staging repo** — it exists so we can test what `git archive HEAD clients/encore/` produces and whether the deny-list/hook/CI scaffolding catches IP leaks BEFORE our JBS colleagues ship the real deliverable to the Encore client.
 
-**The Encore client will never see the git repo.** Ship to them happens via JBS colleagues handing over a folder/zip outside git. Neither Rutvik nor Claude executes the real ship.
+**Migration date: 2026-08-21.** Both push destinations moved to the `omeesham` org. The old repos are frozen history, not delete-me garbage.
 
-**Why:** Stated 2026-05-01: "encore client wont get what we do on git, its just a mock test of git actions before we do it, and it wont be me or u doing it, would be others in our team."
+| Purpose | New target (live) | Old target (frozen) | Local alias for the old one |
+|---|---|---|---|
+| Framework / team repo (`/push-repo`) | `omeesham/JBS_Global_Test_Automation_Framework`, branch `main` | `RutviK-JBS/qa_agentic_framework_global` | `origin-old` |
+| Encore deliverable (`/push-encore-deliverables`) | `omeesham/EncoreGlobal_AI_Test_Framework`, branch `dev-rutvik` | `RutviK-JBS/encore_deliverables_test`, branch `main` | `encore-mock-old` |
+
+**The safety property changed, and this is the part that matters.** The old `encore_deliverables_test` was Rutvik's own dry-run mock — force-pushing it had no external stakes. `omeesham/EncoreGlobal_AI_Test_Framework` is a **shared team repo** carrying other people's work: `dev-vamsee`, `dev-vikas`, `develop`, `feature/sprint16`, `feature/sprint16-vamsee-location-settings`, and `main`. Our lane is `dev-rutvik` and nothing else.
 
 **How to apply:**
-- Force-pushing, deleting branches, or rebuilding `RutviK-JBS/encore_deliverables_test` is **internal hygiene** — no external collaborator stakes, no client-visibility risk. Treat as a normal local repo, not a production system.
-- Plan/agent guards that say "confirm with user before destructive remote op on the deliverable repo" become routine confirmation, not high-risk authorization.
-- The audience for ship-pipeline documentation (BUNDLE_MANIFEST, ship-client.sh, deny-list, .githooks/pre-push) is **JBS colleagues + future agents**, not the Encore client. Documentation should be operator-facing for them.
-- The deliverable shape (clients/encore/ self-contained, vendored framework, gitignored agent IP) is still load-bearing — the JBS handover folder must be exactly what `git archive` produces, so JBS doesn't accidentally `cp -r` the working tree.
-- "Old SHA archival" concerns on force-pushed commits drop to informational — no client follows commit SHAs on the mock.
+- Force-push `dev-rutvik` only. Never force-push `main`, `develop`, or any `dev-*` / `feature/*` branch belonging to someone else.
+- Before any force-push to `dev-rutvik`, confirm the branch tip is ours. On 2026-08-21 it was safe precisely because `dev-rutvik` and `main` pointed at the identical commit (`6c05be75`), so nothing unique could be orphaned. Re-derive that check every time; do not assume it still holds.
+- We have `push` but **not** `admin`/`maintain` on either omeesham repo. Branch protection and settings are not ours to change.
+- The Encore client still never touches git — JBS colleagues hand over the folder/zip outside git. That part is unchanged.
+
+Wired in: [[project-encore-deliverable-channel]] is mirrored at `.claude/collaborator-memory/project_encore_deliverable_channel.md`; live mechanisms are `.claude/skills/push-repo/SKILL.md`, `.claude/skills/push-encore-deliverables/SKILL.md`, `scripts/ship-branch.sh` (`REMOTE_URL`), `.claude/context/navigation.md` row 74, and `clients/encore/docs/read_only_docs/SHIP_TO_ENCORE.md`. See also [[reference-combined-deliverable-ship]] and [[feedback-gate-push-on-denylist]].

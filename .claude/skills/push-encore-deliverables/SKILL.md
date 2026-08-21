@@ -1,12 +1,14 @@
 ---
 name: push-encore-deliverables
-description: Ship one branch to the Encore CLIENT deliverables repo (encore-mock / encore_deliverables_test). The branch name is REQUIRED and always chosen by the user. Dry-runs and shows the exact payload before pushing. EXPLICIT-INVOKE ONLY.
+description: Ship one branch to the Encore CLIENT deliverables repo (encore-mock / omeesham/EncoreGlobal_AI_Test_Framework, branch dev-rutvik). The branch name is REQUIRED and always chosen by the user. Dry-runs and shows the exact payload before pushing. EXPLICIT-INVOKE ONLY.
 when-to-use: User types /push-encore-deliverables <branch>. Never auto-routes, never infers the branch, never ships a second branch off one authorisation.
 ---
 
 # /push-encore-deliverables — ship to the CLIENT repo
 
-**Target**: `encore-mock` → `https://github.com/RutviK-JBS/encore_deliverables_test`.
+**Target**: `encore-mock` → `https://github.com/omeesham/EncoreGlobal_AI_Test_Framework`.
+**Ship branch**: `dev-rutvik` (was `main` on `RutviK-JBS/encore_deliverables_test` until 2026-08-21). Pass it explicitly: `--branch=dev-rutvik`.
+**Old remote**: kept locally as `encore-mock-old` for read-only history lookups. Never push there.
 **Audience**: the client's reviewers. They see exactly what this ships and nothing else.
 **Identity**: OWNER. Publishing is never delegated.
 
@@ -24,7 +26,7 @@ when-to-use: User types /push-encore-deliverables <branch>. Never auto-routes, n
 /push-encore-deliverables notes
 ```
 
-> Per-ticket branches (`nm####`) were retired 2026-08-13 — only `main` ships to the client. The
+> Per-ticket branches (`nm####`) were retired 2026-08-13 — only `dev-rutvik` ships to the client (repo migrated 2026-08-21 — the old `main` on `encore_deliverables_test` is frozen history). The
 > argument is a surviving collection preset (notes/ssl/legal/account-address/corporate-pricing/
 > auto-addon/left-panel-basic-info/locations) or an ad-hoc `--modules`/`--surface` scope.
 

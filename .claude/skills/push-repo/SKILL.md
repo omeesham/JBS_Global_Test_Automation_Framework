@@ -1,12 +1,13 @@
 ---
 name: push-repo
-description: Push the framework repo to the TEAM remote (origin/main, qa_agentic_framework_global) — the repo colleagues work from. Runs the commit-gate battery, a secret sweep, and a delegation-material check first. EXPLICIT-INVOKE ONLY.
+description: Push the framework repo to the TEAM remote (origin/main, omeesham/JBS_Global_Test_Automation_Framework) — the repo colleagues work from. Runs the commit-gate battery, a secret sweep, and a delegation-material check first. EXPLICIT-INVOKE ONLY.
 when-to-use: User types /push-repo. Never fires on "push", "commit", "deploy", or any ambient phrasing.
 ---
 
 # /push-repo — publish to the TEAM repo
 
-**Target**: `origin` → `https://github.com/RutviK-JBS/qa_agentic_framework_global`, branch `main`.
+**Target**: `origin` → `https://github.com/omeesham/JBS_Global_Test_Automation_Framework`, branch `main`.
+**Migrated 2026-08-21**: was `RutviK-JBS/qa_agentic_framework_global`. That repo is frozen history, kept locally as `origin-old`. Never push there.
 **Audience**: colleagues who continue this work on their own machines.
 **Identity**: OWNER. Publishing is never delegated — Claude runs the push itself.
 
@@ -29,7 +30,7 @@ git rev-parse --abbrev-ref HEAD
 git log origin/main..HEAD --oneline | wc -l
 ```
 
-Abort if the remote is not `qa_agentic_framework_global`, or if HEAD is not the intended branch.
+Abort if the remote is not `JBS_Global_Test_Automation_Framework`, or if HEAD is not the intended branch.
 **Never push a `delivery/*` branch here** — those are deliberately truncated client-delivery states;
 pushing one to the team repo hands colleagues an incomplete spec.
 

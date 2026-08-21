@@ -2,7 +2,7 @@
 
 **Audience**: Rutvik + Claude only. Path is gitignored at `clients/encore/.gitignore:8` (`docs/read_only_docs/`), so this file structurally cannot enter `git archive`.
 
-**Mock repo**: `RutviK-JBS/encore_deliverables_test` — internal hygiene only. The Encore client never touches git; JBS colleagues hand over the folder/zip outside git.
+**Mock repo**: `omeesham/EncoreGlobal_AI_Test_Framework` — internal hygiene only. The Encore client never touches git; JBS colleagues hand over the folder/zip outside git.
 
 ---
 
@@ -18,7 +18,7 @@ git branch --show-current                       # expect: client_deliverable
 git status --short | head -5                    # know what's staged
 
 # what's currently on the mock?
-git ls-remote https://github.com/RutviK-JBS/encore_deliverables_test.git refs/heads/main
+git ls-remote https://github.com/omeesham/EncoreGlobal_AI_Test_Framework.git refs/heads/dev-rutvik
 # remember this SHA — use it in --force-with-lease at Step 4
 ```
 
@@ -43,15 +43,15 @@ npm run client:ship -- --client=encore --out=/tmp/encore-deliv-$(date +%Y-%m-%d)
 cd /tmp/encore-deliv-$(date +%Y-%m-%d)
 git init
 git add -A
-git remote add origin https://github.com/RutviK-JBS/encore_deliverables_test.git
+git remote add origin https://github.com/omeesham/EncoreGlobal_AI_Test_Framework.git
 git commit -m "Encore deliverables — <date or label>"
 git push --force-with-lease=main:<KNOWN_SHA_FROM_PREFLIGHT> origin HEAD:main
 
 # 5. Trigger the GA workflow + watch
-gh workflow run playwright-tests.yml --repo RutviK-JBS/encore_deliverables_test --ref main
+gh workflow run playwright-tests.yml --repo omeesham/EncoreGlobal_AI_Test_Framework --ref dev-rutvik
 sleep 10
-gh run list --repo RutviK-JBS/encore_deliverables_test --workflow playwright-tests.yml --limit 1
-gh run watch <RUN_ID> --repo RutviK-JBS/encore_deliverables_test
+gh run list --repo omeesham/EncoreGlobal_AI_Test_Framework --workflow playwright-tests.yml --limit 1
+gh run watch <RUN_ID> --repo omeesham/EncoreGlobal_AI_Test_Framework
 
 # 6. Verdict — GREEN if BOTH:
 #    a) setup project login completes + writes .auth/encore-state.json
@@ -66,7 +66,7 @@ Used when shipping ONLY the Notes surface from the **latest on-disk** state. Dif
 ```bash
 REPO=$(git rev-parse --show-toplevel)
 OUT="$HOME/encore-notes-push-$(date +%Y-%m-%d)"
-URL=https://github.com/RutviK-JBS/encore_deliverables_test.git
+URL=https://github.com/omeesham/EncoreGlobal_AI_Test_Framework.git
 
 # 1. Snapshot the LIVE working tree without mutating it (captures uncommitted edits; gitignored excluded)
 STASH=$(git stash create); SRC=${STASH:-HEAD}
