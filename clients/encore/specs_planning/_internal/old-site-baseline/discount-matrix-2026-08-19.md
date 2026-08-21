@@ -69,3 +69,24 @@ behaviour is a *regression from* legacy or an *intentional change*. Specifically
 
 Both bugs filed from this session (`BUG-DSM-CMX-001`, `BUG-DSM-CMX-002`) therefore carry
 `baselineComparison: not-checked` with this artifact named as the reason — not `baseline-absent`.
+
+---
+
+## Coverage Manifest
+
+**MCP_Session_Date**: 2026-08-19
+**Walk_Mode**: quick
+**Coverage_Ratio**: 0/0 — nothing was enumerated, so nothing is undispositioned. The denominator is zero because authentication to the legacy site failed on all three attempts recorded above, so no control was ever rendered to this session. Read this as "the walk did not happen", NOT as "the surface has no controls" — the legacy counterpart is documented to exist (see the Verdict section).
+**CrossCheck**: not clean — no artifact this pipeline produces carries per-entry `disposition` fields, so `crossCheckVerdict()` cannot return clean for any module. Every delivered module reports the same. Not a defect of this artifact.
+**Completion_Record**: none — no enumeration run completed, so no completion record exists to cite.
+**Enumeration_Script**: not run. `npm run walk:enumerate` requires an authenticated session on the legacy host; that is the exact precondition that failed.
+**Auth_State**: `clients/encore/.auth/nav2-state.json` — present but rejected by the legacy host on 2026-08-19.
+**Mutation_Attestation**: Zero mutations. No session was ever established, so no field could be edited, saved, added or deleted.
+
+### Manifest rows
+
+| Element key | Type | Date | Disposition |
+|---|---|---|---|
+| (none enumerated) | n/a | 2026-08-19 | out-of-scope: baseline-unreachable — the legacy host refused authentication on all three attempts, so zero controls were enumerated. The new-site coverage for this module does not depend on this baseline; it is sourced from the live e2e walk recorded in `field-inventories/discount-matrix-company-matrix-2026-08-20.md`. |
+
+**Why this manifest exists with a zero denominator**: artifacts dated on or after 2026-07-22 must carry a Coverage Manifest. An unreachable baseline still needs one, stating plainly that the denominator is zero and why — the alternative, omitting the section, is indistinguishable from having forgotten it.

@@ -1,1 +1,17 @@
-{"exemptions":[]}
+{
+  "exemptions": [],
+  "unreachable_exemptions": [
+    {
+      "keys": ["role:button:Add Tier", "role:button:Update"],
+      "artifact": "clients/encore/specs_planning/_internal/field-inventories/discount-matrix-company-matrix-2026-08-20.md",
+      "date": "2026-08-21",
+      "reason": "Both are portal-rendered dialog buttons, not the toolbar launchers of the same name. The enumerator recorded their disabled state via a portal scan but could not derive a CSS ancestor path for them, because portal content is not under the tab panel's DOM ancestry — hence UNREACHABLE. They are not uncovered: both are exercised by authored, passing tests through role-and-text selectors.",
+      "evidence": [
+        "role:button:Add Tier -> TC-DSM-CMX-030 at tests/discount-matrix/company-matrix.spec.ts:696 and TC-DSM-CMX-031 at :719, both via isAddTierConfirmEnabled() -> src/pages/discount-matrix/company-matrix.page.ts:869-874 -> BTN_ADD_TIER_CONFIRM (src/selectors/discount-matrix/company-matrix.ts:336, scoped to the Adding Tier dialog, distinct from the toolbar launcher BTN_ADD_TIER)",
+        "role:button:Update -> TC-DSM-CMX-018 at tests/discount-matrix/company-matrix.spec.ts:918 via isEditUpdateEnabled() -> src/pages/discount-matrix/company-matrix.page.ts:713-717 -> BTN_EDIT_UPDATE (src/selectors/discount-matrix/company-matrix.ts:297)",
+        "Corroborated twice inside the artifact itself: line 124 notes Add Tier is disabled only inside the dialog context, and line 165 records that the portal scan returned a disabled state for both keys — the toolbar launcher is never disabled."
+      ],
+      "not_fixable_by_role_engine": "A Playwright role-engine selector would resolve role=button[name='Add Tier'] to BOTH the toolbar launcher and the dialog confirm button, so widening entryKeyToSelector does not disambiguate this pair."
+    }
+  ]
+}
