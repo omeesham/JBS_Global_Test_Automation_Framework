@@ -87,7 +87,24 @@ Key routes:
 ### Session Timeout Handling
 - Monitor page for unexpected redirects to Microsoft login
 - If session expires mid-test, trigger re-authentication
-- Session expiry is detected by URL change to `login.microsoftonline.com`
+- Session expiry is **not reliably** detected by a URL change to `login.microsoftonline.com`. That is one
+  of three signatures, and the least common in practice. All three, measured 2026-08-20:
+
+| Signature | What you see | How to detect |
+|---|---|---|
+| **Silent partial decay** (the dangerous one) | Page shell, criteria bar and column headers render. Grids stay on placeholder/skeleton rows forever. POSTs return **HTTP 200**. Console is **clean**. RSC payload carries `"error": null`. **Some modules still serve data while others do not.** | No redirect, no error — nothing to detect on the page. Only a fresh `--project=setup` run distinguishes it from a broken module. |
+| **Full expiry, app-side** | `Application error: a client-side exception has occurred`, console `Error: NEXT_REDIRECT`, landing on `/navigator/auth/sign-in?callbackUrl=…` — on **cloudapps-e2e.encoreglobal.com**, the app's own host | Match on the path `auth/sign-in`, not on a Microsoft host |
+| **Full expiry, identity-provider-side** | Redirect to `login.microsoftonline.com` or an Entra page | The documented check above |
+
+**Mandatory rule before attributing missing data to the application**: run
+`npx playwright test --project=setup`, confirm it exits 0, confirm the mtime of
+`clients/encore/.auth/encore-state.json` is newer than the failing measurement, then re-measure. Only a
+symptom that survives that is a defect.
+
+**A healthy sibling module is NOT a session control.** On 2026-08-20 `service-charge` served 79 rows in
+the very same session where `discount-matrix` served none; that observation was used to rule auth out, it
+was wrong, and it cost four investigation runs plus a critical bug that had to be retracted. Modules lose
+their data path at different points as a token decays.
 
 ---
 
@@ -1413,6 +1430,36 @@ Columns 33–40 (labor-to-hourly) are present in history even for US locations; 
 - **Offices**: renders on **1604** and **1101** (both confirmed). Row counts differ per office — no office-invariance claim is supported.
 
 **Module-wide notes**: IDs use `TC-DOP-{OPT,EXM}-NNN`. Legacy baseline for tab 1 only, at `navigator2.training.psav.com/#/setup/DiscountPricing/settings`. Missing-testid gaps (27 controls) raised as one client ask in `_internal/testid-gap-reports/discount-optimization-2026-08-11.md`. Plan: `plans/pending/PLAN_DISCOUNT_OPTIMIZATION_AUTOMATION.md`.
+
+---
+
+## Discount Matrix (`/locations/<office>/settings/discount-matrix`)
+
+> **Added 2026-08-20** alongside the Company Matrix quick-tier automation (NM-3343 / NM-2219). Next.js App Router + Radix UI (not Angular — unlike Discount Optimization). Walk evidence lives at `clients/encore/specs_planning/_internal/walk-evidence/discount-matrix-company-matrix-2026-08-19.md` (§1–§13); this section is the orientation summary, not a re-transcription.
+
+**Sub-surfaces (three tabs; only the first is automated so far)**:
+
+| Tab | One-line behavior |
+|---|---|
+| **Company Matrix** (active on load) | 9 tier rows × **21 percentage columns** — 3 booking-window groups (Non-Peak / Standard / Peak) × 7 day buckets (0-15, 16-30, 31-60, 61-90, 91-180, 181-365, 365+). Percentage values in the grid are **static text, not inputs**; the editable fields live only inside the Edit Tier dialog. Automated: `TC-DSM-CMX-001..042`. |
+| Region Weekly Peaks | Not yet walked. Subplan pending. |
+| Location Activation | Not yet walked. Subplan pending. |
+
+**Behaviors worth knowing before writing a test**:
+
+- **The grid paints placeholder rows before real data.** 6 skeleton rows carrying 144 skeleton cells appear first, then 9 real rows. **Gate on `tbody tr:not(:has([data-slot="skeleton"]))`, never on a row count** — a bare `tbody tr` resolves against the placeholders and hands you an empty grid. This is what produced an early enumeration denominator of 14.
+- **A degraded session is indistinguishable from a broken module here.** The shell, criteria bar and all 23 column headers render, POSTs return 200, the console is clean, and the grid simply never fills. See *Known Issues → Session Timeout Handling* for the mandatory `--project=setup` control. A healthy sibling module does **not** rule auth out.
+- **Saves are Next.js server actions posted to the page's own route** — there is no `/api/` call. The discriminator is the **request body**: `[]` is a data request, `[{…}]` is a save. Matching on URL alone will catch hydration traffic and give you a false save signal.
+- **Save disables optimistically while the form stays dirty for ~1551 ms.** Navigating inside that window silently cancels the write and can raise a `beforeunload`. A save is only proven by **reload-and-read**, never by the button's disabled state or by awaiting the POST.
+- **Live POST response bodies cannot be read** — `resp.text()`, `resp.body()` and `request().response().text()` all throw `Protocol error (Network.getResponseBody): No data found for resource with given identifier`, because these are RSC streams CDP does not retain. **Read the trace file instead.**
+- **Never `fill()` the percentage or threshold inputs.** They are formatted numeric inputs; `fill()` silently corrupts the value (`20%` → `15.2%`). Type character by character.
+- **The Edit Tier dialog holds 21 percentage inputs**, of which input 0 opens rendering the raw decimal (`0.17`) while the other 20 open percent-formatted (`17%`) — filed as `BUG-DSM-CMX-002`.
+- **Country dropdown option count is timing-sensitive** — one probe saw only `United States`. Three header cases skip themselves on a single-option dropdown, so coverage can silently drop while the summary stays green. Tracked as D11.
+- **Offices**: renders with data on **1604** and **1101** (both confirmed 2026-08-20, 9 rows each, threshold `15%`).
+
+**Coverage state**: machine denominator **21** for the resting surface plus dialog presence, provenance `reports/walk-coverage/1604-discount-matrix.json`, both dialog branches `ok: true`. The enumerator collapses every dialog input into one `role:input:` entry with no `occurrences`, so dialog *fields* count 1 rather than 21 — a tool limit, filed as D14; those inputs are covered behaviourally by `TC-DSM-CMX-022` and the Edit Tier cases.
+
+**Module-wide notes**: IDs use `TC-DSM-CMX-NNN`. Add Tier commit, Delete Tier, Import, Export-while-dirty and permission gating are deliberately **not** covered at quick tier — each has a named unlock in `plans/pending/PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE.md` §1 (D1–D14). Baseline: a legacy counterpart is documented to exist but `navigator2.training.psav.com` was unreachable on 2026-08-19, so the module is `baselineScope: baseline-absent` pending one headed sign-in. Plan: `plans/pending/PLAN_DISCOUNT_MATRIX_AUTOMATION.md`.
 
 ---
 

@@ -1191,7 +1191,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 49,
-    "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
+    "blob_sha": "60ae315032bc34cdd679a57a5bc042ebc6d3cfd2"
    },
    "specs": [
     "tests/corporate-override/corporate-override-labor-grid.spec.ts"
@@ -1265,7 +1265,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 50,
-    "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
+    "blob_sha": "60ae315032bc34cdd679a57a5bc042ebc6d3cfd2"
    },
    "specs": [
     "tests/corporate-override/corporate-override-export.spec.ts"
@@ -1310,7 +1310,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 51,
-    "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
+    "blob_sha": "60ae315032bc34cdd679a57a5bc042ebc6d3cfd2"
    },
    "specs": [
     "tests/corporate-override/corporate-override-import.spec.ts"
@@ -1608,7 +1608,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 52,
-    "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
+    "blob_sha": "60ae315032bc34cdd679a57a5bc042ebc6d3cfd2"
    }
   },
   {
@@ -1652,7 +1652,180 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 53,
-    "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
+    "blob_sha": "60ae315032bc34cdd679a57a5bc042ebc6d3cfd2"
+   }
+  },
+  {
+   "code": "DOP.OPT",
+   "name": "Discount Optimization — Locations",
+   "status": "approved-next",
+   "specs": [
+    "tests/discount-optimization/discount-optimization-locations.spec.ts"
+   ],
+   "workbooks": [
+    "testcases/discount-optimization/discount-optimization-locations.xlsx"
+   ],
+   "tc_ids": [
+    "TC-DOP-OPT-001",
+    "TC-DOP-OPT-002",
+    "TC-DOP-OPT-003",
+    "TC-DOP-OPT-004",
+    "TC-DOP-OPT-005",
+    "TC-DOP-OPT-006",
+    "TC-DOP-OPT-010",
+    "TC-DOP-OPT-011",
+    "TC-DOP-OPT-012",
+    "TC-DOP-OPT-013",
+    "TC-DOP-OPT-020",
+    "TC-DOP-OPT-021",
+    "TC-DOP-OPT-022",
+    "TC-DOP-OPT-030",
+    "TC-DOP-OPT-031",
+    "TC-DOP-OPT-032",
+    "TC-DOP-OPT-033",
+    "TC-DOP-OPT-040",
+    "TC-DOP-OPT-041",
+    "TC-DOP-OPT-050",
+    "TC-DOP-OPT-051",
+    "TC-DOP-OPT-052",
+    "TC-DOP-OPT-053",
+    "TC-DOP-OPT-060",
+    "TC-DOP-OPT-061",
+    "TC-DOP-OPT-065",
+    "TC-DOP-OPT-066",
+    "TC-DOP-OPT-067",
+    "TC-DOP-OPT-068",
+    "TC-DOP-OPT-070",
+    "TC-DOP-OPT-071",
+    "TC-DOP-OPT-072",
+    "TC-DOP-OPT-090",
+    "TC-DOP-OPT-091",
+    "TC-DOP-OPT-092"
+   ],
+   "delivered_on": null,
+   "delivered_via": null,
+   "evidence": null,
+   "src": [
+    "src/data/discount-optimization/discount-optimization.ts",
+    "src/pages/components/change-local-office.component.ts",
+    "src/pages/discount-optimization/discount-optimization.page.ts",
+    "src/selectors/discount-optimization/discount-optimization.ts"
+   ],
+   "sheets": [
+    "discount_optimization_locations"
+   ],
+   "approved_ref": {
+    "path": "scripts/deliverable/approval-log.md",
+    "line": 54,
+    "blob_sha": "60ae315032bc34cdd679a57a5bc042ebc6d3cfd2"
+   }
+  },
+  {
+   "code": "DOP.EXM",
+   "name": "Discount Optimization — Special Rate Exemptions by Service Type",
+   "status": "approved-next",
+   "specs": [
+    "tests/discount-optimization/discount-optimization-exemptions.spec.ts"
+   ],
+   "workbooks": [
+    "testcases/discount-optimization/discount-optimization-exemption.xlsx"
+   ],
+   "tc_ids": [
+    "TC-DOP-EXM-001",
+    "TC-DOP-EXM-002",
+    "TC-DOP-EXM-010",
+    "TC-DOP-EXM-011",
+    "TC-DOP-EXM-020",
+    "TC-DOP-EXM-021"
+   ],
+   "delivered_on": null,
+   "delivered_via": null,
+   "evidence": null,
+   "src": [
+    "src/data/discount-optimization/discount-optimization.ts",
+    "src/pages/discount-optimization/discount-optimization.page.ts",
+    "src/selectors/discount-optimization/discount-optimization.ts"
+   ],
+   "sheets": [
+    "discount_optimization_exemption"
+   ],
+   "approved_ref": {
+    "path": "scripts/deliverable/approval-log.md",
+    "line": 55,
+    "blob_sha": "60ae315032bc34cdd679a57a5bc042ebc6d3cfd2"
+   }
+  },
+  {
+   "code": "DSM.CMX",
+   "name": "Discount Matrix — Company Matrix",
+   "status": "approved-next",
+   "specs": [
+    "tests/discount-matrix/company-matrix.spec.ts"
+   ],
+   "workbooks": [
+    "testcases/discount-matrix/discount-matrix-company-matrix.xlsx"
+   ],
+   "tc_ids": [
+    "TC-DSM-CMX-001",
+    "TC-DSM-CMX-002",
+    "TC-DSM-CMX-003",
+    "TC-DSM-CMX-004",
+    "TC-DSM-CMX-005",
+    "TC-DSM-CMX-006",
+    "TC-DSM-CMX-007",
+    "TC-DSM-CMX-008",
+    "TC-DSM-CMX-009",
+    "TC-DSM-CMX-010",
+    "TC-DSM-CMX-011",
+    "TC-DSM-CMX-012",
+    "TC-DSM-CMX-013",
+    "TC-DSM-CMX-014",
+    "TC-DSM-CMX-015",
+    "TC-DSM-CMX-016",
+    "TC-DSM-CMX-017",
+    "TC-DSM-CMX-018",
+    "TC-DSM-CMX-019",
+    "TC-DSM-CMX-020",
+    "TC-DSM-CMX-021",
+    "TC-DSM-CMX-022",
+    "TC-DSM-CMX-023",
+    "TC-DSM-CMX-024",
+    "TC-DSM-CMX-025",
+    "TC-DSM-CMX-026",
+    "TC-DSM-CMX-027",
+    "TC-DSM-CMX-028",
+    "TC-DSM-CMX-029",
+    "TC-DSM-CMX-030",
+    "TC-DSM-CMX-031",
+    "TC-DSM-CMX-032",
+    "TC-DSM-CMX-033",
+    "TC-DSM-CMX-034",
+    "TC-DSM-CMX-035",
+    "TC-DSM-CMX-036",
+    "TC-DSM-CMX-037",
+    "TC-DSM-CMX-038",
+    "TC-DSM-CMX-039",
+    "TC-DSM-CMX-040",
+    "TC-DSM-CMX-041",
+    "TC-DSM-CMX-042"
+   ],
+   "delivered_on": null,
+   "delivered_via": null,
+   "evidence": null,
+   "src": [
+    "src/data/discount-matrix/.gitkeep",
+    "src/pages/discount-matrix/.gitkeep",
+    "src/pages/discount-matrix/company-matrix.page.ts",
+    "src/selectors/discount-matrix/company-matrix.ts",
+    "tests/discount-matrix/.gitkeep"
+   ],
+   "sheets": [
+    "discount_matrix_company_matrix"
+   ],
+   "approved_ref": {
+    "path": "scripts/deliverable/approval-log.md",
+    "line": 56,
+    "blob_sha": "60ae315032bc34cdd679a57a5bc042ebc6d3cfd2"
    }
   },
   {
