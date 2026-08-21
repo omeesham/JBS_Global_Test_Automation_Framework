@@ -1,0 +1,423 @@
+{
+  "state": "1604-service-charge",
+  "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/service-charge",
+  "office": "1604",
+  "module": "service-charge",
+  "authPath": ".\\clients\\encore\\.auth\\encore-state.json",
+  "date": "2026-08-19",
+  "cycles": [
+    {
+      "cycle": 0,
+      "action": "resting",
+      "scanned": 442,
+      "shadowHosts": 0,
+      "candidates": 0,
+      "g1hits": 0,
+      "accum": 86,
+      "restingObserved": true
+    },
+    {
+      "cycle": 1,
+      "openersClicked": 1,
+      "added": 5,
+      "accum": 91
+    },
+    {
+      "cycle": 2,
+      "openersClicked": 0,
+      "added": 0,
+      "accum": 91
+    },
+    {
+      "cycle": "confirm",
+      "added": 0,
+      "accum": 91
+    },
+    {
+      "cycle": "portal-scan",
+      "portalElements": 0,
+      "added": 0,
+      "accum": 91
+    }
+  ],
+  "branches": [
+    {
+      "branch": "tab:history",
+      "openerText": "Service Charge History",
+      "addedKeys": 0,
+      "ok": true
+    }
+  ],
+  "_restingObserved": true,
+  "base_state": {
+    "atRest": [
+      "Basic Information"
+    ],
+    "atEmit": [
+      "Basic Information"
+    ]
+  },
+  "stateGraphExhaustion": {
+    "containersFound": 24,
+    "neverOpened": 24,
+    "samples": [
+      {
+        "testid": "",
+        "role": "button",
+        "name": "1604Parker Palm Springs",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Home",
+        "tag": "a"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Inbox",
+        "tag": "a"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Actions",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Commissions",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Tax",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Setup",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Studio",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Order Search",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Job Search",
+        "tag": "a"
+      }
+    ]
+  },
+  "denominator": 13,
+  "rawBeforeArchetypeCollapse": 91,
+  "setAlgebra": {
+    "union": 13,
+    "intersection": 11,
+    "symDiff": 2
+  },
+  "symDiffReview": [
+    {
+      "key": "struct:tablist|Basic InformationService Charge History|skip/div/div/div/div/div",
+      "role": "tablist",
+      "name": "Basic InformationService Charge History",
+      "in": "B-only",
+      "disabled": false
+    },
+    {
+      "key": "testid:service-charge-save",
+      "role": "button",
+      "name": "Save",
+      "in": "A-only",
+      "disabled": true
+    }
+  ],
+  "g1Recovered": [],
+  "entries": [
+    {
+      "key": "struct:button|trigger-button|skip/div/div/div/div/div",
+      "role": "button",
+      "name": "trigger-button",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting",
+        "expand-1"
+      ]
+    },
+    {
+      "key": "struct:button|More information|div/div/div/div/div/div",
+      "role": "button",
+      "name": "More information",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting",
+        "expand-1"
+      ]
+    },
+    {
+      "key": "struct:tablist|Basic InformationService Charge History|skip/div/div/div/div/div",
+      "role": "tablist",
+      "name": "Basic InformationService Charge History",
+      "why": "focusable",
+      "inA": false,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting",
+        "expand-1"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-trigger-Basic Information",
+      "role": "tab",
+      "name": "Basic Information",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting",
+        "expand-1"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-trigger-History",
+      "role": "tab",
+      "name": "Service Charge History",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting",
+        "expand-1"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-content-Basic Information",
+      "role": "tabpanel",
+      "name": "SaveLocal Office :1604 - Parker Palm Spr",
+      "why": "tabindex",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "testid:service-charge-save",
+      "role": "button",
+      "name": "Save",
+      "why": "testid",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "testid:service-charge-percentage-# [archetype×79]",
+      "role": "input",
+      "name": "",
+      "why": "testid",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "archetype": true,
+      "rowCount": 79
+    },
+    {
+      "key": "id:radix-_r_10_-content-History",
+      "role": "tabpanel",
+      "name": "Service Charge History :Parker Palm Spri",
+      "why": "tabindex",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "expand-1",
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_16_",
+      "role": "button",
+      "name": "Service Type",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "expand-1",
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_18_",
+      "role": "button",
+      "name": "Service Charge Percentage",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "expand-1",
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_1a_",
+      "role": "button",
+      "name": "Modified By",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "expand-1",
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_1c_",
+      "role": "button",
+      "name": "Modified On",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "expand-1",
+        "resting"
+      ]
+    }
+  ],
+  "derived_types": {
+    "struct:button|trigger-button|skip/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|More information|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:tablist|Basic InformationService Charge History|skip/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=DIV role=tablist",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-trigger-Basic Information": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=tab",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-trigger-History": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=tab",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-content-Basic Information": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
+    },
+    "testid:service-charge-save": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"service-charge-save\" accessibleName=\"Save\"",
+      "probe": "unresolved"
+    },
+    "testid:service-charge-percentage-# [archetype×79]": {
+      "type": "Numeric / spinbutton",
+      "resolved": true,
+      "evidence": "tag=INPUT",
+      "probe": "resting"
+    },
+    "id:radix-_r_10_-content-History": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "resting"
+    },
+    "id:radix-_r_16_": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_18_": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_1a_": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_1c_": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    }
+  },
+  "completion_record": {
+    "version": 1,
+    "status": "complete",
+    "surfaces_attempted": [
+      "1604-service-charge"
+    ],
+    "surfaces_enumerated": [
+      "1604-service-charge"
+    ],
+    "element_count": 13,
+    "raw_before_collapse": 91,
+    "halt_reasons": [],
+    "content_sha256": "2b15ed112aeb0a2f741c290696821c35a85f5734470051862edbaae5b3fa5b4d"
+  }
+}

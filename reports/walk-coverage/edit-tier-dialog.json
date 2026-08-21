@@ -1,0 +1,495 @@
+{
+  "state": "edit-tier-dialog",
+  "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/discount-matrix",
+  "office": "1604",
+  "module": "adhoc",
+  "authPath": ".\\clients\\encore\\.auth\\encore-state.json",
+  "date": "2026-08-19",
+  "cycles": [
+    {
+      "cycle": 0,
+      "action": "resting",
+      "scanned": 406,
+      "shadowHosts": 0,
+      "candidates": 0,
+      "g1hits": 0,
+      "accum": 14,
+      "restingObserved": true
+    },
+    {
+      "cycle": 1,
+      "openersClicked": 0,
+      "added": 0,
+      "accum": 14
+    },
+    {
+      "cycle": "confirm",
+      "added": 2,
+      "accum": 16
+    },
+    {
+      "cycle": 2,
+      "openersClicked": 0,
+      "added": 1,
+      "accum": 17
+    },
+    {
+      "cycle": 3,
+      "openersClicked": 0,
+      "added": 0,
+      "accum": 17
+    },
+    {
+      "cycle": "final-confirm",
+      "added": 0,
+      "accum": 17
+    },
+    {
+      "cycle": "portal-scan",
+      "portalElements": 0,
+      "added": 0,
+      "accum": 17
+    }
+  ],
+  "branches": [],
+  "_restingObserved": true,
+  "base_state": {
+    "atRest": [
+      "Company Matrix"
+    ],
+    "atEmit": [
+      "Company Matrix"
+    ]
+  },
+  "stateGraphExhaustion": {
+    "containersFound": 23,
+    "neverOpened": 23,
+    "samples": [
+      {
+        "testid": "",
+        "role": "button",
+        "name": "1604Parker Palm Springs",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Home",
+        "tag": "a"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Inbox",
+        "tag": "a"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Actions",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Commissions",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Tax",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Setup",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Studio",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Order Search",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Job Search",
+        "tag": "a"
+      }
+    ]
+  },
+  "denominator": 17,
+  "rawBeforeArchetypeCollapse": 17,
+  "setAlgebra": {
+    "union": 17,
+    "intersection": 15,
+    "symDiff": 2
+  },
+  "symDiffReview": [
+    {
+      "key": "struct:button|Save|div/div/div/div/div/div",
+      "role": "button",
+      "name": "Save",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:tablist|Company MatrixRegion Weekly PeaksLocatio|div/div/div/div/div/div",
+      "role": "tablist",
+      "name": "Company MatrixRegion Weekly PeaksLocatio",
+      "in": "B-only",
+      "disabled": false
+    }
+  ],
+  "g1Recovered": [],
+  "entries": [
+    {
+      "key": "struct:button|trigger-button|skip/div/div/div/div/div",
+      "role": "button",
+      "name": "trigger-button",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|More information|div/div/div/div/div/div",
+      "role": "button",
+      "name": "More information",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:combobox|United States|div/div/div/div/div/div",
+      "role": "combobox",
+      "name": "United States",
+      "why": "role:combobox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:combobox|USD|div/div/div/div/div/div",
+      "role": "combobox",
+      "name": "USD",
+      "why": "role:combobox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:combobox|Standard|div/div/div/div/div/div",
+      "role": "combobox",
+      "name": "Standard",
+      "why": "role:combobox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Save|div/div/div/div/div/div",
+      "role": "button",
+      "name": "Save",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:tablist|Company MatrixRegion Weekly PeaksLocatio|div/div/div/div/div/div",
+      "role": "tablist",
+      "name": "Company MatrixRegion Weekly PeaksLocatio",
+      "why": "focusable",
+      "inA": false,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-trigger-company-matrix",
+      "role": "tab",
+      "name": "Company Matrix",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-trigger-region-weekly",
+      "role": "tab",
+      "name": "Region Weekly Peaks",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-trigger-location-activation",
+      "role": "tab",
+      "name": "Location Activation",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-content-company-matrix",
+      "role": "tabpanel",
+      "name": "Add TierExportImportNon-Peak Booking Win",
+      "why": "tabindex",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Add Tier|div/div/div/radix-_r_10_-content-company-matrix/div/div",
+      "role": "button",
+      "name": "Add Tier",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Export|div/div/radix-_r_10_-content-company-matrix/div/div/div",
+      "role": "button",
+      "name": "Export",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": true,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Import|div/div/radix-_r_10_-content-company-matrix/div/div/div",
+      "role": "button",
+      "name": "Import",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Delete|div/div/table/tbody/tr/td",
+      "role": "button",
+      "name": "Delete",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 9,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Edit|div/div/table/tbody/tr/td",
+      "role": "button",
+      "name": "Edit",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 9,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "name:gavDiscountThreshold|input",
+      "role": "input",
+      "name": "0%",
+      "why": "native:input",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    }
+  ],
+  "derived_types": {
+    "struct:button|trigger-button|skip/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|More information|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:combobox|United States|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=BUTTON;type=button;role=combobox; ambiguous_candidates=Dropdown / combobox (Radix),Cascading dropdown",
+      "probe": "unresolved"
+    },
+    "struct:combobox|USD|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=BUTTON;type=button;role=combobox; ambiguous_candidates=Dropdown / combobox (Radix),Cascading dropdown",
+      "probe": "unresolved"
+    },
+    "struct:combobox|Standard|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=BUTTON;type=button;role=combobox; ambiguous_candidates=Dropdown / combobox (Radix),Cascading dropdown",
+      "probe": "unresolved"
+    },
+    "struct:button|Save|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Save|div/div/div/div/div/div\" accessibleName=\"\"",
+      "probe": "unresolved"
+    },
+    "struct:tablist|Company MatrixRegion Weekly PeaksLocatio|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=DIV role=tablist",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-trigger-company-matrix": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=tab",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-trigger-region-weekly": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=tab",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-trigger-location-activation": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=tab",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-content-company-matrix": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
+    },
+    "struct:button|Add Tier|div/div/div/radix-_r_10_-content-company-matrix/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Export|div/div/radix-_r_10_-content-company-matrix/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Import|div/div/radix-_r_10_-content-company-matrix/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Delete|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "struct:button|Edit|div/div/table/tbody/tr/td": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    },
+    "name:gavDiscountThreshold|input": {
+      "type": null,
+      "resolved": false,
+      "evidence": "",
+      "probe": "unresolved"
+    }
+  },
+  "completion_record": {
+    "version": 1,
+    "status": "complete",
+    "surfaces_attempted": [
+      "edit-tier-dialog"
+    ],
+    "surfaces_enumerated": [
+      "edit-tier-dialog"
+    ],
+    "element_count": 17,
+    "raw_before_collapse": 17,
+    "halt_reasons": [],
+    "content_sha256": "4cf2f5b41fc6b34be3e5b088f587b57da32125c4b48b05318fef98defa4240e0"
+  }
+}

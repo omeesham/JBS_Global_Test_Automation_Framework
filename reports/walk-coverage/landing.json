@@ -1,0 +1,428 @@
+{
+  "state": "landing",
+  "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/discount-matrix",
+  "office": "1604",
+  "module": "adhoc",
+  "authPath": ".\\clients\\encore\\.auth\\encore-state.json",
+  "date": "2026-08-19",
+  "cycles": [
+    {
+      "cycle": 0,
+      "action": "resting",
+      "scanned": 406,
+      "shadowHosts": 0,
+      "candidates": 0,
+      "g1hits": 0,
+      "accum": 14,
+      "restingObserved": true
+    },
+    {
+      "cycle": 1,
+      "openersClicked": 0,
+      "added": 0,
+      "accum": 14
+    },
+    {
+      "cycle": "confirm",
+      "added": 0,
+      "accum": 14
+    },
+    {
+      "cycle": "portal-scan",
+      "portalElements": 0,
+      "added": 0,
+      "accum": 14
+    }
+  ],
+  "branches": [],
+  "_restingObserved": true,
+  "base_state": {
+    "atRest": [
+      "Company Matrix"
+    ],
+    "atEmit": [
+      "Company Matrix"
+    ]
+  },
+  "stateGraphExhaustion": {
+    "containersFound": 23,
+    "neverOpened": 23,
+    "samples": [
+      {
+        "testid": "",
+        "role": "button",
+        "name": "",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Home",
+        "tag": "a"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Inbox",
+        "tag": "a"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Actions",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Commissions",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Tax",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Setup",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Studio",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "button",
+        "name": "Order Search",
+        "tag": "button"
+      },
+      {
+        "testid": "",
+        "role": "a",
+        "name": "Job Search",
+        "tag": "a"
+      }
+    ]
+  },
+  "denominator": 14,
+  "rawBeforeArchetypeCollapse": 14,
+  "setAlgebra": {
+    "union": 14,
+    "intersection": 11,
+    "symDiff": 3
+  },
+  "symDiffReview": [
+    {
+      "key": "struct:button|Save|div/div/div/div/div/div",
+      "role": "button",
+      "name": "Save",
+      "in": "A-only",
+      "disabled": true
+    },
+    {
+      "key": "struct:tablist|Company MatrixRegion Weekly PeaksLocatio|div/div/div/div/div/div",
+      "role": "tablist",
+      "name": "Company MatrixRegion Weekly PeaksLocatio",
+      "in": "B-only",
+      "disabled": false
+    },
+    {
+      "key": "struct:button|Export|div/div/radix-_r_10_-content-company-matrix/div/div/div",
+      "role": "button",
+      "name": "Export",
+      "in": "A-only",
+      "disabled": true
+    }
+  ],
+  "g1Recovered": [],
+  "entries": [
+    {
+      "key": "struct:button|trigger-button|skip/div/div/div/div/div",
+      "role": "button",
+      "name": "trigger-button",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|More information|div/div/div/div/div/div",
+      "role": "button",
+      "name": "More information",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:combobox|United States|div/div/div/div/div/div",
+      "role": "combobox",
+      "name": "United States",
+      "why": "role:combobox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:combobox|USD|div/div/div/div/div/div",
+      "role": "combobox",
+      "name": "USD",
+      "why": "role:combobox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:combobox|Standard|div/div/div/div/div/div",
+      "role": "combobox",
+      "name": "Standard",
+      "why": "role:combobox",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Save|div/div/div/div/div/div",
+      "role": "button",
+      "name": "Save",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:tablist|Company MatrixRegion Weekly PeaksLocatio|div/div/div/div/div/div",
+      "role": "tablist",
+      "name": "Company MatrixRegion Weekly PeaksLocatio",
+      "why": "focusable",
+      "inA": false,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-trigger-company-matrix",
+      "role": "tab",
+      "name": "Company Matrix",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-trigger-region-weekly",
+      "role": "tab",
+      "name": "Region Weekly Peaks",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-trigger-location-activation",
+      "role": "tab",
+      "name": "Location Activation",
+      "why": "role:tab",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "id:radix-_r_10_-content-company-matrix",
+      "role": "tabpanel",
+      "name": "Add TierExportImportNon-Peak Booking Win",
+      "why": "tabindex",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Add Tier|div/div/div/radix-_r_10_-content-company-matrix/div/div",
+      "role": "button",
+      "name": "Add Tier",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Export|div/div/radix-_r_10_-content-company-matrix/div/div/div",
+      "role": "button",
+      "name": "Export",
+      "why": "native:button",
+      "inA": true,
+      "inB": false,
+      "disabled": true,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    },
+    {
+      "key": "struct:button|Import|div/div/radix-_r_10_-content-company-matrix/div/div/div",
+      "role": "button",
+      "name": "Import",
+      "why": "native:button",
+      "inA": true,
+      "inB": true,
+      "disabled": false,
+      "occurrences": 1,
+      "branches": [
+        "resting"
+      ]
+    }
+  ],
+  "derived_types": {
+    "struct:button|trigger-button|skip/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|More information|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:combobox|United States|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=BUTTON;type=button;role=combobox; ambiguous_candidates=Dropdown / combobox (Radix),Cascading dropdown",
+      "probe": "unresolved"
+    },
+    "struct:combobox|USD|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=BUTTON;type=button;role=combobox; ambiguous_candidates=Dropdown / combobox (Radix),Cascading dropdown",
+      "probe": "unresolved"
+    },
+    "struct:combobox|Standard|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=BUTTON;type=button;role=combobox; ambiguous_candidates=Dropdown / combobox (Radix),Cascading dropdown",
+      "probe": "unresolved"
+    },
+    "struct:button|Save|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "denylist_hit: key=\"struct:button|Save|div/div/div/div/div/div\" accessibleName=\"\"",
+      "probe": "unresolved"
+    },
+    "struct:tablist|Company MatrixRegion Weekly PeaksLocatio|div/div/div/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=DIV role=tablist",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-trigger-company-matrix": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=tab",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-trigger-region-weekly": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=tab",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-trigger-location-activation": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=tab",
+      "probe": "unresolved"
+    },
+    "id:radix-_r_10_-content-company-matrix": {
+      "type": null,
+      "resolved": false,
+      "evidence": "tag=DIV;role=tabpanel",
+      "probe": "edit-mode-click"
+    },
+    "struct:button|Add Tier|div/div/div/radix-_r_10_-content-company-matrix/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Export|div/div/radix-_r_10_-content-company-matrix/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    },
+    "struct:button|Import|div/div/radix-_r_10_-content-company-matrix/div/div/div": {
+      "type": null,
+      "resolved": false,
+      "evidence": "non_probeable: tag=BUTTON role=",
+      "probe": "unresolved"
+    }
+  },
+  "completion_record": {
+    "version": 1,
+    "status": "complete",
+    "surfaces_attempted": [
+      "landing"
+    ],
+    "surfaces_enumerated": [
+      "landing"
+    ],
+    "element_count": 14,
+    "raw_before_collapse": 14,
+    "halt_reasons": [],
+    "content_sha256": "95a93bcc093c54f2eace438f12819744414e9ffcca0be1c53ec41feb0a33d372"
+  }
+}
