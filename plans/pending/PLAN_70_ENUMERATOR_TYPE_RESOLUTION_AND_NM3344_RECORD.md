@@ -68,6 +68,106 @@ configured value. **It was a legitimate bug fix, not a gate relaxed to let a pla
 
 Supporting raw artifacts (`*.verify.txt`, `r2-*`, `rev-*`) sit beside those files with sha256 manifests.
 
+### NOT a recurrence — Discount Matrix › Company Matrix (2026-08-20), retracted same day
+
+An earlier version of this section recorded the Discount Matrix walk as a second reproduction of this
+plan's enumerator defect. **That was wrong and is retracted.** It is kept here rather than deleted,
+because a false recurrence record is exactly the kind of claim that survives into someone else's fix.
+
+What actually happened: the walk was invoked as `--url=<...> --state=<...>` with **no** `--module`. Per
+`enumerate-page.mjs:817`, that is **adhoc mode with `cfg=null`** — no `restingContentMarker`, no
+`contentMarker`, no opener patterns, no state activation. There is no `discount-matrix` entry in the
+module registry at all, so there was nothing for `--url` to resolve to.
+
+Every symptom follows from that invocation, not from this plan's causes:
+
+| Symptom | Explained by |
+|---|---|
+| Landing denominator 14 | Ungated initial scan — no resting marker, so it scanned before the grid painted. This is the same undercount the `discount-optimization-locations` comment already attributes to "the ungated initial scan". |
+| `landing`, `grid-empty`, `add-tier-dialog` all 14 | No opener patterns configured, so no state was ever activated. |
+| Edit Tier's 21 percentage inputs absent | The dialog was never open while the enumerator ran. |
+
+The fix is additive and local: **register a `discount-matrix` module config** with a
+`restingContentMarker` and opener patterns for Add Tier / Edit Tier, following the
+`discount-optimization-add-dialog` template, then re-run with `--module`.
+
+**One thing from this plan may still apply, and is not yet ruled in or out.** Once the dialog inputs are
+actually captured, cause 3 (controls exposing `type=null` with `inputmode=decimal` and no classifier
+rule) is a live candidate: the Edit Tier percentage inputs are `type="text" inputmode="decimal"`, the
+same shape as the 79 service-charge inputs. That will be known from the first correctly-configured run,
+and only then should a recurrence row be written here.
+
+Evidence for the retraction: `.tmp/delegation-out/dsm-cmx-enumerate-0820/enumerate.md`,
+`reports/walk-coverage/edit-tier-dialog.json` (17 entries, whose single input is the page-header
+threshold), and `enumerate-page.mjs:817`.
+
+#### Follow-up: the module was registered, and a different wall appeared
+
+`discount-matrix` is now registered in both `lib/module-config.mjs` (`requiredStates`: resting +
+`dialog:add-tier` + `dialog:edit-tier`) and `enumerate-page.mjs`. The configured run still did not
+produce a manifest, for a reason worth recording here because it will bite the next module too.
+
+Measured on office 1604 by `.tmp/delegation-out/dsm-cmx-domshape-0820/domshape.md`, both headless and
+headed:
+
+| Question | Headless | Headed |
+|---|---|---|
+| `main` first seen | 14 500 ms | 9 750 ms |
+| `[role="main"]` | **never** | **never** |
+| `tbody tr` first seen | 14 500 ms (count **6**) | 9 750 ms (count **6**) |
+| counts at 60 s | main 1, `tbody tr` **6** | main 1, `tbody tr` **6** |
+| `[data-slot="skeleton"]` | **145**, of which **144** are inside `tbody tr` | same |
+
+Candidate selector counts once settled (Playwright locators):
+
+```
+tbody tr                                        6
+tbody tr:not(:has([data-slot="skeleton"]))      0     ← no error thrown
+tbody tr:has-text(" - ")                        0
+tbody tr td                                   144
+[data-slot="skeleton"]                        145
+```
+
+**Two conclusions, both load-bearing:**
+
+1. **The skeleton-aware marker is correct, not broken.** It returns 0 for the right reason — every one of
+   the 6 rows still contains a skeleton. No selector threw. A bare `tbody tr` marker would have resolved
+   here against 6 placeholder rows and handed the enumerator an empty grid, which is precisely the
+   ungated-initial-scan undercount in a new disguise. **Any module whose surface is a skeleton-painting
+   grid needs the `:not(:has([data-slot="skeleton"]))` form, not `tbody tr`.**
+2. **The grid never painted real data in a bare Playwright session** — still 6 skeleton rows at 60 s, and
+   the enumerator's own 120 s gate also expired. Yet the module's 42-test Playwright suite loads the same
+   grid inside a 45 s gate on every run, and a `playwright-cli` read returned 9 real rows the same hour.
+
+#### RESOLVED same day — it was a degraded session, and conclusion 2 above is WITHDRAWN
+
+Conclusion 1 stands. **Conclusion 2 is wrong and is retracted here so it cannot survive into another
+fix.** The session-setup diff it proposed was performed and found nothing: a bare browser and one at full
+test parity (the nine chromium launch args, viewport 1920×1080, locale, timezone, `about:blank` pre-nav)
+behaved *identically*, 6 skeleton rows at 60 s, with `navigator.webdriver` `true` and `false` respectively
+(`.tmp/delegation-out/dsm-cmx-sessdiff-0820/sessdiff.md`). Launch configuration was never the variable.
+
+The actual cause: **`clients/encore/.auth/encore-state.json` had partially decayed.** Running
+`npx playwright test --project=setup` and re-measuring on the state it wrote produced **9 real rows,
+0 skeletons, threshold `15%`** on both office 1604 and office 1101
+(`.tmp/delegation-out/dsm-cmx-wA-0820/wA.md`, screenshot `url1.png`). The enumerator then ran cleanly and
+produced **denominator 21** with both dialog branches `ok: true`
+(`reports/walk-coverage/1604-discount-matrix.json`). Phase 3 of the Company Matrix subplan is closed, not
+blocked.
+
+**Why this cost four runs, and the rule that comes out of it.** A partially-valid session on this app
+fails silently and asymmetrically: the shell and column headers render, POSTs return HTTP 200, the console
+stays clean, the RSC payload carries `"error": null` — and *some modules still serve data while others do
+not*. `service-charge` returned 79 rows in the very same session where `discount-matrix` returned none,
+and that observation was used to rule auth out. **It does not rule auth out.** Before attributing any
+missing-data symptom on this app to the application: run `--project=setup`, confirm exit 0, confirm the
+state file's mtime is newer than the failing measurement, and only then re-measure. A healthy sibling
+module is not a session control.
+
+The skeleton-aware marker finding (conclusion 1) is unaffected and remains the reusable lesson for the
+next skeleton-painting grid. `[role="main"]` never appearing is also still worth noting for the
+`inPageEnumerate` scope: this app exposes a real `<main>` element and no ARIA role equivalent.
+
 ## §3 — The three causes (finding 1)
 
 | # | Cause | Provable from | Effect |
@@ -681,3 +781,33 @@ live outcome. Re-derive the threshold from Phase 3's real distribution before re
 | ID | Deviation | Reason | Disposition |
 |---|---|---|---|
 | — | (none yet) | | |
+
+---
+
+## §9 — Cross-module measurement, 2026-08-20: zero resolution is the norm, not an outlier
+
+Measured directly from the emitted manifests, counting `derived_types` entries with `resolved === true`:
+
+| Artifact | derived_types | resolved |
+|---|---|---|
+| `reports/walk-coverage/1604-discount-matrix.json` | 21 | **0** |
+| `reports/walk-coverage/1604-discount-optimization.json` | 131 | **0** |
+| `reports/walk-coverage/1604-service-charge.json` | 13 | 1 |
+
+Re-runnable:
+
+```bash
+node -e "const r=require('./reports/walk-coverage/1604-discount-optimization.json');const v=Object.values(r.derived_types||{});console.log(v.length, v.filter(x=>x&&x.resolved).length)"
+```
+
+**Why this matters beyond this plan.** The closure gate's `UNRESOLVED-PROBE-GATE` and its denominator
+PARITY check both key on resolution. With zero resolved controls the parity line degenerates to
+`Path A (2709) != Path B (0)` with the note *"parity confirms equal widened estimates, not resolved
+coverage"* — so **Cx cannot pass for any module on this app** until type resolution works. Discount
+Optimization is already closed and shipped at 0/131, which means the gate is currently unsatisfiable
+rather than merely unsatisfied, and no individual module subplan can fix it from its own side.
+
+This is direct evidence for cause 3 (controls expose `type=null` with `inputmode=decimal` and the
+classifier has no rule for them) and cause 1 (tab-cycle ordering leaves the probe reading a page it has
+navigated away from). It was surfaced while closing
+`SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX`, whose Cx check fails on exactly these two lines.

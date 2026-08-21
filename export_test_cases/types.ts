@@ -197,6 +197,11 @@ export const KNOWN_SUB_CODES = [
   // discount-optimization (DOP)
   'OPT',  // discount_optimization (tab 1 — locations grid)
   'EXM',  // special_rate_exemptions (tab 2 — by service type)
+  // discount-matrix (DSM)
+  'CRT',  // criteria
+  'CMX',  // company_matrix
+  'RWP',  // region_weekly_peaks
+  'LOA',  // location_activation
 ] as const;
 
 export type SubCode = typeof KNOWN_SUB_CODES[number];

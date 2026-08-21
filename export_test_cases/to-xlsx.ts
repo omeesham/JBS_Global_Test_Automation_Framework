@@ -169,6 +169,8 @@ const SHEET_NAMES: Record<string, string> = {
   // Discount Optimization (both slugs are exactly 31 chars — at the Excel limit)
   discount_optimization_locations: 'discount_optimization_locations',
   discount_optimization_exemption: 'discount_optimization_exemption',
+  // Discount Matrix — slug is 30 chars, one under the Excel sheet-name limit
+  discount_matrix_company_matrix: 'discount_matrix_company_matrix',
 };
 
 const SHEET_DISPLAY_NAMES: Record<string, string> = {
@@ -212,6 +214,8 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   // Discount Optimization
   discount_optimization_locations: 'Discount Optimization — Locations',
   discount_optimization_exemption: 'Discount Optimization — Special Rate Exemptions',
+  // Discount Matrix
+  discount_matrix_company_matrix: 'Discount Matrix — Company Matrix',
 };
 
 /** Sheet name → split-file group/stem for the `testcases/<group>/<stem>.xlsx` tree. */
@@ -259,6 +263,8 @@ const SPLIT_FILE_MAP: Record<string, { group: string; stem: string }> = {
   // Discount Optimization
   discount_optimization_locations: { group: 'discount-optimization', stem: 'discount-optimization-locations' },
   discount_optimization_exemption: { group: 'discount-optimization', stem: 'discount-optimization-exemption' },
+  // Discount Matrix
+  discount_matrix_company_matrix: { group: 'discount-matrix', stem: 'discount-matrix-company-matrix' },
 };
 
 const EXCEL_SHEET_NAME_LIMIT = 31;

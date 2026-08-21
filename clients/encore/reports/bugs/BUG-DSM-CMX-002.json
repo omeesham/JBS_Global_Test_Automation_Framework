@@ -1,0 +1,22 @@
+{
+  "id": "BUG-DSM-CMX-002",
+  "title": "Company Matrix Edit Tier dialog: the first percentage field opens as a raw decimal while the other twenty open percent-formatted",
+  "module": "discount-matrix",
+  "submodule": "company-matrix",
+  "severity": "low",
+  "status": "open",
+  "discoveredDate": "2026-08-19",
+  "requirementSource": "NM-2219",
+  "stepsToReproduce": [
+    "Open https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/discount-matrix on office 1604.",
+    "Wait for the Company Matrix grid to render a non-zero tier-row count.",
+    "In the tier row labelled '0 - 1500', click the Edit control (the row's second button, title=Edit).",
+    "In the dialog 'Editing 0 - 1500', WITHOUT typing or clicking into any field, read the value of all 21 inputs.",
+    "Compare the value of input index 0 against the values of inputs 1 through 20."
+  ],
+  "expectedBehavior": "All 21 percentage inputs open in one consistent format. The grid displays this row as 17% in the corresponding column, so the dialog should show 17% in every field that holds that value.",
+  "actualBehavior": "Input index 0 (Non-Peak Booking Windows Days 0-15) opens rendering the raw decimal 0.17, while inputs 1 through 20 open percent-formatted (17%, 17%, 17%, 20%, 20%, 20%, 12%, 12%, 12%, 12%, 15%, 15%, 15%, 7%, 7%, 7%, 7%, 10%, 10%, 10%). The same underlying value is presented in two different formats inside one dialog. Because the field also accepts decimals below 1 by multiplying them by 100, a user who edits around the pre-filled 0.17 can reasonably misread the field's expected unit.",
+  "mcpEvidence": "Live-verified 2026-08-19 on office 1604 (cloudapps-e2e) via playwright-cli, across three independent worker runs using three different interaction methods and eleven fresh dialog opens in total. Run dsm-cmx-dialog-0819 observed 0.17 on input 0 across four fresh opens. Run dsm-cmx-boundary-0819 opened the dialog three further times and read inputs 0, 1 and 2 before any interaction on each open, getting 0.17 / 17% / 17% every time, and additionally enumerated all 21 values on a fresh open confirming exactly one input is raw-decimal. Run dsm-cmx-tiebreak-0819 read input 0 as 0.17 on open in all four of its fresh dialog opens. Nothing was saved in any run. Evidence artifact: clients/encore/specs_planning/_internal/walk-evidence/discount-matrix-company-matrix-2026-08-19.md (DEFECT-2). Covered by test case TC-DSM-CMX-022.",
+  "baselineComparison": "not-checked",
+  "baselineEvidence": "NOT baseline-absent - a legacy counterpart is documented to exist (legacy component company-matrix.component.ts per clients/encore/specs_planning/_internal/jira-research/discount-matrix-and-service-charge-text-qa-reference.md) but could not be reached on 2026-08-19; both navigator2.training.psav.com attempts were blocked at authentication (runs dsm-cmx-baseline-0819 and dsm-cmx-baseline2-0819). UNLOCK: refresh the nav2 session, which has no automated refresh path because auth.setup.ts covers only encore-state.json. Once refreshed, confirm the legacy dialog's display format and reclassify."
+}

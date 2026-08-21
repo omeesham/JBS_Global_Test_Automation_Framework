@@ -231,6 +231,37 @@ export const MODULE_CONFIG = {
     ...MC_DATA['discount-optimization-add-dialog'],
   },
 
+  // Discount Matrix — Company Matrix is the tab that is active on load, so the grid is the RESTING
+  // surface and its readiness gates the initial scan (restingContentMarker, not contentMarker — this
+  // surface needs no opener to reach its resting content).
+  //
+  // The marker deliberately excludes skeleton rows. This grid paints placeholder rows BEFORE real data
+  // (measured: 6 empty placeholder rows, then 9 real rows), so a bare 'tbody tr' resolves against the
+  // placeholders and the scan runs against an empty grid — that is exactly how the first attempt
+  // produced a denominator of 14.
+  //
+  // The percentage VALUES in this grid are static text, not inputs; the editable percentage fields live
+  // only inside the Edit Tier dialog, which is why that dialog is an opener rather than an afterthought.
+  'discount-matrix': {
+    path: (office) => `${BASE}/locations/${office}/settings/discount-matrix`,
+    restingContentMarker: 'tbody tr:not(:has([data-slot="skeleton"]))',
+    openerTestidPatterns: [],
+    openerRoleTextPatterns: [
+      { role: 'button', text: 'Add Tier', branch: 'dialog:add-tier' },
+      // The row Edit control carries title="Edit" and no accessible text, so it needs an explicit
+      // selector. Anchor on the row's visible range text — row ORDER is not a contract on this grid.
+      // Each row has two buttons: the first is title="Delete", the second is title="Edit".
+      {
+        role: 'button',
+        text: 'Edit',
+        branch: 'dialog:edit-tier',
+        selector: 'tbody tr:has-text("0 - 1500") button[title="Edit"]',
+      },
+    ],
+    excludeOptionRoles: true,
+    ...MC_DATA['discount-matrix'],
+  },
+
   'corporate-pricing-override': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/pg-override`,
     contentMarker: 'h1:text-is("Product Group Override")',
@@ -613,8 +644,13 @@ const TYPE_SIGNAL_RULES = [
   { match: o => o.role === 'spinbutton',  pattern: /numeric|spinbutton/i },
   { match: o => o.role === 'checkbox',    pattern: /checkbox/i },
   { match: o => o.role === 'switch',      pattern: /checkbox|switch|toggle/i },
-  { match: o => o.role === 'combobox',    pattern: /dropdown|combobox/i },
-  { match: o => o.role === 'listbox',     pattern: /dropdown|combobox|listbox/i },
+  // Cause-4 fix: pattern was /dropdown|combobox/i, which matches BOTH 'Dropdown / combobox (Radix)'
+  // AND 'Cascading dropdown'. Two matches is ambiguous, so deriveFieldType resolved NEITHER and every
+  // combobox on every module came back unresolved. Cascading is a BEHAVIOURAL property (one control
+  // filters another) and is not observable in a single element's resting DOM, so a bare role=combobox
+  // signal must never nominate it. Matching on 'combobox' alone selects exactly one legal type.
+  { match: o => o.role === 'combobox',    pattern: /combobox/i },
+  { match: o => o.role === 'listbox',     pattern: /combobox|listbox/i },
   { match: o => o.tag === 'INPUT' && o.type === 'number',  pattern: /numeric|spinbutton/i },
   // Cause-3 fix: type-less decimal inputs (the 79 percentage inputs). Confirmed signals:
   // tagName=INPUT, type=null, inputmode=decimal. No formcontrolname/id/name on these elements.
@@ -623,7 +659,7 @@ const TYPE_SIGNAL_RULES = [
   { match: o => o.tag === 'INPUT' && o.type === 'password', pattern: /password/i },
   { match: o => o.tag === 'INPUT' && (o.type === 'date' || o.type === 'datetime-local'), pattern: /date/i },
   { match: o => o.tag === 'INPUT' && o.type === 'file',    pattern: /file/i },
-  { match: o => o.tag === 'SELECT',       pattern: /dropdown|combobox/i },
+  { match: o => o.tag === 'SELECT',       pattern: /combobox/i },
   { match: o => o.tag === 'TEXTAREA',     pattern: /plain.text/i },
 ];
 

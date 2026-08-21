@@ -16,6 +16,27 @@ export const MODULE_CONFIG = {
       { label: 'tab:service-type-exemptions' },
     ],
   },
+  // Discount Matrix — Company Matrix tab (resting grid) + the two dialogs that host in-scope fields.
+  // Delete-confirmation, Import file picker and the Unsaved-Changes prompt are deliberately absent:
+  // they are destructive or deferred to DEEP tier, so they are dispositioned, not walked.
+  // Field inventories are named per TAB (discount-matrix-company-matrix-<date>.md), and
+  // moduleFromFilename() derives the module key from that filename — so the tab-scoped key
+  // needs its own entry or the coverage gate reports UNREGISTERED MODULE. Same states as the
+  // parent key: Company Matrix is the tab that is active on load.
+  'discount-matrix-company-matrix': {
+    requiredStates: [
+      { label: 'resting' },
+      { label: 'dialog:add-tier' },
+      { label: 'dialog:edit-tier' },
+    ],
+  },
+  'discount-matrix': {
+    requiredStates: [
+      { label: 'resting' },
+      { label: 'dialog:add-tier' },
+      { label: 'dialog:edit-tier' },
+    ],
+  },
   // Service Charge — resting state (Basic Information tab default) + History tab state.
   'service-charge': {
     requiredStates: [

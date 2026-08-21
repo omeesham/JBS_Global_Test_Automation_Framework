@@ -8,7 +8,8 @@
     "TNC": { "name": "terms-conditions", "display": "Terms and Conditions", "dir": "terms-conditions" },
     "SCT": { "name": "service-charge-text", "display": "Service Charge Text", "dir": "service-charge-text" },
     "SVC": { "name": "service-charge", "display": "Service Charge", "dir": "service-charge" },
-    "DOP": { "name": "discount-optimization", "display": "Discount Optimization", "dir": "discount-optimization" }
+    "DOP": { "name": "discount-optimization", "display": "Discount Optimization", "dir": "discount-optimization" },
+    "DSM": { "name": "discount-matrix", "display": "Discount Matrix", "dir": "discount-matrix" }
   },
   "submodules": {
     "LOC": {
@@ -53,6 +54,12 @@
     "DOP": {
       "OPT": { "name": "discount_optimization", "display": "Discount Optimization", "sheet": "discount_optimization_locations", "mdBasename": "discount_optimization_locations_test_cases" },
       "EXM": { "name": "special_rate_exemptions", "display": "Special Rate Exemptions by Service Type", "sheet": "discount_optimization_exemption", "mdBasename": "discount_optimization_exemption_test_cases" }
+    },
+    "DSM": {
+      "CRT": { "name": "criteria", "display": "Criteria", "sheet": "discount_matrix_criteria", "mdBasename": "discount_matrix_criteria_test_cases" },
+      "CMX": { "name": "company_matrix", "display": "Company Matrix", "sheet": "discount_matrix_company_matrix", "mdBasename": "discount_matrix_company_matrix_test_cases" },
+      "RWP": { "name": "region_weekly_peaks", "display": "Region Weekly Peaks", "sheet": "discount_matrix_region_peaks", "mdBasename": "discount_matrix_region_weekly_peaks_test_cases" },
+      "LOA": { "name": "location_activation", "display": "Location Activation", "sheet": "discount_matrix_loc_activation", "mdBasename": "discount_matrix_location_activation_test_cases" }
     },
     "COR": {
       "CORE": { "name": "override", "display": "Core", "sheet": "corporate_override_core", "mdBasename": "corporate_override_core_test_cases", "idModule": "CPR", "idSubmodule": "OVR", "$comment": "No idRenames entries added — TC-CPR-OVR-* IDs are not renumbered (D7). idModule+idSubmodule fields tell C8 that these sheets own TC-CPR-OVR-* IDs even though the sheet group is now COR (D10)." },

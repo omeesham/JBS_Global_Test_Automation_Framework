@@ -6,6 +6,7 @@
 
 import { deriveFieldType, waitReady, waitReadyContent, enumerateState, renavigateToOrigin, deriveAllFieldTypes, entryKeyToSelector, resolveBranchOpener, MODULE_CONFIG, resolveRunConfig, expandToFixpoint, mergeEntries } from '../enumerate-page.mjs';
 import { inPageEnumerate } from '../lib/deep-pierce.mjs';
+import { loadFieldCaseTaxonomy } from '../lib/field-case-parser.mjs';
 
 let passed = 0;
 let failed = 0;
@@ -630,6 +631,50 @@ console.log('\ng76 Finding 2: genuine evaluate errors are surfaced in timeout me
   assert('timeout message includes the actual error text', msg.includes('Serialization failed'),
     `error not surfaced in timeout: ${msg}`);
 }
+
+// ─── T-real-taxonomy-uniqueness: every rule must resolve against the REAL taxonomy ──
+// Cause-4 regression guard. The LEGAL_TYPES fixture above is a hand-written 7-entry list that
+// omits 'Cascading dropdown', so the 'role=combobox' assertion in Cause 3c passed even while
+// production was broken: against the REAL taxonomy the old /dropdown|combobox/i pattern matched
+// BOTH 'Dropdown / combobox (Radix)' AND 'Cascading dropdown', and deriveFieldType resolves only
+// on a unique match — so every combobox on every module came back unresolved. A fixture that
+// cannot express the ambiguity cannot detect it. These assertions run against the taxonomy the
+// enumerator actually loads at runtime, so they fail if any rule pattern ever again matches two
+// legal type names.
+console.log('\nT-real-taxonomy-uniqueness: rules resolve uniquely against the real taxonomy');
+{
+  const realTypes = loadFieldCaseTaxonomy().fieldTypes.map(f => f.type);
+  assert('real taxonomy loaded (>1 type)', realTypes.length > 1, `got ${realTypes.length}`);
+  assert('real taxonomy still contains the ambiguity trap "Cascading dropdown"',
+    realTypes.some(t => /cascading/i.test(t)),
+    'if this fails the trap is gone and this guard needs re-basing, not deleting');
+
+  // One representative observation per TYPE_SIGNAL_RULES entry. Each MUST resolve to a single
+  // string — never null (no rule matched) and never { ambiguous: [...] } (two or more matched).
+  const cases = [
+    ['role=combobox',           { tag: 'BUTTON',   type: 'button',   role: 'combobox',   inputmode: '' }],
+    ['role=listbox',            { tag: 'DIV',      type: '',         role: 'listbox',    inputmode: '' }],
+    ['tag=SELECT',              { tag: 'SELECT',   type: '',         role: '',           inputmode: '' }],
+    ['role=spinbutton',         { tag: 'DIV',      type: '',         role: 'spinbutton', inputmode: '' }],
+    ['role=checkbox',           { tag: 'DIV',      type: '',         role: 'checkbox',   inputmode: '' }],
+    ['role=switch',             { tag: 'DIV',      type: '',         role: 'switch',     inputmode: '' }],
+    ['INPUT type=number',       { tag: 'INPUT',    type: 'number',   role: '',           inputmode: '' }],
+    ['INPUT inputmode=decimal', { tag: 'INPUT',    type: '',         role: '',           inputmode: 'decimal' }],
+    ['INPUT type=checkbox',     { tag: 'INPUT',    type: 'checkbox', role: '',           inputmode: '' }],
+    ['INPUT type=password',     { tag: 'INPUT',    type: 'password', role: '',           inputmode: '' }],
+    ['INPUT type=date',         { tag: 'INPUT',    type: 'date',     role: '',           inputmode: '' }],
+    ['INPUT type=file',         { tag: 'INPUT',    type: 'file',     role: '',           inputmode: '' }],
+    ['tag=TEXTAREA',            { tag: 'TEXTAREA', type: '',         role: '',           inputmode: '' }],
+  ];
+  for (const [label, obs] of cases) {
+    const r = deriveFieldType(obs, realTypes);
+    const detail = (r && typeof r === 'object' && r.ambiguous)
+      ? `AMBIGUOUS between: ${r.ambiguous.join(' | ')}`
+      : `got ${JSON.stringify(r)}`;
+    assert(`${label} resolves to exactly one real legal type`, typeof r === 'string', detail);
+  }
+}
+
 
 console.log(`\n=== ${passed} passed, ${failed} failed ===`);
 if (failed > 0) process.exit(1);

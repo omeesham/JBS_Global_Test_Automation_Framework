@@ -1,0 +1,218 @@
+{
+  "version": "1.0.0",
+  "surface": "discount-matrix-company-matrix",
+  "declaredScope": "1604",
+  "enumerationDate": "2026-08-20",
+  "enumeratorArtifact": "reports/walk-coverage/1604-discount-matrix.json",
+  "walkedStates": [
+    "resting",
+    "dialog:add-tier",
+    "dialog:edit-tier"
+  ],
+  "elements": [
+    {
+      "elementId": "struct:button|trigger-button|skip/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: global navigation chrome present on all Navigator pages, outside Discount Matrix surface",
+      "basis": "census:clients/encore/specs_planning/_internal/walk-evidence/discount-matrix-company-matrix-2026-08-19.md",
+      "dataBlockedReason": "Global navigation element not owned by Discount Matrix; has dedicated nav coverage suite",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface"
+    },
+    {
+      "elementId": "struct:button|More information|div/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: application help/info affordance present on all Navigator pages; not a Discount Matrix surface control",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-matrix.json",
+      "dataBlockedReason": "Help/info button is application chrome; no Discount Matrix behaviour is gated behind it",
+      "dataBlockedUnlock": "No unlock path; belongs to application shell, not this surface"
+    },
+    {
+      "elementId": "struct:combobox|United States|div/div/div/div/div/div",
+      "class": "context-selector",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DSM-CMX-002 — changing Country re-keys the grid; POST to /settings/discount-matrix observed; United States to Mexico produced 9 rows to 2 rows with different values",
+      "basis": "claim:clients/encore/tests/discount-matrix/company-matrix.spec.ts",
+      "dataBlockedReason": "Covered by TC-DSM-CMX-002: selects a non-default Country option, waits for POST re-query, asserts grid data changes (must-change expectation)",
+      "dataBlockedUnlock": "Already exercised by TC-DSM-CMX-002; no additional probe required",
+      "secondSource": {
+        "type": "walk-evidence",
+        "ref": "clients/encore/specs_planning/_internal/walk-evidence/discount-matrix-company-matrix-2026-08-19.md"
+      }
+    },
+    {
+      "elementId": "struct:combobox|USD|div/div/div/div/div/div",
+      "class": "context-selector",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DSM-CMX-003 — changing Currency re-keys the grid; USD to CAD produced 9 rows to 0 (empty state confirmed)",
+      "basis": "claim:clients/encore/tests/discount-matrix/company-matrix.spec.ts",
+      "dataBlockedReason": "Covered by TC-DSM-CMX-003: selects a non-default Currency option, waits for POST re-query, asserts grid data changes (must-change expectation)",
+      "dataBlockedUnlock": "Already exercised by TC-DSM-CMX-003; no additional probe required",
+      "secondSource": {
+        "type": "walk-evidence",
+        "ref": "clients/encore/specs_planning/_internal/walk-evidence/discount-matrix-company-matrix-2026-08-19.md"
+      }
+    },
+    {
+      "elementId": "struct:combobox|Standard|div/div/div/div/div/div",
+      "class": "context-selector",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DSM-CMX-004 — changing Business Tier issues POST re-query; Standard to Las Vegas issued three POST re-queries (may-match expectation)",
+      "basis": "claim:clients/encore/tests/discount-matrix/company-matrix.spec.ts",
+      "dataBlockedReason": "Covered by TC-DSM-CMX-004: selects a non-default Business Tier option, waits for POST re-query, asserts grid coherence (may-match because two keys can legitimately return identical rows)",
+      "dataBlockedUnlock": "Already exercised by TC-DSM-CMX-004; no additional probe required",
+      "secondSource": {
+        "type": "walk-evidence",
+        "ref": "clients/encore/specs_planning/_internal/walk-evidence/discount-matrix-company-matrix-2026-08-19.md"
+      }
+    },
+    {
+      "elementId": "struct:button|Save|div/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DSM-CMX-005 — sets GAV Discount Threshold to a different value, clicks Save, reloads, verifies persisted value, restores original",
+      "basis": "claim:clients/encore/tests/discount-matrix/company-matrix.spec.ts",
+      "dataBlockedReason": "Covered by TC-DSM-CMX-005: mutating test that changes the threshold, saves, reloads to confirm server-side persistence, then restores the original value and re-verifies",
+      "dataBlockedUnlock": "Already exercised by TC-DSM-CMX-005; no additional probe required"
+    },
+    {
+      "elementId": "struct:tablist|Company MatrixRegion Weekly PeaksLocatio|div/div/div/div/div/div",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: non-interactive structural container grouping the three Discount Matrix tabs; coverage flows from individual tab control probes",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-matrix.json",
+      "dataBlockedReason": "Non-interactive structural tablist container; not directly clickable or data-bearing",
+      "dataBlockedUnlock": "No unlock path; coverage attributed to child tab controls within this container"
+    },
+    {
+      "elementId": "id:radix-_r_10_-trigger-company-matrix",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DSM-CMX-001 — Company Matrix tab is the active default; every test navigates via open() which lands on this tab",
+      "basis": "claim:clients/encore/tests/discount-matrix/company-matrix.spec.ts",
+      "dataBlockedReason": "Company Matrix tab is active by default on page load; TC-DSM-CMX-001 and every subsequent test verify grid content is present after open()",
+      "dataBlockedUnlock": "Already exercised by TC-DSM-CMX-001 and all subsequent tests; no additional probe required"
+    },
+    {
+      "elementId": "id:radix-_r_10_-trigger-region-weekly",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: Region Weekly Peaks is a separate Discount Matrix submodule tab; coverage belongs to a dedicated Region Weekly Peaks interaction map and spec",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-matrix.json",
+      "dataBlockedReason": "Region Weekly Peaks tab navigates to a different submodule surface; this map covers the Company Matrix tab only",
+      "dataBlockedUnlock": "Author a Region Weekly Peaks interaction map and spec when that submodule enters the pipeline"
+    },
+    {
+      "elementId": "id:radix-_r_10_-trigger-location-activation",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: Location Activation is a separate Discount Matrix submodule tab; coverage belongs to a dedicated Location Activation interaction map and spec",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-matrix.json",
+      "dataBlockedReason": "Location Activation tab navigates to a different submodule surface; this map covers the Company Matrix tab only",
+      "dataBlockedUnlock": "Author a Location Activation interaction map and spec when that submodule enters the pipeline"
+    },
+    {
+      "elementId": "id:radix-_r_10_-content-company-matrix",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "out-of-scope: non-interactive structural tab panel container; coverage flows from child element probes within the Company Matrix tab",
+      "basis": "observed:../../../reports/walk-coverage/1604-discount-matrix.json",
+      "dataBlockedReason": "Non-interactive structural tabpanel container grouping all Company Matrix tab child controls; not directly clickable or data-bearing",
+      "dataBlockedUnlock": "No unlock path; coverage attributed to child controls within this container"
+    },
+    {
+      "elementId": "struct:button|Add Tier|div/div/div/radix-_r_10_-content-company-matrix/div/div",
+      "class": "add-picker",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "USER-AUTHORIZED-DEFERRAL: dialog walked by TC-DSM-CMX-030..033 (inputs, labels, confirm-disabled state, cancel path); commit step deferred to DEEP per PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE §1 D1",
+      "basis": "claim:plans/pending/PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE.md",
+      "dataBlockedReason": "Add Tier dialog is exercised by TC-DSM-CMX-030..033 but the confirm click is not executed; mutating office 1604 without a cleanup path is not authorized at quick tier",
+      "dataBlockedUnlock": "An explicit mutation decision for office 1604 plus a verified Delete Tier cleanup path (D2); owner decision, not a technical blocker"
+    },
+    {
+      "elementId": "struct:button|Export|div/div/radix-_r_10_-content-company-matrix/div/div/div",
+      "class": "io",
+      "capability": "export",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DSM-CMX-025..029 — filename shape, download success, cell-for-cell grid match, round-trip template shape, ID column GUID format",
+      "basis": "claim:clients/encore/tests/discount-matrix/company-matrix.spec.ts",
+      "dataBlockedReason": "Covered by TC-DSM-CMX-025 (filename shape), TC-026 (download success + non-zero file size), TC-027 (cell-for-cell grid match, 189 comparisons), TC-028 (template shape for import round-trip), TC-029 (ID column GUID format)",
+      "dataBlockedUnlock": "Already exercised by TC-DSM-CMX-025..029; no additional probe required",
+      "roundTripDisposition": "not-attempted: Import (capability:import) is deferred to DEEP per PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE §1 D3; TC-DSM-CMX-028 validates the export template structure is import-compatible but an end-to-end import round-trip cannot be completed until the Import action is exercised"
+    },
+    {
+      "elementId": "struct:button|Import|div/div/radix-_r_10_-content-company-matrix/div/div/div",
+      "class": "io",
+      "capability": "import",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "USER-AUTHORIZED-DEFERRAL: Import never exercised; deferred to DEEP per PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE §1 D3",
+      "basis": "claim:plans/pending/PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE.md",
+      "dataBlockedReason": "Import is server-validated with a row-level error list (NM-2219 AC4) and mutating by nature; requires a safe office decision and fixture files before any trial",
+      "dataBlockedUnlock": "A mutation decision on a safe office plus prepared fixture files; owner decision per PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE §1 D3"
+    },
+    {
+      "elementId": "struct:button|Delete|div/div/table/tbody/tr/td",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "USER-AUTHORIZED-DEFERRAL: presence asserted by TC-DSM-CMX-012 (one Delete control per tier row); delete action deferred to DEEP per PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE §1 D2",
+      "basis": "claim:plans/pending/PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE.md",
+      "dataBlockedReason": "TC-DSM-CMX-012 asserts exactly one Delete control per tier row; the destructive delete action requires a mutation decision and is explicitly deferred",
+      "dataBlockedUnlock": "Walk the delete confirmation affordance; requires an explicit mutation decision for office 1604 per PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE §1 D2"
+    },
+    {
+      "elementId": "struct:button|Edit|div/div/table/tbody/tr/td",
+      "class": "add-picker",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DSM-CMX-007 (opens Edit Tier dialog, changes an input, cancels, verifies discard), TC-DSM-CMX-012 (one Edit control per tier row), and Edit Tier commit cases in TC-DSM-CMX-001..042",
+      "basis": "claim:clients/encore/tests/discount-matrix/company-matrix.spec.ts",
+      "dataBlockedReason": "TC-DSM-CMX-007 opens the Edit Tier dialog, changes an input at index 1, clicks Cancel, re-keys the header, reloads, and asserts the discarded edit is absent; TC-DSM-CMX-012 asserts one Edit button per tier row; edit-commit path covered by Edit Tier cases in the quick-tier batch",
+      "dataBlockedUnlock": "Already exercised by TC-DSM-CMX-007 and Edit Tier dialog cases; no additional probe required"
+    },
+    {
+      "elementId": "role:input:",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: Add Tier dialog input walked by TC-DSM-CMX-030..033; Edit Tier dialog inputs covered by TC-DSM-CMX-022 and edit-tier cases; 21-to-1 denominator collapse documented in PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE §1 D14",
+      "basis": "claim:plans/pending/PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE.md",
+      "dataBlockedReason": "The portal scan collapses all dialog percentage inputs into one role:input: entry (21 inputs to 1 denominator entry per D14). Add Tier dialog input walked by TC-DSM-CMX-030..033; Edit Tier dialog inputs read by TC-DSM-CMX-022 and exercised by edit-tier commit cases.",
+      "dataBlockedUnlock": "Per D14, the per-field unlock requires the portal scan to emit per-field keys with ancestor paths; until then this single entry represents all dialog inputs collectively"
+    },
+    {
+      "elementId": "role:button:Cancel",
+      "class": "menu-disclosure",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DSM-CMX-030 (Add Tier dialog cancel path) and TC-DSM-CMX-007 (Edit Tier dialog cancel path)",
+      "basis": "claim:clients/encore/tests/discount-matrix/company-matrix.spec.ts",
+      "dataBlockedReason": "Cancel button in both Add Tier and Edit Tier dialogs is exercised: TC-DSM-CMX-030 calls clickAddTierCancel() to dismiss the dialog; TC-DSM-CMX-007 calls clickEditCancel() and verifies the edit is discarded after reload",
+      "dataBlockedUnlock": "Already exercised by TC-DSM-CMX-030 and TC-DSM-CMX-007; no additional probe required"
+    },
+    {
+      "elementId": "role:button:Add Tier",
+      "class": "add-picker",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "USER-AUTHORIZED-DEFERRAL: TC-DSM-CMX-030 asserts confirm is disabled on dialog open; enabled+click path deferred to DEEP per PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE §1 D1",
+      "basis": "claim:plans/pending/PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE.md",
+      "dataBlockedReason": "TC-DSM-CMX-030 asserts the confirm button is disabled on dialog open (isAddTierConfirmEnabled = false); the enabled+click path requires a mutation decision for office 1604",
+      "dataBlockedUnlock": "An explicit mutation decision for office 1604 plus a verified Delete Tier cleanup path; owner decision per PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE §1 D1"
+    },
+    {
+      "elementId": "role:button:Update",
+      "class": "add-picker",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: Edit Tier commit cases in TC-DSM-CMX-001..042; edit-commit path is not deferred (D1 defers Add Tier commit only)",
+      "basis": "claim:clients/encore/tests/discount-matrix/company-matrix.spec.ts",
+      "dataBlockedReason": "Update (Edit Tier confirm) is the commit step for the Edit Tier dialog; exercised by Edit Tier commit cases in the quick-tier batch. Unlike Add Tier confirm (deferred in D1), Edit Tier commit is not deferred per PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE §1.",
+      "dataBlockedUnlock": "Already exercised by Edit Tier commit cases in TC-DSM-CMX-001..042; no additional probe required"
+    },
+    {
+      "elementId": "name:gavDiscountThreshold|input",
+      "class": "editable-cell",
+      "emissionStatus": "DATA-BLOCKED",
+      "disposition": "covered-by-TC: TC-DSM-CMX-005 — reads current threshold, types a different value, clicks Save, reloads, asserts persisted value equals new value, restores original",
+      "basis": "claim:clients/encore/tests/discount-matrix/company-matrix.spec.ts",
+      "dataBlockedReason": "TC-DSM-CMX-005 exercises the threshold input: reads current rendered value, computes a valid different value, types it via setCriteriaThreshold(), saves, reloads to verify server-side persistence, then restores the original",
+      "dataBlockedUnlock": "Already exercised by TC-DSM-CMX-005; no additional probe required"
+    }
+  ]
+}

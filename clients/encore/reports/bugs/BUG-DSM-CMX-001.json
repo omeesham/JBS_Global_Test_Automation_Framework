@@ -1,0 +1,23 @@
+{
+  "id": "BUG-DSM-CMX-001",
+  "title": "Company Matrix: an out-of-range percentage silently disables Update with no message, while still rendering the value as though accepted",
+  "module": "discount-matrix",
+  "submodule": "company-matrix",
+  "severity": "medium",
+  "status": "open",
+  "discoveredDate": "2026-08-19",
+  "requirementSource": "NM-2219",
+  "stepsToReproduce": [
+    "Open https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settings/discount-matrix on office 1604.",
+    "Wait for the Company Matrix grid to render a non-zero tier-row count (the container renders before its data).",
+    "In the tier row labelled '0 - 1500', click the Edit control (the row's second button, title=Edit).",
+    "In the dialog 'Editing 0 - 1500', clear the first percentage field (Non-Peak Booking Windows Days 0-15).",
+    "Type 101 and press Tab to blur the field.",
+    "Observe the rendered field value, the state of the Update button, and whether any message appears anywhere on the dialog."
+  ],
+  "expectedBehavior": "A percentage above the accepted maximum should tell the user why it was rejected. Either a visible validation message appears explaining the permitted range, or the value is not rendered as an accepted-looking '101%'. The user should be able to tell why Update is unavailable.",
+  "actualBehavior": "The field renders '101%' - formatted with a percent suffix exactly as an accepted value is - and the Update button becomes disabled, but no explanatory text appears anywhere. Every element matching [aria-live], [class*=error], [class*=Error], [class*=invalid] and [role=alert] returns an empty string (22 such elements were checked on the 101 trial). The control sets aria-invalid=true, so the state is expressed to assistive technology but never to the eye. The user sees a normally-formatted value and a dead Update button with no stated reason.",
+  "mcpEvidence": "Live-verified 2026-08-19 on office 1604 (cloudapps-e2e) via playwright-cli. Reproduced on three separate out-of-range values - 101, 150 and 3456 - each in a freshly reopened dialog, each driven by real keystrokes (playwright-cli type + press Tab), never by synthetic value injection. Blur committal was proven per trial by reading document.activeElement after Tab (reported INPUT index 1 every time), which rules out the field-never-committed artefact that invalidated an earlier measurement run. The validation-selector sweep returned empty strings on every trial. The grid row was re-read after each Cancel and was byte-identical to its pre-trial values - nothing was saved. Corroborating run dsm-cmx-boundary-0819 independently observed the same disabled-with-no-message result for 101, empty input and non-numeric input. Evidence artifact: clients/encore/specs_planning/_internal/walk-evidence/discount-matrix-company-matrix-2026-08-19.md (DEFECT-1). Covered by test case TC-DSM-CMX-019.",
+  "baselineComparison": "not-checked",
+  "baselineEvidence": "NOT baseline-absent - a legacy counterpart is documented to exist (legacy components discount-pricing-matrix.component.ts / company-matrix.component.ts per clients/encore/specs_planning/_internal/jira-research/discount-matrix-and-service-charge-text-qa-reference.md). It could not be reached on 2026-08-19: two attempts against navigator2.training.psav.com were blocked at authentication. Run dsm-cmx-baseline-0819 loaded encore-state.json, completed the Microsoft SSO PKCE callback, then landed on the legacy app's own expired-login route #/login/exp/. Run dsm-cmx-baseline2-0819 loaded the dedicated nav2-state.json (saved 2026-08-11) and reached a Microsoft account picker; no credential was typed and the run stopped there. UNLOCK: refresh the nav2 session - auth.setup.ts refreshes only encore-state.json and has no nav2 equivalent, so nav2-state.json ages out (~7 days, Entra FedAuth) with no automated path. Once refreshed, re-run the baseline walk and reclassify this field."
+}
