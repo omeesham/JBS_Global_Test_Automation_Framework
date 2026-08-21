@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 167 pending · 484 done · 120 stale (>14d) · 0 DONE-in-pending
+**Totals**: 167 pending · 484 done · 120 stale (>14d) · 1 DONE-in-pending
 
 ---
 
@@ -138,7 +138,9 @@
 
 ### DONE-in-pending (should be moved to done/)
 
-_None — pending/ is clean._
+| File | Executed | Title |
+|---|---|---|
+| [SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX.md](pending/SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX.md) | — | SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX — Company Matrix tab, QUICK coverage, delegated |
 
 ---
 
@@ -229,7 +231,7 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 76 | [PLAN_CASE_GENERATION_STANDARD.md](pending/PLAN_CASE_GENERATION_STANDARD.md) | PLAN_CASE_GENERATION_STANDARD — Codify the case-generation technique + lie-proof live-walk | P1 | — (ready) | PENDING | Opus | hi | auto | none | 2026-06-24 |
 | 77 | [PLAN_CODEREVIEW_FINDINGS_REMEDIATION.md](pending/PLAN_CODEREVIEW_FINDINGS_REMEDIATION.md) | PLAN: Code-Review Findings Remediation (CodeQL/Copilot — pre-PR) | P1 (gates the colleague's next PR review coming back green) | — (ready) | PENDING | — | — | acceptEdits (deterministic file edits + verification run; no commit) | — | 2026-06-08 |
 | 78 | [SUBPLAN_CORP_PRICING_NM2265_IMPORT_ALL.md](pending/SUBPLAN_CORP_PRICING_NM2265_IMPORT_ALL.md) | SUBPLAN_CORP_PRICING_NM2265_IMPORT_ALL — Pricing Import All: drift fix + real upload round-trip (4 variants) | P1 | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-06-24 |
-| 79 | [SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX.md](pending/SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX.md) | SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX — Company Matrix tab, QUICK coverage, delegated | P1 | — (ready) | PENDING | Opus | xhi | acceptEdits | cli | 2026-08-18 |
+| 79 | [SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX.md](pending/SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX.md) | SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX — Company Matrix tab, QUICK coverage, delegated | P1 | — (ready) | DONE | Opus | xhi | acceptEdits | cli | 2026-08-18 |
 | 80 | [SUBPLAN_DISCOUNT_MATRIX_LOCATION_ACTIVATION.md](pending/SUBPLAN_DISCOUNT_MATRIX_LOCATION_ACTIVATION.md) | SUBPLAN_DISCOUNT_MATRIX_LOCATION_ACTIVATION — Location Activation tab, QUICK coverage, delegated | P1 | — (ready) | PENDING | Opus | xhi | acceptEdits | cli | 2026-08-18 |
 | 81 | [SUBPLAN_DISCOUNT_MATRIX_REGION_WEEKLY_PEAKS.md](pending/SUBPLAN_DISCOUNT_MATRIX_REGION_WEEKLY_PEAKS.md) | SUBPLAN_DISCOUNT_MATRIX_REGION_WEEKLY_PEAKS — Region Weekly Peaks tab, QUICK coverage, delegated | P1 | — (ready) | PENDING | Opus | xhi | acceptEdits | cli | 2026-08-18 |
 | 82 | [PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE.md](pending/PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE.md) | PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE — DEEP-tier coverage for the Discount Matrix module | P2 | — (ready) | PENDING | Opus | high | acceptEdits | cli | 2026-08-20 |
@@ -846,7 +848,7 @@ When completing a plan:
 
 | Date | Folder | File | Status |
 |---|---|---|---|
-| 2026-08-21 | pending | [SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX.md](pending/SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX.md) | PENDING |
+| 2026-08-21 | pending | [SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX.md](pending/SUBPLAN_DISCOUNT_MATRIX_COMPANY_MATRIX.md) | DONE |
 | 2026-08-20 | pending | [PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md](pending/PLAN_70_ENUMERATOR_TYPE_RESOLUTION_AND_NM3344_RECORD.md) | PENDING |
 | 2026-08-20 | pending | [PLAN_DISCOUNT_MATRIX_AUTOMATION.md](pending/PLAN_DISCOUNT_MATRIX_AUTOMATION.md) | PENDING |
 | 2026-08-20 | pending | [PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE.md](pending/PLAN_DISCOUNT_MATRIX_DEEP_COVERAGE.md) | PENDING |
