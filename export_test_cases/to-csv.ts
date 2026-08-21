@@ -185,8 +185,16 @@ export class CsvConverter {
   private static parseSimpleFormat(content: string): SimpleTestCase[] {
     const testCases: SimpleTestCase[] = [];
     
-    // Split by ## TC-XXX: headers (supports TC-LOC-001, TC-LOC-CUR-001, TC-LOC-LGL-HIST, TC-LOC-LI-SKIP-BILLING, TC-LOC-LI-NE-011)
-    const sections = content.split(/^## (TC-[A-Z]+(?:-[A-Z]+)*(?:-\d+[A-Z]?)?):/m);
+    // Split by ## or ### TC-XXX: headers (supports TC-LOC-001, TC-LOC-CUR-001, TC-LOC-LGL-HIST, TC-LOC-LI-SKIP-BILLING, TC-LOC-LI-NE-011)
+    //
+    // The heading level and spacing here must stay as permissive as the parity checker's
+    // (scripts/check-tc-parity.ts) and the markdown parser's. When this pattern was the
+    // stricter of the three — a literal "## " against their "#{2,3}\s+" — a test-case file
+    // written with "### " headings was counted in full by the parity checker and parsed as
+    // ZERO cases here, so the module built no sheet and was silently absent from the
+    // deliverable with no warning printed. Widening was verified to be a no-op across all
+    // 36 existing test-case files (identical section counts before and after).
+    const sections = content.split(/^#{2,3}\s+(TC-[A-Z]+(?:-[A-Z]+)*(?:-\d+[A-Z]?)?):/m);
     
     for (let i = 1; i < sections.length; i += 2) {
       const id = (sections[i] || '').trim();
