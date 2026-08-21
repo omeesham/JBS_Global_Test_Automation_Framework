@@ -1,0 +1,41 @@
+EXIT_T3=True
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipB2/out1 XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipB2/out1 XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipB2/out1 files=178
+EXIT_T4=True
+EXIT_T5=True
+178
+FILE_COUNT_T6_ABOVE
+EXIT_T9=True
+ scripts/ship-client.sh | 54 ++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 46 insertions(+), 8 deletions(-)
+GITDIFF_T10_ABOVE
+ M clients/encore/specs_planning/_internal/agent-activity-log.md
+?? clients/encore/.machine-evidence/
+?? clients/encore/clients/
+?? clients/encore/diag.js
+?? clients/encore/job3b-current-state.png
+?? clients/encore/job3b-screenshot-checked-search11.png
+?? clients/encore/job3b-screenshot-checked.png
+?? clients/encore/job3b-screenshot-unchecked-search11.png
+?? clients/encore/job3b-screenshot-unchecked.png
+?? clients/encore/nm2269-html-report.png
+?? clients/encore/nm2270-html-report.png
+?? clients/encore/nm2271-html-report.png
+?? clients/encore/nm2272-html-report.png
+?? clients/encore/nm2273-html-report.png
+?? clients/encore/part-a-check.js
+?? clients/encore/part-a-v2.js
+?? clients/encore/part-b-fixed.js
+?? clients/encore/part-b-full.js
+?? clients/encore/part-b-v3.js
+?? clients/encore/part-c.js
+?? clients/encore/part-c2.js
+?? clients/encore/playwright-report-graft-green/
+?? clients/encore/review2-spec-1.txt
+?? clients/encore/review2-spec-2.txt
+?? clients/encore/review2-tc-parity.txt
+?? clients/encore/step1-4107-equipment.png
+?? clients/encore/step3-import-dialog.png
+?? clients/encore/step4-import1-ready.png
+GITSTATUS_T10_ABOVE

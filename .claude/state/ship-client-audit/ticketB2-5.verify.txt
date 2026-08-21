@@ -1,0 +1,2 @@
+find forbidden: (no output)
+EXIT=0

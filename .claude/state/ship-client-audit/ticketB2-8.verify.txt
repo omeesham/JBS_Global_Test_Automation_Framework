@@ -1,0 +1,7 @@
+=nosuchclient test=
+ERR: clients/nosuchclient not found
+EXIT_T8=4
+(exit 4 fires at line 31 before emit step — as acknowledged by ticket)
+=defect-3 direct proof=
+emit_exit=2 (node verify-no-forbidden.mjs --emit-exclusions= exits 2)
+DEFECT3_GUARD_FIRED_CORRECTLY

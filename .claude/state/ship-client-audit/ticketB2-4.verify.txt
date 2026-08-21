@@ -1,0 +1,4 @@
+[verify-no-forbidden] OK target XLSX encore-qa-tracker.xlsx clean (44 rows)
+[verify-no-forbidden] OK target XLSX encore_test_cases.xlsx clean (3964 rows)
+[verify-no-forbidden] OK target files=178
+EXIT=0

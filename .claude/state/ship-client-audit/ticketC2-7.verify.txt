@@ -1,0 +1,10 @@
+[verify-no-forbidden] OK target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\mf5pzopa.iu5 XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\mf5pzopa.iu5 XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\mf5pzopa.iu5 files=178
+Write-Error: C:\Users\RutvikKhorasiya\projects\encore_framework\scripts\ship-client.ps1:130
+Line |
+ 130 |              Write-Error "ERR: $Out is a git worktree — refusing to ov …
+     |              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | ERR: C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipC2/decoy2 is a git worktree — refusing to overwrite. Pass a non-repo
+     | directory.
+CANARY SURVIVED

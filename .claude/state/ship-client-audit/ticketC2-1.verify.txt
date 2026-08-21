@@ -1,0 +1,4 @@
+EM-DASH line: clients/encore/specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-—-empty-to-hello-save-encore-locations-retry1/error-context.md
+ARROW line:   clients/encore/specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-24a0d-elf-SI-→-self-SI-unchanged--encore-locations/error-context.md
+EM-DASH: CORRECT (not corrupted)
+ARROW:   CORRECT (not corrupted)

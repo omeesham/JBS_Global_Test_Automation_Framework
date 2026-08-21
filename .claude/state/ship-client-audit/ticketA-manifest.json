@@ -1,0 +1,55 @@
+{
+  "dispatch_timestamp": "2026-07-28T14:04:58.642Z",
+  "ticket": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\.claude\\state\\ship-client-audit\\ticket-A-emit-exclusions.md",
+  "files": [
+    {
+      "path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\scripts\\verify-no-forbidden.mjs",
+      "abs_path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\scripts\\verify-no-forbidden.mjs",
+      "sha256": "be455021acb1e34c705ee108a04586e01923d10a113ff06f57bfc4eb29235620",
+      "mtime": "2026-07-27T15:17:38.616Z",
+      "size": 18150
+    },
+    {
+      "path": "scripts\\lib\\forbidden-patterns.mjs",
+      "abs_path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\scripts\\lib\\forbidden-patterns.mjs",
+      "sha256": "169f9f4497f460511c3e89626bbe781248424f9f6c0d519fdeaf554ea1967d41",
+      "mtime": "2026-07-09T07:44:36.978Z",
+      "size": 10265
+    },
+    {
+      "path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\.claude\\rules\\guardrail-policy.md",
+      "abs_path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\.claude\\rules\\guardrail-policy.md",
+      "sha256": "8e3465462366658f82e31ce5bdaf542d55d60887bdd2d6ea92efa3a64083585f",
+      "mtime": "2026-07-24T12:23:40.015Z",
+      "size": 13499
+    },
+    {
+      "path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\.claude\\rules\\pipeline.md",
+      "abs_path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\.claude\\rules\\pipeline.md",
+      "sha256": "95eeb03c30f333efda54a18aa043a9c95f9af41d64a97ef99e2cdf70d547c827",
+      "mtime": "2026-07-27T22:07:10.766Z",
+      "size": 48806
+    },
+    {
+      "path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\.claude\\skills\\regression-guard\\SKILL.md",
+      "abs_path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\.claude\\skills\\regression-guard\\SKILL.md",
+      "sha256": "862206a0c130151fbfc8bdc34fe6dfb6be49a819d5789ac6a365c90dcd965a43",
+      "mtime": "2026-04-17T09:26:53.561Z",
+      "size": 4036
+    },
+    {
+      "path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\plans\\pending\\PLAN_SHIP_CLIENT_PAYLOAD_GATE_REPAIR.md",
+      "abs_path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\plans\\pending\\PLAN_SHIP_CLIENT_PAYLOAD_GATE_REPAIR.md",
+      "sha256": "09abcd13726cdfcf4cbb01272366415325045fc4137391e9bc74450a0a893c14",
+      "mtime": "2026-07-28T14:03:25.993Z",
+      "size": 14511
+    },
+    {
+      "path": "scripts\\verify-no-forbidden.mjs",
+      "abs_path": "C:\\Users\\RutvikKhorasiya\\projects\\encore_framework\\scripts\\verify-no-forbidden.mjs",
+      "sha256": "be455021acb1e34c705ee108a04586e01923d10a113ff06f57bfc4eb29235620",
+      "mtime": "2026-07-27T15:17:38.616Z",
+      "size": 18150
+    }
+  ]
+}

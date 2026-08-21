@@ -1,0 +1,3 @@
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipC2/ps1 XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipC2/ps1 XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipC2/ps1 files=178

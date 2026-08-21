@@ -1,0 +1,175 @@
+{
+  "totalCasesTouched": 606,
+  "totalCellsFilled": 2349,
+  "modules": [
+    {
+      "module": "corporate_override_core",
+      "cellsFilled": 138,
+      "casesTouched": 47,
+      "skipped": [],
+      "blankBefore": 188,
+      "blankAfter": 50
+    },
+    {
+      "module": "corporate_override_nm2268",
+      "cellsFilled": 20,
+      "casesTouched": 3,
+      "skipped": [],
+      "blankBefore": 37,
+      "blankAfter": 17
+    },
+    {
+      "module": "corporate_override_nm2269",
+      "cellsFilled": 23,
+      "casesTouched": 4,
+      "skipped": [],
+      "blankBefore": 35,
+      "blankAfter": 12
+    },
+    {
+      "module": "corporate_override_nm2270",
+      "cellsFilled": 25,
+      "casesTouched": 5,
+      "skipped": [],
+      "blankBefore": 30,
+      "blankAfter": 5
+    },
+    {
+      "module": "corporate_override_nm2271",
+      "cellsFilled": 176,
+      "casesTouched": 40,
+      "skipped": [],
+      "blankBefore": 214,
+      "blankAfter": 38
+    },
+    {
+      "module": "corporate_override_nm2272",
+      "cellsFilled": 70,
+      "casesTouched": 19,
+      "skipped": [],
+      "blankBefore": 70,
+      "blankAfter": 0
+    },
+    {
+      "module": "corporate_override_nm2273",
+      "cellsFilled": 69,
+      "casesTouched": 17,
+      "skipped": [],
+      "blankBefore": 74,
+      "blankAfter": 5
+    },
+    {
+      "module": "corporate_pricing_detail",
+      "cellsFilled": 215,
+      "casesTouched": 54,
+      "skipped": [],
+      "blankBefore": 219,
+      "blankAfter": 4
+    },
+    {
+      "module": "corporate_pricing_export_all",
+      "cellsFilled": 32,
+      "casesTouched": 13,
+      "skipped": [],
+      "blankBefore": 48,
+      "blankAfter": 16
+    },
+    {
+      "module": "corporate_pricing_import_all",
+      "cellsFilled": 48,
+      "casesTouched": 15,
+      "skipped": [],
+      "blankBefore": 59,
+      "blankAfter": 11
+    },
+    {
+      "module": "corporate_pricing_loc_export",
+      "cellsFilled": 15,
+      "casesTouched": 7,
+      "skipped": [],
+      "blankBefore": 15,
+      "blankAfter": 0
+    },
+    {
+      "module": "corporate_pricing_loc_import",
+      "cellsFilled": 22,
+      "casesTouched": 11,
+      "skipped": [],
+      "blankBefore": 25,
+      "blankAfter": 3
+    },
+    {
+      "module": "corporate_pricing_new_pricebook",
+      "cellsFilled": 127,
+      "casesTouched": 52,
+      "skipped": [],
+      "blankBefore": 127,
+      "blankAfter": 0
+    },
+    {
+      "module": "corporate_pricing_search",
+      "cellsFilled": 226,
+      "casesTouched": 57,
+      "skipped": [],
+      "blankBefore": 231,
+      "blankAfter": 5
+    },
+    {
+      "module": "corporate_pricing_strategy",
+      "cellsFilled": 142,
+      "casesTouched": 60,
+      "skipped": [],
+      "blankBefore": 152,
+      "blankAfter": 10
+    },
+    {
+      "module": "locations_account_address",
+      "cellsFilled": 125,
+      "casesTouched": 32,
+      "skipped": [],
+      "blankBefore": 131,
+      "blankAfter": 6
+    },
+    {
+      "module": "locations_auto_addon",
+      "cellsFilled": 80,
+      "casesTouched": 20,
+      "skipped": [],
+      "blankBefore": 80,
+      "blankAfter": 0
+    },
+    {
+      "module": "locations_left_panel_basic_information",
+      "cellsFilled": 164,
+      "casesTouched": 37,
+      "skipped": [],
+      "blankBefore": 164,
+      "blankAfter": 0
+    },
+    {
+      "module": "locations_legal",
+      "cellsFilled": 75,
+      "casesTouched": 15,
+      "skipped": [],
+      "blankBefore": 108,
+      "blankAfter": 33
+    },
+    {
+      "module": "locations_notes",
+      "cellsFilled": 338,
+      "casesTouched": 58,
+      "skipped": [],
+      "blankBefore": 338,
+      "blankAfter": 0
+    },
+    {
+      "module": "locations_shared_setup_locations",
+      "cellsFilled": 219,
+      "casesTouched": 40,
+      "skipped": [],
+      "blankBefore": 246,
+      "blankAfter": 27
+    }
+  ],
+  "skipped": []
+}

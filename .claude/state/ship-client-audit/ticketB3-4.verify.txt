@@ -1,0 +1,6 @@
+79:node scripts/verify-no-forbidden.mjs --target="$STAGING"
+93:(cd "$STAGING" && tar -cf - .) | (cd "$OUT" && tar -xf -)
+96:# (S0 gate per LR-069; placed before npm install to avoid scanning node_modules).
+97:node scripts/verify-no-forbidden.mjs --target="$OUT"
+106:( cd "$OUT" && npm install --silent && npx playwright test --list >/dev/null )
+EXIT=0

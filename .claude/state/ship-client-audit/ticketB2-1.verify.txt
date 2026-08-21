@@ -1,0 +1,2 @@
+grep -c cp -r: 0
+EXIT=0

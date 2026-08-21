@@ -1,0 +1,2 @@
+[verify-no-forbidden] client=encore found 453 forbidden file(s) tracked under clients/encore/:
+EXIT=1

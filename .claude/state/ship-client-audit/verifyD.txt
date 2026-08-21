@@ -1,0 +1,27 @@
+########## NEW (with Ticket D change) ##########
+ship-branch EXIT=0
+[ship-branch] deny-list clean on /tmp/tmp.KXMvuPY00F
+[ship-branch] DRY-RUN complete (build + trim + deny-list verify). Re-run with --push to ship.
+[ship-branch] SCRATCH=/tmp/tmp.GBrgqupPNu (--keep-scratch: not cleaning up)
+SCRATCH=/tmp/tmp.GBrgqupPNu
+--- leak find (must be EMPTY) ---
+--- .env.local specifically: 0 ---
+--- payload sanity: spec files = 1 ---
+
+########## OLD (stashed) ##########
+stashed
+########## OLD (pre-Ticket-D) ##########
+ship-branch EXIT=0
+[ship-branch] deny-list clean on /tmp/tmp.XxKtN2xnci
+[ship-branch] DRY-RUN complete (build + trim + deny-list verify). Re-run with --push to ship.
+[ship-branch] SCRATCH=/tmp/tmp.sciHMaaAeR (--keep-scratch: not cleaning up)
+SCRATCH=/tmp/tmp.sciHMaaAeR
+--- leak find (must be EMPTY) ---
+/tmp/tmp.sciHMaaAeR/.env.local
+--- .env.local specifically: 1 ---
+--- payload sanity: spec files = 1 ---
+
+stash popped
+ scripts/ship-branch.sh | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+DONE

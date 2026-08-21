@@ -1,0 +1,39 @@
+########## B1: real ship, exit code ##########
+[xlsx-freshness] Check A OK — committed workbook matches a fresh rebuild (all module rows).
+[xlsx-freshness] Check B OK — workbook generators are clean (no unstaged changes).
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.X51XZZTWKL XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.X51XZZTWKL XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.X51XZZTWKL files=178
+[OK] Shipped clients/encore/ -> /c/Users/RutvikKhorasiya/AppData/Local/Temp/shipVERIFY/out1 via git archive
+EXIT=0
+
+########## B2: payload deny-list verify ##########
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipVERIFY/out1 XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipVERIFY/out1 XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipVERIFY/out1 files=178
+EXIT=0
+
+########## B3: explicit leak find (must be EMPTY) ##########
+--- leak count: 0 ---
+
+########## B4/B5: payload sanity ##########
+spec files: 30
+total files: 178
+xlsx present: YES
+
+########## B6: CANARY — worktree refusal against a decoy repo ##########
+[xlsx-freshness] Check A OK — committed workbook matches a fresh rebuild (all module rows).
+[xlsx-freshness] Check B OK — workbook generators are clean (no unstaged changes).
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.L5IJ7ciZ7V XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.L5IJ7ciZ7V XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.L5IJ7ciZ7V files=178
+ERR: /c/Users/RutvikKhorasiya/AppData/Local/Temp/shipVERIFY/decoy is a git worktree — refusing to overwrite. Pass a non-repo directory.
+EXIT=1 (expect NON-ZERO)
+CANARY SURVIVED
+
+########## B7: idempotency ##########
+diff EXIT=0
+
+########## repo integrity ##########
+clients/ porcelain lines: 28
+DONE

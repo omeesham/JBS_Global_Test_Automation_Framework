@@ -1,0 +1,2 @@
+/usr/bin/bash: line 1: printf: True: invalid number
+EXIT_DIFF=0

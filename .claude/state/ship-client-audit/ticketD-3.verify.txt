@@ -1,0 +1,4 @@
+--- OLD scratch /tmp/tmp.zLwepxlbcS ---
+/tmp/tmp.zLwepxlbcS/.env.local
+--- NEW scratch /tmp/tmp.p07FF0QVbr ---
+REGRESSION_CHECK_DONE

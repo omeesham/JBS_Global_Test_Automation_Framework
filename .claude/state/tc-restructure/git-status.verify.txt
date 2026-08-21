@@ -1,0 +1,142 @@
+ M .claude/guardrail-config.json
+ M .claude/hooks/lib/test-jargon-fixtures.mjs
+ M .claude/skills/final-q/SKILL.md
+ M .claude/skills/reflect/SKILL.md
+ M clients/encore/specs_planning/_internal/agent-activity-log.md
+ M clients/encore/specs_planning/_internal/agent-mistakes.md
+ M clients/encore/specs_planning/_internal/field-case-generation.md
+ M clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_detail_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_export_all_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_import_all_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_loc_export_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_loc_import_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_new_pricebook_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_override_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_search_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/corporate-pricing/corporate_pricing_strategy_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/local-office/local_office_ect_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/local-office/local_office_history_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/local-office/local_office_settings_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/locations/locations_account_address_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/locations/locations_auto_addon_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/locations/locations_currency_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/locations/locations_left_panel_basic_information_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/locations/locations_legal_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/locations/locations_local_information_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/locations/locations_management_history_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/locations/locations_notes_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/locations/locations_pricing_test_cases.md
+ M clients/encore/specs_planning/test-cases/setup/locations/locations_shared_setup_locations_test_cases.md
+R  clients/encore/src/data/corporate-pricing/override.ts -> clients/encore/src/data/corporate-override/override.ts
+ M clients/encore/src/fixtures/pages.fixture.ts
+RM clients/encore/src/pages/corporate-pricing/corporate-pricing-override.page.ts -> clients/encore/src/pages/corporate-override/corporate-override.page.ts
+R  clients/encore/src/selectors/corporate-pricing/override.ts -> clients/encore/src/selectors/corporate-override/override.ts
+ M clients/encore/src/selectors/corporate-pricing/index.ts
+ M clients/encore/src/selectors/index.ts
+R  clients/encore/test_cases_xlsx/encore-qa-tracker.xlsx -> clients/encore/testcases/encore-qa-tracker.xlsx
+RM clients/encore/test_cases_xlsx/encore_test_cases.xlsx -> clients/encore/testcases/encore_test_cases.xlsx
+D  clients/encore/tests/corporate-pricing/corporate-pricing-override.spec.ts
+ M export_test_cases/module-codes.json
+ M export_test_cases/to-csv.ts
+ M export_test_cases/to-xlsx.ts
+ M package.json
+ M plans/INDEX.md
+A  plans/done/SUBPLAN_ONELINERS_AUTO_RELEARN.md
+ M plans/pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md
+ M plans/pending/PLAN_MEGA_AUDIT_COPILOT_ERA.md
+ D plans/pending/SUBPLAN_CORP_PRICING_NM2271_GRID_EQUIPMENT_LABOR.md
+ M plans/pending/SUBPLAN_CORP_PRICING_NM2272_OVERRIDE_EXPORT.md
+ M plans/pending/SUBPLAN_CORP_PRICING_NM2273_OVERRIDE_IMPORT.md
+ M plans/pending/SUBPLAN_GUARDRAIL_RECURRENCE_TRIAL.md
+ M plans/pending/SUBPLAN_OPI_G_MIGRATE_CORP_PRICING.md
+ M scripts/planner-post-complete.ts
+ M scripts/shared-paths.ts
+ M scripts/sp00-audit-v5.mjs
+ M scripts/validate-plan-closure.mjs
+ M scripts/verify-no-forbidden.mjs
+ M scripts/walk-coverage/lib/module-config.mjs
+ M scripts/xlsx-dump.ts
+ M scripts/xlsx-freshness.ts
+ M scripts/xlsx-lint-rules.mjs
+ M scripts/xlsx-merged-shape.test.mjs
+ M scripts/xlsx-vocab-lint.mjs
+?? .claude/skills/final-q/SKILL.md.bak-lcd07
+?? .claude/skills/ultra-agents/copilot-worker.sh.bak-fixB-retire-20260725-125736
+?? .claude/skills/ultra-agents/copilot-worker.sh.bak-fixB-retire-apply
+?? .claude/skills/ultra-agents/copilot-worker.sh.bak-hardening-20260725
+?? .claude/skills/ultra-agents/copilot-worker.sh.bak-lcd07
+?? .claude/skills/ultra-agents/copilot-worker.sh.bak-modelverify-anchor-20260725
+?? .claude/skills/ultra-agents/copilot-worker.sh.bak-prefix-kill-20260725155919
+?? .claude/skills/ultra-agents/copilot-worker.sh.bak-prefix-kill-20260725T155044
+?? .claude/skills/ultra-agents/copilot-worker.sh.bak-provenance-20260725
+?? .claude/skills/ultra-agents/worker-ext.md.bak-lcd07
+?? .claude/state/delegation-audit/
+?? .claude/state/tc-restructure/
+?? 100
+?? accept-denom.mjs
+?? clients/encore/.machine-evidence/
+?? clients/encore/clients/
+?? clients/encore/diag.js
+?? clients/encore/job3b-current-state.png
+?? clients/encore/job3b-screenshot-checked-search11.png
+?? clients/encore/job3b-screenshot-checked.png
+?? clients/encore/job3b-screenshot-unchecked-search11.png
+?? clients/encore/job3b-screenshot-unchecked.png
+?? clients/encore/nm2269-html-report.png
+?? clients/encore/nm2270-html-report.png
+?? clients/encore/nm2271-html-report.png
+?? clients/encore/nm2272-html-report.png
+?? clients/encore/nm2273-html-report.png
+?? clients/encore/part-a-check.js
+?? clients/encore/part-a-v2.js
+?? clients/encore/part-b-fixed.js
+?? clients/encore/part-b-full.js
+?? clients/encore/part-b-v3.js
+?? clients/encore/part-c.js
+?? clients/encore/part-c2.js
+?? clients/encore/playwright-report-graft-green/
+?? clients/encore/review2-spec-1.txt
+?? clients/encore/review2-spec-2.txt
+?? clients/encore/review2-tc-parity.txt
+?? clients/encore/step1-4107-equipment.png
+?? clients/encore/step3-import-dialog.png
+?? clients/encore/step4-import1-ready.png
+?? clients/encore/testcases/corporate-pricing/
+?? clients/encore/testcases/local-office/
+?? clients/encore/testcases/locations/
+?? clients/encore/tests/corporate-override/
+?? clients/encore/tests/corporate-pricing/corporate-pricing-override-nav.spec.ts
+?? out-e2e/
+?? out-lots/
+?? out-merge/
+?? plans/_closure_manifests/SUBPLAN_ONELINERS_AUTO_RELEARN.md.manifest.json
+?? plans/done/PLAN_57_NM2271_OVERRIDE_GAP_CLOSURE.md
+?? plans/done/PLAN_ENCORE_COMBINED_MAIN_DELIVERY.md
+?? plans/done/PLAN_ENCORE_NM2269_DELIVERY.md
+?? plans/done/PLAN_ONELINERS_RUTVIK_CLONE.md
+?? plans/done/SUBPLAN_CORP_PRICING_NM2271_GRID_EQUIPMENT_LABOR.md
+?? plans/pending/PLAN_59_CORP_OVERRIDE_AND_TESTCASE_RESTRUCTURE.md
+?? plans/pending/PLAN_ENCORE_NM2272_NM2273_GRAFT_AND_SHIP.md
+?? plans/pending/SUBPLAN_59A_TESTCASE_PIPELINE.md
+?? plans/pending/SUBPLAN_59B_EXPECTED_RESULTS_CONTENT.md
+?? plans/pending/SUBPLAN_59C_OVERRIDE_CODE_FOLDERISATION.md
+?? plans/pending/SUBPLAN_59D_OVERRIDE_NONCODE_FOOTPRINT.md
+?? plans/pending/SUBPLAN_59E_GATES_AND_SHIP.md
+?? plans/pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md
+?? scripts/check-agent-provenance.mjs
+?? scripts/check-dispatch-argv.mjs
+?? scripts/check-interaction-coverage.mjs
+?? scripts/check-recurrence-trial.mjs
+?? scripts/check-sediment-sweep.mjs
+?? scripts/check-worker-fabrication.mjs
+?? scripts/human-catch-reflex.mjs
+?? scripts/test-substitution-guard.sh
+?? scripts/validate-tcs.mjs
+?? scripts/walk-coverage/domain-invariants.json
+?? scripts/walk-coverage/drone-probes.mjs
+?? scripts/walk-coverage/fixtures/kernel-oracle-fixtures.json
+?? scripts/walk-coverage/fixtures/recurrence-trial/
+?? scripts/walk-coverage/generate-invariants.mjs
+?? scripts/walk-coverage/interaction-map-schema.mjs
+?? scripts/xlsx-trim.test.mjs
+?? test-regex.mjs

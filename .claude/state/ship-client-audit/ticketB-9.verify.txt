@@ -1,0 +1,22 @@
+ scripts/ship-client.sh | 42 ++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 34 insertions(+), 8 deletions(-)
+ M scripts/ship-branch.sh
+ M scripts/ship-client.sh
+ M scripts/validate-plan-closure.mjs
+ M scripts/verify-no-forbidden.mjs
+?? scripts/check-agent-provenance.mjs
+?? scripts/check-dispatch-argv.mjs
+?? scripts/check-interaction-coverage.mjs
+?? scripts/check-recurrence-trial.mjs
+?? scripts/check-sediment-sweep.mjs
+?? scripts/check-worker-fabrication.mjs
+?? scripts/human-catch-reflex.mjs
+?? scripts/test-substitution-guard.sh
+?? scripts/validate-tcs.mjs
+?? scripts/walk-coverage/domain-invariants.json
+?? scripts/walk-coverage/drone-probes.mjs
+?? scripts/walk-coverage/fixtures/kernel-oracle-fixtures.json
+?? scripts/walk-coverage/fixtures/recurrence-trial/
+?? scripts/walk-coverage/generate-invariants.mjs
+?? scripts/walk-coverage/interaction-map-schema.mjs
+?? scripts/xlsx-trim.test.mjs

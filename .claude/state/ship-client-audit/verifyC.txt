@@ -1,0 +1,78 @@
+########## C1: live pwsh ship ##########
+[verify-no-forbidden] target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\zjdl4zbw.rde found 24 forbidden file(s):
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-GÇö-empty-to-hello-save-encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-GÇö-empty-to-hello-save-encore-locations/test-failed-1.png
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-GÇö-empty-to-hello-save-encore-locations/trace.zip
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-GÇö-empty-to-hello-save-encore-locations-retry1/trace.zip
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-—-empty-to-hello-save-encore-locations-retry1/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-—-empty-to-hello-save-encore-locations-retry1/test-failed-1.png
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-24a0d-elf-SI-GåÆ-self-SI-unchanged--encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-25729-oad-3-GåÆ-2-with-middle-gone--encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-66d78-FF-GåÆ-save-persists-each-leg-encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-73f95-save-reload-2-GåÆ-0-non-self--encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-8ae95--reload-GåÆ-all-three-persist-encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-ded8d-f-GåÆ-self-unchanged-in-page--encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--GåÆ-app-re-applies-default-1-encore-local-office/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--GåÆ-app-re-applies-default-1-encore-local-office/test-failed-1.png
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--GåÆ-app-re-applies-default-1-encore-local-office/trace.zip
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--GåÆ-app-re-applies-default-1-encore-local-office-retry1/trace.zip
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--_-app-re-applies-default-1-encore-local-office-retry1/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--_-app-re-applies-default-1-encore-local-office-retry1/test-failed-1.png
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/location-shared-setup-loca-24a0d-elf-SI-GåÆ-self-SI-unchanged--encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/location-shared-setup-loca-25729-oad-3-GåÆ-2-with-middle-gone--encore-locations/error-context.md
+EXIT=1
+
+########## C2: file count (expect 178) ##########
+ps1 files: 0
+
+########## C3: deny-list verify on ps1 output ##########
+[verify-no-forbidden] target not a directory: C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY/ps1
+EXIT=2
+
+########## C4: explicit leak find (must be EMPTY) ##########
+find: '/c/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY/ps1': No such file or directory
+--- leak count: 0 ---
+
+########## C5: CROSS-IMPLEMENTATION PARITY (bash vs pwsh) ##########
+[xlsx-freshness] Check A OK — committed workbook matches a fresh rebuild (all module rows).
+[xlsx-freshness] Check B OK — workbook generators are clean (no unstaged changes).
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.cFsGC3Ae4F XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.cFsGC3Ae4F XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.cFsGC3Ae4F files=178
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY/bash XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY/bash XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY/bash files=178
+[OK] Shipped clients/encore/ -> /c/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY/bash via git archive
+bash ship EXIT=0
+bash files: 178
+diff: /c/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY/ps1: No such file or directory
+PARITY diff EXIT=2
+
+########## C6: CANARY — pwsh must refuse a git worktree ##########
+[verify-no-forbidden] target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\ljhpfht5.2nr found 24 forbidden file(s):
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-GÇö-empty-to-hello-save-encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-GÇö-empty-to-hello-save-encore-locations/test-failed-1.png
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-GÇö-empty-to-hello-save-encore-locations/trace.zip
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-GÇö-empty-to-hello-save-encore-locations-retry1/trace.zip
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-—-empty-to-hello-save-encore-locations-retry1/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/history-location-hist-note-17d7d-ol-69-—-empty-to-hello-save-encore-locations-retry1/test-failed-1.png
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-24a0d-elf-SI-GåÆ-self-SI-unchanged--encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-25729-oad-3-GåÆ-2-with-middle-gone--encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-66d78-FF-GåÆ-save-persists-each-leg-encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-73f95-save-reload-2-GåÆ-0-non-self--encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-8ae95--reload-GåÆ-all-three-persist-encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run1/test-results/location-shared-setup-loca-ded8d-f-GåÆ-self-unchanged-in-page--encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--GåÆ-app-re-applies-default-1-encore-local-office/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--GåÆ-app-re-applies-default-1-encore-local-office/test-failed-1.png
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--GåÆ-app-re-applies-default-1-encore-local-office/trace.zip
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--GåÆ-app-re-applies-default-1-encore-local-office-retry1/trace.zip
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--_-app-re-applies-default-1-encore-local-office-retry1/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/local-office-settings-Loca-b79d6--_-app-re-applies-default-1-encore-local-office-retry1/test-failed-1.png
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/location-shared-setup-loca-24a0d-elf-SI-GåÆ-self-SI-unchanged--encore-locations/error-context.md
+  /specs_planning/_internal/defence-evidence-2026-06-01/run2/test-results/location-shared-setup-loca-25729-oad-3-GåÆ-2-with-middle-gone--encore-locations/error-context.md
+EXIT=1 (expect NON-ZERO)
+CANARY SURVIVED
+
+########## repo integrity ##########
+clients/ porcelain lines: 28
+DONE

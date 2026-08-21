@@ -1,0 +1,52 @@
+=T1=
+0
+=T7=
+warning: in the working copy of 'CANARY.txt', LF will be replaced by CRLF the next time Git touches it
+[xlsx-freshness] Check A OK — committed workbook matches a fresh rebuild (all module rows).
+[xlsx-freshness] Check B OK — workbook generators are clean (no unstaged changes).
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.NQnpYlvCjF XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.NQnpYlvCjF XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.NQnpYlvCjF files=178
+ERR: /tmp/decoy is a git worktree — refusing to overwrite. Pass a non-repo directory.
+EXIT_T7=1
+CANARY SURVIVED
+=T8=
+ERR: clients/nosuchclient not found
+EXIT_T8=4
+=T8_D3_DIRECT=
+emit_exit=2
+DEFECT3_GUARD_FIRED_CORRECTLY
+=T9=
+EXIT_T9=0
+=T10_DIFF=
+ scripts/ship-client.sh | 54 ++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 46 insertions(+), 8 deletions(-)
+=T10_STATUS=
+ M clients/encore/specs_planning/_internal/agent-activity-log.md
+?? clients/encore/.machine-evidence/
+?? clients/encore/clients/
+?? clients/encore/diag.js
+?? clients/encore/job3b-current-state.png
+?? clients/encore/job3b-screenshot-checked-search11.png
+?? clients/encore/job3b-screenshot-checked.png
+?? clients/encore/job3b-screenshot-unchecked-search11.png
+?? clients/encore/job3b-screenshot-unchecked.png
+?? clients/encore/nm2269-html-report.png
+?? clients/encore/nm2270-html-report.png
+?? clients/encore/nm2271-html-report.png
+?? clients/encore/nm2272-html-report.png
+?? clients/encore/nm2273-html-report.png
+?? clients/encore/part-a-check.js
+?? clients/encore/part-a-v2.js
+?? clients/encore/part-b-fixed.js
+?? clients/encore/part-b-full.js
+?? clients/encore/part-b-v3.js
+?? clients/encore/part-c.js
+?? clients/encore/part-c2.js
+?? clients/encore/playwright-report-graft-green/
+?? clients/encore/review2-spec-1.txt
+?? clients/encore/review2-spec-2.txt
+?? clients/encore/review2-tc-parity.txt
+?? clients/encore/step1-4107-equipment.png
+?? clients/encore/step3-import-dialog.png
+?? clients/encore/step4-import1-ready.png

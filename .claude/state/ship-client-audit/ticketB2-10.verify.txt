@@ -1,0 +1,2 @@
+git diff --stat: scripts/ship-client.sh | 1 file changed, 46 insertions(+), 8 deletions(-)
+git status --porcelain -- clients/: only pre-existing untracked files (??), no staged changes

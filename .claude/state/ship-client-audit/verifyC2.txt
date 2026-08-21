@@ -1,0 +1,52 @@
+########## C1: live pwsh ship ##########
+[verify-no-forbidden] OK target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\hlivf5nc.j1g XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\hlivf5nc.j1g XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\hlivf5nc.j1g files=178
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/ps1 XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/ps1 XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/ps1 files=178
+[OK] Shipped clients/encore/ -> C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/ps1 via git archive
+EXIT=0
+
+########## C2: file count (expect 178) ##########
+ps1 files: 178
+
+########## C3: deny-list verify on ps1 output ##########
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/ps1 XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/ps1 XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/ps1 files=178
+EXIT=0
+
+########## C4: explicit leak find (must be EMPTY) ##########
+--- leak count: 0 ---
+
+########## C5: CROSS-IMPLEMENTATION PARITY (bash vs pwsh) ##########
+[xlsx-freshness] Check A OK — committed workbook matches a fresh rebuild (all module rows).
+[xlsx-freshness] Check B OK — workbook generators are clean (no unstaged changes).
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.Sr1lH130MK XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.Sr1lH130MK XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/tmp.Sr1lH130MK files=178
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/bash XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/bash XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/bash files=178
+[OK] Shipped clients/encore/ -> /c/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/bash via git archive
+bash ship EXIT=0
+bash files: 178
+PARITY diff EXIT=0
+
+########## C6: CANARY — pwsh must refuse a git worktree ##########
+[verify-no-forbidden] OK target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\vbl1l5go.ot2 XLSX 'encore-qa-tracker.xlsx' clean (44 rows)
+[verify-no-forbidden] OK target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\vbl1l5go.ot2 XLSX 'encore_test_cases.xlsx' clean (3964 rows)
+[verify-no-forbidden] OK target=C:\Users\RutvikKhorasiya\AppData\Local\Temp\vbl1l5go.ot2 files=178
+[31;1mWrite-Error: [0mC:\Users\RutvikKhorasiya\projects\encore_framework\scripts\ship-client.ps1:130[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 130 | [0m             [36;1mWrite-Error "ERR: $Out is a git worktree - refusing to ov[0m .[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mERR: C:/Users/RutvikKhorasiya/AppData/Local/Temp/shipCVERIFY2/decoy is a git worktree - refusing to overwrite. Pass a[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1mnon-repo directory.[0m
+EXIT=1 (expect NON-ZERO)
+CANARY SURVIVED
+
+########## repo integrity ##########
+clients/ porcelain lines: 28
+DONE
