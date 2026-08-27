@@ -255,6 +255,15 @@ clients/*/scripts/_*.ts
 .playwright-cli/regguard/
 .playwright-cli/recon/
 .playwright-cli/*-report.png
+# 2026-08-27 (NM-3530): Microsoft sign-in page captures left behind by the auth flow.
+# No artifact cites them as evidence and they carry the automation account's email.
+# Deliberately narrow — the dated walk subdirectories under .playwright-cli/ ARE
+# evidence (walk artifacts cite them in their frontmatter) and must stay tracked, so
+# this must never be widened into a blanket .playwright-cli/ rule.
+.playwright-cli/signin.yml
+.playwright-cli/mslogin.yml
+.playwright-cli/after-username.yml
+.playwright-cli/after-password-attempt.yml
 # Root-level CLI walk/snapshot yaml dumps (scratch)
 /eq-*.yml
 /pg-*.yml

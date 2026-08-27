@@ -1,0 +1,333 @@
+- generic [active] [ref=f1e1]:
+  - alert [ref=f1e2]
+  - generic [ref=f1e4]:
+    - generic [ref=f1e21]:
+      - list [ref=f1e23]:
+        - listitem [ref=f1e24]:
+          - button [ref=f1e25] [cursor=pointer]:
+            - img [ref=f1e29]
+      - generic [ref=f1e35]:
+        - list [ref=f1e37]:
+          - listitem [ref=f1e38]:
+            - link "Home" [ref=f1e39] [cursor=pointer]:
+              - /url: /navigator/locations//home
+              - img [ref=f1e40]
+              - generic [ref=f1e43]: Home
+          - listitem [ref=f1e44]:
+            - link "Inbox" [ref=f1e45] [cursor=pointer]:
+              - /url: /navigator/locations//inbox
+              - img [ref=f1e46]
+              - generic [ref=f1e49]: Inbox
+          - listitem [ref=f1e50]:
+            - button "Actions" [ref=f1e51] [cursor=pointer]:
+              - img [ref=f1e52]
+              - generic [ref=f1e54]: Actions
+              - img [ref=f1e55]
+          - listitem [ref=f1e57]:
+            - button "Commissions" [ref=f1e58] [cursor=pointer]:
+              - img [ref=f1e59]
+              - generic [ref=f1e61]: Commissions
+              - img [ref=f1e62]
+          - listitem [ref=f1e64]:
+            - button "Tax" [ref=f1e65] [cursor=pointer]:
+              - img [ref=f1e66]
+              - generic [ref=f1e69]: Tax
+              - img [ref=f1e70]
+          - listitem [ref=f1e72]:
+            - button "Setup" [ref=f1e73] [cursor=pointer]:
+              - img [ref=f1e74]
+              - generic [ref=f1e77]: Setup
+              - img [ref=f1e78]
+          - listitem [ref=f1e80]:
+            - button "Studio" [ref=f1e81] [cursor=pointer]:
+              - img [ref=f1e82]
+              - generic [ref=f1e84]: Studio
+              - img [ref=f1e85]
+        - generic [ref=f1e87]:
+          - generic [ref=f1e88]: Search
+          - list [ref=f1e90]:
+            - listitem [ref=f1e91]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=f1e92]:
+              - link "Job Search" [ref=f1e93] [cursor=pointer]:
+                - /url: /navigator/locations//fulfillments
+                - img [ref=f1e94]
+                - generic [ref=f1e97]: Job Search
+            - listitem [ref=f1e98]:
+              - link "Asset Search" [ref=f1e99] [cursor=pointer]:
+                - /url: /navigator/locations//assets
+                - img [ref=f1e100]
+                - generic [ref=f1e103]: Asset Search
+            - listitem [ref=f1e104]:
+              - link "Customer Search" [ref=f1e105] [cursor=pointer]:
+                - /url: /navigator/locations//customers
+                - img [ref=f1e106]
+                - generic [ref=f1e109]: Customer Search
+            - listitem [ref=f1e110]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=f1e111]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=f1e112]:
+              - link "Item Search" [ref=f1e113] [cursor=pointer]:
+                - /url: /navigator/locations//products
+                - img [ref=f1e114]
+                - generic [ref=f1e124]: Item Search
+            - listitem [ref=f1e125]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=f1e126]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=f1e128]:
+          - listitem [ref=f1e129]:
+            - button "Navigator Assistant" [ref=f1e130] [cursor=pointer]:
+              - img [ref=f1e131]
+              - generic [ref=f1e133]: Navigator Assistant
+      - list [ref=f1e136]:
+        - listitem [ref=f1e137]:
+          - button "PC prd click auto" [ref=f1e138] [cursor=pointer]:
+            - generic [ref=f1e140]: PC
+            - generic [ref=f1e142]: prd click auto
+            - img [ref=f1e143]
+      - button "Click to restore sidebar" [ref=f1e147]
+    - main [ref=f1e148]:
+      - generic [ref=f1e151]:
+        - generic [ref=f1e153]:
+          - button "trigger-button" [ref=f1e154] [cursor=pointer]:
+            - img
+          - generic [ref=f1e156]:
+            - heading "Discount Matrix" [level=1] [ref=f1e158]
+            - button "More information" [ref=f1e159]:
+              - img [ref=f1e160]
+        - generic [ref=f1e163]:
+          - generic [ref=f1e164]:
+            - generic [ref=f1e165]:
+              - generic [ref=f1e166]:
+                - generic [ref=f1e167]: "Country:"
+                - combobox [ref=f1e509] [cursor=pointer]:
+                  - generic: United States
+                  - img
+              - generic [ref=f1e169]:
+                - generic [ref=f1e170]: "Currency:"
+                - combobox [ref=f1e510] [cursor=pointer]:
+                  - generic: USD
+                  - img
+              - generic [ref=f1e172]:
+                - generic [ref=f1e173]: "Business Tier:"
+                - combobox [ref=f1e511] [cursor=pointer]:
+                  - generic: Standard
+                  - img
+              - generic [ref=f1e176]: "GAV Discount Threshold:"
+            - button "Save" [disabled]
+          - generic [ref=f1e179]:
+            - tablist [ref=f1e180]:
+              - tab "Company Matrix" [selected] [ref=f1e181] [cursor=pointer]:
+                - generic [ref=f1e182]: Company Matrix
+              - tab "Region Weekly Peaks" [ref=f1e183] [cursor=pointer]:
+                - generic [ref=f1e184]: Region Weekly Peaks
+              - tab "Location Activation" [ref=f1e185] [cursor=pointer]:
+                - generic [ref=f1e186]: Location Activation
+            - tabpanel "Company Matrix" [ref=f1e187]:
+              - generic [ref=f1e188]:
+                - generic [ref=f1e189]:
+                  - button "Add Tier" [ref=f1e190] [cursor=pointer]:
+                    - img
+                    - text: Add Tier
+                  - generic [ref=f1e191]:
+                    - button "Export" [disabled]:
+                      - img
+                      - text: Export
+                    - button "Import" [ref=f1e192] [cursor=pointer]:
+                      - img
+                      - text: Import
+                - table [ref=f1e195]:
+                  - rowgroup [ref=f1e196]:
+                    - row "Non-Peak Booking Windows Days Standard Booking Windows Days Peak Booking Windows Days" [ref=f1e197]:
+                      - columnheader [ref=f1e198]
+                      - columnheader "Non-Peak Booking Windows Days" [ref=f1e199]
+                      - columnheader "Standard Booking Windows Days" [ref=f1e200]
+                      - columnheader "Peak Booking Windows Days" [ref=f1e201]
+                    - row "Revenue Tier 0-15 16-30 31-60 61-90 91-180 181-365 365 + 0-15 16-30 31-60 61-90 91-180 181-365 365 + 0-15 16-30 31-60 61-90 91-180 181-365 365 +" [ref=f1e202]:
+                      - columnheader [ref=f1e203]
+                      - columnheader "Revenue Tier" [ref=f1e204]
+                      - columnheader "0-15" [ref=f1e205]
+                      - columnheader "16-30" [ref=f1e206]
+                      - columnheader "31-60" [ref=f1e207]
+                      - columnheader "61-90" [ref=f1e208]
+                      - columnheader "91-180" [ref=f1e209]
+                      - columnheader "181-365" [ref=f1e210]
+                      - columnheader "365 +" [ref=f1e211]
+                      - columnheader "0-15" [ref=f1e212]
+                      - columnheader "16-30" [ref=f1e213]
+                      - columnheader "31-60" [ref=f1e214]
+                      - columnheader "61-90" [ref=f1e215]
+                      - columnheader "91-180" [ref=f1e216]
+                      - columnheader "181-365" [ref=f1e217]
+                      - columnheader "365 +" [ref=f1e218]
+                      - columnheader "0-15" [ref=f1e219]
+                      - columnheader "16-30" [ref=f1e220]
+                      - columnheader "31-60" [ref=f1e221]
+                      - columnheader "61-90" [ref=f1e222]
+                      - columnheader "91-180" [ref=f1e223]
+                      - columnheader "181-365" [ref=f1e224]
+                      - columnheader "365 +" [ref=f1e225]
+                  - rowgroup [ref=f1e226]:
+                    - row [ref=f1e227]:
+                      - cell [ref=f1e228]
+                      - cell [ref=f1e229]
+                      - cell [ref=f1e231]
+                      - cell [ref=f1e233]
+                      - cell [ref=f1e235]
+                      - cell [ref=f1e237]
+                      - cell [ref=f1e239]
+                      - cell [ref=f1e241]
+                      - cell [ref=f1e243]
+                      - cell [ref=f1e245]
+                      - cell [ref=f1e247]
+                      - cell [ref=f1e249]
+                      - cell [ref=f1e251]
+                      - cell [ref=f1e253]
+                      - cell [ref=f1e255]
+                      - cell [ref=f1e257]
+                      - cell [ref=f1e259]
+                      - cell [ref=f1e261]
+                      - cell [ref=f1e263]
+                      - cell [ref=f1e265]
+                      - cell [ref=f1e267]
+                      - cell [ref=f1e269]
+                      - cell [ref=f1e271]
+                      - cell [ref=f1e273]
+                    - row [ref=f1e274]:
+                      - cell [ref=f1e275]
+                      - cell [ref=f1e276]
+                      - cell [ref=f1e278]
+                      - cell [ref=f1e280]
+                      - cell [ref=f1e282]
+                      - cell [ref=f1e284]
+                      - cell [ref=f1e286]
+                      - cell [ref=f1e288]
+                      - cell [ref=f1e290]
+                      - cell [ref=f1e292]
+                      - cell [ref=f1e294]
+                      - cell [ref=f1e296]
+                      - cell [ref=f1e298]
+                      - cell [ref=f1e300]
+                      - cell [ref=f1e302]
+                      - cell [ref=f1e304]
+                      - cell [ref=f1e306]
+                      - cell [ref=f1e308]
+                      - cell [ref=f1e310]
+                      - cell [ref=f1e312]
+                      - cell [ref=f1e314]
+                      - cell [ref=f1e316]
+                      - cell [ref=f1e318]
+                      - cell [ref=f1e320]
+                    - row [ref=f1e321]:
+                      - cell [ref=f1e322]
+                      - cell [ref=f1e323]
+                      - cell [ref=f1e325]
+                      - cell [ref=f1e327]
+                      - cell [ref=f1e329]
+                      - cell [ref=f1e331]
+                      - cell [ref=f1e333]
+                      - cell [ref=f1e335]
+                      - cell [ref=f1e337]
+                      - cell [ref=f1e339]
+                      - cell [ref=f1e341]
+                      - cell [ref=f1e343]
+                      - cell [ref=f1e345]
+                      - cell [ref=f1e347]
+                      - cell [ref=f1e349]
+                      - cell [ref=f1e351]
+                      - cell [ref=f1e353]
+                      - cell [ref=f1e355]
+                      - cell [ref=f1e357]
+                      - cell [ref=f1e359]
+                      - cell [ref=f1e361]
+                      - cell [ref=f1e363]
+                      - cell [ref=f1e365]
+                      - cell [ref=f1e367]
+                    - row [ref=f1e368]:
+                      - cell [ref=f1e369]
+                      - cell [ref=f1e370]
+                      - cell [ref=f1e372]
+                      - cell [ref=f1e374]
+                      - cell [ref=f1e376]
+                      - cell [ref=f1e378]
+                      - cell [ref=f1e380]
+                      - cell [ref=f1e382]
+                      - cell [ref=f1e384]
+                      - cell [ref=f1e386]
+                      - cell [ref=f1e388]
+                      - cell [ref=f1e390]
+                      - cell [ref=f1e392]
+                      - cell [ref=f1e394]
+                      - cell [ref=f1e396]
+                      - cell [ref=f1e398]
+                      - cell [ref=f1e400]
+                      - cell [ref=f1e402]
+                      - cell [ref=f1e404]
+                      - cell [ref=f1e406]
+                      - cell [ref=f1e408]
+                      - cell [ref=f1e410]
+                      - cell [ref=f1e412]
+                      - cell [ref=f1e414]
+                    - row [ref=f1e415]:
+                      - cell [ref=f1e416]
+                      - cell [ref=f1e417]
+                      - cell [ref=f1e419]
+                      - cell [ref=f1e421]
+                      - cell [ref=f1e423]
+                      - cell [ref=f1e425]
+                      - cell [ref=f1e427]
+                      - cell [ref=f1e429]
+                      - cell [ref=f1e431]
+                      - cell [ref=f1e433]
+                      - cell [ref=f1e435]
+                      - cell [ref=f1e437]
+                      - cell [ref=f1e439]
+                      - cell [ref=f1e441]
+                      - cell [ref=f1e443]
+                      - cell [ref=f1e445]
+                      - cell [ref=f1e447]
+                      - cell [ref=f1e449]
+                      - cell [ref=f1e451]
+                      - cell [ref=f1e453]
+                      - cell [ref=f1e455]
+                      - cell [ref=f1e457]
+                      - cell [ref=f1e459]
+                      - cell [ref=f1e461]
+                    - row [ref=f1e462]:
+                      - cell [ref=f1e463]
+                      - cell [ref=f1e464]
+                      - cell [ref=f1e466]
+                      - cell [ref=f1e468]
+                      - cell [ref=f1e470]
+                      - cell [ref=f1e472]
+                      - cell [ref=f1e474]
+                      - cell [ref=f1e476]
+                      - cell [ref=f1e478]
+                      - cell [ref=f1e480]
+                      - cell [ref=f1e482]
+                      - cell [ref=f1e484]
+                      - cell [ref=f1e486]
+                      - cell [ref=f1e488]
+                      - cell [ref=f1e490]
+                      - cell [ref=f1e492]
+                      - cell [ref=f1e494]
+                      - cell [ref=f1e496]
+                      - cell [ref=f1e498]
+                      - cell [ref=f1e500]
+                      - cell [ref=f1e502]
+                      - cell [ref=f1e504]
+                      - cell [ref=f1e506]
+                      - cell [ref=f1e508]
+  - region "Notifications alt+T"

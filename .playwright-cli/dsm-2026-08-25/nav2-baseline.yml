@@ -1,0 +1,321 @@
+- main [ref=f3e3]:
+  - generic [ref=f3e156]:
+    - navigation [ref=f3e158]:
+      - img "logo" [ref=f3e161] [cursor=pointer]
+      - generic "Pendo" [ref=f3e162] [cursor=pointer]:
+        - img [ref=f3e163]
+      - img "TEST environment" [ref=f3e165]
+      - generic [ref=f3e167] [cursor=pointer]: 
+      - list [ref=f3e169]:
+        - listitem [ref=f3e170]:
+          - button "Save" [disabled]
+    - generic [ref=f3e171]:
+      - generic [ref=f3e172]:
+        - generic [ref=f3e173]: "Country:"
+        - combobox [ref=f3e175]:
+          - option
+          - option
+          - option
+          - option [selected]
+        - generic [ref=f3e176]: "Currency:"
+        - combobox [ref=f3e178]:
+          - option [selected]
+          - option
+          - option
+        - generic [ref=f3e179]: "Business Tier:"
+        - combobox [ref=f3e181]:
+          - option
+          - option
+          - option [selected]
+        - generic [ref=f3e182]: "GAV Discount Threshold:"
+        - textbox [ref=f3e184]: 15.0%
+      - generic [ref=f3e185]:
+        - tablist "Tabs" [ref=f3e186]:
+          - listitem [ref=f3e187]:
+            - tab "Company Matrix" [selected] [ref=f3e188]
+          - listitem [ref=f3e189]:
+            - tab "Region Weekly Peaks" [ref=f3e190] [cursor=pointer]
+          - listitem [ref=f3e191]:
+            - tab "Location Activation" [ref=f3e192] [cursor=pointer]
+        - tabpanel [ref=f3e194]:
+          - generic [ref=f3e196]:
+            - table [ref=f3e199]:
+              - rowgroup [ref=f3e200]:
+                - row "Add Non-Peak Booking Windows Days Standard Booking Windows Days Peak Booking Windows Days" [ref=f3e201]:
+                  - columnheader "Add" [ref=f3e202]:
+                    - button "Add" [ref=f3e203] [cursor=pointer]
+                  - columnheader "Non-Peak Booking Windows Days" [ref=f3e204]
+                  - columnheader "Standard Booking Windows Days" [ref=f3e205]
+                  - columnheader "Peak Booking Windows Days" [ref=f3e206]
+                - row "Revenue Tier 0-15 16-30 31-60 61-90 91-180 181-365 365 + 0-15 16-30 31-60 61-90 91-180 181-365 365 + 0-15 16-30 31-60 61-90 91-180 181-365 365 +" [ref=f3e207]:
+                  - columnheader [ref=f3e208]
+                  - columnheader [ref=f3e209]
+                  - columnheader "Revenue Tier" [ref=f3e210]
+                  - columnheader "0-15" [ref=f3e211]
+                  - columnheader "16-30" [ref=f3e212]
+                  - columnheader "31-60" [ref=f3e213]
+                  - columnheader "61-90" [ref=f3e214]
+                  - columnheader "91-180" [ref=f3e215]
+                  - columnheader "181-365" [ref=f3e216]
+                  - columnheader "365 +" [ref=f3e217]
+                  - columnheader "0-15" [ref=f3e218]
+                  - columnheader "16-30" [ref=f3e219]
+                  - columnheader "31-60" [ref=f3e220]
+                  - columnheader "61-90" [ref=f3e221]
+                  - columnheader "91-180" [ref=f3e222]
+                  - columnheader "181-365" [ref=f3e223]
+                  - columnheader "365 +" [ref=f3e224]
+                  - columnheader "0-15" [ref=f3e225]
+                  - columnheader "16-30" [ref=f3e226]
+                  - columnheader "31-60" [ref=f3e227]
+                  - columnheader "61-90" [ref=f3e228]
+                  - columnheader "91-180" [ref=f3e229]
+                  - columnheader "181-365" [ref=f3e230]
+                  - columnheader "365 +" [ref=f3e231]
+              - rowgroup [ref=f3e246]:
+                - row "  0 - 1500 17% 17% 17% 17% 20% 20% 20% 12% 12% 12% 12% 15% 15% 15% 7% 7% 7% 7% 10% 10% 10%" [ref=f3e247]:
+                  - cell "" [ref=f3e248]:
+                    - generic "Remove" [ref=f3e249] [cursor=pointer]: 
+                  - cell "" [ref=f3e250]:
+                    - generic "Edit" [ref=f3e251] [cursor=pointer]: 
+                  - cell "0 - 1500" [ref=f3e252]
+                  - cell "17%" [ref=f3e253]
+                  - cell "17%" [ref=f3e254]
+                  - cell "17%" [ref=f3e255]
+                  - cell "17%" [ref=f3e256]
+                  - cell "20%" [ref=f3e257]
+                  - cell "20%" [ref=f3e258]
+                  - cell "20%" [ref=f3e259]
+                  - cell "12%" [ref=f3e260]
+                  - cell "12%" [ref=f3e261]
+                  - cell "12%" [ref=f3e262]
+                  - cell "12%" [ref=f3e263]
+                  - cell "15%" [ref=f3e264]
+                  - cell "15%" [ref=f3e265]
+                  - cell "15%" [ref=f3e266]
+                  - cell "7%" [ref=f3e267]
+                  - cell "7%" [ref=f3e268]
+                  - cell "7%" [ref=f3e269]
+                  - cell "7%" [ref=f3e270]
+                  - cell "10%" [ref=f3e271]
+                  - cell "10%" [ref=f3e272]
+                  - cell "10%" [ref=f3e273]
+                - row "  1501 - 3000 17% 17% 17% 20% 20% 22% 22% 12% 12% 12% 15% 15% 17% 17% 7% 7% 7% 10% 10% 10% 10%" [ref=f3e274]:
+                  - cell "" [ref=f3e275]:
+                    - generic "Remove" [ref=f3e276] [cursor=pointer]: 
+                  - cell "" [ref=f3e277]:
+                    - generic "Edit" [ref=f3e278] [cursor=pointer]: 
+                  - cell "1501 - 3000" [ref=f3e279]
+                  - cell "17%" [ref=f3e280]
+                  - cell "17%" [ref=f3e281]
+                  - cell "17%" [ref=f3e282]
+                  - cell "20%" [ref=f3e283]
+                  - cell "20%" [ref=f3e284]
+                  - cell "22%" [ref=f3e285]
+                  - cell "22%" [ref=f3e286]
+                  - cell "12%" [ref=f3e287]
+                  - cell "12%" [ref=f3e288]
+                  - cell "12%" [ref=f3e289]
+                  - cell "15%" [ref=f3e290]
+                  - cell "15%" [ref=f3e291]
+                  - cell "17%" [ref=f3e292]
+                  - cell "17%" [ref=f3e293]
+                  - cell "7%" [ref=f3e294]
+                  - cell "7%" [ref=f3e295]
+                  - cell "7%" [ref=f3e296]
+                  - cell "10%" [ref=f3e297]
+                  - cell "10%" [ref=f3e298]
+                  - cell "10%" [ref=f3e299]
+                  - cell "10%" [ref=f3e300]
+                - row "  3001 - 5000 17% 17% 20% 20% 22% 22% 22% 12% 12% 15% 15% 17% 17% 17% 7% 7% 10% 10% 10% 12% 12%" [ref=f3e301]:
+                  - cell "" [ref=f3e302]:
+                    - generic "Remove" [ref=f3e303] [cursor=pointer]: 
+                  - cell "" [ref=f3e304]:
+                    - generic "Edit" [ref=f3e305] [cursor=pointer]: 
+                  - cell "3001 - 5000" [ref=f3e306]
+                  - cell "17%" [ref=f3e307]
+                  - cell "17%" [ref=f3e308]
+                  - cell "20%" [ref=f3e309]
+                  - cell "20%" [ref=f3e310]
+                  - cell "22%" [ref=f3e311]
+                  - cell "22%" [ref=f3e312]
+                  - cell "22%" [ref=f3e313]
+                  - cell "12%" [ref=f3e314]
+                  - cell "12%" [ref=f3e315]
+                  - cell "15%" [ref=f3e316]
+                  - cell "15%" [ref=f3e317]
+                  - cell "17%" [ref=f3e318]
+                  - cell "17%" [ref=f3e319]
+                  - cell "17%" [ref=f3e320]
+                  - cell "7%" [ref=f3e321]
+                  - cell "7%" [ref=f3e322]
+                  - cell "10%" [ref=f3e323]
+                  - cell "10%" [ref=f3e324]
+                  - cell "10%" [ref=f3e325]
+                  - cell "12%" [ref=f3e326]
+                  - cell "12%" [ref=f3e327]
+                - row "  5001 - 15000 17% 20% 20% 22% 22% 22% 25% 12% 15% 15% 17% 17% 17% 20% 7% 10% 10% 12% 12% 12% 12%" [ref=f3e328]:
+                  - cell "" [ref=f3e329]:
+                    - generic "Remove" [ref=f3e330] [cursor=pointer]: 
+                  - cell "" [ref=f3e331]:
+                    - generic "Edit" [ref=f3e332] [cursor=pointer]: 
+                  - cell "5001 - 15000" [ref=f3e333]
+                  - cell "17%" [ref=f3e334]
+                  - cell "20%" [ref=f3e335]
+                  - cell "20%" [ref=f3e336]
+                  - cell "22%" [ref=f3e337]
+                  - cell "22%" [ref=f3e338]
+                  - cell "22%" [ref=f3e339]
+                  - cell "25%" [ref=f3e340]
+                  - cell "12%" [ref=f3e341]
+                  - cell "15%" [ref=f3e342]
+                  - cell "15%" [ref=f3e343]
+                  - cell "17%" [ref=f3e344]
+                  - cell "17%" [ref=f3e345]
+                  - cell "17%" [ref=f3e346]
+                  - cell "20%" [ref=f3e347]
+                  - cell "7%" [ref=f3e348]
+                  - cell "10%" [ref=f3e349]
+                  - cell "10%" [ref=f3e350]
+                  - cell "12%" [ref=f3e351]
+                  - cell "12%" [ref=f3e352]
+                  - cell "12%" [ref=f3e353]
+                  - cell "12%" [ref=f3e354]
+                - row "  15001 - 25000 20% 20% 22% 22% 22% 25% 25% 15% 15% 17% 17% 17% 20% 20% 10% 10% 12% 12% 12% 15% 15%" [ref=f3e355]:
+                  - cell "" [ref=f3e356]:
+                    - generic "Remove" [ref=f3e357] [cursor=pointer]: 
+                  - cell "" [ref=f3e358]:
+                    - generic "Edit" [ref=f3e359] [cursor=pointer]: 
+                  - cell "15001 - 25000" [ref=f3e360]
+                  - cell "20%" [ref=f3e361]
+                  - cell "20%" [ref=f3e362]
+                  - cell "22%" [ref=f3e363]
+                  - cell "22%" [ref=f3e364]
+                  - cell "22%" [ref=f3e365]
+                  - cell "25%" [ref=f3e366]
+                  - cell "25%" [ref=f3e367]
+                  - cell "15%" [ref=f3e368]
+                  - cell "15%" [ref=f3e369]
+                  - cell "17%" [ref=f3e370]
+                  - cell "17%" [ref=f3e371]
+                  - cell "17%" [ref=f3e372]
+                  - cell "20%" [ref=f3e373]
+                  - cell "20%" [ref=f3e374]
+                  - cell "10%" [ref=f3e375]
+                  - cell "10%" [ref=f3e376]
+                  - cell "12%" [ref=f3e377]
+                  - cell "12%" [ref=f3e378]
+                  - cell "12%" [ref=f3e379]
+                  - cell "15%" [ref=f3e380]
+                  - cell "15%" [ref=f3e381]
+                - row "  25001 - 50000 20% 22% 22% 22% 25% 25% 27% 15% 17% 17% 17% 20% 20% 22% 10% 12% 12% 12% 15% 17% 17%" [ref=f3e382]:
+                  - cell "" [ref=f3e383]:
+                    - generic "Remove" [ref=f3e384] [cursor=pointer]: 
+                  - cell "" [ref=f3e385]:
+                    - generic "Edit" [ref=f3e386] [cursor=pointer]: 
+                  - cell "25001 - 50000" [ref=f3e387]
+                  - cell "20%" [ref=f3e388]
+                  - cell "22%" [ref=f3e389]
+                  - cell "22%" [ref=f3e390]
+                  - cell "22%" [ref=f3e391]
+                  - cell "25%" [ref=f3e392]
+                  - cell "25%" [ref=f3e393]
+                  - cell "27%" [ref=f3e394]
+                  - cell "15%" [ref=f3e395]
+                  - cell "17%" [ref=f3e396]
+                  - cell "17%" [ref=f3e397]
+                  - cell "17%" [ref=f3e398]
+                  - cell "20%" [ref=f3e399]
+                  - cell "20%" [ref=f3e400]
+                  - cell "22%" [ref=f3e401]
+                  - cell "10%" [ref=f3e402]
+                  - cell "12%" [ref=f3e403]
+                  - cell "12%" [ref=f3e404]
+                  - cell "12%" [ref=f3e405]
+                  - cell "15%" [ref=f3e406]
+                  - cell "17%" [ref=f3e407]
+                  - cell "17%" [ref=f3e408]
+                - row "  50001 - 75000 22% 22% 22% 25% 25% 27% 27% 17% 17% 17% 20% 20% 22% 22% 12% 12% 12% 15% 15% 17% 17%" [ref=f3e409]:
+                  - cell "" [ref=f3e410]:
+                    - generic "Remove" [ref=f3e411] [cursor=pointer]: 
+                  - cell "" [ref=f3e412]:
+                    - generic "Edit" [ref=f3e413] [cursor=pointer]: 
+                  - cell "50001 - 75000" [ref=f3e414]
+                  - cell "22%" [ref=f3e415]
+                  - cell "22%" [ref=f3e416]
+                  - cell "22%" [ref=f3e417]
+                  - cell "25%" [ref=f3e418]
+                  - cell "25%" [ref=f3e419]
+                  - cell "27%" [ref=f3e420]
+                  - cell "27%" [ref=f3e421]
+                  - cell "17%" [ref=f3e422]
+                  - cell "17%" [ref=f3e423]
+                  - cell "17%" [ref=f3e424]
+                  - cell "20%" [ref=f3e425]
+                  - cell "20%" [ref=f3e426]
+                  - cell "22%" [ref=f3e427]
+                  - cell "22%" [ref=f3e428]
+                  - cell "12%" [ref=f3e429]
+                  - cell "12%" [ref=f3e430]
+                  - cell "12%" [ref=f3e431]
+                  - cell "15%" [ref=f3e432]
+                  - cell "15%" [ref=f3e433]
+                  - cell "17%" [ref=f3e434]
+                  - cell "17%" [ref=f3e435]
+                - row "  75001 - 100000 22% 22% 25% 25% 27% 27% 30% 17% 17% 20% 20% 22% 22% 22% 12% 12% 15% 15% 15% 17% 20%" [ref=f3e436]:
+                  - cell "" [ref=f3e437]:
+                    - generic "Remove" [ref=f3e438] [cursor=pointer]: 
+                  - cell "" [ref=f3e439]:
+                    - generic "Edit" [ref=f3e440] [cursor=pointer]: 
+                  - cell "75001 - 100000" [ref=f3e441]
+                  - cell "22%" [ref=f3e442]
+                  - cell "22%" [ref=f3e443]
+                  - cell "25%" [ref=f3e444]
+                  - cell "25%" [ref=f3e445]
+                  - cell "27%" [ref=f3e446]
+                  - cell "27%" [ref=f3e447]
+                  - cell "30%" [ref=f3e448]
+                  - cell "17%" [ref=f3e449]
+                  - cell "17%" [ref=f3e450]
+                  - cell "20%" [ref=f3e451]
+                  - cell "20%" [ref=f3e452]
+                  - cell "22%" [ref=f3e453]
+                  - cell "22%" [ref=f3e454]
+                  - cell "22%" [ref=f3e455]
+                  - cell "12%" [ref=f3e456]
+                  - cell "12%" [ref=f3e457]
+                  - cell "15%" [ref=f3e458]
+                  - cell "15%" [ref=f3e459]
+                  - cell "15%" [ref=f3e460]
+                  - cell "17%" [ref=f3e461]
+                  - cell "20%" [ref=f3e462]
+                - row "  100001 - 20000000 22% 25% 25% 27% 27% 30% 30% 17% 20% 20% 22% 22% 22% 25% 12% 15% 15% 15% 17% 20% 20%" [ref=f3e463]:
+                  - cell "" [ref=f3e464]:
+                    - generic "Remove" [ref=f3e465] [cursor=pointer]: 
+                  - cell "" [ref=f3e466]:
+                    - generic "Edit" [ref=f3e467] [cursor=pointer]: 
+                  - cell "100001 - 20000000" [ref=f3e468]
+                  - cell "22%" [ref=f3e469]
+                  - cell "25%" [ref=f3e470]
+                  - cell "25%" [ref=f3e471]
+                  - cell "27%" [ref=f3e472]
+                  - cell "27%" [ref=f3e473]
+                  - cell "30%" [ref=f3e474]
+                  - cell "30%" [ref=f3e475]
+                  - cell "17%" [ref=f3e476]
+                  - cell "20%" [ref=f3e477]
+                  - cell "20%" [ref=f3e478]
+                  - cell "22%" [ref=f3e479]
+                  - cell "22%" [ref=f3e480]
+                  - cell "22%" [ref=f3e481]
+                  - cell "25%" [ref=f3e482]
+                  - cell "12%" [ref=f3e483]
+                  - cell "15%" [ref=f3e484]
+                  - cell "15%" [ref=f3e485]
+                  - cell "15%" [ref=f3e486]
+                  - cell "17%" [ref=f3e487]
+                  - cell "20%" [ref=f3e488]
+                  - cell "20%" [ref=f3e489]
+            - generic [ref=f3e232]:
+              - button "Export" [ref=f3e233] [cursor=pointer]
+              - button "Import" [ref=f3e234] [cursor=pointer]

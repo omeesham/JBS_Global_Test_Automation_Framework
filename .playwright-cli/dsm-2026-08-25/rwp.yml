@@ -1,0 +1,493 @@
+- generic [ref=f1e1]:
+  - alert [ref=f1e2]
+  - generic [ref=f1e4]:
+    - generic [ref=f1e21]:
+      - list [ref=f1e23]:
+        - listitem [ref=f1e24]:
+          - button "1604 Parker Palm Springs" [ref=f1e512] [cursor=pointer]:
+            - generic [ref=f1e27]: "1604"
+            - generic [ref=f1e28]:
+              - generic [ref=f1e513]: Parker Palm Springs
+              - img [ref=f1e29]
+      - generic [ref=f1e35]:
+        - list [ref=f1e37]:
+          - listitem [ref=f1e38]:
+            - link "Home" [ref=f1e39] [cursor=pointer]:
+              - /url: /navigator/locations/1604/home
+              - img [ref=f1e40]
+              - generic [ref=f1e43]: Home
+          - listitem [ref=f1e44]:
+            - link "Inbox" [ref=f1e45] [cursor=pointer]:
+              - /url: /navigator/locations/1604/inbox
+              - img [ref=f1e46]
+              - generic [ref=f1e49]: Inbox
+          - listitem [ref=f1e50]:
+            - button "Actions" [ref=f1e51] [cursor=pointer]:
+              - img [ref=f1e52]
+              - generic [ref=f1e54]: Actions
+              - img [ref=f1e55]
+          - listitem [ref=f1e57]:
+            - button "Commissions" [ref=f1e58] [cursor=pointer]:
+              - img [ref=f1e59]
+              - generic [ref=f1e61]: Commissions
+              - img [ref=f1e62]
+          - listitem [ref=f1e64]:
+            - button "Tax" [ref=f1e65] [cursor=pointer]:
+              - img [ref=f1e66]
+              - generic [ref=f1e69]: Tax
+              - img [ref=f1e70]
+          - listitem [ref=f1e72]:
+            - button "Setup" [ref=f1e73] [cursor=pointer]:
+              - img [ref=f1e74]
+              - generic [ref=f1e77]: Setup
+              - img [ref=f1e78]
+          - listitem [ref=f1e80]:
+            - button "Studio" [ref=f1e81] [cursor=pointer]:
+              - img [ref=f1e82]
+              - generic [ref=f1e84]: Studio
+              - img [ref=f1e85]
+        - generic [ref=f1e87]:
+          - generic [ref=f1e88]: Search
+          - list [ref=f1e90]:
+            - listitem [ref=f1e91]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=f1e92]:
+              - link "Job Search" [ref=f1e93] [cursor=pointer]:
+                - /url: /navigator/locations/1604/fulfillments
+                - img [ref=f1e94]
+                - generic [ref=f1e97]: Job Search
+            - listitem [ref=f1e98]:
+              - link "Asset Search" [ref=f1e99] [cursor=pointer]:
+                - /url: /navigator/locations/1604/assets
+                - img [ref=f1e100]
+                - generic [ref=f1e103]: Asset Search
+            - listitem [ref=f1e104]:
+              - link "Customer Search" [ref=f1e105] [cursor=pointer]:
+                - /url: /navigator/locations/1604/customers
+                - img [ref=f1e106]
+                - generic [ref=f1e109]: Customer Search
+            - listitem [ref=f1e110]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=f1e111]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=f1e112]:
+              - link "Item Search" [ref=f1e113] [cursor=pointer]:
+                - /url: /navigator/locations/1604/products
+                - img [ref=f1e114]
+                - generic [ref=f1e124]: Item Search
+            - listitem [ref=f1e125]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=f1e126]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=f1e128]:
+          - listitem [ref=f1e129]:
+            - button "Navigator Assistant" [ref=f1e130] [cursor=pointer]:
+              - img [ref=f1e131]
+              - generic [ref=f1e133]: Navigator Assistant
+      - list [ref=f1e136]:
+        - listitem [ref=f1e137]:
+          - button "PC prd click auto" [ref=f1e138] [cursor=pointer]:
+            - generic [ref=f1e140]: PC
+            - generic [ref=f1e142]: prd click auto
+            - img [ref=f1e143]
+      - button "Click to restore sidebar" [ref=f1e147]
+    - main [ref=f1e148]:
+      - generic [ref=f1e151]:
+        - generic [ref=f1e153]:
+          - button "trigger-button" [ref=f1e154] [cursor=pointer]:
+            - img
+          - generic [ref=f1e156]:
+            - heading "Discount Matrix" [level=1] [ref=f1e158]
+            - button "More information" [ref=f1e159]:
+              - img [ref=f1e160]
+        - generic [ref=f1e163]:
+          - generic [ref=f1e164]:
+            - generic [ref=f1e165]:
+              - generic [ref=f1e166]:
+                - generic [ref=f1e167]: "Country:"
+                - combobox [ref=f1e509] [cursor=pointer]:
+                  - generic: United States
+                  - img
+              - generic [ref=f1e169]:
+                - generic [ref=f1e170]: "Currency:"
+                - combobox [ref=f1e510] [cursor=pointer]:
+                  - generic: USD
+                  - img
+              - generic [ref=f1e172]:
+                - generic [ref=f1e173]: "Business Tier:"
+                - combobox [ref=f1e511] [cursor=pointer]:
+                  - generic: Standard
+                  - img
+              - generic [ref=f1e175]:
+                - generic [ref=f1e176]: "GAV Discount Threshold:"
+                - textbox "0%" [ref=f1e613]: 15%
+            - button "Save" [disabled]
+          - generic [ref=f1e179]:
+            - tablist [ref=f1e180]:
+              - tab "Company Matrix" [ref=f1e181] [cursor=pointer]:
+                - generic [ref=f1e182]: Company Matrix
+              - tab "Region Weekly Peaks" [active] [selected] [ref=f1e183] [cursor=pointer]:
+                - generic [ref=f1e184]: Region Weekly Peaks
+              - tab "Location Activation" [ref=f1e185] [cursor=pointer]:
+                - generic [ref=f1e186]: Location Activation
+            - tabpanel "Region Weekly Peaks" [ref=f1e614]:
+              - generic [ref=f1e615]:
+                - generic [ref=f1e616]:
+                  - generic [ref=f1e617]:
+                    - generic [ref=f1e618]:
+                      - generic [ref=f1e619]: Select Year
+                      - combobox "Select Year" [ref=f1e620] [cursor=pointer]:
+                        - generic: "2027"
+                        - img
+                    - generic [ref=f1e621]:
+                      - generic [ref=f1e622]: Region
+                      - combobox "Region" [ref=f1e623] [cursor=pointer]:
+                        - generic: Atlanta
+                        - img
+                    - generic [ref=f1e624]:
+                      - button "Add Year" [disabled]:
+                        - img
+                        - text: Add Year
+                    - generic [ref=f1e625]:
+                      - button "Export" [disabled]:
+                        - img
+                        - text: Export
+                      - button "Import" [disabled]:
+                        - img
+                        - text: Import
+                  - generic [ref=f1e626]:
+                    - button "Cancel" [disabled]
+                    - button "Save" [disabled]
+                - table [ref=f1e630]:
+                  - rowgroup [ref=f1e631]:
+                    - row "Week Start Date Non-Peak Standard Peak" [ref=f1e632]:
+                      - columnheader "Week" [ref=f1e633]
+                      - columnheader "Start Date" [ref=f1e634]
+                      - columnheader "Non-Peak" [ref=f1e635]
+                      - columnheader "Standard" [ref=f1e636]
+                      - columnheader "Peak" [ref=f1e637]
+                  - rowgroup [ref=f1e638]:
+                    - row [ref=f1e639]:
+                      - cell [ref=f1e640]
+                      - cell [ref=f1e642]
+                      - cell [ref=f1e644]
+                      - cell [ref=f1e646]
+                      - cell [ref=f1e648]
+                    - row [ref=f1e650]:
+                      - cell [ref=f1e651]
+                      - cell [ref=f1e653]
+                      - cell [ref=f1e655]
+                      - cell [ref=f1e657]
+                      - cell [ref=f1e659]
+                    - row [ref=f1e661]:
+                      - cell [ref=f1e662]
+                      - cell [ref=f1e664]
+                      - cell [ref=f1e666]
+                      - cell [ref=f1e668]
+                      - cell [ref=f1e670]
+                    - row [ref=f1e672]:
+                      - cell [ref=f1e673]
+                      - cell [ref=f1e675]
+                      - cell [ref=f1e677]
+                      - cell [ref=f1e679]
+                      - cell [ref=f1e681]
+                    - row [ref=f1e683]:
+                      - cell [ref=f1e684]
+                      - cell [ref=f1e686]
+                      - cell [ref=f1e688]
+                      - cell [ref=f1e690]
+                      - cell [ref=f1e692]
+                    - row [ref=f1e694]:
+                      - cell [ref=f1e695]
+                      - cell [ref=f1e697]
+                      - cell [ref=f1e699]
+                      - cell [ref=f1e701]
+                      - cell [ref=f1e703]
+                    - row [ref=f1e705]:
+                      - cell [ref=f1e706]
+                      - cell [ref=f1e708]
+                      - cell [ref=f1e710]
+                      - cell [ref=f1e712]
+                      - cell [ref=f1e714]
+                    - row [ref=f1e716]:
+                      - cell [ref=f1e717]
+                      - cell [ref=f1e719]
+                      - cell [ref=f1e721]
+                      - cell [ref=f1e723]
+                      - cell [ref=f1e725]
+                    - row [ref=f1e727]:
+                      - cell [ref=f1e728]
+                      - cell [ref=f1e730]
+                      - cell [ref=f1e732]
+                      - cell [ref=f1e734]
+                      - cell [ref=f1e736]
+                    - row [ref=f1e738]:
+                      - cell [ref=f1e739]
+                      - cell [ref=f1e741]
+                      - cell [ref=f1e743]
+                      - cell [ref=f1e745]
+                      - cell [ref=f1e747]
+                    - row [ref=f1e749]:
+                      - cell [ref=f1e750]
+                      - cell [ref=f1e752]
+                      - cell [ref=f1e754]
+                      - cell [ref=f1e756]
+                      - cell [ref=f1e758]
+                    - row [ref=f1e760]:
+                      - cell [ref=f1e761]
+                      - cell [ref=f1e763]
+                      - cell [ref=f1e765]
+                      - cell [ref=f1e767]
+                      - cell [ref=f1e769]
+                    - row [ref=f1e771]:
+                      - cell [ref=f1e772]
+                      - cell [ref=f1e774]
+                      - cell [ref=f1e776]
+                      - cell [ref=f1e778]
+                      - cell [ref=f1e780]
+                    - row [ref=f1e782]:
+                      - cell [ref=f1e783]
+                      - cell [ref=f1e785]
+                      - cell [ref=f1e787]
+                      - cell [ref=f1e789]
+                      - cell [ref=f1e791]
+                    - row [ref=f1e793]:
+                      - cell [ref=f1e794]
+                      - cell [ref=f1e796]
+                      - cell [ref=f1e798]
+                      - cell [ref=f1e800]
+                      - cell [ref=f1e802]
+                    - row [ref=f1e804]:
+                      - cell [ref=f1e805]
+                      - cell [ref=f1e807]
+                      - cell [ref=f1e809]
+                      - cell [ref=f1e811]
+                      - cell [ref=f1e813]
+                    - row [ref=f1e815]:
+                      - cell [ref=f1e816]
+                      - cell [ref=f1e818]
+                      - cell [ref=f1e820]
+                      - cell [ref=f1e822]
+                      - cell [ref=f1e824]
+                    - row [ref=f1e826]:
+                      - cell [ref=f1e827]
+                      - cell [ref=f1e829]
+                      - cell [ref=f1e831]
+                      - cell [ref=f1e833]
+                      - cell [ref=f1e835]
+                    - row [ref=f1e837]:
+                      - cell [ref=f1e838]
+                      - cell [ref=f1e840]
+                      - cell [ref=f1e842]
+                      - cell [ref=f1e844]
+                      - cell [ref=f1e846]
+                    - row [ref=f1e848]:
+                      - cell [ref=f1e849]
+                      - cell [ref=f1e851]
+                      - cell [ref=f1e853]
+                      - cell [ref=f1e855]
+                      - cell [ref=f1e857]
+                    - row [ref=f1e859]:
+                      - cell [ref=f1e860]
+                      - cell [ref=f1e862]
+                      - cell [ref=f1e864]
+                      - cell [ref=f1e866]
+                      - cell [ref=f1e868]
+                    - row [ref=f1e870]:
+                      - cell [ref=f1e871]
+                      - cell [ref=f1e873]
+                      - cell [ref=f1e875]
+                      - cell [ref=f1e877]
+                      - cell [ref=f1e879]
+                    - row [ref=f1e881]:
+                      - cell [ref=f1e882]
+                      - cell [ref=f1e884]
+                      - cell [ref=f1e886]
+                      - cell [ref=f1e888]
+                      - cell [ref=f1e890]
+                    - row [ref=f1e892]:
+                      - cell [ref=f1e893]
+                      - cell [ref=f1e895]
+                      - cell [ref=f1e897]
+                      - cell [ref=f1e899]
+                      - cell [ref=f1e901]
+                    - row [ref=f1e903]:
+                      - cell [ref=f1e904]
+                      - cell [ref=f1e906]
+                      - cell [ref=f1e908]
+                      - cell [ref=f1e910]
+                      - cell [ref=f1e912]
+                    - row [ref=f1e914]:
+                      - cell [ref=f1e915]
+                      - cell [ref=f1e917]
+                      - cell [ref=f1e919]
+                      - cell [ref=f1e921]
+                      - cell [ref=f1e923]
+                    - row [ref=f1e925]:
+                      - cell [ref=f1e926]
+                      - cell [ref=f1e928]
+                      - cell [ref=f1e930]
+                      - cell [ref=f1e932]
+                      - cell [ref=f1e934]
+                    - row [ref=f1e936]:
+                      - cell [ref=f1e937]
+                      - cell [ref=f1e939]
+                      - cell [ref=f1e941]
+                      - cell [ref=f1e943]
+                      - cell [ref=f1e945]
+                    - row [ref=f1e947]:
+                      - cell [ref=f1e948]
+                      - cell [ref=f1e950]
+                      - cell [ref=f1e952]
+                      - cell [ref=f1e954]
+                      - cell [ref=f1e956]
+                    - row [ref=f1e958]:
+                      - cell [ref=f1e959]
+                      - cell [ref=f1e961]
+                      - cell [ref=f1e963]
+                      - cell [ref=f1e965]
+                      - cell [ref=f1e967]
+                    - row [ref=f1e969]:
+                      - cell [ref=f1e970]
+                      - cell [ref=f1e972]
+                      - cell [ref=f1e974]
+                      - cell [ref=f1e976]
+                      - cell [ref=f1e978]
+                    - row [ref=f1e980]:
+                      - cell [ref=f1e981]
+                      - cell [ref=f1e983]
+                      - cell [ref=f1e985]
+                      - cell [ref=f1e987]
+                      - cell [ref=f1e989]
+                    - row [ref=f1e991]:
+                      - cell [ref=f1e992]
+                      - cell [ref=f1e994]
+                      - cell [ref=f1e996]
+                      - cell [ref=f1e998]
+                      - cell [ref=f1e1000]
+                    - row [ref=f1e1002]:
+                      - cell [ref=f1e1003]
+                      - cell [ref=f1e1005]
+                      - cell [ref=f1e1007]
+                      - cell [ref=f1e1009]
+                      - cell [ref=f1e1011]
+                    - row [ref=f1e1013]:
+                      - cell [ref=f1e1014]
+                      - cell [ref=f1e1016]
+                      - cell [ref=f1e1018]
+                      - cell [ref=f1e1020]
+                      - cell [ref=f1e1022]
+                    - row [ref=f1e1024]:
+                      - cell [ref=f1e1025]
+                      - cell [ref=f1e1027]
+                      - cell [ref=f1e1029]
+                      - cell [ref=f1e1031]
+                      - cell [ref=f1e1033]
+                    - row [ref=f1e1035]:
+                      - cell [ref=f1e1036]
+                      - cell [ref=f1e1038]
+                      - cell [ref=f1e1040]
+                      - cell [ref=f1e1042]
+                      - cell [ref=f1e1044]
+                    - row [ref=f1e1046]:
+                      - cell [ref=f1e1047]
+                      - cell [ref=f1e1049]
+                      - cell [ref=f1e1051]
+                      - cell [ref=f1e1053]
+                      - cell [ref=f1e1055]
+                    - row [ref=f1e1057]:
+                      - cell [ref=f1e1058]
+                      - cell [ref=f1e1060]
+                      - cell [ref=f1e1062]
+                      - cell [ref=f1e1064]
+                      - cell [ref=f1e1066]
+                    - row [ref=f1e1068]:
+                      - cell [ref=f1e1069]
+                      - cell [ref=f1e1071]
+                      - cell [ref=f1e1073]
+                      - cell [ref=f1e1075]
+                      - cell [ref=f1e1077]
+                    - row [ref=f1e1079]:
+                      - cell [ref=f1e1080]
+                      - cell [ref=f1e1082]
+                      - cell [ref=f1e1084]
+                      - cell [ref=f1e1086]
+                      - cell [ref=f1e1088]
+                    - row [ref=f1e1090]:
+                      - cell [ref=f1e1091]
+                      - cell [ref=f1e1093]
+                      - cell [ref=f1e1095]
+                      - cell [ref=f1e1097]
+                      - cell [ref=f1e1099]
+                    - row [ref=f1e1101]:
+                      - cell [ref=f1e1102]
+                      - cell [ref=f1e1104]
+                      - cell [ref=f1e1106]
+                      - cell [ref=f1e1108]
+                      - cell [ref=f1e1110]
+                    - row [ref=f1e1112]:
+                      - cell [ref=f1e1113]
+                      - cell [ref=f1e1115]
+                      - cell [ref=f1e1117]
+                      - cell [ref=f1e1119]
+                      - cell [ref=f1e1121]
+                    - row [ref=f1e1123]:
+                      - cell [ref=f1e1124]
+                      - cell [ref=f1e1126]
+                      - cell [ref=f1e1128]
+                      - cell [ref=f1e1130]
+                      - cell [ref=f1e1132]
+                    - row [ref=f1e1134]:
+                      - cell [ref=f1e1135]
+                      - cell [ref=f1e1137]
+                      - cell [ref=f1e1139]
+                      - cell [ref=f1e1141]
+                      - cell [ref=f1e1143]
+                    - row [ref=f1e1145]:
+                      - cell [ref=f1e1146]
+                      - cell [ref=f1e1148]
+                      - cell [ref=f1e1150]
+                      - cell [ref=f1e1152]
+                      - cell [ref=f1e1154]
+                    - row [ref=f1e1156]:
+                      - cell [ref=f1e1157]
+                      - cell [ref=f1e1159]
+                      - cell [ref=f1e1161]
+                      - cell [ref=f1e1163]
+                      - cell [ref=f1e1165]
+                    - row [ref=f1e1167]:
+                      - cell [ref=f1e1168]
+                      - cell [ref=f1e1170]
+                      - cell [ref=f1e1172]
+                      - cell [ref=f1e1174]
+                      - cell [ref=f1e1176]
+                    - row [ref=f1e1178]:
+                      - cell [ref=f1e1179]
+                      - cell [ref=f1e1181]
+                      - cell [ref=f1e1183]
+                      - cell [ref=f1e1185]
+                      - cell [ref=f1e1187]
+                    - row [ref=f1e1189]:
+                      - cell [ref=f1e1190]
+                      - cell [ref=f1e1192]
+                      - cell [ref=f1e1194]
+                      - cell [ref=f1e1196]
+                      - cell [ref=f1e1198]
+                    - row [ref=f1e1200]:
+                      - cell [ref=f1e1201]
+                      - cell [ref=f1e1203]
+                      - cell [ref=f1e1205]
+                      - cell [ref=f1e1207]
+                      - cell [ref=f1e1209]
+                - generic [ref=f1e1212]: "Count: 0"
+  - region "Notifications alt+T"
