@@ -1,13 +1,13 @@
 ---
 name: push-encore-deliverables
-description: Ship one branch to the Encore CLIENT deliverables repo (encore-mock / omeesham/EncoreGlobal_AI_Test_Framework, branch dev-rutvik). The branch name is REQUIRED and always chosen by the user. Dry-runs and shows the exact payload before pushing. EXPLICIT-INVOKE ONLY.
-when-to-use: User types /push-encore-deliverables <branch>. Never auto-routes, never infers the branch, never ships a second branch off one authorisation.
+description: Ship one branch to the Encore CLIENT deliverables repo (encore-mock / omeesham/EncoreGlobal_AI_Test_Framework). ALWAYS asks which branch — pick an existing remote branch, or create a new one following the feature/sprint<N>-<name>-NM-<ticket> standard. Dry-runs and shows the exact payload before pushing. EXPLICIT-INVOKE ONLY.
+when-to-use: User types /push-encore-deliverables. Never auto-routes, never infers the branch, never ships a second branch off one authorisation.
 ---
 
 # /push-encore-deliverables — ship to the CLIENT repo
 
 **Target**: `encore-mock` → `https://github.com/omeesham/EncoreGlobal_AI_Test_Framework`.
-**Ship branch**: `dev-rutvik` (was `main` on `RutviK-JBS/encore_deliverables_test` until 2026-08-21). Pass it explicitly: `--branch=dev-rutvik`.
+**Ship branch**: ALWAYS ASKED — never assumed. `dev-vikas` is the current standing branch; new work usually gets its own branch per the naming standard in Step 0. (`dev-rutvik` is RETIRED, 2026-08-27 — do not ship there. Before that the target was `main` on `RutviK-JBS/encore_deliverables_test`, frozen since the 2026-08-21 org migration.)
 **Old remote**: kept locally as `encore-mock-old` for read-only history lookups. Never push there.
 **Audience**: the client's reviewers. They see exactly what this ships and nothing else.
 **Identity**: OWNER. Publishing is never delegated.
@@ -20,17 +20,48 @@ when-to-use: User types /push-encore-deliverables <branch>. Never auto-routes, n
 > lists what is prepared and asks. Never infer the branch from context or from the last thing
 > discussed. **One invocation authorises exactly one branch.** After a successful push, STOP.
 
-## Step 0 — Require the branch
+## Step 0 — ALWAYS ask which branch (never assume, never infer)
+
+This skill takes **no branch argument**. It always asks. Never infer the branch from context, from
+the last thing discussed, or from what was shipped previously.
+
+**1. Show what actually exists on the client repo:**
+
+```bash
+git ls-remote --heads https://github.com/omeesham/EncoreGlobal_AI_Test_Framework.git
+```
+
+Present those branches as the choices. `dev-vikas` is the current standing branch. **`dev-rutvik` is
+retired (2026-08-27) — never offer it and never ship there**, even if it still appears in the listing.
+
+**2. Always offer "create a new branch" as an option alongside them.**
+
+**3. Branch naming standard — MANDATORY for every new branch:**
 
 ```
-/push-encore-deliverables notes
+feature/sprint<N>-<name>-NM-<ticket>        e.g. feature/sprint17-vikas-NM-4333
 ```
 
-> Per-ticket branches (`nm####`) were retired 2026-08-13 — only `dev-rutvik` ships to the client (repo migrated 2026-08-21 — the old `main` on `encore_deliverables_test` is frozen history). The
-> argument is a surviving collection preset (notes/ssl/legal/account-address/corporate-pricing/
-> auto-addon/left-panel-basic-info/locations) or an ad-hoc `--modules`/`--surface` scope.
+| Segment | Rule |
+|---|---|
+| `feature/sprint` | fixed, literal |
+| `<N>` | sprint number — **ask, do not assume**. Sprint 17 as of 2026-08-27; it moves every sprint. |
+| `<name>` | the person shipping, lowercase (`vikas`) |
+| `NM-<ticket>` | the client Jira ticket, e.g. `NM-4333` |
 
-No argument → list local `delivery/*` branches and existing remote branches, then stop and ask.
+When the user picks "create new", ask only for the **sprint number** and the **ticket**, build the
+name, and show it back for confirmation before using it.
+
+> **This is enforced, not advisory.** `scripts/ship-branch.sh` hard-exits 2 if a branch that does not
+> already exist on the remote fails the pattern. Existing branches are grandfathered — the gate fires
+> on branch CREATION only, because refusing to push to an existing branch cannot rename it, it only
+> blocks a legitimate delivery.
+
+**4. Scope still has to be supplied.** The old collection presets (`notes`/`ssl`/`legal`/
+`account-address`/`corporate-pricing`/`auto-addon`/`left-panel-basic-info`/`locations`) only resolve
+when the branch is literally that preset name. A `feature/sprint…` branch matches no preset, so it
+**requires explicit `--modules` and `--surface`** — otherwise the script exits 2 with
+`need --modules and --surface`. Per-ticket `nm####` branches were retired 2026-08-13.
 
 ## Step 1 — Know what the tool does
 

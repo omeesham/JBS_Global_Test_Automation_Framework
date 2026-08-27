@@ -106,6 +106,31 @@ if [[ -z "$MODULES" || -z "$SURFACE" ]]; then
 fi
 [[ -n "$BRANCH" ]] || { echo "[ship-branch] --branch is required" >&2; exit 2; }
 
+# --- Branch-name convention gate ---------------------------------------------------------------
+# Sev S2 (LR-069 §3.1) — process defect, not a leak; fails fast with the correct name in the message.
+# Graduating directive: Rutvik 2026-08-05 — team standard is feature/sprint<N>-<name>-NM-<ticket>
+#   e.g. feature/sprint17-vikas-NM-4333   ("feature/sprint" fixed, sprint number and name and ticket vary)
+# The gate fires ONLY on branch CREATION. Branches that already exist on the remote are grandfathered:
+# refusing to push to one cannot rename it, it only blocks a legitimate delivery.
+BRANCH_CONVENTION='^feature/sprint[0-9]+-[a-z][a-z0-9]*-NM-[0-9]+$'
+LS_OUT="$(git ls-remote --heads "$REMOTE_URL" "$BRANCH" 2>/dev/null)"; LS_RC=$?
+if [[ $LS_RC -ne 0 ]]; then
+  echo "[ship-branch] WARN - could not reach $REMOTE_NAME to check whether '$BRANCH' exists;" >&2
+  echo "[ship-branch] treating it as NEW and applying the naming standard conservatively." >&2
+fi
+if [[ -n "$LS_OUT" ]]; then
+  echo "[ship-branch] branch '$BRANCH' already exists on $REMOTE_NAME - naming check skipped (existing branch)"
+elif [[ ! "$BRANCH" =~ $BRANCH_CONVENTION ]]; then
+  echo "[ship-branch] FATAL - '$BRANCH' does not exist on $REMOTE_NAME, so this push would CREATE it," >&2
+  echo "[ship-branch] and a new branch must follow the team standard:" >&2
+  echo "[ship-branch]     feature/sprint<N>-<name>-NM-<ticket>    e.g. feature/sprint17-vikas-NM-4333" >&2
+  echo "[ship-branch] Fix the name, or target an existing branch. List them with:" >&2
+  echo "[ship-branch]     git ls-remote --heads $REMOTE_URL" >&2
+  exit 2
+else
+  echo "[ship-branch] branch '$BRANCH' is NEW and matches the naming standard - it will be created on push"
+fi
+
 echo "[ship-branch] branch=$BRANCH modules=$MODULES surface=$SURFACE tcs=${TCS:-<none>} push=$DO_PUSH"
 
 # Guard: if --tcs is supplied, spec-trim.mjs must exist before any work begins.
