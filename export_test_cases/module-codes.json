@@ -7,7 +7,8 @@
     "COR": { "name": "corporate-pricing", "display": "Corporate Override", "dir": "corporate-override" },
     "TNC": { "name": "terms-conditions", "display": "Terms and Conditions", "dir": "terms-conditions" },
     "SCT": { "name": "service-charge-text", "display": "Service Charge Text", "dir": "service-charge-text" },
-    "SVC": { "name": "service-charge", "display": "Service Charge", "dir": "service-charge" }
+    "SVC": { "name": "service-charge", "display": "Service Charge", "dir": "service-charge" },
+    "DSM": { "name": "discount-matrix", "display": "Discount Matrix", "dir": "discount-matrix" }
   },
   "submodules": {
     "LOC": {
@@ -57,9 +58,16 @@
       "LGR": { "name": "override", "display": "Labor Grid", "sheet": "corporate_override_labor_grid", "mdBasename": "corporate_override_labor_grid_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
       "EXP": { "name": "override", "display": "Export", "sheet": "corporate_override_export", "mdBasename": "corporate_override_export_test_cases", "idModule": "CPR", "idSubmodule": "OVR" },
       "IMP": { "name": "override", "display": "Import", "sheet": "corporate_override_import", "mdBasename": "corporate_override_import_test_cases", "idModule": "CPR", "idSubmodule": "OVR" }
+    },
+    "DSM": {
+      "CRT": { "name": "criteria", "display": "Search Criteria", "sheet": "discount_matrix_criteria", "mdBasename": "discount_matrix_criteria_test_cases" },
+      "RWP": { "name": "region_weekly_peaks", "display": "Region Weekly Peaks", "sheet": "discount_matrix_region_peaks", "mdBasename": "discount_matrix_region_weekly_peaks_test_cases" },
+      "LOA": { "name": "location_activation", "display": "Location Activation", "sheet": "discount_matrix_loc_activation", "mdBasename": "discount_matrix_location_activation_test_cases" }
     }
   },
   "sheetNameNotes": {
+    "discount_matrix_region_peaks": "31-char Excel cap shortening of discount_matrix_region_weekly_peaks (35 chars) — by-design, approved 2026-08-25",
+    "discount_matrix_loc_activation": "31-char Excel cap shortening of discount_matrix_location_activation (35 chars) — by-design, approved 2026-08-25",
     "locations_shared_setup_location": "31-char Excel cap truncation of locations_shared_setup_locations (trailing 's' lost) — by-design, approved 2026-06-11",
     "locations_left_panel_basic_info": "31-char Excel cap truncation of locations_left_panel_basic_information — by-design, approved 2026-06-11",
     "corporate_pricing_new_pricebook": "exactly 31 chars — at the Excel sheet-name limit",

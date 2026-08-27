@@ -164,6 +164,10 @@ const SHEET_NAMES: Record<string, string> = {
   // 'service_charge_basic_information' = 32 chars > Excel's 31-char limit → shortened
   // 'information' → 'info' (25 chars). Mirrors the `sheet` value registered for
   // SVC/BAS in export_test_cases/module-codes.json.
+  // Both Discount Matrix tab names exceed Excel's 31-char sheet limit — shortened to match the
+  // `sheet` values already registered in module-codes.json (and its sheetNameNotes entries).
+  discount_matrix_region_weekly_peaks: 'discount_matrix_region_peaks',
+  discount_matrix_location_activation: 'discount_matrix_loc_activation',
   service_charge_basic_information: 'service_charge_basic_info',
   service_charge_history: 'service_charge_history',
 };
@@ -204,6 +208,9 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   // Service Charge Text
   service_charge_text_core: 'Service Charge Text — Core',
   // Service Charge
+  discount_matrix_criteria: 'Discount Matrix — Search Criteria',
+  discount_matrix_region_weekly_peaks: 'Discount Matrix — Region Weekly Peaks',
+  discount_matrix_location_activation: 'Discount Matrix — Location Activation',
   service_charge_basic_information: 'Service Charge — Basic Information',
   service_charge_history: 'Service Charge — History',
 };
@@ -248,6 +255,9 @@ const SPLIT_FILE_MAP: Record<string, { group: string; stem: string }> = {
   // Service Charge Text
   service_charge_text_core: { group: 'service-charge-text', stem: 'service-charge-text-core' },
   // Service Charge
+  discount_matrix_criteria: { group: 'discount-matrix', stem: 'discount-matrix-search-criteria' },
+  discount_matrix_region_peaks: { group: 'discount-matrix', stem: 'discount-matrix-region-weekly-peaks' },
+  discount_matrix_loc_activation: { group: 'discount-matrix', stem: 'discount-matrix-location-activation' },
   service_charge_basic_info: { group: 'service-charge', stem: 'service-charge-basic-information' },
   service_charge_history: { group: 'service-charge', stem: 'service-charge-history' },
 };

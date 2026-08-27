@@ -194,6 +194,10 @@ export const KNOWN_SUB_CODES = [
   'LGR', // NM-2271
   'EXP', // NM-2272
   'IMP', // NM-2273
+  // discount-matrix (DSM) — CMX omitted by design; NM-3343 owns Company Matrix
+  'CRT',  // criteria (search criteria bar)
+  'RWP',  // region_weekly_peaks
+  'LOA',  // location_activation
 ] as const;
 
 export type SubCode = typeof KNOWN_SUB_CODES[number];

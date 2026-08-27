@@ -111,6 +111,22 @@ const ENFORCED = [
     specPath: 'clients/encore/tests/service-charge/service-charge-history.spec.ts',
     describes: [{ title: 'Service Charge History', mechanism: 'fresh-open' }],
   },
+  {
+    // Discount Matrix criteria: the fields describe drives a real threshold save (persist +
+    // verified restore); ensureCleanCriteria in beforeEach re-establishes the loaded, idle page.
+    specPath: 'clients/encore/tests/discount-matrix/discount-matrix-criteria.spec.ts',
+    describes: [
+      { title: 'Discount Matrix Search Criteria — fields @discount-matrix @criteria', mechanism: 'beforeEach-reset' },
+    ],
+  },
+  {
+    // Region Weekly Peaks: the surface describe drives a real classification save (persist +
+    // verified restore); ensureCleanRwp in beforeEach re-establishes the loaded, idle tab.
+    specPath: 'clients/encore/tests/discount-matrix/region-weekly-peaks.spec.ts',
+    describes: [
+      { title: 'SBC — Discount Matrix Region Weekly Peaks surface behaviors @discount-matrix @region-weekly-peaks', mechanism: 'beforeEach-reset' },
+    ],
+  },
 ];
 
 // Helpers that drive a REAL Save — used by the glob WARN pass to spot save-capable describes.
@@ -121,6 +137,10 @@ const REAL_SAVE_HELPERS = [
   'saveAndVerifyCase',
   'saveAndConfirm',
   'clickSave',
+  'clickCriteriaSave',
+  'clickPanelSave',
+  'persistThreshold',
+  'persistWeekClassification',
 ];
 
 // Per-test reset helpers that establish a known baseline (NOT plain navigation — a bare nav guard
