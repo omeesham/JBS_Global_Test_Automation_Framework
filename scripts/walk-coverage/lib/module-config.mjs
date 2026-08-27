@@ -10,6 +10,14 @@
 
 export const MODULE_CONFIG = {
   // Service Charge — resting state (Basic Information tab default) + History tab state.
+  // Discount Matrix — CMX rides the resting pass (it is the default tab); RWP and LOA are branches.
+  'discount-matrix': {
+    requiredStates: [
+      { label: 'resting' },
+      { label: 'tab:region-weekly-peaks' },
+      { label: 'tab:location-activation' },
+    ],
+  },
   'service-charge': {
     requiredStates: [
       { label: 'resting' },

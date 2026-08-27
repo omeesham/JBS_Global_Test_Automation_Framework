@@ -23,7 +23,7 @@
  * @returns {{entries: Array, candidates: Array, stats: object}}
  *   entries:    [{ key, role, name, why, inA, inB, disabled }]  (the union, deduped by element-key)
  *   candidates: [{ idx, key, role, name }]  (cursor:pointer G1 candidates; idx → window.__wcCands)
- *   stats:      { scanned, shadowHosts, uniqueKeys }
+ *   stats:      { scanned, shadowHosts, uniqueKeys, skeletons }
  */
 export function inPageEnumerate(rootSelector) {
   // ---- role sets (WAI-ARIA 1.2 widget roles vs. composite-container / landmark / structure) ----
@@ -209,7 +209,10 @@ export function inPageEnumerate(rootSelector) {
 
   var entries = order.map(function (k) { return map[k]; });
   return { entries: entries, candidates: candidates,
-           stats: { scanned: all.length, shadowHosts: shadowHosts, uniqueKeys: entries.length } };
+           stats: { scanned: all.length, shadowHosts: shadowHosts, uniqueKeys: entries.length,
+                   // loading placeholders still on the page — readiness consumes this so it
+                   // costs no extra round-trip (shadcn/ui convention, app-wide not per-surface)
+                   skeletons: (rootEl.querySelectorAll ? rootEl : document).querySelectorAll('[data-slot="skeleton"]').length } };
 }
 
 // ---------------------------------------------------------------------------------------------

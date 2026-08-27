@@ -116,6 +116,12 @@ rather than spawning a sibling — one custodian is the point.
 - **`interaction_coverage_mode`** — from `plans/pending/PLAN_FORCED_DISCOVERY_LOCATOR_EXHAUSTION.md`,
   which remains PENDING on unbuilt work. Listed here so the ramp is not orphaned when that plan closes;
   its promotion is this subplan's regardless of when the parent lands.
+- **`LR-075` wiring (per-row-await gate)** — `scripts/check-per-row-await.mjs` exists with a passing
+  self-test but is wired into NO entrypoint; `.claude/rules/specs.md` LR-075 records that wiring it
+  into `check:spec-quality` is a `package.json` edit reserved for the human owner. Ledger entry
+  carries `UNENFORCED: S2` with this subplan as recipient (added 2026-08-26). Disposition when this
+  subplan runs: ask the owner to add `&& node scripts/check-per-row-await.mjs --enforce` to the
+  `check:spec-quality` script, then flip the ledger entry to `enforced_by: package.json:<line>`.
 
 ## Handoff
 

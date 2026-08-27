@@ -298,7 +298,7 @@
       "id": "LR-ENC-006",
       "file": "clients/encore/CLAUDE.md",
       "line": 90,
-      "enforced_by": ".githooks/pre-commit:279"
+      "enforced_by": ".githooks/pre-commit:365"
     },
     {
       "id": "LR-008",
@@ -394,7 +394,7 @@
       "id": "LR-027",
       "file": ".claude/rules/pipeline.md",
       "line": 39,
-      "enforced_by": ".githooks/pre-commit:308"
+      "enforced_by": ".githooks/pre-commit:407"
     },
     {
       "id": "LR-040",
@@ -522,6 +522,15 @@
       "file": ".claude/rules/inventory.md",
       "line": 170,
       "enforced_by": "scripts/validate-plan-closure.mjs:811"
+    },
+    {
+      "id": "LR-075",
+      "file": ".claude/rules/specs.md",
+      "line": 267,
+      "unenforced": "S2 — gate scripts/check-per-row-await.mjs exists and self-tests, but is not wired into any entrypoint; wiring it into check:spec-quality is a package.json edit reserved for the human owner",
+      "severity": "S2",
+      "recipient": "plans/pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md",
+      "unenforced_since": "2026-08-26"
     }
   ]
 }

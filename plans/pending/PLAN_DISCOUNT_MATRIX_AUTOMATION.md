@@ -1,6 +1,6 @@
 # PLAN_DISCOUNT_MATRIX_AUTOMATION — automate Location Settings › Discount Matrix, cold intake to L3 depth
 
-**Status**: PENDING
+**Status**: GATED
 **Priority**: P1
 **Created**: 2026-07-31
 **Identity**: OWNER (CEO — decomposes into worker tickets; adopts HUNTER / GIVER / BUILDER / WATCHDOG at the phase boundaries that write role-owned artifacts)
@@ -10,6 +10,7 @@
 **Thinking**: xhi
 **PermissionMode**: acceptEdits
 **RiskAcknowledged**: n/a
+**CoverageMode**: quick
 **BrowserTool**: cli
 **BrowserToolJustification**: n/a
 **Skills**: /identity, /relevant, /find-bugs, /rca, /regression-guard, /encore-questions, /final-q
@@ -54,6 +55,38 @@ PG Pricing Override`, `Discount Optimization Settings`, `Price Guide`, `Service 
 this plan's scope; recorded here so the observation is not lost. Each needs its own intake.
 
 ---
+
+---
+
+## Scope lock — 2026-08-25 (supersedes "one plan on purpose" for this execution)
+
+This execution covers **CRT · RWP · LOA only**, at **L1 (QUICK)** depth.
+
+**`CMX` (Company Matrix) is OUT OF SCOPE and owned by NM-3343**, which already has work in
+flight. Company Matrix artifacts are untouchable in this plan’s execution: no reading, editing,
+moving, refactoring or regenerating of CMX specs, page objects, selectors, fixtures, workbook
+rows or test IDs — not even formatting or lint fixes. If an in-scope file imports from a CMX
+file, the CMX side is left alone and the in-scope side adapts. `CMX` is therefore **not
+registered** by Phase 6a here; NM-3343 owns that registration.
+
+L2/L3 depth (Phase 7b/7c) is deferred pending a depth decision after L1 lands. Owner-authorised
+2026-08-25.
+
+### Carve-out — 2026-08-25 (NM-3530)
+
+**L1 (QUICK) coverage for CRT / RWP / LOA has moved to `PLAN_NM3530_DISCOUNT_MATRIX_COVERAGE_QUICK.md`**, which
+binds the work to Jira ticket NM-3530 and inherits this plan's completed Phases 0-6a (Jira crossref, old-site
+baseline, walk evidence, machine denominators, registry mint) rather than repeating them.
+
+This plan is therefore **GATED** on that plan landing. What remains here:
+
+- **L2/L3 depth** (Phases 7b/7c) for CRT / RWP / LOA - cell round-trips per bucket, pairwise / covering arrays,
+  volume, network response-body assertions, exhaustive file-I/O.
+- **Module-level closure** (Phase 10) once both depths are covered.
+- **CMX**, if and only if NM-3343 ever hands it back. It is not this plan's to take.
+
+Nothing in Phases 6b-10 of this plan is executed while it is GATED. The acceptance criteria below still demand
+L1+L2+L3 per family; the L1 half is discharged by the NM-3530 plan, not re-done here.
 
 ## Bootstrap
 
@@ -236,7 +269,7 @@ field inventory, per empty surface (repeat for `Region Weekly Peaks` and `Locati
    | Code | name | display | sheet (≤31 chars) | mdBasename |
    |---|---|---|---|---|
    | `CRT` | `criteria` | Search Criteria | `discount_matrix_criteria` | `discount_matrix_criteria_test_cases` |
-   | `CMX` | `company_matrix` | Company Matrix | `discount_matrix_company_matrix` | `discount_matrix_company_matrix_test_cases` |
+   | ~~`CMX`~~ | ~~`company_matrix`~~ | Company Matrix — **OUT OF SCOPE, owned by NM-3343; do not register here** | — | — |
    | `RWP` | `region_weekly_peaks` | Region Weekly Peaks | `discount_matrix_region_peaks` | `discount_matrix_region_weekly_peaks_test_cases` |
    | `LOA` | `location_activation` | Location Activation | `discount_matrix_loc_activation` | `discount_matrix_location_activation_test_cases` |
 
@@ -246,7 +279,8 @@ field inventory, per empty surface (repeat for `Region Weekly Peaks` and `Locati
    **Tab-divergence rule**: if the Phase-3 walk's tab set differs from this table — a tab missing on
    this office, renamed, or extra — reconcile the code table to the walk BEFORE registering anything.
    Registering a code for a surface the walk did not find is forbidden.
-3. `export_test_cases/types.ts` — append `'CRT'`, `'CMX'`, `'RWP'`, `'LOA'` to `KNOWN_SUB_CODES` under
+3. `export_test_cases/types.ts` — append `'CRT'`, `'RWP'`, `'LOA'` to `KNOWN_SUB_CODES` under
+   (`'CMX'` deliberately omitted — NM-3343 owns it per the Scope lock)
    a `// discount-matrix (DSM)` comment (file grouping style at `:162–197`).
 4. Create `clients/encore/specs_planning/test-cases/setup/discount-matrix/` and
    `.../test-plans/setup/discount-matrix/`.
@@ -450,13 +484,13 @@ by-design → documented skip with the reason. Never blind auto-file, never a si
 
 | Identity | Owned artifact this plan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HUNTER | Jira crossref · old-site baseline · interaction map · walk evidence · field inventory | `clients/encore/specs_planning/_internal/jira-defect-crossref-discount-matrix-<DATE>.md`<br>`clients/encore/specs_planning/_internal/old-site-baseline/discount-matrix-<DATE>.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-discount-matrix-<DATE>.md`<br>`clients/encore/specs_planning/_internal/field-inventories/discount-matrix-<DATE>.md`<br>`scripts/walk-coverage/interaction-maps/discount-matrix-<DATE>.json` | `node scripts/check-interaction-coverage.mjs --file scripts/walk-coverage/interaction-maps/discount-matrix-<DATE>.json` |
-| GIVER | field-case catalog · test-case MD · test plan · XLSX workbook | `clients/encore/specs_planning/_internal/field-case-catalogs/discount-matrix-<DATE>.md`<br>`clients/encore/specs_planning/test-cases/setup/discount-matrix/`<br>`clients/encore/specs_planning/test-plans/setup/discount-matrix/`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` |
+| HUNTER | Jira crossref · old-site baseline · walk evidence | `clients/encore/specs_planning/_internal/jira-defect-crossref-discount-matrix-<DATE>.md`<br>`clients/encore/specs_planning/_internal/old-site-baseline/discount-matrix-<DATE>.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-discount-matrix-<DATE>.md` | `ls clients/encore/specs_planning/_internal/walk-evidence-discount-matrix-<DATE>.md` |
+| GIVER | field inventory · field-case catalog · test-case MD · test plan · XLSX workbook | `clients/encore/specs_planning/_internal/field-inventories/discount-matrix-<DATE>.md`<br>`clients/encore/specs_planning/_internal/field-case-catalogs/discount-matrix-<DATE>.md`<br>`clients/encore/specs_planning/test-cases/setup/discount-matrix/`<br>`clients/encore/specs_planning/test-plans/setup/discount-matrix/`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` |
 | BUILDER | selectors · page objects · fixtures · specs | `clients/encore/src/selectors/discount-matrix/`<br>`clients/encore/src/pages/discount-matrix/`<br>`clients/encore/src/data/discount-matrix/`<br>`clients/encore/tests/discount-matrix/` | `npx playwright test --list` |
 | HEALER | (none) — no pre-existing failing specs on this module | (none) | (none) |
 | WATCHDOG | completeness + bug-loop-closure findings | `clients/encore/specs_planning/_internal/audit-discount-matrix-<DATE>.md` | `npm run check:spec-quality` |
 | GARDENER | (none) | (none) | (none) |
-| OWNER | ID registry · navigation registry · module registry | `export_test_cases/module-codes.json`<br>`export_test_cases/types.ts`<br>`.claude/context/navigation.md` | `npm run check:tc-parity` |
+| OWNER | ID registry · navigation registry · module registry · interaction map | `export_test_cases/module-codes.json`<br>`export_test_cases/types.ts`<br>`.claude/context/navigation.md`<br>`scripts/walk-coverage/interaction-maps/discount-matrix-<DATE>.json` | `npm run check:tc-parity` && `node scripts/check-interaction-coverage.mjs --file scripts/walk-coverage/interaction-maps/discount-matrix-<DATE>.json` |
 
 ---
 

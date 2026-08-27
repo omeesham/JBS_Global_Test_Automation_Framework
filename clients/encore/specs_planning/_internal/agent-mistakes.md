@@ -295,3 +295,68 @@ Agent-only, **gitignored** (root `.gitignore`) — never ships. Per-Encore log o
 **Why it slipped:** The 14 August observation used one value; the comparison used a different value on a different day. The two measurements were never executed side-by-side in the same browser context. A cross-day comparison that uses a different input value on each day is not a comparison — it conflates input-value effects with date effects.
 
 **Lesson / how to apply:** When comparing two behaviours across observations taken on different days, recover the original input value and re-execute both in the same session before recording a behavioural difference. A different input value on each day means you measured two experiments, not one comparison. When this is not possible, mark the finding `(cross-day, input values differ — not a controlled comparison)`.
+
+## 2026-08-26 — CEO session (NM-3530 Phase 2 — Discount Matrix specs run-to-green)
+
+### CEO-M1: Loading-window contract misreads, twice in one module [Sev S1 — wrong contracts survived into authored cases and specs; caught by run failures, not by the walk]
+LOA was recorded as "empty grid on both offices" and RWP's toolbar as "all disabled at rest" — both reads were taken inside the tab's ~40s lazy-fetch window (skeletons up, search disabled, buttons not yet hydrated). Cross-office N=2 gave false confidence because both samples shared the same too-early-read bias.
+**Why it slipped:** The walk treated "what the DOM shows now" as the settled state without a proven settle signal, and treated a second office as an independent sample when the wait profile was identical.
+**Lesson / how to apply:** Never record a lazy-loading surface's contract until a settle signal is proven (skeletons 0 + content text + controls enabled). Independence requires varying the WAIT, not the office. Second occurrence of this class in one session — one more graduates it per the 3× rule.
+
+### CEO-M2: Optimistic restores leaked live data twice [Sev S1 — live environment values left modified (threshold 30%, week-1 Standard); restored only after probes]
+Both cleanup paths waited on Save-button state or an API-path response and moved on; the actual save rides a periodic sync POST to the page's own settings route that can fire ~27-30s AFTER the click with zero requests in between, so navigation before it completes silently drops the save.
+**Why it slipped:** The restore asserted activity (button disabled, drain empty) instead of state (value present after reload), and the network wait filtered on the backend API path this page never uses.
+**Lesson / how to apply:** A restore is only done when reload-and-read proves the value. Arm the response wait on the route the save actually uses — measure it once with a request-tracker probe before trusting any endpoint filter.
+
+### CEO-M3: A measured ceiling was not propagated to sibling waits [Sev S2 — one full-suite failure (TC-DSM-CRT-007), fixed same session]
+Evening hydration was measured past 180s and HYDRATION_TIMEOUT raised to 300s — but the 60s re-query settle cap in the same page family kept its assumed value and blew on the first country switch of the run.
+**Lesson / how to apply:** When a measurement convicts one timeout, sweep the same page family for sibling waits built on the same assumption before re-running.
+
+### CEO-M4: An evidence figure was written from memory [Sev S2 — caught by re-running the gate one minute later; corrected before consumption]
+The activity-log row claimed "parity 1233 = 1233 PASS"; the gate actually reports 1228 = 1228.
+**Lesson / how to apply:** Run the check in the same breath as writing its number. A remembered figure in an evidence row is a fabrication seed even when the claim direction (PASS) is right.
+
+### CEO-M5: A tail pipe destroyed first-run failure evidence [Sev S2 — recovered from report artifacts at extra cost]
+The first background suite run was piped through tail -40, discarding per-failure detail and masking the exit path.
+**Lesson / how to apply:** Background runs keep FULL output; trim at read time, never at capture time.
+
+### CEO-M6: Two concurrent runner processes corrupt the shared auth state [Sev S2 — one run lost to "Lock file is already being held" + corrupted state stream]
+**Lesson / how to apply:** Playwright RUNNER processes are strictly sequential per repo (auth.setup holds a proper-lockfile on the shared state). Raw-chromium probe scripts that only READ storageState stay concurrency-safe.
+
+### CEO-M7: A hand-authored disposition token missed the machine grammar [Sev S3 — caught by the immediate re-probe, never consumed]
+Re-dispositioning the four falsified LOA rows (2026-08-26), the first `deferred-to-DEEP` token used a multi-word element id; the validator grammar is `deferred-to-DEEP: <single-token-id> (<reason ≥20 chars>)` and failed the row. Fixed by hyphenating (`loa-workflow-start-date-cell-editor`) and re-running the probe to a clean verdict.
+**Lesson / how to apply:** After editing ANY machine-validated artifact, re-run its validator in the same breath — the probe-after-edit loop is what caught this before any consumer read it. Token grammars live in `scripts/walk-coverage/lib/coverage-manifest.mjs`; read the regex, don't infer the format from prose.
+
+### CEO-M8: Wrote a coverage cell from memory of the audit instead of the spec [Sev S3 — self-caught 2 tool calls later, corrected before any consumer]
+While correcting the inventory's Active Yes/No rows, wrote "read (not clicked) by TC-DSM-LOA-009" from a stale mental summary; the spec actually DRIVES the toggle (label click → checkbox editor → value flip → Cancel discard). Caught by re-reading the audit line ("proves rows editable"), verified against the spec body, corrected the two cells.
+**Lesson / how to apply:** A cell that states what a test does is a claim about the SPEC — verify it against the spec text at write time, exactly like any other claim-vs-artifact crosscheck. Ironic-instance warning: this happened DURING a stale-claim remediation pass.
+
+### CEO-M9: Probe script authored with an unresolvable bare import [Sev S3 — first run failed cleanly, fixed in one edit]
+Scratchpad probe scripts importing `playwright` cannot resolve from the Temp directory (ESM walks node_modules from the SCRIPT's path, not the cwd). Fix: `createRequire('C:/Encore Framework/clients/encore/package.json')` then `require('@playwright/test')` — resolves from the client package regardless of script location.
+**Lesson / how to apply:** Any probe script living outside the repo tree resolves dependencies via createRequire against the client package.json. Also captured: a `| tail` pipe on a background run buffers until EOF, so mid-run liveness is checked via `tasklist` (node/chrome processes), never via the empty output file or missing test-results/.
+
+### CEO-M10: Filed a bug overstating "search filters nothing" — every probe behind it typed inside the surface's dead window [Sev S2 — false absolute claim reached a filed bug + 6 downstream artifacts; owner's screenshot refuted it]
+BUG-DSM-LOA-001 was filed (2026-08-25) and re-verified (2026-08-26 morning) as "the search box accepts input but filters nothing". The owner's manual screenshot showed it filtering. Staged-retry probe (`reports/walk-coverage/dsm-loa-search-reverify2.json`): identical typing fails immediately after settle and after +30s idle, succeeds after a further +60s — the ENABLED box silently swallows input for ~1.5–2 min after the tab paints, then works. All four probes (two at filing, two at re-verify) typed inside that window; the settle proof used (skeletons 0 + footer total + box enabled) under-shoots FUNCTIONAL readiness. 4th loading-window instance-class on this module — class graduated to LR-ENC-008 (clients/encore/CLAUDE.md) with the varied-wait-retry mandate for negative claims.
+**Lesson / how to apply:** A negative functional claim ("does nothing" / "filters nothing" / "inert") on a lazy surface is only fileable after the identical interaction ALSO fails on varied-wait retries (+60s, +120s). Enabled is not functional; a visible-settle proof does not license a negative claim. Per LR-ENC-008.
+
+### CEO-M11: Spec deviated from the probe's file mechanics — fed Import the extensionless `download.path()` temp file; two 5-minute silent no-op failures [Sev S2 — retry burned a full run cycle; root cause found only by a splitting probe]
+TC-DSM-RWP-024 failed twice (2026-08-26): the import-apply poll ran its full 300s with no grid change. The measured contract ("import auto-applies ~70s") had been established by probes that `saveAs()`d the export to a real `.xlsx` name; the spec instead passed `download.path()` — Playwright's GUID-named, EXTENSIONLESS internal artifact — to the file chooser, and the app silently ignores an upload without its workbook name (no toast, no error, nothing). A false year-boundary hypothesis (2029 week 1 starts 28-Dec-2028) consumed one probe before the splitting experiment (change week 1 + week 2, import the old snapshot via saveAs) landed both weeks in 41s and exposed the real variable: the FILENAME, not the week (`reports/walk-coverage/dsm-rwp-2029-import-split-probe.json`).
+**Lesson / how to apply:** A probe-proven contract is proven only for the probe's exact mechanics. When a spec is authored from probe evidence, diff the spec's primitives against the probe's line by line — file handling included. Never feed `download.path()` back into a filechooser; `saveAs()` a properly named copy. Paired memory: `feedback_downloads_refed_to_uploads_need_saveas.md`.
+
+## CEO-M12 — Two fix layers built before asking the differential question (Sev S2, 2026-08-27)
+
+TC-DSM-RWP-019 failed its first attempt in three consecutive full runs while passing every solo
+run and every retry. The first trace showed a save racing the page-route traffic, so two fix
+layers went in (a started-after-click POST wait, then an app-dirty-flag gate) — both real defects
+worth fixing, neither the cause. The third failure passed every gate clean and still read the old
+value. The question that solved it in minutes — "what is different between a solo run and a full
+run at this test?" — had been available from failure one: earlier tests deliberately rest the tab
+on the reference year, the pristine check ignores the year, so the save landed on the reference
+year while the reload-and-read landed on the newest year. Retries passed because a failed attempt
+leaves the page on newest.
+**Lesson / how to apply:** solo-green + run-all-red + retry-green is an INHERITED-PAGE-STATE
+signature, not a timing signature. Before building any fix for a run-all-only failure, enumerate
+what the preceding tests leave behind (selections, years, filters, rows) and diff it against the
+solo starting state; check every dimension the pristine/ensure-clean helper does NOT verify. A
+persistence test must pin every selector dimension (year, region, office) identically for the
+save and the read-back.

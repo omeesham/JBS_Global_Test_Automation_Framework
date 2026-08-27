@@ -1391,6 +1391,22 @@ Columns 33–40 (labor-to-hourly) are present in history even for US locations; 
 
 ---
 
+## Discount Matrix Page (`/locations/{office}/settings/discount-matrix`)
+
+> **Added 2026-08-26** (NM-3530 L1 closure) — orientation summary, not a re-transcription. Dated truth lives in `specs_planning/_internal/field-inventories/discount-matrix-2026-08-25.md`, `_internal/walk-evidence-discount-matrix-2026-08-25.md`, `_internal/old-site-baseline/discount-matrix-2026-08-25.md` (baselineScope: complete, CRT+RWP+LOA) and the `.claude/context/exploration-registry.md` row. Angular page. **The Company Matrix tab (the page's default landing panel) is OUT OF SCOPE — NM-3343 owns it**; it is loaded (never driven) by every spec's navigation, so a hard crash there would surface in this module's runs.
+
+**Sub-surfaces (one spec each in `tests/discount-matrix/`; IDs `TC-DSM-{CRT,RWP,LOA}-NNN`)**:
+
+| Surface | What it covers | One-line behavior (see the dated inventory for full findings) |
+|---|---|---|
+| Search Criteria bar (`discount-matrix-criteria`) | shared bar above ALL tabs | Country/Currency/Business Tier dropdowns **re-query without saving**; GAV Discount Threshold is `type=text inputmode=decimal` 0–100 with app-owned validation, **4 silent coercions**, and **no assertable default** (read-then-restore discipline). Evening hydration measured >180s → settle ceiling 300s, describe timeout 420s. |
+| Region Weekly Peaks (`region-weekly-peaks`) | per-region week classification | Year select lists 2027/2026/2025 (newest-first) and **rests on 2027 — the legacy page rests on 2026 (oldest-first)**; recorded as a default-policy divergence for the client, not filed. 28 regions (Atlanta default), 52 week rows × 3 mutually-exclusive checks; at rest Add Year/Export/Import ENABLED, Save/Cancel disabled (**baseline MATCH**, old-site verified 2026-08-26). |
+| Location Activation (`location-activation`) | country-scoped activation listing (NM-2221) | Same total on BOTH authorized offices (country-keyed; 2041 US rows at capture). Data lands **~43s** after the tab click behind skeleton rows; grid **virtualizes** (~28–42 rendered rows + one full-width spacer `tr`); footer "N matching locations" is the count oracle; Active cell = Yes/No label → inline checkbox on click. **Search accepts input but filters nothing** (BUG-DSM-LOA-001, TC-DSM-LOA-010 parked). **Headers do not sort — and the legacy page does not sort either**: NM-2221's "sortable/filterable per legacy behavior" wording vs both implementations is an open product question (BUG-DSM-LOA-002 baseline-match, TC-DSM-LOA-011 parked). |
+
+**Module-wide notes**: saves ride a **periodic page-route sync POST** (up to ~30s after the click, NO dedicated backend API call) — persistence is proven ONLY by reload-and-read, never by a network wait; runner TZ is pinned America/New_York (machine-TZ date probes render one day off); old-site route is case-sensitive (`#/setup/DiscountPricing/matrix`); near-zero `data-testid`. L1 plan: `plans/pending/PLAN_NM3530_DISCOUNT_MATRIX_COVERAGE_QUICK.md`; depth (L2/L3) parent: `plans/pending/PLAN_DISCOUNT_MATRIX_AUTOMATION.md` (GATED).
+
+---
+
 ## Auth Protocol
 
 Authoritative reference for auth flow parameters when agents need to know what auth Encore uses. Full narrative is in `## Authentication System` (L11) above — this is the named anchor agents reference from their Client Context Bootstrap.

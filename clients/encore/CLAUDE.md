@@ -91,6 +91,17 @@ The Encore HTML report ships to a non-technical client, so every public async pa
 
 <!-- CEO POINTER: LR-ENC-006 @step annotation / label-derivation / jargon-map / raw-`.page.<action>`-ban mechanism detail → ticket DOCTRINE; cite clients/encore/CLAUDE.md LR-ENC-006 + clients/encore/src/fixtures/label-derivation.ts + label-jargon.json; VERIFY: worker ran `npm run check:step-labels` green and left no raw `.page.<action>` in specs -->
 
+### LR-ENC-008: Lazy-loading surfaces — prove FUNCTIONAL settle before recording any contract; enabled ≠ functional
+
+Encore's heavy tabs (canonical: Discount Matrix Location Activation, ~2041 rows) hydrate in stages for MINUTES: skeletons → placeholder rows → footer total + enabled controls → **functional handlers last**. Four confidently-wrong contracts came from reads inside that window (all NM-3530, 2026-08-25/26): LOA recorded "empty grid" (holds 2041 rows, data lands ~43s in); RWP toolbar recorded "all disabled at rest" (data actions are enabled); the rescinded readings surviving in the inventory; and BUG-DSM-LOA-001 filed as "search filters nothing" when the truth was a ~1.5–2-min post-load dead window during which the ENABLED search box silently swallows input — identical typing succeeds after the window (evidence: `reports/walk-coverage/dsm-loa-search-reverify2.json`; the owner later ruled that window accepted loading behaviour and the bug was withdrawn, 2026-08-26 — the misread lesson stands regardless).
+
+- Before recording any grid/toolbar/field contract: prove settle — skeletons 0, rows carry text, footer/count present, controls enabled.
+- Before recording any NEGATIVE functional claim ("does nothing", "filters nothing", "inert"): additionally prove the claim survives a **varied-wait retry** — repeat the identical interaction after +60s and +120s idle. A control that is enabled is NOT necessarily wired yet; only a no-op that persists across varied waits may be filed as non-functional.
+- N≥2 offices with the SAME wait profile share the bias — independence comes from varying the WAIT, not the entity.
+
+**Trigger**: any walk, probe, bug filing, or case authoring on a Loading/lazy Encore surface; any "control does nothing" verdict there.
+**Graduated from**: the 4-instance loading-window class above (memory `feedback_loading_window_misreads.md` — its own text set graduation at the 3rd instance).
+
 ### LR-008: Date offset validation — positivity constraints per field type
 Date-offset fields have sign constraints (relative-to-start Prep/Set/Delivery ≤ 0; relative-to-end Return/Strike/Pickup ≥ 0; Delivery additionally ≥ Prep per NM-1264). Test values must respect ALL constraints for the field under test.
 <!-- CEO POINTER: LR-008 per-field-type offset sign rules → ticket DOCTRINE; cite clients/encore/CLAUDE.md LR-008; VERIFY: worker's test values satisfy every offset constraint for the field (incl. Delivery≥Prep) -->

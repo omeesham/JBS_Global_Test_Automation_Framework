@@ -175,6 +175,32 @@ export const MODULE_CONFIG = {
     ...MC_DATA['service-charge'],
   },
 
+  // Discount Matrix — three surfaces sharing one URL. Company Matrix is the default tab, so the
+  // resting pass enumerates it; Region Weekly Peaks and Location Activation are branch openers.
+  // CMX elements land in the resting denominator by construction and are dispositioned
+  // out-of-scope (NM-3343 owns that tab) — they are never silently dropped.
+  //
+  // contentGate is deliberately NOT set on these branches. waitReadyContent is hardcoded to the
+  // Service Charge History markers ("Modified By" + a tbody row); on these tabs it would wait for
+  // a header that never renders and fail as a timeout that reads like app slowness. The
+  // skeleton-zero gate in waitReady is the correct readiness signal here and is the measured one:
+  // RWP paints 52 placeholder rows and "Count: 0" for the entire load, so neither row count nor
+  // the footer count can distinguish loading from empty (walk evidence 2026-08-25).
+  'discount-matrix': {
+    path: (office) => `${BASE}/locations/${office}/settings/discount-matrix`,
+    // Last-to-render control on the landing surface. Measured 2026-08-25: the criteria comboboxes
+    // hydrate at t=31s but this input does not resolve until t=91-100s. Anchoring on anything
+    // earlier is what produced the false denominator of 11.
+    contentMarker: 'input[name="gavDiscountThreshold"]',
+    openerTestidPatterns: [],
+    openerRoleTextPatterns: [
+      { role: 'tab', text: 'Region Weekly Peaks', branch: 'tab:region-weekly-peaks' },
+      { role: 'tab', text: 'Location Activation', branch: 'tab:location-activation' },
+    ],
+    excludeOptionRoles: true,
+    ...MC_DATA['discount-matrix'],
+  },
+
   'corporate-pricing-override': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/pg-override`,
     contentMarker: 'h1:text-is("Product Group Override")',
@@ -220,7 +246,25 @@ const FAST_PATH_TESTIDS = 8;   // accelerator only — never a gate
 const CENSUS_STABLE_READS = 3; // consecutive identical census polls required
 const DOM_NODE_TOLERANCE = 2;  // absorbs spinner/animation churn; structural growth resets
 
-export async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300, timeout = 120000 } = {}) {
+// Skeleton gate (added 2026-08-25). A surface is NOT ready while it still renders loading
+// placeholders. This app marks them with the shadcn/ui convention data-slot="skeleton", so this is a
+// generic framework signal, not a per-surface knob (LR-062 still holds — nothing here is tunable).
+//
+// DERIVED FROM MEASUREMENT, not invented. Discount Matrix criteria bar, headless, 2026-08-25:
+//   t=10s  skeleton=8    combobox=0  input=0   <- shell only
+//   t=20s  skeleton=148  combobox=0  input=0   <- placeholders painted, census settles at 30
+//   t=31s  skeleton=145  combobox=3  input=0   <- criteria dropdowns hydrate
+//   t=91s  skeleton=0    combobox=3  input=1   <- GAV Discount Threshold finally resolves
+// The old contract (3 identical polls = ~900ms of quiet) returned at ~22s and produced a denominator
+// of 11; the fully-hydrated page yields 17. All four Search Criteria controls were invisible to every
+// walk of that surface. Waiting for zero skeletons is exact — it releases precisely when the last
+// placeholder resolves — where any fixed timeout would be a guess. Per this module's own posture,
+// "a silently wrong denominator built on a partial load is worse than a crash": a permanently stuck
+// skeleton now fails loudly at the timeout instead of silently under-counting.
+// The selector itself lives with the census that produces it, in lib/deep-pierce.mjs (stats.skeletons),
+// so readiness costs no extra page round-trip.
+
+export async function waitReady(page, { minTestids = 8, stableReads = 2, interval = 300, timeout = 180000 } = {}) {
   void minTestids; // inert (see header note) — kept so existing callers/tests need no signature change
   let lastT = -1, lastC = -1, lastN = -1, fastStable = 0, censusStable = 0, waited = 0, lastError = '';
   while (waited < timeout) {
@@ -247,9 +291,9 @@ export async function waitReady(page, { minTestids = 8, stableReads = 2, interva
       else if (snap.entries && snap.stats) {
         // Real inPageEnumerate result — derive t/c/n from the same data the denominator uses.
         const t = snap.entries.filter(e => e.key && e.key.startsWith('testid:')).length;
-        snap = { t, c: snap.stats.uniqueKeys, n: snap.stats.scanned };
+        snap = { t, c: snap.stats.uniqueKeys, n: snap.stats.scanned, skel: snap.stats.skeletons };
       }
-      const { t, c, n } = snap;
+      const { t, c, n, skel } = snap;
       // Fast path: label-rich page, same stability rule the old gate used — hard constant.
       if (t >= FAST_PATH_TESTIDS && t === lastT) { if (++fastStable >= stableReads) return t; } else fastStable = 0;
       // Stability contract: census present and identical, DOM settled within tolerance,
@@ -257,7 +301,12 @@ export async function waitReady(page, { minTestids = 8, stableReads = 2, interva
       const censusSame = c === lastC;
       const domSettled = lastN >= 0 && Math.abs(n - lastN) <= DOM_NODE_TOLERANCE;
       if (c >= 1 && censusSame && domSettled) { censusStable++; } else censusStable = 0;
-      if (censusStable >= CENSUS_STABLE_READS && waited >= 2 * interval) return t;
+      // Loading placeholders outrank census stability: the census can sit still for tens of
+      // seconds while skeletons are still waiting on their data (measured above).
+      // Non-number means the read did not yield a count (unit-test mocks return the enumerate
+      // object); a live page always returns a number, so this never fails open in production.
+      const skeletonsSettled = typeof skel !== 'number' || skel === 0;
+      if (censusStable >= CENSUS_STABLE_READS && waited >= 2 * interval && skeletonsSettled) return t;
       lastT = t; lastC = c; lastN = n;
     }
     await page.waitForTimeout(interval);
@@ -609,8 +658,31 @@ export function resolveBranchOpener(cfg, branchArg) {
 // (renavigate must precede every Phase 2.2 DOM read).
 // main() calls this after the opener loop; the seam lets a unit test inject
 // mock collaborators and assert goto fires before $eval — no browser required.
-export async function deriveAllFieldTypes(page, url, entries, rawEntries, legalTypes) {
+// Click a branch opener and wait for its panel to be ready. Shared by the branch enumeration pass and
+// by deriveAllFieldTypes' re-establish step, so both reach the surface the same way and cannot drift.
+export async function activateBranch(page, cfg, branchLabel) {
+  const branchPattern = resolveBranchOpener(cfg, branchLabel);
+  const loc = branchPattern.selector
+    ? page.locator(branchPattern.selector)
+    : page.getByRole(branchPattern.role, { name: branchPattern.text, exact: true });
+  await loc.first().click({ timeout: 5000 });
+  // Content-gated branches (e.g. Service Charge History) wait for rendered DOM markers, not testid counts.
+  if (branchPattern.contentGate) {
+    await waitReadyContent(page);
+  } else {
+    await waitReady(page, branchPattern.minTestids != null ? { minTestids: branchPattern.minTestids } : {});
+  }
+  return branchPattern;
+}
+export async function deriveAllFieldTypes(page, url, entries, rawEntries, legalTypes, reestablish) {
   await renavigateToOrigin(page, url);
+  // The renavigate above is the Cause-1 fix for the RESTING path, where the opener loop may have
+  // wandered onto another panel. On a BRANCH run it is actively harmful: the originating URL lands on
+  // the default panel, so every branch-specific element is then probed against a DOM that no longer
+  // contains it and its type resolves to unresolved. Measured 2026-08-25 — every Region Weekly Peaks
+  // and Location Activation control failed its read this way, and Service Charge History had the same
+  // silent hole. The resting path passes no callback and behaves exactly as before.
+  if (reestablish) await reestablish(page);
 
   // --- Phase 2.2: derive field types from DOM observation ---
   const archetypeRepKeys = new Map();
@@ -919,7 +991,12 @@ async function main() {
   const rc = resolveRunConfig(args, MODULE_CONFIG);
   if (rc.error) { console.error(rc.error); process.exit(rc.exitCode); }
   const { office, moduleName, cfg, url } = rc;
-  const state = (args.state || `${office}-${moduleName}`) + (args.branch ? `--${args.branch.replace(/[^a-z0-9:]+/g, '-')}` : '');
+  // Branch labels are namespaced with a colon ('tab:history'). A colon is legal in a POSIX
+  // filename but on Windows NTFS it opens an alternate data stream, so `dsm-rwp--tab:region-weekly-peaks.json`
+  // silently became a 0-byte file named `dsm-rwp--tab` with the JSON hidden in a stream no reader
+  // looks at. Measured 2026-08-25 on both Discount Matrix branches. The colon is therefore stripped
+  // like every other separator; the label still round-trips through --branch, which is unchanged.
+  const state = (args.state || `${office}-${moduleName}`) + (args.branch ? `--${args.branch.replace(/[^a-z0-9]+/g, '-')}` : '');
   const authPath = args.auth || (existsSync(DEFAULT_AUTH) ? DEFAULT_AUTH : FALLBACK_AUTH);
   const maxCycles = parseInt(args['max-cycles'] || '6', 10);
   const useCdp = !args['no-cdp'];
@@ -997,19 +1074,16 @@ async function main() {
 
     let g1hits = [];
     if (args.branch) {
+      // Capture the selected tab BEFORE the branch click. Only the resting path built base_state, so
+      // the shared atEmit write below threw `Cannot set properties of undefined` and killed every branch
+      // run after a full enumeration had already been paid for (measured 2026-08-25, both Discount Matrix
+      // branches). NOTE atEmit is NOT proof the branch flipped: deriveAllFieldTypes renavigates to the
+      // originating URL before atEmit is read, so on a branch run it always reports the DEFAULT panel.
+      // The real proof the opener worked is report.branches[].addedKeys plus the branch panel's own
+      // element keys appearing in entries.
+      report.base_state = { atRest: await getSelectedTabs(page), atEmit: [] };
       // Branch-only path: click the single named opener, enumerate that surface only.
-      // resolveBranchOpener was already called above to validate � safe to call again.
-      const branchPattern = resolveBranchOpener(cfg, args.branch);
-      const loc = branchPattern.selector
-        ? page.locator(branchPattern.selector)
-        : page.getByRole(branchPattern.role, { name: branchPattern.text, exact: true });
-      await loc.first().click({ timeout: 5000 });
-      // Content-gated branches (e.g. History) wait for rendered DOM markers, not testid counts.
-      if (branchPattern.contentGate) {
-        await waitReadyContent(page);
-      } else {
-        await waitReady(page, branchPattern.minTestids != null ? { minTestids: branchPattern.minTestids } : {});
-      }
+      const branchPattern = await activateBranch(page, cfg, args.branch);
       const branchState = await enumerateState(page);
       mergeEntries(accum, branchState.entries, args.branch, excludeOptions);
       report.branches.push({ branch: args.branch, openerText: branchPattern.text, addedKeys: branchState.entries.length, ok: true });
@@ -1268,7 +1342,8 @@ async function main() {
     // Navigate back to the originating URL so Phase 2.2 reads DOM from the correct mounted panel.
     const taxonomy = loadFieldCaseTaxonomy();
     const legalTypes = taxonomy.fieldTypes.map(ft => ft.type);
-    report.derived_types = await deriveAllFieldTypes(page, url, entries, rawEntries, legalTypes);
+    report.derived_types = await deriveAllFieldTypes(page, url, entries, rawEntries, legalTypes,
+      args.branch ? (pg) => activateBranch(pg, cfg, args.branch) : null);
 
     // --- completion_record: attach before JSON write; self-hash for anti-tamper ---
     // Build the record first (without content_sha256), serialize, compute sha256 over that,

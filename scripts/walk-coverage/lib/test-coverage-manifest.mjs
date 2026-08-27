@@ -5,7 +5,7 @@
 //
 //   node scripts/walk-coverage/lib/test-coverage-manifest.mjs
 
-import { coverageVerdict, parseCoverageSignals, isGrandfathered, loadCrossModuleRegistry } from './coverage-manifest.mjs';
+import { coverageVerdict, parseCoverageSignals, isGrandfathered, loadCrossModuleRegistry, completionRefSegments } from './coverage-manifest.mjs';
 
 const LANDING = '2026-06-19';
 const PRE_MANDATE_TRACKED_ARTIFACT = 'package.json';
@@ -227,6 +227,16 @@ const unicodeBarRows = parseCoverageSignals(header('2026-07-01', '1/1 (100%)', '
 ok('E5 unicode look-alike bar stays in key (not a delimiter)',
   unicodeBarRows.length === 1 && unicodeBarRows[0].controlRef === 'struct:a\u2502Home\u2502div',
   `got: ${unicodeBarRows[0]?.controlRef}`);
+
+// E6. completionRefSegments — multi-surface Completion_Record values split into per-JSON paths
+const segSingle = completionRefSegments('reports/walk-coverage/a.json (status=complete, elements=1)');
+ok('E6a single-segment value yields its one path, annotation stripped',
+  segSingle.length === 1 && segSingle[0] === 'reports/walk-coverage/a.json', JSON.stringify(segSingle));
+const segMulti = completionRefSegments('reports/wc/a.json (elements=17) · reports/wc/b.json (elements=20) · reports/wc/c.json (elements=20, union=35)');
+ok('E6b three-segment value yields three paths with annotations stripped',
+  segMulti.length === 3 && segMulti[0] === 'reports/wc/a.json' && segMulti[1] === 'reports/wc/b.json' && segMulti[2] === 'reports/wc/c.json',
+  JSON.stringify(segMulti));
+ok('E6c empty/absent value yields no segments', completionRefSegments('').length === 0 && completionRefSegments(undefined).length === 0, 'non-empty');
 
 console.log(`\ncoverage-manifest fixtures: ${passed} passed, ${failed} failed, ${passed + failed} total`);
 process.exit(failed > 0 ? 1 : 0);

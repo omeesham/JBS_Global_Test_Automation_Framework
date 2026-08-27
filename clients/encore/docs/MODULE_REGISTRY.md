@@ -22,6 +22,7 @@ Every page in Navigator Cloud belongs to exactly ONE module. Module directory na
 | `corporate-pricing` | Corporate Pricing | `/settings/corporate-pricing` | search, strategy, detail (`/details/<guid>`), new-pricebook (`/add?type=equipment\|labor`), toolbar-io |
 | `corporate-override` | Corporate Override | `/pg-override` | core, location-picker, filters, grid-sort, labor-grid, export, import |
 | `auth` | Microsoft SSO login | `/auth/sign-in` | page object `src/pages/auth/login.page.ts`; session setup `tests/auth.setup.ts` |
+| `discount-matrix` | Discount Matrix | `/locations/{office}/settings/discount-matrix` | discount-matrix-criteria (Search Criteria bar), region-weekly-peaks, location-activation — L1 QUICK under NM-3530. The Company Matrix tab is NOT registered here: NM-3343 owns it and its future module registration (scope lock in `plans/pending/PLAN_DISCOUNT_MATRIX_AUTOMATION.md`) |
 
 > Spec file names are flat inside each module dir (e.g. `tests/locations/location-pricing.spec.ts`), NOT nested under a `setup/` or `history/` subfolder.
 
@@ -31,7 +32,7 @@ These Navigator sections exist but have no module dir yet. When a HUNTER/GIVER/B
 
 | Section | Known sub-pages |
 |---|---|
-| **Setup (other)** | Corporate Billing, Discount Optimization, Discount Matrix, ECT Settings (standalone), Users, Bill Through Date, Service Type, Service Type Name, Service Charge |
+| **Setup (other)** | Corporate Billing, Discount Optimization, ECT Settings (standalone), Users, Bill Through Date, Service Type, Service Type Name, Service Charge — *(Discount Matrix promoted to a registered module 2026-08-26, NM-3530; its Company Matrix tab stays unregistered pending NM-3343)* |
 | **Actions** | Sourcing Dashboard, Reports, Offline Reports, Reports Statistics, Approve Equipment Transfers, Release Notes, Search Statistics, Fix Unlinked CRM Orders, FAQ |
 | **Commissions** | CMP, Allow DPCD, Tier/Flat, Product Code — **corporate office 1101 only (Navigator Contracts role)**; pre-intake KT: `specs_planning/_internal/intake/commission-hunter-2026-06-26.md` |
 | **Tax** | Order Origin Tax, Sales, Special Rate, State Tax, Tax Type Detail |

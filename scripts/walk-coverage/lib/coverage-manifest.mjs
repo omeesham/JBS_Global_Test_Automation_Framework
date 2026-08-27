@@ -314,11 +314,38 @@ function checkEvidenceArtifact(evidencePointer, controlRef, mcpDate, artifactPat
   return { ok: true, reason: '' };
 }
 
-// Verify the completion-record JSON referenced by a manifest's `Completion_Record:` frontmatter key.
+// A Completion_Record value may cite SEVERAL enumerator JSONs — one per walked surface of a
+// multi-surface module — separated by ' · '. Each segment is '<path> (<annotation>)'; the
+// annotation is informational and stripped here. Single-segment values behave exactly as before.
+export function completionRefSegments(completionRef) {
+  return String(completionRef || '')
+    .split('·')
+    .map(s => s.trim().replace(/\s*\(.*\)$/, '').trim())
+    .filter(Boolean);
+}
+
+// Verify the completion-record JSON(s) referenced by a manifest's `Completion_Record:` frontmatter
+// key. Every cited segment must independently pass; the first failure fails the whole key.
 // Returns { ok, reason, data }. Handles halted status with exemption check (Item 5 gate side).
 function checkCompletionRecord(completionRef, artifactPath) {
   if (!completionRef) return { ok: false, reason: 'Completion_Record absent' };
-  const jsonRel = completionRef.replace(/\s*\(.*\)$/, '').trim();
+  const segments = completionRefSegments(completionRef);
+  if (segments.length === 0) return { ok: false, reason: 'Completion_Record carries no JSON path' };
+  const records = [];
+  for (const jsonRel of segments) {
+    // Fail-closed on a segment that is not a path (e.g. a bare annotation that escaped its
+    // parens): silently skipping it would mean fewer receipts checked than the line claims.
+    if (!/[\\/]/.test(jsonRel) && !/\.json$/i.test(jsonRel)) {
+      return { ok: false, reason: `Completion_Record segment is not a JSON path: "${jsonRel}" — write each segment as '<path> (<annotation>)'` };
+    }
+    const r = checkOneCompletionRecord(jsonRel, artifactPath);
+    if (!r.ok) return segments.length > 1 ? { ok: false, reason: `[${jsonRel}] ${r.reason}` } : r;
+    records.push(r.data);
+  }
+  return { ok: true, data: records[0], all: records };
+}
+
+function checkOneCompletionRecord(jsonRel, artifactPath) {
   const jsonPath = isAbsolute(jsonRel) ? jsonRel : join(REPO_ROOT, jsonRel);
   if (!existsSync(jsonPath)) return { ok: false, reason: `Completion_Record JSON not found: ${jsonRel}` };
   let data;
@@ -466,19 +493,23 @@ function evidenceFamily(evidence) {
   return hit ? hit.family : null;
 }
 
-/** Load `derived_types` from the Completion_Record JSON. Mirrors checkCompletionRecord path resolution. */
+/** Load `derived_types` from the Completion_Record JSON(s). Mirrors checkCompletionRecord path
+ *  resolution; a multi-surface value merges the maps, earlier segments winning on key collision. */
 function loadDerivedTypes(completionRef) {
   if (!completionRef) return null;
-  const jsonRel = completionRef.replace(/\s*\(.*\)$/, '').trim();
-  const jsonPath = isAbsolute(jsonRel) ? jsonRel : join(REPO_ROOT, jsonRel);
-  if (!existsSync(jsonPath)) return null;
-  try {
-    return JSON.parse(readFileSync(jsonPath, 'utf-8')).derived_types || null;
-  } catch {
-    // Unreadable/unparseable JSON is already reported by checkCompletionRecord; returning null
-    // avoids emitting the same failure twice. Documented fallback, not a silent swallow (LR-003).
-    return null;
+  let merged = null;
+  for (const jsonRel of completionRefSegments(completionRef)) {
+    const jsonPath = isAbsolute(jsonRel) ? jsonRel : join(REPO_ROOT, jsonRel);
+    if (!existsSync(jsonPath)) continue;
+    try {
+      const dt = JSON.parse(readFileSync(jsonPath, 'utf-8')).derived_types || null;
+      if (dt) merged = merged ? { ...dt, ...merged } : { ...dt };
+    } catch {
+      // Unreadable/unparseable JSON is already reported by checkCompletionRecord; skipping here
+      // avoids emitting the same failure twice. Documented fallback, not a silent swallow (LR-003).
+    }
   }
+  return merged;
 }
 
 /**
