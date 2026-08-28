@@ -515,7 +515,9 @@
       "unenforced": "The only call site is the warn-only detective Stop hook check-visibility-reconcile.mjs:516 (process.stdout.write — never exits non-zero or denies); the preventive PreToolUse gate was built and then removed by owner directive in commit f2e51bebd (recorded in guardrail-policy.md §74.2). No enforcement blocks a dispatch-invisible run.",
       "severity": "S1",
       "recipient": "plans/pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md",
-      "covers": ["74-1-the-law"]
+      "covers": [
+        "74-1-the-law"
+      ]
     },
     {
       "id": "LR-072",
@@ -531,6 +533,16 @@
       "severity": "S2",
       "recipient": "plans/pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md",
       "unenforced_since": "2026-08-26"
+    },
+    {
+      "id": "LR-ENC-007",
+      "file": "clients/encore/CLAUDE.md",
+      "line": 95,
+      "unenforced": "Deliberately prose-tier by the rule's own clause: the mechanical form (forbidden-pattern entry for dead hosts/offices) must land at announce per LR-069 §3.3 and a hook/gate change needs an explicit owner GO; promote on the second confirmed recurrence (2026-08-03 cloudapps-dev incident is the first and only)",
+      "severity": "S1",
+      "adjudicator": "OWNER (Vikas) — /push-repo gate remediation 2026-08-28, honoring the rule body's deliberately-no-gate note",
+      "unenforced_since": "2026-08-27",
+      "recipient": "plans/pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md"
     }
   ]
 }

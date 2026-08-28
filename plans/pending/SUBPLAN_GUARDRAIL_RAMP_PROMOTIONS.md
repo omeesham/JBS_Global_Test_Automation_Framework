@@ -123,6 +123,10 @@ rather than spawning a sibling — one custodian is the point.
   subplan runs: ask the owner to add `&& node scripts/check-per-row-await.mjs --enforce` to the
   `check:spec-quality` script, then flip the ledger entry to `enforced_by: package.json:<line>`.
 
+## Inherited item — LR-ENC-007 promotion trigger (added 2026-08-28 by the /push-repo ledger remediation)
+
+LR-ENC-007 (two-environments-only, clients/encore/CLAUDE.md:95) is S1 UNENFORCED by its own deliberately-no-gate clause. On the SECOND confirmed recurrence of an out-of-scope env/office reaching a plan, spec, selector or config (first: cloudapps-dev 2026-08-03), promote it here: add the dead-host/office forbidden-pattern entry to scripts/lib/forbidden-patterns.mjs at announce per LR-069 §3.3, get the owner GO for the gate change, then flip the ledger entry to enforced_by.
+
 ## Handoff
 
 Chat-only per LR-039. Outcomes, not obstacles.
