@@ -158,6 +158,15 @@ Encore's heavy tabs (canonical: Discount Matrix Location Activation, ~2041 rows)
 **Trigger**: any walk, probe, bug filing, or case authoring on a Loading/lazy Encore surface; any "control does nothing" verdict there.
 **Graduated from**: the 4-instance loading-window class above (memory `feedback_loading_window_misreads.md` — its own text set graduation at the 3rd instance).
 
+### LR-ENC-009: DOM/markup accessibility findings are not defects for this client — behaviour defects only
+
+Owner ruling (2026-08-04, previously un-numbered — graduated 2026-08-28 at PLAN_NM3530 Phase 4 closure so duty-coverage gates can cite it): never file a DOM/markup accessibility finding (missing accessible name, unlabeled combobox, missing testid, aria wiring, markup-only concerns) as a bug, test case, or walk observation for Encore. Behaviour defects only. Markup findings are recorded as selector-strategy constraints plus an LR-029 missing-testid report with live-DOM verification per element.
+
+**Scope note**: for this client this rule carves the "accessibility break" defect class OUT of the ALL-045 Observations buckets, HUNTER HARD STOP #13 and GIVER HARD STOP #23 — those texts remain in force for every other defect class and are deliberately unedited; this client rule is the precedence record (client scope ruling > framework default, surfaced not silently resolved).
+
+**Trigger**: any walk Observations bucket, bug filing, TC authoring, or audit finding on an Encore surface that would cite markup/accessibility rather than behaviour.
+**Graduated from**: standing scope rule applied since 2026-08-04 (memory `feedback_no_dom_accessibility_bugs.md`); the numbering gap and the ALL-045 conflict were surfaced in PLAN_NM3530_DISCOUNT_MATRIX_COVERAGE_QUICK § Duty-coverage note and routed here.
+
 ### LR-008: Date offset validation — positivity constraints per field type
 Date-offset fields have sign constraints (relative-to-start Prep/Set/Delivery ≤ 0; relative-to-end Return/Strike/Pickup ≥ 0; Delivery additionally ≥ Prep per NM-1264). Test values must respect ALL constraints for the field under test.
 <!-- CEO POINTER: LR-008 per-field-type offset sign rules → ticket DOCTRINE; cite clients/encore/CLAUDE.md LR-008; VERIFY: worker's test values satisfy every offset constraint for the field (incl. Delivery≥Prep) -->

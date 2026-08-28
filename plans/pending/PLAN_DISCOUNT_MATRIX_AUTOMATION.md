@@ -84,6 +84,18 @@ This plan is therefore **GATED** on that plan landing. What remains here:
   volume, network response-body assertions, exhaustive file-I/O.
 - **Module-level closure** (Phase 10) once both depths are covered.
 - **CMX**, if and only if NM-3343 ever hands it back. It is not this plan's to take.
+- **Deep-tier deferrals inherited from the NM-3530 QUICK execution (recorded 2026-08-28)** — the L2/L3 phases here pick up
+  every `deferred-to-DEEP` row the QUICK walk recorded in the dated DSM inventories and catalog
+  (`field-case-catalogs/discount-matrix-2026-08-25.md` + the three `field-inventories/discount-matrix-*-2026-08-25.md`),
+  namely: `rwp-create-year-variants` (deviating Add Year create paths — each is another permanent server-side year);
+  `loa-search-input-contract` (LOA search §2 plain-text case set in the accepted post-warm-up steady state);
+  `loa-workflow-start-date-cell-editor` (per-row date editing — persisting shared-data grid mutation);
+  `loa-persistence-save-path` (LOA row-mutation save persistence; the dirty-and-discard half is QUICK-covered by TC-DSM-LOA-009);
+  `critbar-currency-tier-per-tab` (Currency / Business Tier driven from a NON-landing tab — inventory split
+  `critbar-currency-tier-on-rwp` / `critbar-currency-tier-on-loa`); `cmx-grid-requery-effect` (the landing-tab grid
+  re-scope effect of a criteria change — TC-DSM-CRT-007's oracle is the dropdown round-trip only; grid content is CMX-owned);
+  export cell-level read-back (TC-DSM-RWP-023 asserts name + non-trivial size only); and the More-information popover
+  open (presence asserted by TC-DSM-CRT-013; opening it is DEEP-tier).
 
 Nothing in Phases 6b-10 of this plan is executed while it is GATED. The acceptance criteria below still demand
 L1+L2+L3 per family; the L1 half is discharged by the NM-3530 plan, not re-done here.

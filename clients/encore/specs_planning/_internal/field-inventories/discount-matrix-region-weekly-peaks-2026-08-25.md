@@ -128,18 +128,18 @@ All 20 rows below are dispositioned. **Coverage_Ratio: 20/20.**
 | `struct:combobox\|Standard\|div/div/div/div/div/div` | combobox | 2026-08-25 | covered-by-TC: TC-DSM-CRT-004 |
 | `name:gavDiscountThreshold\|input` | input | 2026-08-25 | covered-by-TC: TC-DSM-CRT-011 |
 | `struct:button\|Save\|div/div/div/div/div/div` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-CRT-005 |
-| `struct:tablist\|Company MatrixRegion Weekly PeaksLocatio\|…` | tablist | 2026-08-25 | out-of-scope: not-interactive — structural container only; the three tab triggers it holds carry the behaviour and are dispositioned in the criteria artifact |
+| `struct:tablist\|Company MatrixRegion Weekly PeaksLocatio\|div/div/div/div/div/div` | tablist | 2026-08-25 | out-of-scope: not-interactive — structural container only; the three tab triggers it holds carry the behaviour and are dispositioned in the criteria artifact |
 | `id:radix-_r_10_-trigger-company-matrix` | tab | 2026-08-25 | affordance-probed: affordance: navigation → Company Matrix panel · provenance: live · evidence: reports/walk-coverage/dsm-crt-skelgate.json (2026-08-25, base_state.atRest=[Company Matrix]) |
 | `id:radix-_r_10_-trigger-region-weekly` | tab | 2026-08-25 | affordance-probed: affordance: navigation → Region Weekly Peaks panel · provenance: live · evidence: reports/walk-coverage/dsm-rwp--tab-region-weekly-peaks.json (2026-08-25, branches[0].ok=true addedKeys=20) |
 | `id:radix-_r_10_-trigger-location-activation` | tab | 2026-08-25 | affordance-probed: affordance: navigation → Location Activation panel · provenance: live · evidence: reports/walk-coverage/dsm-loa--tab-location-activation.json (2026-08-25, branches[0].ok=true addedKeys=20) |
 | `id:radix-_r_10_-content-region-weekly` | tabpanel | 2026-08-25 | out-of-scope: not-interactive — structural container; its nine controls are enumerated and dispositioned individually |
 | `id:region-weekly-peaks-year` | combobox | 2026-08-25 | covered-by-TC: TC-DSM-RWP-002 |
 | `id:region-weekly-peaks-region` | combobox | 2026-08-25 | covered-by-TC: TC-DSM-RWP-003 |
-| `struct:button\|Add Year\|…content-region-weekly…` | button | 2026-08-25 | covered-by-TC: TC-DSM-RWP-009, TC-DSM-RWP-022 (driven 2026-08-26) |
-| `struct:button\|Export\|…content-region-weekly…` | button | 2026-08-25 | covered-by-TC: TC-DSM-RWP-009, TC-DSM-RWP-023 (driven 2026-08-26) |
-| `struct:button\|Import\|…content-region-weekly…` | button | 2026-08-25 | covered-by-TC: TC-DSM-RWP-009, TC-DSM-RWP-024 (driven 2026-08-26) |
-| `struct:button\|Cancel\|…content-region-weekly…` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-RWP-010, TC-DSM-RWP-021 |
-| `struct:button\|Save\|…content-region-weekly…` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-RWP-010 |
+| `struct:button\|Add Year\|div/radix-_r_10_-content-region-weekly/div/div/div/div` | button | 2026-08-25 | covered-by-TC: TC-DSM-RWP-009, TC-DSM-RWP-022 (driven 2026-08-26) |
+| `struct:button\|Export\|div/radix-_r_10_-content-region-weekly/div/div/div/div` | button | 2026-08-25 | covered-by-TC: TC-DSM-RWP-009, TC-DSM-RWP-023 (driven 2026-08-26) |
+| `struct:button\|Import\|div/radix-_r_10_-content-region-weekly/div/div/div/div` | button | 2026-08-25 | covered-by-TC: TC-DSM-RWP-009, TC-DSM-RWP-024 (driven 2026-08-26) |
+| `struct:button\|Cancel\|div/div/radix-_r_10_-content-region-weekly/div/div/div` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-RWP-010, TC-DSM-RWP-021 |
+| `struct:button\|Save\|div/div/radix-_r_10_-content-region-weekly/div/div/div` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-RWP-010 |
 | `struct:checkbox\|\|div/div/table/tbody/tr/td` | checkbox | 2026-08-25 | covered-by-TC: TC-DSM-RWP-007 |
 
 ### A△B review-set classification (CrossCheck)

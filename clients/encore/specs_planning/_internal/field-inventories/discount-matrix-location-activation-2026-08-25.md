@@ -137,14 +137,14 @@ All 20 rows below are dispositioned. **Coverage_Ratio: 20/20.**
 | `struct:combobox\|Standard\|div/div/div/div/div/div` | combobox | 2026-08-25 | covered-by-TC: TC-DSM-CRT-004 |
 | `name:gavDiscountThreshold\|input` | input | 2026-08-25 | covered-by-TC: TC-DSM-CRT-011 |
 | `struct:button\|Save\|div/div/div/div/div/div` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-CRT-005 |
-| `struct:tablist\|Company MatrixRegion Weekly PeaksLocatio\|…` | tablist | 2026-08-25 | out-of-scope: not-interactive — structural container only; the three tab triggers it holds carry the behaviour and are dispositioned in the criteria artifact |
+| `struct:tablist\|Company MatrixRegion Weekly PeaksLocatio\|div/div/div/div/div/div` | tablist | 2026-08-25 | out-of-scope: not-interactive — structural container only; the three tab triggers it holds carry the behaviour and are dispositioned in the criteria artifact |
 | `id:radix-_r_10_-trigger-company-matrix` | tab | 2026-08-25 | affordance-probed: affordance: navigation → Company Matrix panel · provenance: live · evidence: reports/walk-coverage/dsm-crt-skelgate.json (2026-08-25, base_state.atRest=[Company Matrix]) |
 | `id:radix-_r_10_-trigger-region-weekly` | tab | 2026-08-25 | affordance-probed: affordance: navigation → Region Weekly Peaks panel · provenance: live · evidence: reports/walk-coverage/dsm-rwp--tab-region-weekly-peaks.json (2026-08-25, branches[0].ok=true addedKeys=20) |
 | `id:radix-_r_10_-trigger-location-activation` | tab | 2026-08-25 | affordance-probed: affordance: navigation → Location Activation panel · provenance: live · evidence: reports/walk-coverage/dsm-loa--tab-location-activation.json (2026-08-25, branches[0].ok=true addedKeys=20) |
 | `id:radix-_r_10_-content-location-activation` | tabpanel | 2026-08-25 | out-of-scope: not-interactive — structural container; its nine controls are enumerated and dispositioned individually |
-| `struct:input\|Search by location number or location na\|…` | input | 2026-08-25 | covered-by-TC: TC-DSM-LOA-003, TC-DSM-LOA-010 |
-| `struct:button\|Cancel\|…content-location-activation…` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-LOA-004, TC-DSM-LOA-009 |
-| `struct:button\|Save\|…content-location-activation…` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-LOA-004 |
+| `struct:input\|Search by location number or location na\|div/radix-_r_10_-content-location-activation/div/div/div/div` | input | 2026-08-25 | covered-by-TC: TC-DSM-LOA-003, TC-DSM-LOA-010 |
+| `struct:button\|Cancel\|div/div/radix-_r_10_-content-location-activation/div/div/div` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-LOA-004, TC-DSM-LOA-009 |
+| `struct:button\|Save\|div/div/radix-_r_10_-content-location-activation/div/div/div` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-LOA-004 |
 | `struct:button\|Resize column\|div/div/table/thead/tr/th` | button | 2026-08-25 | covered-by-TC: TC-DSM-LOA-007, TC-DSM-LOA-011 |
 | `struct:input\|Select date\|td/div/div/div/div/div` | input | 2026-08-25 | deferred-to-DEEP: loa-workflow-start-date-cell-editor (persisting shared-data grid mutation; QUICK records the affordance only) |
 | `struct:button\|Open calendar\|div/div/div/div/div/div` | button | 2026-08-25 | affordance-probed: affordance: launcher → date-picker dialog (calendar grid; title not captured) · provenance: live · evidence: reports/walk-coverage/dsm-loa-affordance-probe.json (2026-08-25, dateCellAfterClick.dialogOpen=true, gridCalendar=true) |

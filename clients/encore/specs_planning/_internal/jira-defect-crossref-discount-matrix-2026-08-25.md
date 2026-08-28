@@ -6,7 +6,7 @@ scope: CRT (Search Criteria) · RWP (Region Weekly Peaks) · LOA (Location Activ
 out_of_scope: CMX (Company Matrix) — owned by NM-3343
 rovo_available: true
 source: Atlassian MCP, cloudId 03ec286f-d928-4c2c-b782-c8cce703ce2a, read:jira-work
-jira_tickets: [NM-3530, NM-3485, NM-3475, NM-3441, NM-3440, NM-3435, NM-3391, NM-3294, NM-3293, NM-3275, NM-3256, NM-3253, NM-3238, NM-3234, NM-3232, NM-3230, NM-3229, NM-3062]
+jira_tickets: [NM-3530, NM-3485, NM-3475, NM-3441, NM-3440, NM-3435, NM-3391, NM-3294, NM-3293, NM-3275, NM-3256, NM-3253, NM-3238, NM-3234, NM-3232, NM-3230, NM-3229, NM-3074, NM-3062, NM-2221, NM-2220, NM-1681, NM-1657]
 ---
 
 # Jira crossref — Discount Matrix (CRT / RWP / LOA)
@@ -65,6 +65,22 @@ either reading on assumption.
 rows. That is proof the surface *does* populate and is not feature-blocked. Per LR-ENC-007 a
 `cloudapps-dev` URL is a surface pointer, never a build target, so this does not license testing there.
 
+## Build-spec + API leads — appended by the closure audit, 2026-08-28
+
+The plan's Phase 0.1 named five leads a `summary ~ "Region Weekly Peak*" OR "Region Peak*" OR
+"Location Activation"` sweep returns that the 2026-08-25 intake missed. The closure audit found the
+sweep's findings were *used* throughout execution (the NM-2220/NM-2221 intended contracts are cited
+by the RWP/LOA cases and were DOM-verified by their passing specs) but never landed in this
+artifact. Appended here with statuses re-verified live on 2026-08-28 (Atlassian MCP, same cloudId):
+
+| Ticket | Status (live 2026-08-28) | Claim (verbatim intent, one line) |
+|---|---|---|
+| NM-3074 | **Done** (Highest) — was QA at the 2026-08-25 sweep, since closed | Discount Matrix - Region Peak - Import/Add Year performance — was the only non-Done ticket in scope while Add Year cases were authored (TC-DSM-RWP-022 ran 2026-08-26 under the owner's mutation authorization) |
+| NM-2220 | Done (Highest, Sub-task) | MFE build spec, RWP tab: Year/Region populate on activation for the current countryId; 52-week grid editable when canEdit; bulk save; create-year dialog with server-side overlap check; import row-level errors; export .xlsx — DOM-verified by the RWP suite (26 cases green) |
+| NM-2221 | Done (Highest, Sub-task) | MFE build spec, LOA tab: lists all locations for the selected country, reloads on countryId change; inline activate/deactivate marks dirty; bulk save persists only changed rows; record count bottom-right — DOM-verified by the LOA suite (13 cases green; count = the footer oracle) |
+| NM-1657 | Done (Highest) | [DiscountMatrix] - API-Region Weekly Peak-Read Methods — API-layer story behind the RWP grid reads |
+| NM-1681 | Done (Highest) | [DiscountMatrix] API - Discount Matrix Location Activation — API-layer story behind the LOA listing |
+
 ## Out of scope — CMX (Company Matrix), owned by NM-3343
 
 Recorded for the next reader only. No test content is derived from these here, and no Company Matrix
@@ -77,3 +93,14 @@ Location Activation returns `0 matching locations` on **both** authorized e2e of
 with its search box, Save and Cancel all disabled, while NM-3253 shows populated rows on the dev
 environment. What associates locations to this grid on e2e, and is any authorized office expected to
 carry them? Until answered, no LOA case may assert row-level behaviour.
+
+> **RESOLVED — escalation withdrawn 2026-08-26 (recorded here at closure, 2026-08-28).** The
+> `0 matching locations` reading above was a loading-window misread: the earlier captures caught the
+> tab's multi-minute staged hydration (the class graduated as LR-ENC-008). The post-fix machine
+> re-walk on BOTH authorized offices found the LOA grid populated — 2041 US locations for the
+> selected country, landing ~43s after tab click — and Phase 0.2 of the NM-3530 plan overturned the
+> `data-blocked` verdict on the record (dated correction paragraphs in
+> `walk-evidence-discount-matrix-2026-08-25.md`). The full LOA case set was authored and is green
+> (13 cases). The question this section routed to `/encore-questions` is withdrawn, not answered-by-
+> a-human: nothing associates locations to the grid per office — the listing is country-scoped per
+> NM-2221, identical on 1604 and 1101, and was never empty.

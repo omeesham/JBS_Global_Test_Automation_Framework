@@ -18,6 +18,14 @@ export const MODULE_CONFIG = {
       { label: 'tab:location-activation' },
     ],
   },
+  // Discount Matrix per-submodule inventories (split 2026-08-27 to pair one inventory per
+  // test-case file). Each split artifact binds to its own single-state tab manifest.
+  'discount-matrix-region-weekly-peaks': {
+    requiredStates: [{ label: 'tab:region-weekly-peaks' }],
+  },
+  'discount-matrix-location-activation': {
+    requiredStates: [{ label: 'tab:location-activation' }],
+  },
   'service-charge': {
     requiredStates: [
       { label: 'resting' },
