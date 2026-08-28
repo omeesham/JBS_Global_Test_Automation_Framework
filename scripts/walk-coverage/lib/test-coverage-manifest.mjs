@@ -238,5 +238,57 @@ ok('E6b three-segment value yields three paths with annotations stripped',
   JSON.stringify(segMulti));
 ok('E6c empty/absent value yields no segments', completionRefSegments('').length === 0 && completionRefSegments(undefined).length === 0, 'non-empty');
 
+// G. SUBPLAN_GUARDRAIL_CX_GATE_DEFECTS (2026-08-28) — observation-only baseline carve-out (Defect 2)
+// and the owner-signed 15%-cap exemption (Defect 3). Each positive case has its refusing twin so the
+// carve-outs cannot be widened silently.
+const OLD_SITE_PATH = 'clients/encore/specs_planning/_internal/old-site-baseline/fixture-2026-08-25.md';
+const NEW_SITE_PATH = 'clients/encore/specs_planning/_internal/field-inventories/fixture-2026-08-25.md';
+const OBS_KEYS = 'Observation_Only: true\nWalk_Authorization: owner-authorized bounded observation walk, one non-mutating tab click per tab\n';
+const NO_MANIFEST_BODY = (extra = '') => `MCP_Session_Date: 2026-08-25\n${extra}\n## Notes\nno manifest here\n`;
+
+// G1. old-site + both keys → carve-out passes (applicable:false, complete:true, reason names it)
+v = coverageVerdict(NO_MANIFEST_BODY(OBS_KEYS), LANDING, { artifactPath: OLD_SITE_PATH });
+ok('G1 observation-only old-site baseline with authorization → not-applicable pass',
+  !v.applicable && v.complete && v.reasons.some(r => /observation-only old-site baseline/.test(r)), JSON.stringify(v.reasons));
+
+// G2. old-site WITHOUT the keys → manifest mandate still bites
+v = coverageVerdict(NO_MANIFEST_BODY(), LANDING, { artifactPath: OLD_SITE_PATH });
+ok('G2 old-site baseline without the keys → Coverage Manifest ABSENT still fails',
+  v.applicable && !v.complete && v.reasons.some(r => /Coverage Manifest ABSENT/.test(r)), JSON.stringify(v.reasons));
+
+// G3. NEW-site artifact carrying the keys → keys cannot launder it; mandate still bites
+v = coverageVerdict(NO_MANIFEST_BODY(OBS_KEYS), LANDING, { artifactPath: NEW_SITE_PATH });
+ok('G3 new-site artifact with the keys → Coverage Manifest ABSENT still fails',
+  v.applicable && !v.complete && v.reasons.some(r => /Coverage Manifest ABSENT/.test(r)), JSON.stringify(v.reasons));
+
+// G4. short authorization (<20 chars) → refused
+v = coverageVerdict(NO_MANIFEST_BODY('Observation_Only: true\nWalk_Authorization: short\n'), LANDING, { artifactPath: OLD_SITE_PATH });
+ok('G4 authorization under 20 chars → refused, mandate still fails',
+  v.applicable && !v.complete && v.reasons.some(r => /Coverage Manifest ABSENT/.test(r)), JSON.stringify(v.reasons));
+
+// G5/G6/G7 — 15% cap exemption. Fixture: 2 rows, 1 in-module OOS (50% > 15% cap), NM-cited reason.
+const CAP_BODY = header('2026-08-25', '2/2 (100%)', 'clean') +
+  '| `testid:keep` | button | 2026-08-25 | covered-by-TC: TC-1 |\n' +
+  '| `testid:oos` | button | 2026-08-25 | out-of-scope: NM-3343 owns this sibling tab control under the split-ownership ruling |\n';
+const CAP_ART = 'clients/encore/specs_planning/_internal/field-inventories/cap-fixture-2026-08-25.md';
+const SIGNED = [{ artifact: 'cap-fixture-2026-08-25.md', plan: 'PLAN_X.md', reason: 'split ownership — sibling ticket owns the whole tab, no reclassification', approved_by: 'Owner (chat)', date: '2026-08-26' }];
+const UNSIGNED = [{ artifact: 'cap-fixture-2026-08-25.md', plan: 'PLAN_X.md', reason: 'split ownership — sibling ticket owns the whole tab, no reclassification', date: '2026-08-26' }];
+
+// G5. no exemption → cap fails
+v = coverageVerdict(CAP_BODY, LANDING, { artifactPath: CAP_ART, oosCapExemptions: [] });
+ok('G5 over-cap with no exemption → cap reason fails',
+  v.reasons.some(r => /15% module-own cap/.test(r)), JSON.stringify(v.reasons));
+
+// G6. owner-signed exemption → cap waived, echoed in warnings, no cap reason
+v = coverageVerdict(CAP_BODY, LANDING, { artifactPath: CAP_ART, oosCapExemptions: SIGNED });
+ok('G6 owner-signed exemption → cap waived with loud warning echo',
+  !v.reasons.some(r => /15% module-own cap/.test(r)) && (v.warnings || []).some(w => /cap WAIVED by owner-signed exemption/.test(w) && /approved_by=Owner/.test(w)),
+  JSON.stringify({ reasons: v.reasons, warnings: v.warnings }));
+
+// G7. unsigned entry (no approved_by) → refused, cap still fails
+v = coverageVerdict(CAP_BODY, LANDING, { artifactPath: CAP_ART, oosCapExemptions: UNSIGNED });
+ok('G7 unsigned exemption entry → refused, cap still fails',
+  v.reasons.some(r => /15% module-own cap/.test(r)) && !(v.warnings || []).some(w => /WAIVED/.test(w)), JSON.stringify(v.reasons));
+
 console.log(`\ncoverage-manifest fixtures: ${passed} passed, ${failed} failed, ${passed + failed} total`);
 process.exit(failed > 0 ? 1 : 0);

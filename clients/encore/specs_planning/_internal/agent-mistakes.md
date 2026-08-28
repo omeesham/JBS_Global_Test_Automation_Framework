@@ -395,3 +395,22 @@ The claim above that nothing identified the axis is wrong for that one item; the
 inventories' 100% claim contradicted the plan's own deferral — the artifacts disagreed and no
 gate compared them. Closure: probes `dsm-critbar-{rwp,loa}-probe.json` (2026-08-27) measured the
 axis; TC-DSM-RWP-025/026 + TC-DSM-LOA-012/013 authored; the deferral row retired.
+
+## CEO-M14 — Guardrail plan convicted a working check on a stale derived registry (Sev S2, 2026-08-28)
+
+The SUBPLAN_GUARDRAIL_CX_GATE_DEFECTS authoring session diagnosed the closure validator's
+denominator-parity failure as an engine defect ("dead exemption channel; Path B empty by
+construction for QUICK artifacts") and planned code surgery on `case-parity.mjs` /
+`verify-denominator.mjs`. The /execute Phase-1 research re-derived the mechanism before any code
+landed: the case-row emitter deliberately shares the widened-union definition with Path A, so
+parity is sound — the real cause was a STALE `reports/walk-coverage/case-rows.json` (emitted
+under an older taxonomy; the DSM re-enumeration's three new records never emitted at all).
+Re-emitting five artifacts restored EXACT parity everywhere (A==B for both NM-3530 and the
+NM-3344 precedent) with zero engine changes. Classification rationale for S2: the wrong diagnosis
+was corrected by the process layer (Phase-1 research) before any wrong fix landed — but the tell
+was visible at planning time and missed: a zero-tolerance check failing BOTH the new artifact AND
+a known-good DONE precedent points at their SHARED INPUT, not at the check. Resolution: when a
+check fails your work and its passing precedent identically, refresh/inspect the shared derived
+input (registry, cache, emitted artifact) before convicting the check's engine. Memory:
+`feedback_stale_registry_convicts_the_wrong_suspect.md`. The residual (no staleness guard) is a
+grep-verifiable line item in PLAN_DELIVERABLE_QUALITY_UPGRADE.md.

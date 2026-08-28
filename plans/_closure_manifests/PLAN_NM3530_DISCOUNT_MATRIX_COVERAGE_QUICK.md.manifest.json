@@ -1,0 +1,41 @@
+{
+  "plan": "PLAN_NM3530_DISCOUNT_MATRIX_COVERAGE_QUICK.md",
+  "plan_basename": "PLAN_NM3530_DISCOUNT_MATRIX_COVERAGE_QUICK.md",
+  "plan_sha256": "3bf2804c2eb08b928c92ccb4de122285bf4e0b6fbfc3782fc5435d68f8d4c361",
+  "passed_at": "2026-08-28T03:48:29.410Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "0b2b89845fd6f99c38e0e5422f5fda6590adf5ce23e5d43aa9b29beaee38dcb1",
+  "validator_invocation_id": "1787888909410-7d3ac8ec5904c3fa7950a88ba2ceee70-3bf2804c2eb08b92",
+  "artifacts": [
+    {
+      "path": "reports/walk-coverage/dsm-loa--tab-location-activation.json",
+      "sha256": "8a946708c8ba6b0049d578b7c12a6b05bfafc06dac128ea2120e4ef5dfb734c3"
+    },
+    {
+      "path": "reports/walk-coverage/dsm-loa-search-reverify.json",
+      "sha256": "0ab27951ff0dd2673c6be4bc8e4afa5da94ae77ddeeb08abac310ef023209159"
+    },
+    {
+      "path": "clients/encore/reports/html-report/index.html",
+      "sha256": "45979520306695e0969602f7a23857d6123255b5036bcb0c23c5b2cecfd4997d"
+    },
+    {
+      "path": "reports/walk-coverage/dsm-critbar-rwp-probe.json",
+      "sha256": "9852450d36e2f91fb4adad44bd452efad93dcb59b4ca91487b38252d31b6997c"
+    },
+    {
+      "path": "clients/encore/reports/test-results.json",
+      "sha256": "3f778d6ed3ec38cb87fa513dc6ac66a3db1f3d61c5ce14a139864be0716ba8df"
+    },
+    {
+      "path": "reports/walk-coverage/case-rows.json",
+      "sha256": "379f1500f045c90007605fe78a33ec256750ca8199fb4736c37260407b63f055"
+    },
+    {
+      "path": "clients/encore/reports/junit-results.xml",
+      "sha256": "dd90852a8485800ed38c9f87445389eb31b404f082df5b87645d609367ae43d8"
+    }
+  ],
+  "provisional": false
+}

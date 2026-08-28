@@ -122,14 +122,14 @@ All 17 rows below are dispositioned. **Coverage_Ratio: 17/17.**
 | `struct:combobox\|Standard\|div/div/div/div/div/div` | combobox | 2026-08-25 | covered-by-TC: TC-DSM-CRT-004 |
 | `name:gavDiscountThreshold\|input` | input | 2026-08-25 | covered-by-TC: TC-DSM-CRT-011 |
 | `struct:button\|Save\|div/div/div/div/div/div` *(A△B review)* | button | 2026-08-25 | covered-by-TC: TC-DSM-CRT-005 |
-| `struct:tablist\|Company MatrixRegion Weekly PeaksLocatio\|…` *(A△B review)* | tablist | 2026-08-25 | out-of-scope: not-interactive — structural container only; the three tab triggers it holds carry the behaviour and are dispositioned individually below |
+| `struct:tablist\|Company MatrixRegion Weekly PeaksLocatio\|div/div/div/div/div/div` *(A△B review)* | tablist | 2026-08-25 | out-of-scope: not-interactive — structural container only; the three tab triggers it holds carry the behaviour and are dispositioned individually below |
 | `id:radix-_r_10_-trigger-company-matrix` | tab | 2026-08-25 | affordance-probed: affordance: navigation → Company Matrix panel · provenance: live · evidence: reports/walk-coverage/dsm-crt-skelgate.json (2026-08-25, base_state.atRest=[Company Matrix]) |
 | `id:radix-_r_10_-trigger-region-weekly` | tab | 2026-08-25 | affordance-probed: affordance: navigation → Region Weekly Peaks panel · provenance: live · evidence: reports/walk-coverage/dsm-rwp--tab-region-weekly-peaks.json (2026-08-25, branches[0].ok=true addedKeys=20) |
 | `id:radix-_r_10_-trigger-location-activation` | tab | 2026-08-25 | affordance-probed: affordance: navigation → Location Activation panel · provenance: live · evidence: reports/walk-coverage/dsm-loa--tab-location-activation.json (2026-08-25, branches[0].ok=true addedKeys=20) |
 | `id:radix-_r_10_-content-company-matrix` | tabpanel | 2026-08-25 | out-of-scope: NM-3343 owns the Company Matrix panel under this plan's Scope lock; it is not read or written here |
-| `struct:button\|Add Tier\|…content-company-matrix…` | button | 2026-08-25 | out-of-scope: NM-3343 owns this Company Matrix control under this plan's Scope lock; not read or written here |
-| `struct:button\|Export\|…content-company-matrix…` | button | 2026-08-25 | out-of-scope: NM-3343 owns this Company Matrix control under this plan's Scope lock; not read or written here |
-| `struct:button\|Import\|…content-company-matrix…` | button | 2026-08-25 | out-of-scope: NM-3343 owns this Company Matrix control under this plan's Scope lock; not read or written here |
+| `struct:button\|Add Tier\|div/div/div/radix-_r_10_-content-company-matrix/div/div` | button | 2026-08-25 | out-of-scope: NM-3343 owns this Company Matrix control under this plan's Scope lock; not read or written here |
+| `struct:button\|Export\|div/div/radix-_r_10_-content-company-matrix/div/div/div` | button | 2026-08-25 | out-of-scope: NM-3343 owns this Company Matrix control under this plan's Scope lock; not read or written here |
+| `struct:button\|Import\|div/div/radix-_r_10_-content-company-matrix/div/div/div` | button | 2026-08-25 | out-of-scope: NM-3343 owns this Company Matrix control under this plan's Scope lock; not read or written here |
 | `struct:button\|Delete\|div/div/table/tbody/tr/td` | button | 2026-08-25 | out-of-scope: NM-3343 owns this Company Matrix tier-row control under this plan's Scope lock; not read or written here |
 | `struct:button\|Edit\|div/div/table/tbody/tr/td` | button | 2026-08-25 | out-of-scope: NM-3343 owns this Company Matrix tier-row control under this plan's Scope lock; not read or written here |
 

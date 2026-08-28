@@ -538,12 +538,54 @@ export function checkTypeBinding(derivedTypes) {
   return { reasons, checked, skipped };
 }
 
+// Owner-signed 15%-cap exemptions (SUBPLAN_GUARDRAIL_CX_GATE_DEFECTS Defect 3, 2026-08-28 — Sev S1;
+// graduating incident: NM-3530 closure blocked because the owner's signed route-(b) exemption of
+// 2026-08-26 existed only as plan prose, invisible to this gate). Source of truth:
+// .claude/walk-exemptions.json `oos_cap_exemptions` — one entry per artifact basename, honored ONLY
+// when human-signed: non-empty approved_by, a date, and a reason >= 20 chars. Unsigned or malformed
+// entries are ignored, so the cap stays in force (fail-toward-enforcement). An honored exemption is
+// echoed into `warnings`, never silent.
+function loadOosCapExemptions() {
+  const p = join(REPO_ROOT, '.claude', 'walk-exemptions.json');
+  try {
+    if (!existsSync(p)) return [];
+    const data = JSON.parse(readFileSync(p, 'utf-8'));
+    return Array.isArray(data.oos_cap_exemptions) ? data.oos_cap_exemptions : [];
+  } catch { /* unreadable exemptions file = no exemptions; the cap stays in force */ return []; }
+}
+
+export function findOosCapExemption(artifactPath, entries = loadOosCapExemptions()) {
+  const base = String(artifactPath || '').replace(/^.*[/\\]/, '');
+  if (!base) return null;
+  return entries.find(e =>
+    e && String(e.artifact || '').replace(/^.*[/\\]/, '') === base
+    && typeof e.approved_by === 'string' && e.approved_by.trim().length > 0
+    && typeof e.date === 'string' && e.date.trim().length >= 8
+    && typeof e.reason === 'string' && e.reason.trim().length >= 20
+  ) || null;
+}
+
 export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, opts = {}) {
   const { artifactPath = '', provenanceLandingDate = PROVENANCE_GATE_LANDING_DATE, manifestMandatoryDate = MANIFEST_MANDATORY_DATE } = opts;
   const s = parseCoverageSignals(text);
   if (!s.hasManifest) {
     if (!isSubjectToMandate(artifactPath, s, manifestMandatoryDate)) {
       return { applicable: false, complete: true, reasons: ['no-coverage-manifest (pre-mandatory-date)'], provenanceFail: false, signals: s };
+    }
+    // Observation-only old-site baseline carve-out (SUBPLAN_GUARDRAIL_CX_GATE_DEFECTS Defect 2,
+    // 2026-08-28 — Sev S1; graduating incident: NM-3530 closure demanded a machine enumeration of
+    // nav2 that the owner-authorized bounded observation walk could never produce). Scope is
+    // deliberately narrow: ONLY artifacts under old-site-baseline/ whose frontmatter BOTH declares
+    // `Observation_Only: true` AND carries a `Walk_Authorization:` line >= 20 chars naming the
+    // owner grant. New-site artifacts (field-inventories etc.) can never use these keys — the
+    // path test excludes them, so the manifest mandate still bites everywhere it always did.
+    const isOldSiteBaseline = /old-site-baseline[\/\\][^\/\\]+$/.test(String(artifactPath || ''));
+    const observationOnly = /^\s*(?:\*\*)?Observation_Only(?:\*\*)?\s*:\s*true\s*$/mi.test(text);
+    const authMatch = text.match(/^\s*(?:\*\*)?Walk_Authorization(?:\*\*)?\s*:\s*(\S.{19,})$/mi);
+    if (isOldSiteBaseline && observationOnly && authMatch) {
+      return { applicable: false, complete: true,
+        reasons: [`no-coverage-manifest (observation-only old-site baseline; authorization: ${authMatch[1].trim().slice(0, 140)})`],
+        provenanceFail: false, signals: s };
     }
     return { applicable: true, complete: false,
       reasons: [`Coverage Manifest ABSENT — run \`npm run walk:enumerate\` (LR-062). Mandatory for artifacts dated >= ${manifestMandatoryDate}`],
@@ -649,10 +691,23 @@ export function coverageVerdict(text, landingDate = COVERAGE_GATE_LANDING_DATE, 
     }
   }
   // The denominator is the module's own controls: total rows minus those evidenced as shell.
-  // The cap bites at 15% of that reduced set.
+  // The cap bites at 15% of that reduced set — unless the owner has SIGNED a per-artifact
+  // exemption (Defect 3 above; opts.oosCapExemptions is the test-injection seam, mirroring
+  // opts.crossModuleControls). An honored exemption is echoed loudly into warnings.
   const moduleOwnRows = totalRows - shellRows.length;
   if (moduleOwnRows > 0 && inModuleOosRows.length / moduleOwnRows > 0.15) {
-    reasons.push(`out-of-scope rows exceed 15% module-own cap (${inModuleOosRows.length}/${moduleOwnRows} in-module OOS; ${shellRows.length} outside-module rows excluded from denominator)`);
+    const capExemption = findOosCapExemption(
+      artifactPath,
+      opts.oosCapExemptions !== undefined ? opts.oosCapExemptions : loadOosCapExemptions()
+    );
+    if (capExemption) {
+      warnings.push(
+        `out-of-scope 15% cap WAIVED by owner-signed exemption (${inModuleOosRows.length}/${moduleOwnRows} in-module OOS) — ` +
+        `approved_by=${capExemption.approved_by}; date=${capExemption.date}; plan=${capExemption.plan || '(none)'}; reason="${capExemption.reason}"`
+      );
+    } else {
+      reasons.push(`out-of-scope rows exceed 15% module-own cap (${inModuleOosRows.length}/${moduleOwnRows} in-module OOS; ${shellRows.length} outside-module rows excluded from denominator)`);
+    }
   }
 
   // Item 2 gate side: Completion_Record required for post-mandatory-date artifacts

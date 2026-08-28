@@ -19,7 +19,13 @@ export const MODULE_CONFIG = {
     ],
   },
   // Discount Matrix per-submodule inventories (split 2026-08-27 to pair one inventory per
-  // test-case file). Each split artifact binds to its own single-state tab manifest.
+  // test-case file). Each split artifact binds to its own single-state manifest.
+  'discount-matrix-criteria': {
+    requiredStates: [{
+      label: 'resting',
+      evidence: 'enumeration:2026-08-25:dsm-crt-skelgate.json (resting-state record, 17 elements) — NOT a zero-openers claim: the two tab branch states are owned by the sibling split registrations below, and the three in-module unopened openers are recorded in the artifact opener-frontier',
+    }],
+  },
   'discount-matrix-region-weekly-peaks': {
     requiredStates: [{ label: 'tab:region-weekly-peaks' }],
   },

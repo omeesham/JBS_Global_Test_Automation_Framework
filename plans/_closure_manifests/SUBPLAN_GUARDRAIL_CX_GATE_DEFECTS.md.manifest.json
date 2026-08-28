@@ -1,0 +1,17 @@
+{
+  "plan": "SUBPLAN_GUARDRAIL_CX_GATE_DEFECTS.md",
+  "plan_basename": "SUBPLAN_GUARDRAIL_CX_GATE_DEFECTS.md",
+  "plan_sha256": "9ac9264a1eaad3852e1376bcc781c3af58a4a594ae68bded29d7b98d04ca4389",
+  "passed_at": "2026-08-28T03:52:37.738Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "0b2b89845fd6f99c38e0e5422f5fda6590adf5ce23e5d43aa9b29beaee38dcb1",
+  "validator_invocation_id": "1787889157737-5e72956f572551f7a790e31b0a525192-9ac9264a1eaad385",
+  "artifacts": [
+    {
+      "path": "reports/walk-coverage/case-rows.json",
+      "sha256": "379f1500f045c90007605fe78a33ec256750ca8199fb4736c37260407b63f055"
+    }
+  ],
+  "provisional": false
+}

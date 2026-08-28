@@ -10,6 +10,8 @@ new_site: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1604/settin
 offices_observed: [1604, 1101]
 jira_tickets: [NM-3530, NM-3485, NM-3475, NM-3441, NM-3440, NM-3435, NM-3391, NM-3294, NM-3293, NM-3275, NM-3256, NM-3253, NM-3238, NM-3234, NM-3232, NM-3230, NM-3229, NM-3062]
 evidence: .playwright-cli/dsm-2026-08-25/ (nav2-baseline.yml, landing.yml, crtA.yml, rwp.yml, loa2.yml, loa-1101-p1.yml)
+Observation_Only: true
+Walk_Authorization: owner-authorized bounded observation walk, 2026-08-25 — one non-mutating tab click per tab on the old site, no typing, no Select, no Save (PLAN_NM3530_DISCOUNT_MATRIX_COVERAGE_QUICK Phase 0.3); machine enumeration of nav2 was not authorized, so no coverage manifest exists by design (keys added 2026-08-28 per SUBPLAN_GUARDRAIL_CX_GATE_DEFECTS Defect 2)
 ---
 
 # Old-site baseline — Discount Matrix
