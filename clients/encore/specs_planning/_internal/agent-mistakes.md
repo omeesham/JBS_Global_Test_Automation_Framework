@@ -414,3 +414,9 @@ check fails your work and its passing precedent identically, refresh/inspect the
 input (registry, cache, emitted artifact) before convicting the check's engine. Memory:
 `feedback_stale_registry_convicts_the_wrong_suspect.md`. The residual (no staleness guard) is a
 grep-verifiable line item in PLAN_DELIVERABLE_QUALITY_UPGRADE.md.
+
+## CEO-M15 — Closure-move ripple underestimated three times in one commit attempt (Sev S3, 2026-08-28)
+
+**What**: closing SUBPLAN_GUARDRAIL_CX_GATE_DEFECTS + NM-3530 in one commit hit three gate rejections in sequence, all self-inflicted: (1) reasoned "nothing re-validates done plans" and left the guardrail plan's four `plans/pending/PLAN_NM3530...` cites in place — the pre-commit STAGED re-grade (validate-plan-closure --staged) re-validates every staged plan and C3-failed the dead cites minutes later; (2) chained `git add -A && git commit` — the graft-ship gate rejected the compound (stale-staged-copy class), a documented recurrence of the add-must-not-share-a-command lesson; (3) the C3 cite-fix re-touched the plan AFTER the activity-log row's timestamp → LR-037 backdated-row HALT (plus a reflexive future-stamp 09:25 at 09:23, self-caught before commit).
+
+**Rule**: a `git mv` of a plan is not a rename — it is a re-validation event for every staged plan citing the old path, and every post-log-row file touch invalidates the LR-037 stamp. Order the ceremony: fix ALL cites module-wide (grep the moved filename repo-scoped) → re-manifest → THEN write the activity-log row → `git add` alone → `git commit` alone. Classification: S3 (all three caught by gates, zero shipped impact; the recurrence of the add/commit lesson is the reason this row exists at all).
