@@ -28,6 +28,7 @@ If a rule applies to any Angular/Playwright client, it belongs in root `CLAUDE.m
 
 - **App**: Navigator Cloud — Encore's rental/event management platform
 - **Base URL**: `cloudapps-e2e.encoreglobal.com` (E2E environment; see `clients/encore/.env.local`)
+- **Environments in scope — exactly two**: `cloudapps-e2e` (automation target, FULLY WRITABLE) + `navigator2.training.psav.com` (observation-only baseline). Any other host — notably `cloudapps-dev` — is OUT: treat such a URL as a pointer to which surface is meant, translate it to the e2e equivalent on 1604, and never build env plumbing for it (**LR-ENC-007**).
 - **Test office**: 1604 (hardcoded in many TCs)
 - **Master / corporate office**: 1101 ("Corporate Office") — NOT a day-to-day test office, but it carries data & whole feature areas 1604 lacks (Commission — corporate-only, Navigator Contracts role; Labor — NM-1881). Empty/absent on 1604 ≠ missing — re-check 1101 first (LR-ENC-005). (Currency/pricing variety lives on 1605, not 1101.)
 - **Auth**: Microsoft SSO; credentials in `clients/encore/.env.local` (**tracked in git** — a fresh clone already has working creds; see `:130`. CI additionally injects `NAVIGATOR_*` from its secret store via `.env.e2e`)
@@ -90,6 +91,61 @@ When a walk, spec, RCA, `/find-bugs`, or `/encore-questions` session hits an emp
 The Encore HTML report ships to a non-technical client, so every public async page-object method that performs a user-visible action MUST render as a short plain-English sentence (≤ ~12 words, no selectors / `data-testid` / locator code) — via an `@step` annotation on each method plus the `label-jargon.json` map; `LoginPage` excluded. Enforced by pre-commit `npm run check:step-labels`.
 
 <!-- CEO POINTER: LR-ENC-006 @step annotation / label-derivation / jargon-map / raw-`.page.<action>`-ban mechanism detail → ticket DOCTRINE; cite clients/encore/CLAUDE.md LR-ENC-006 + clients/encore/src/fixtures/label-derivation.ts + label-jargon.json; VERIFY: worker ran `npm run check:step-labels` green and left no raw `.page.<action>` in specs -->
+
+### LR-ENC-007: Two environments only — `cloudapps-e2e` (fully writable) + `navigator2` (observation-only) on office 1604; any other env is OUT
+
+**Sev**: S1 per LR-069 §3.1 (silent quality drift surviving to commit — a plan, spec, selector or config built
+against a dead environment reads as ordinary work and no existing gate catches it). **Graduating incident**:
+2026-08-03 — a Service Charge Text automation request arrived as a `cloudapps-dev` / office `1609` URL.
+`cloudapps-dev` has zero references repo-wide; `.env.local`, `.env.e2e`, `playwright.config.ts`, the saved SSO
+state and `scripts/walk-coverage/enumerate-page.mjs`’s hard-coded `BASE` all target `cloudapps-e2e`. Inheriting
+the URL literally would have added an env profile, a second auth state and a `BASE` override for an environment
+the owner had already abandoned. Owner ruling: *"we have to look on e2e and nav2 only."*
+
+**The two in-scope environments — there is no third:**
+
+| Role | URL | Discipline |
+|---|---|---|
+| Automation target (new site) | `https://cloudapps-e2e.encoreglobal.com/navigator/` | **FULLY WRITABLE** — see below |
+| Baseline truth (old site) | `https://navigator2.training.psav.com/#/` | **Observation-only** per LR-ENC-001 + REQUIREMENTS HARD STOP #4 |
+
+**Default test office on both: 1604.**
+
+**e2e is FULLY WRITABLE — never ask permission to mutate it.** It is the automation environment; it exists to be
+typed in, saved to, added to and worn out by specs and walks. Adding rows, editing fields, triggering save dialogs
+and leaving test residue on 1604 are normal, expected and pre-authorized (owner, 2026-08-05: *"its e2e = automation
+env = claude’s env = automation scripts env"*). Do NOT pause a walk, downgrade a required state, or raise a question
+because a step would change data there. The ONLY constraints on e2e are collision constraints with a concurrently-
+running session (no second test-runner, no shared auth-state rewrite) — never data-protection ones. **navigator2 is
+the opposite**: zero mutations, always.
+
+**How to apply** — when a request, ticket, screenshot or link names any other host or office:
+
+1. Treat the URL as a **pointer to WHICH SURFACE is meant** — never as a build target. Translate it to the
+   `cloudapps-e2e` equivalent on office 1604 and proceed.
+2. **Never** create env plumbing for the out-of-scope environment: no `.env.<env>` file, no second auth state, no
+   `BASE` override, no extra Playwright project, no config branch.
+3. **Never** hard-code the out-of-scope host or office into a plan, spec, selector, page object, test data file or
+   walk config. A grep for the dead host across the work product should return zero hits outside a provenance line.
+4. **Verify the surface exists on e2e/1604 before assuming the translation worked.** If it does not, **HALT and ask**
+   — never silently retarget to a different office, and never resurrect the out-of-scope environment as a workaround.
+   Run the LR-040(c) c.1/c.2/c.3 ladder plus the §20.4 data rungs first, so "it isn’t on 1604" is an evidenced finding.
+
+**Office carve-outs are NOT environment carve-outs.** These stay valid — they select a different *office within e2e*,
+never a different host: **1101** for corporate-only surfaces (Commission, Labor) per LR-ENC-005; **1605** for
+currency/pricing variety; the multi-location pool for parallel-isolation work.
+
+**Deliberately prose-tier (no gate).** The mechanical form would be a new forbidden-pattern entry in
+`scripts/lib/forbidden-patterns.mjs`, which per LR-069 §3.3 must land at `announce` and ramp, and a hook/gate change
+needs an explicit owner GO. Promote on the second confirmed recurrence.
+
+**Trigger**: any request, ticket, Jira link, screenshot or handoff naming a Navigator host other than `cloudapps-e2e`
+/ `navigator2`, or an office other than 1604 where 1604 would do; every new-module intake; every plan or spec about to
+hard-code a base URL or office.
+
+**Cross-refs**: LR-ENC-001, LR-ENC-003, LR-ENC-005, LR-040(c), LR-069, REQUIREMENTS HARD STOP #1.
+
+**History**: authored 2026-08-03, lost as an uncommitted working-tree edit, restored and committed 2026-08-27.
 
 ### LR-ENC-008: Lazy-loading surfaces — prove FUNCTIONAL settle before recording any contract; enabled ≠ functional
 
