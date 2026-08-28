@@ -112,6 +112,73 @@ test.describe('SBC — Discount Matrix Location Activation surface behaviors @di
     await loa.clickHeader('Location');
     expect(await loa.readLeadingLocations()).toEqual(before);
   });
+
+  test('TC-DSM-LOA-012: Changing Country swaps the listing to that country locations', async ({
+    dependencyGate,
+  }) => {
+    dependencyGate([]);
+    // Two country switches, each refetching the country-scoped listing (~40s either way).
+    test.setTimeout(600_000);
+    const before = await loa.readLeadingLocations();
+    expect(before[0]).toBe(LOA_ANCHOR_LOCATION);
+
+    // Country -> Canada. Measured 2026-08-27: the tab holds focus, Currency follows the
+    // country on its own, and the listing swaps to the Canadian set.
+    await loa.selectCriteria(0, 'Canada');
+    await expect
+      .poll(async () => (await loa.readCriteriaValues())[1], { timeout: 60_000 })
+      .toBe('CAD');
+    expect(await loa.getActiveTabName()).toBe('Location Activation');
+    await expect
+      .poll(async () => (await loa.readLeadingLocations())[0] ?? '', { timeout: 120_000 })
+      .not.toBe(LOA_ANCHOR_LOCATION);
+    const canadian = await loa.readLeadingLocations();
+    for (const row of canadian.slice(0, 3)) {
+      expect(before).not.toContain(row);
+    }
+    // A country choice is navigation, not an edit — nothing to save.
+    expect(await loa.isCriteriaSaveEnabled()).toBe(false);
+
+    // Country -> United States: the original listing must return, anchor first.
+    await loa.selectCriteria(0, 'United States');
+    await expect
+      .poll(async () => (await loa.readCriteriaValues())[1], { timeout: 60_000 })
+      .toBe('USD');
+    await expect
+      .poll(async () => (await loa.readLeadingLocations())[0] ?? '', { timeout: 120_000 })
+      .toBe(LOA_ANCHOR_LOCATION);
+    expect((await loa.readLeadingLocations()).slice(0, 3)).toEqual(before.slice(0, 3));
+    expect(await loa.isCriteriaSaveEnabled()).toBe(false);
+  });
+
+  test('TC-DSM-LOA-013: The threshold saves from this tab', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    // Two saves riding the page's ~30s sync POST plus reloads on a page whose evening
+    // hydration has been measured past 180s — the budget is the sum of measured costs.
+    test.setTimeout(1_200_000);
+    const baseline = (await loa.readThreshold()).replace(/[^0-9.]/g, '');
+    // A value different from the live one — saving an unchanged value is a no-op the app
+    // blocks by keeping Save disabled.
+    const target = baseline === '20' ? '30' : '20';
+    let saved = false;
+    try {
+      await loa.typeThreshold(target);
+      await loa.blurThreshold();
+      // The edit path is fully reachable with this tab open.
+      expect(await loa.waitForCriteriaSaveEnabled()).toBe(true);
+      // Save from THIS tab; only the reload proves the commit.
+      await loa.clickCriteriaSave();
+      saved = true;
+      await loa.discardReload(DM_OFFICE);
+      expect(await loa.readThreshold()).toBe(`${target}%`);
+    } finally {
+      if (saved) {
+        // Restore through the verifying save-reload-read helper, so a slow enable can never
+        // silently skip the restore and leak the test's value to the shared server.
+        await loa.persistThreshold(baseline);
+      }
+    }
+  });
 });
 
 test.describe('Discount Matrix Location Activation — fields @discount-matrix @location-activation', () => {

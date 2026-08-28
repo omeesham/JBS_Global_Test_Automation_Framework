@@ -5,8 +5,8 @@
 **Page**: Location Settings → Discount Matrix (`/locations/{office}/settings/discount-matrix`) — Region Weekly Peaks tab
 **Test Entity**: Office 1604
 **Governing Requirement**: NM-3530 (build spec NM-2220)
-**Updated**: 2026-08-26
-**Total Scenarios**: 24
+**Updated**: 2026-08-27
+**Total Scenarios**: 26
 **Test Cases**: `discount_matrix_region_weekly_peaks_test_cases.md`
 
 ---
@@ -28,7 +28,11 @@ disabled states; dirty-tracking undo; one save-and-reload persistence proof; the
 where the grid renders 52 placeholder rows and `Count: 0` for ~40s before real data arrives;
 the three io flows — year creation (permanent, owner-authorized 2026-08-26), export download
 (name and size), and the import round-trip on a non-default region proving the file both
-applies and persists with no Save click.
+applies and persists with no Save click. Added 2026-08-27, closing the shared-bar interaction
+gap: the country re-scope of this tab (Canada context with its own region list, currency
+following the country, full United States state restored on switch-back) and a real bar save
+committed while this tab is open, proving the bar's Save and the panel's Save never couple
+(TC-DSM-RWP-025 / -026, contracts measured in `reports/walk-coverage/dsm-critbar-rwp-probe.json`).
 
 **Out of scope, with reasons**:
 
@@ -88,3 +92,5 @@ These bind every spec that runs against this page; they come from measured behav
 | TC-DSM-RWP-022 | Add Year creates the next year as a full copy of the previous one | Surface — io (QUICK) | Yes — mutating; creation is permanent by design (owner-authorized 2026-08-26); always creates the year after the newest, so runs stay repeatable |
 | TC-DSM-RWP-023 | Export downloads the full peak workbook without any window | Surface — io (QUICK) | Yes — read-only download from the last region |
 | TC-DSM-RWP-024 | Import applies an exported workbook and persists it without Save | Surface — io (QUICK) | Yes — mutating on `Austin`; the exported snapshot is the restore vehicle, so the case ends where it started |
+| TC-DSM-RWP-025 | Changing Country re-scopes the weekly grid and switching back restores it | Cross-tab (bar × this tab) | Yes — view switch only, nothing saved; ends back on United States |
+| TC-DSM-RWP-026 | The threshold saves from this tab, independent of the tab's own Save | Cross-tab (bar × this tab) | Yes — mutating; restores the prior threshold through a verified save |

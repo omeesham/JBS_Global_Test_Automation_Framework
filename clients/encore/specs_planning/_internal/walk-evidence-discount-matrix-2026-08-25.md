@@ -395,3 +395,35 @@ the session expired again). Read-only, with a settled re-read 8s after the click
 
 No option was changed, no checkbox touched, no save pressed. Old-site state untouched beyond the
 tab activation.
+
+## Criteria-bar cross-tab probes (2026-08-27 — closing the shared-chrome interaction gap)
+
+The split inventories had discharged the criteria bar per tab by pointing at the criteria band,
+whose cases drive the bar on the landing tab only — no test anywhere exercised the bar WHILE the
+Region Weekly Peaks or Location Activation tab was open. Two scripted probes (headless node +
+storageState, runner idle, fresh auth) measured that axis; every disposition below is from raw
+recorded state, not inference.
+
+| Surface × action | Raw evidence | Verdict |
+|---|---|---|
+| RWP open, Country → Canada | tab stays `Region Weekly Peaks`; criteria read `[Canada, CAD, Standard]` — Currency CASCADED from USD; year selector reset to placeholder (no years configured for Canada on this server); region rested on `Central GTHA`; bar Save stayed disabled | accepted — view re-scope, no dirty state |
+| RWP, Country → United States (back) | `[United States, USD, Standard]`; year `2033` (newest), region `Atlanta`, 52 rows, week-1 ticks `[true,false,false]` — byte-equal to the pre-change snapshot | accepted — full state restore |
+| RWP open, threshold `15% → 20%` typed | bar Save ENABLED, panel Save STAYED disabled | accepted — two-Save independence |
+| Dirty bar × tab switch (RWP → Company Matrix → RWP) | no dialog; `20%` survived both switches; bar Save still enabled; grid intact on return | accepted — pending bar edit rides tab navigation freely |
+| Bar Save clicked FROM RWP | POST 200 on the page route; reload read `20%` | accepted — commit works from a non-landing tab |
+| Restore | `15%` re-typed, saved, reload read `15%`; criteria `[United States, USD, Standard]` | server state verified back at baseline |
+| LOA open, Country → Canada | tab stays `Location Activation`; cascade to `CAD`; first rows swapped `1101/1102/1105 → 2309/2310/2322` (Canadian set) — immediate, no dead-window retry needed | accepted — listing is live-scoped to the bar's country |
+| LOA, Country → United States (back) | first rows byte-equal to the pre-change read, `1101 - Corporate Office Encore USA SGA` first | accepted — full listing restore |
+| LOA open, threshold typed | bar Save enabled from this tab; discarded by reload (no server write); `15%` intact after | accepted — edit path reachable, nothing persisted |
+
+Evidence files: `reports/walk-coverage/dsm-critbar-rwp-probe.json` · `reports/walk-coverage/dsm-critbar-loa-probe.json`.
+Cases authored from these contracts: TC-DSM-RWP-025 / -026, TC-DSM-LOA-012 / -013.
+
+### Observations (this pass)
+
+**Bugs / Defects**: none — every measured behaviour (cascade, re-scope, restore, save-from-tab)
+is coherent and matches the country-scoped design the owner has already ruled on.
+
+**Suggestions / Improvements**: the landing tab's own grid re-scope on a country change is still
+asserted nowhere (the criteria band's re-query cases assert the dropdown value, not a grid
+effect) — recorded in the catalog as a deep-tier item with the tier-grid content oracle it needs.

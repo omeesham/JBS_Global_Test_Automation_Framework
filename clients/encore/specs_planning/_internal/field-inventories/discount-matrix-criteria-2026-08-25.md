@@ -11,7 +11,7 @@
 **Baseline_Artifact**: clients/encore/specs_planning/_internal/old-site-baseline/discount-matrix-2026-08-25.md
 **Walk_Mode**: quick
 
-Coverage_Ratio: 17/17 (100%) — the resting-state denominator: 11 shared-chrome controls (criteria bar + tab strip, present in all three tab states) plus the 6 Company Matrix rows, which are out-of-scope because NM-3343 owns that tab. 30 cases authored (TC-DSM-CRT-001 … -030).
+Coverage_Ratio: 17/17 (100%) — the resting-state denominator: 11 shared-chrome controls (criteria bar + tab strip, present in all three tab states) plus the 6 Company Matrix rows, which are out-of-scope because NM-3343 owns that tab. 30 cases authored (TC-DSM-CRT-001 … -030). State scoping (recorded 2026-08-27): the CRT band drives the bar on the LANDING tab only — its interaction with the other two tab states is covered by the sibling bands (TC-DSM-RWP-025/-026, TC-DSM-LOA-012/-013; probes `dsm-critbar-rwp-probe.json` / `dsm-critbar-loa-probe.json`, which also measured the Country→Currency cascade the CRT rows do not assert).
 Completion_Record: reports/walk-coverage/dsm-crt-skelgate.json (status=complete, elements=17)
 Walk_State: module=discount-matrix-criteria walked=[resting]
 CrossCheck: clean — both A△B review-set elements in this state are classified (see Coverage Manifest notes)

@@ -5,8 +5,8 @@
 **Page**: Location Settings → Discount Matrix (`/locations/{office}/settings/discount-matrix`) — Location Activation tab
 **Test Entity**: Office 1604 (cross-checked on 1101)
 **Governing Requirement**: NM-3530 (build spec NM-2221)
-**Updated**: 2026-08-25
-**Total Scenarios**: 11
+**Updated**: 2026-08-27
+**Total Scenarios**: 13
 **Test Cases**: `discount_matrix_location_activation_test_cases.md`
 
 ---
@@ -29,14 +29,16 @@ state (the search honours input only after a ~2-minute warm-up — accepted beha
 owner's 2026-08-26 ruling, BUG-DSM-LOA-001 withdrawn; the case retypes in bounded rounds until
 the warm-up ends), and the display-only header contract (sorting is not part of this grid's
 design — owner ruling 2026-08-26, BUG-DSM-LOA-002 withdrawn; the legacy grid does not sort
-either).
+either). Added 2026-08-27, closing the shared-bar interaction gap: the per-country listing
+re-query (change Country → the listing swaps to that country's locations and back, previously
+an out-of-scope deferral) and a real bar save committed from this tab (TC-DSM-LOA-012 / -013,
+contracts measured in `reports/walk-coverage/dsm-critbar-loa-probe.json`).
 
 **Out of scope, with reasons**:
 
 | Excluded | Reason |
 |---|---|
 | Persisting an Active toggle or an effective-date edit (Save → reload → restore) | Shared-data mutation on a 2041-location production-shaped listing; deferred to the deep tier. The dirty-and-discard half is covered without saving (TC-DSM-LOA-009) |
-| Per-country listing re-query (change Country → listing reloads) | Costs two full ~40s tab loads; deferred to the deep tier. Country-scoping is still asserted cheaply via the two-office parity scenario |
 | Pagination | The grid virtualizes (~28 rendered rows against the 2041 total); no paginator exists |
 
 ## 3. Environment and data
@@ -76,3 +78,5 @@ These bind every spec that runs against this page; they come from measured behav
 | TC-DSM-LOA-009 | Toggling a location's Active flag dirties the form and Cancel discards it | Field (Axis 1) | Yes |
 | TC-DSM-LOA-010 | Searching filters the listing by location number | Surface — result-fidelity (QUICK) | Yes — steady-state contract; retypes in bounded rounds through the accepted ~2-min warm-up (owner ruling 2026-08-26, BUG-DSM-LOA-001 withdrawn) |
 | TC-DSM-LOA-011 | Column headers are display-only and never reorder the listing | Surface — sorting (QUICK) | Yes — working as designed (owner ruling 2026-08-26, BUG-DSM-LOA-002 withdrawn); pins that header clicks never reorder the listing |
+| TC-DSM-LOA-012 | Changing Country swaps the listing to that country's locations | Cross-tab (bar × this tab) | Yes — view switch only, nothing saved; ends back on United States |
+| TC-DSM-LOA-013 | The threshold saves from this tab | Cross-tab (bar × this tab) | Yes — mutating; restores the prior threshold through a verified save |

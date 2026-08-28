@@ -4,11 +4,11 @@
 **Submodule**: RWP
 **Page**: Location Settings → Discount Matrix (`/settings/discount-matrix`) — Region Weekly Peaks tab
 **Test Entity**: Office 1604
-**Updated**: 2026-08-26
-**Total TCs**: 24
+**Updated**: 2026-08-27
+**Total TCs**: 26
 **Coverage mode**: QUICK (L1)
 **Governing Requirement**: NM-3530
-**Verified against**: field inventory `discount-matrix-region-weekly-peaks-2026-08-25.md`; machine denominator `reports/walk-coverage/dsm-rwp--tab-region-weekly-peaks.json` (20 elements, branch `tab:region-weekly-peaks`); classification-checkbox model and dirty tracking measured live 2026-08-25 — `reports/walk-coverage/dsm-revert-styling-probe.json`; year-creation / export / import contracts measured live 2026-08-26 (authorized mutation, offices 1604/1101 freed for data changes) — `reports/walk-coverage/dsm-rwp-io-recon-probe.json` + `reports/walk-coverage/dsm-rwp-io-mutating-probe.json`
+**Verified against**: field inventory `discount-matrix-region-weekly-peaks-2026-08-25.md`; machine denominator `reports/walk-coverage/dsm-rwp--tab-region-weekly-peaks.json` (20 elements, branch `tab:region-weekly-peaks`); classification-checkbox model and dirty tracking measured live 2026-08-25 — `reports/walk-coverage/dsm-revert-styling-probe.json`; year-creation / export / import contracts measured live 2026-08-26 (authorized mutation, offices 1604/1101 freed for data changes) — `reports/walk-coverage/dsm-rwp-io-recon-probe.json` + `reports/walk-coverage/dsm-rwp-io-mutating-probe.json`; criteria-bar cross-tab contracts (country re-scope, currency cascade, two-Save independence, bar save from this tab) measured live 2026-08-27 — `reports/walk-coverage/dsm-critbar-rwp-probe.json`
 
 ---
 
@@ -29,7 +29,9 @@ The tab carries **zero** `data-testid` attributes. Select Year and Region are th
 surface with a stable non-structural anchor; everything else is reached by text scoped to the RWP panel.
 
 The criteria bar above the tab strip (Country / Currency / Business Tier / GAV Discount Threshold / Save)
-is shared chrome and is **not** covered here — see the note under Validation Rules.
+is shared chrome: its own field behaviour is covered by the criteria-bar suite, while its **interaction
+with this tab** — country re-scope, currency cascade, two-Save independence, saving from this tab — is
+covered here by `TC-DSM-RWP-025` / `TC-DSM-RWP-026` (see the note under Validation Rules).
 
 ---
 
@@ -43,7 +45,7 @@ is shared chrome and is **not** covered here — see the note under Validation R
 | Row count cannot distinguish loading from loaded | 52 rows render immediately as placeholders. Readiness is the skeleton census reaching zero, or checkbox count exceeding zero — never row count. |
 | The footer count is a loading signal, not an empty signal | `Count: 0` shows for the entire ~40s load and becomes `Count: 52` only when data lands. |
 | One peak flag checked per week | 156 checkboxes = 52 weeks × 3 columns, exactly one checked per row as of 2026-08-19. Live-confirmed 2026-08-25 (MCP rows 13–14): the three columns are one app-enforced choice — ticking a sibling clears the row's current tick — and a ticked box can be cleared, leaving a week with zero ticks. |
-| Criteria-bar coverage lives elsewhere | Country, Currency, Business Tier, Save and the GAV Discount Threshold are covered by the criteria-bar suite `TC-DSM-CRT-001` … `TC-DSM-CRT-030`. Not duplicated here. |
+| Criteria-bar coverage splits by axis | The bar's own field behaviour (dropdown contents, threshold validation, its Save on the landing tab) is covered by the criteria-bar suite `TC-DSM-CRT-001` … `TC-DSM-CRT-030` and not duplicated here. Its interaction with THIS tab — country re-scope of the grid, the currency cascade, bar-Save vs panel-Save independence, and saving the bar while this tab is open — is covered here by `TC-DSM-RWP-025` / `TC-DSM-RWP-026` (measured 2026-08-27, `dsm-critbar-rwp-probe.json`). |
 
 ---
 
@@ -513,5 +515,41 @@ case pins that the download happens, is named correctly, and is not an empty she
 | 5 | Reload, reselect the year and `Austin`, read week 1 — Save is never clicked after the import | The original tick is back and week 1 carries exactly one classification: the import persisted on its own |
 
 **Notes**: Measured live 2026-08-26 (verification log row 27): the workbook auto-applied to the grid ~70s after the chooser closed and auto-persisted server-side with no Save click (~171s end to end, reload-verified). Running on `Austin` — not the resting region — proves import is not tied to the default selection; together with TC-DSM-RWP-023's last-region export, the different-region axis rides the io pair. NM-3074 tracks the import slowness — the case budgets generously rather than re-filing it. The exported snapshot must be fed back under its real `.xlsx` name: import silently ignores a file without it (verification log row 28), so the automation saves the download to a properly named copy before importing. If a crashed earlier run left week 1 unclassified, the automated case first repairs it with a real, verified save before starting the round-trip.
+
+---
+
+## TC-DSM-RWP-025: Changing Country re-scopes the weekly grid and switching back restores it
+
+**Automatable**: Yes
+**Preconditions**: The Region Weekly Peaks tab is open and finished loading for office 1604 with the resting criteria (United States / USD / Standard). No save is involved — a criteria selection is a view switch, never an edit.
+
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | With the tab loaded, note the selected year, region and week 1's ticks | The newest year and `Atlanta` are selected; week 1 carries its saved classification |
+| 2 | In the bar above the tabs, change Country to `Canada` | The page stays on this tab; Currency follows the country on its own, reading `CAD` |
+| 3 | Read the tab's Region selector | It now rests on a Canadian region — `Atlanta` is no longer the selection: the whole tab re-scoped to the new country |
+| 4 | Read the bar's Save | Still disabled — choosing a country is navigation, not a pending change |
+| 5 | Change Country back to `United States` | Currency returns to `USD`; the tab returns to the newest year and `Atlanta`, showing 52 week rows with week 1's ticks exactly as noted in step 1 |
+
+**Notes**: Contracts measured live 2026-08-27 (`dsm-critbar-rwp-probe.json`): the tab held focus through both country changes, Currency cascaded `USD -> CAD -> USD` with the country, the Canadian context rested on `Central GTHA` with an empty year selector (no years configured for Canada on this server — the case therefore asserts the region moved off `Atlanta` rather than pinning Canadian data), and the United States state returned identically. The bar's Save stayed disabled throughout, proving the selection carries no dirty state.
+
+---
+
+## TC-DSM-RWP-026: The threshold saves from this tab, independent of the tab's own Save
+
+**Automatable**: Yes
+**Preconditions**: The Region Weekly Peaks tab is open and finished loading for office 1604. Data changes on office 1604 are authorized; the case restores the prior threshold through a verified save before it ends.
+
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | With the tab loaded, note the threshold, then type a different in-range value and leave the field | The bar's Save enables |
+| 2 | Read the tab's own Save inside the panel | Still disabled — an edit in the bar never marks the weekly grid dirty: the two Saves are independent |
+| 3 | Switch to Company Matrix and back to Region Weekly Peaks | No warning appears, the typed value survives the round trip, and the bar's Save is still enabled |
+| 4 | Click the bar's Save while this tab is open, then reload the page | The typed value is what the page shows after reload — the save committed from this tab |
+| 5 | Restore the noted threshold with another save and reload | The original value is back |
+
+**Notes**: Contracts measured live 2026-08-27 (`dsm-critbar-rwp-probe.json`): the edit enabled only the bar's Save (the panel's stayed disabled), the pending value survived a tab round trip with no dialog, and the save clicked from this tab reached the server (confirmed by reload, not by the click). The page rests on Company Matrix after any reload, so the post-save read happens there — the threshold is the same bar either way. Restore uses the same verified save-reload-read path the automation uses everywhere on this page.
 
 ---

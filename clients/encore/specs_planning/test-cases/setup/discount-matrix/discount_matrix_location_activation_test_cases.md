@@ -4,11 +4,11 @@
 **Submodule**: LOA
 **Page**: Location Settings → Discount Matrix (`/settings/discount-matrix`) — Location Activation tab
 **Test Entity**: Office 1604 (listing parity cross-checked on office 1101)
-**Updated**: 2026-08-26
-**Total TCs**: 11
+**Updated**: 2026-08-27
+**Total TCs**: 13
 **Coverage mode**: QUICK (L1)
 **Governing Requirement**: NM-3530 (automation scope) · NM-2221 (tab feature contract)
-**Verified against**: field inventory `discount-matrix-location-activation-2026-08-25.md`; machine denominator `reports/walk-coverage/dsm-loa--tab-location-activation.json` (20 elements, branch `tab:location-activation`); populated-state probes `reports/walk-coverage/dsm-loa-load-timeline-probe.json` · `dsm-loa-affordance-probe.json` · `dsm-loa-affordance-probe2.json` · `dsm-loa-active-editor-probe.json` · `dsm-loa-toggle-dirty-probe.json`
+**Verified against**: field inventory `discount-matrix-location-activation-2026-08-25.md`; machine denominator `reports/walk-coverage/dsm-loa--tab-location-activation.json` (20 elements, branch `tab:location-activation`); populated-state probes `reports/walk-coverage/dsm-loa-load-timeline-probe.json` · `dsm-loa-affordance-probe.json` · `dsm-loa-affordance-probe2.json` · `dsm-loa-active-editor-probe.json` · `dsm-loa-toggle-dirty-probe.json`; criteria-bar cross-tab contracts (country re-scope of the listing, currency cascade, bar save from this tab) measured live 2026-08-27 — `reports/walk-coverage/dsm-critbar-loa-probe.json`
 
 ---
 
@@ -79,7 +79,7 @@ another boolean format returns the wrong answer here. Machine-confirmed 2026-08-
 | Active cell edit cycle | Label click → inline checkbox reflecting the value (not yet a change); checking it enables Save AND Cancel; Cancel restores the label and value and re-disables both; no confirmation dialog at any step |
 | Search filters only after a warm-up window | Accepted behaviour (owner ruling 2026-08-26; BUG-DSM-LOA-001 withdrawn) — the box enables ~40s in, but typed input is honoured only from ~2 minutes after the tab renders; at steady state it filters by location number or name |
 | Headers are display-only | Working as designed (owner ruling 2026-08-26; BUG-DSM-LOA-002 withdrawn) — clicks never reorder the listing and no sort indicator exists; the only header control is the resize handle, matching the legacy grid |
-| Criteria-bar coverage lives elsewhere | Country, Currency, Business Tier, Save and the GAV Discount Threshold are covered by `TC-DSM-CRT-001` … `-030`. Not duplicated here. |
+| Criteria-bar coverage splits by axis | The bar's own field behaviour (dropdown contents, threshold validation, its Save on the landing tab) is covered by `TC-DSM-CRT-001` … `-030` and not duplicated here. Its interaction with THIS tab — country re-scope of the listing, the currency cascade, and saving the bar while this tab is open — is covered here by `TC-DSM-LOA-012` / `TC-DSM-LOA-013` (measured 2026-08-27, `dsm-critbar-loa-probe.json`). |
 
 ---
 
@@ -249,7 +249,9 @@ adding a column does not silently pass.
 | 3 | Read the criteria bar again | The same three values are still shown and the bar is still present |
 
 **Notes**: The criteria bar is shared chrome across all three tabs. This case asserts only that it
-survives the tab switch; its field behaviour is covered by `TC-DSM-CRT-001` … `-030`.
+survives the tab switch; its field behaviour is covered by `TC-DSM-CRT-001` … `-030`, and its
+interaction with this tab — country re-scope of the listing, saving from this tab — by
+`TC-DSM-LOA-012` / `TC-DSM-LOA-013`.
 
 ---
 
@@ -327,3 +329,37 @@ behaviour as correct.
 **Notes**: Working as designed per the product owner (2026-08-26) — sorting is not in this
 feature's design. BUG-DSM-LOA-002 withdrawn; the legacy page matches (no sort affordance there
 either).
+
+## TC-DSM-LOA-012: Changing Country swaps the listing to that country's locations
+
+**Automatable**: Yes
+**Preconditions**: The Location Activation tab is open and functionally loaded for office 1604 (rows carry text, not placeholders) with the resting criteria (United States / USD / Standard). No save is involved — a criteria selection is a view switch, never an edit.
+
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | With the listing loaded, note the first rows | The listing opens on the United States set, `1101 - Corporate Office Encore USA SGA` first |
+| 2 | In the bar above the tabs, change Country to `Canada` and wait for the rows to reload | The page stays on this tab; Currency follows the country on its own, reading `CAD` |
+| 3 | Read the first rows again | Canadian locations — the noted United States rows are gone from the top of the listing: the whole listing re-scoped to the new country |
+| 4 | Read the bar's Save | Still disabled — choosing a country is navigation, not a pending change |
+| 5 | Change Country back to `United States` and wait for the rows to reload | Currency returns to `USD` and the noted rows are back, `1101 - Corporate Office Encore USA SGA` first |
+
+**Notes**: Contracts measured live 2026-08-27 (`dsm-critbar-loa-probe.json`): the tab held focus, Currency cascaded `USD -> CAD -> USD` with the country, and the listing swapped between the United States set (1101 / 1102 / 1105 first) and the Canadian set (2309 / 2310 / 2322 first) with the exact original rows returning on switch-back. The grid windows its rows, so the case reads leading row content and never asserts a row count. The re-scope was immediate on the measured run — no dead-window retry was needed — but the case still waits for functional settle (rows with text, zero placeholders) before every read, as this listing hydrates in stages.
+
+---
+
+## TC-DSM-LOA-013: The threshold saves from this tab
+
+**Automatable**: Yes
+**Preconditions**: The Location Activation tab is open and functionally loaded for office 1604. Data changes on office 1604 are authorized; the case restores the prior threshold through a verified save before it ends.
+
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | With the tab loaded, note the threshold, then type a different in-range value and leave the field | The bar's Save enables while this tab is open |
+| 2 | Click the bar's Save, then reload the page | The typed value is what the page shows after reload — the save committed from this tab |
+| 3 | Restore the noted threshold with another save and reload | The original value is back |
+
+**Notes**: Measured live 2026-08-27 (`dsm-critbar-loa-probe.json`): typing in the bar enabled its Save with this tab open — the edit path is fully reachable from here. The committed save itself is proven by the automated run's reload-and-read (the probe proved the same commit path from the Region Weekly Peaks tab and discarded its edit here without saving). Together with `TC-DSM-RWP-026` and the landing-tab save case, every tab state now exercises a real bar save.
+
+---

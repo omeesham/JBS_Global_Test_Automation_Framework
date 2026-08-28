@@ -360,3 +360,38 @@ what the preceding tests leave behind (selections, years, filters, rows) and dif
 solo starting state; check every dimension the pristine/ensure-clean helper does NOT verify. A
 persistence test must pin every selector dimension (year, region, office) identically for the
 save and the read-back.
+
+## CEO-M13 — Shared-chrome coverage claimed by reference, never by execution in the other states (Sev S1, 2026-08-27)
+
+The Discount Matrix criteria bar (Country / Currency / Business Tier / GAV Threshold / Save) renders
+above all three tabs. Its interactions were driven ONLY on the landing tab (30 CRT tests); on Region
+Weekly Peaks and Location Activation the specs merely READ the resting values. Yet all three split
+inventories reported Coverage_Ratio 100%, because each sibling dispositioned the 11 shared-chrome
+controls as "dispositioned in full in the sibling criteria artifact" — and I wrote those exact lines
+myself during the 2026-08-27 inventory split without asking the one question that mattered: does any
+test DRIVE this bar while the other two tabs are open? Nothing does. Changing criteria while RWP/LOA
+is open (does the grid reload?), saving the bar from those tabs, and the two-independent-Save-buttons
+dirty interaction are all untested. Shipped behind a green 66-pass suite + commit 351ba15; surfaced
+only because the owner looked at three screenshots and asked.
+
+**Root cause:** the machine denominator counts ELEMENTS per page state, and the disposition
+vocabulary lets a shared element be discharged once by cross-reference. Element-level coverage was
+silently treated as interaction-level coverage: the element × tab-state cross product was never in
+any denominator, so the LR-062 gate was green while a whole interaction axis was empty. Same family
+as the LR-065 insight (behaviors live BETWEEN elements) — this is its shared-chrome-across-states
+sibling. Classification rationale: silent quality drift surviving to commit behind a green gate = S1.
+
+**Lesson / how to apply:** a shared control dispositioned by cross-reference ("covered in sibling
+artifact") is a REFERENCE, not execution. At every inventory split or shared-chrome disposition,
+ask: in WHICH state was the covering TC actually driven, and does the control plausibly interact
+with the states it was never driven in (grid reloads on criteria change, per-tab Save coexistence)?
+If yes, those cross-state interactions are cases to author or deferral rows to record — never a
+silent discharge. A cross-reference disposition must name the state it was exercised in.
+
+**Amendment (2026-08-27, same session):** one of the four gaps WAS consciously recorded — the LOA
+test plan's out-of-scope table carried "Per-country listing re-query … deferred to the deep tier."
+The claim above that nothing identified the axis is wrong for that one item; the other three
+(RWP re-scope, bar-save-from-RWP/LOA, two-Save independence) were genuine misses, and the
+inventories' 100% claim contradicted the plan's own deferral — the artifacts disagreed and no
+gate compared them. Closure: probes `dsm-critbar-{rwp,loa}-probe.json` (2026-08-27) measured the
+axis; TC-DSM-RWP-025/026 + TC-DSM-LOA-012/013 authored; the deferral row retired.

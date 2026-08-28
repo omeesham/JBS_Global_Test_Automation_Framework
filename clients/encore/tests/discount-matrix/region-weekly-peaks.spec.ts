@@ -379,6 +379,80 @@ test.describe('SBC — Discount Matrix Region Weekly Peaks surface behaviors @di
     await rwp.selectRegion(RWP_REGION_AT_REST);
     expect((await rwp.readSelections()).region).toBe(RWP_REGION_AT_REST);
   });
+
+  test('TC-DSM-RWP-025: Changing Country re-scopes the weekly grid and switching back restores it', async ({
+    dependencyGate,
+  }) => {
+    dependencyGate([]);
+    // Two country switches, each re-scoping the whole tab (~40s of loading either way).
+    test.setTimeout(600_000);
+    const before = await rwp.readSelections();
+    const week1Before = await rwp.readWeekChecks('1');
+    expect(before.region).toBe(RWP_REGION_AT_REST);
+
+    // Country -> Canada. Measured 2026-08-27: the tab holds focus, Currency follows the
+    // country on its own, and the tab re-rests on a region of the new country.
+    await rwp.selectCriteria(0, 'Canada');
+    await expect
+      .poll(async () => (await rwp.readCriteriaValues())[1], { timeout: 60_000 })
+      .toBe('CAD');
+    expect(await rwp.getActiveTabName()).toBe('Region Weekly Peaks');
+    await expect
+      .poll(async () => (await rwp.readSelections()).region, { timeout: 120_000 })
+      .not.toBe(RWP_REGION_AT_REST);
+    // A country choice is navigation, not an edit — nothing to save.
+    expect(await rwp.isCriteriaSaveEnabled()).toBe(false);
+
+    // Country -> United States: the full original state must return.
+    await rwp.selectCriteria(0, 'United States');
+    await expect
+      .poll(async () => rwp.readCriteriaValues(), { timeout: 60_000 })
+      .toEqual([...DM_CRITERIA_AT_REST]);
+    await rwp.waitForRwpReady();
+    await expect
+      .poll(async () => rwp.readSelections(), { timeout: 120_000 })
+      .toEqual(before);
+    expect(await rwp.readWeekChecks('1')).toEqual(week1Before);
+    expect(await rwp.isCriteriaSaveEnabled()).toBe(false);
+  });
+
+  test('TC-DSM-RWP-026: The threshold saves from this tab, independent of the tab Save', async ({
+    dependencyGate,
+  }) => {
+    dependencyGate([]);
+    // Two saves riding the page's ~30s sync POST plus reloads on a page whose evening
+    // hydration has been measured past 180s — the budget is the sum of measured costs.
+    test.setTimeout(1_200_000);
+    const baseline = (await rwp.readThreshold()).replace(/[^0-9.]/g, '');
+    // A value different from the live one — saving an unchanged value is a no-op the app
+    // blocks by keeping Save disabled.
+    const target = baseline === '20' ? '30' : '20';
+    let saved = false;
+    try {
+      await rwp.typeThreshold(target);
+      await rwp.blurThreshold();
+      expect(await rwp.waitForCriteriaSaveEnabled()).toBe(true);
+      // A bar edit must never mark the weekly grid dirty — the two Saves are independent.
+      expect(await rwp.waitForPanelSaveEnabled(false)).toBe(true);
+      // A pending bar edit rides tab navigation freely: no warning, value kept.
+      await rwp.clickTab('Company Matrix');
+      expect(await rwp.readThreshold()).toBe(`${target}%`);
+      await rwp.openTab();
+      expect(await rwp.readThreshold()).toBe(`${target}%`);
+      expect(await rwp.isCriteriaSaveEnabled()).toBe(true);
+      // Save from THIS tab; only the reload proves the commit.
+      await rwp.clickCriteriaSave();
+      saved = true;
+      await rwp.discardReload(DM_OFFICE);
+      expect(await rwp.readThreshold()).toBe(`${target}%`);
+    } finally {
+      if (saved) {
+        // Restore through the verifying save-reload-read helper, so a slow enable can never
+        // silently skip the restore and leak the test's value to the shared server.
+        await rwp.persistThreshold(baseline);
+      }
+    }
+  });
 });
 
 // ---------------------------------------------------------------------------- field cases

@@ -11,7 +11,7 @@
 **Baseline_Artifact**: clients/encore/specs_planning/_internal/old-site-baseline/discount-matrix-2026-08-25.md
 **Walk_Mode**: quick
 
-Coverage_Ratio: 20/20 (100%) — the Region Weekly Peaks tab state: 11 shared-chrome controls (criteria bar + tab strip, dispositioned in full in the sibling criteria artifact) plus 9 controls unique to this tab. 24 cases authored (TC-DSM-RWP-001 … -024).
+Coverage_Ratio: 20/20 (100%) — the Region Weekly Peaks tab state: 11 shared-chrome controls (criteria bar + tab strip; their FIELD behaviour is dispositioned in the sibling criteria artifact, where the covering CRT cases drive them on the LANDING tab only — their interaction with THIS tab state is covered here: country re-scope + currency cascade by TC-DSM-RWP-025, bar save from this tab + two-Save independence by TC-DSM-RWP-026, measured 2026-08-27 in `reports/walk-coverage/dsm-critbar-rwp-probe.json`; Currency/Tier changed from this tab: deferred-to-DEEP: critbar-currency-tier-on-rwp (same bar mechanics as Country, which the probe showed cascades Currency anyway)) plus 9 controls unique to this tab. 26 cases authored (TC-DSM-RWP-001 … -026).
 Completion_Record: reports/walk-coverage/dsm-rwp--tab-region-weekly-peaks.json (status=complete, elements=20)
 Walk_State: module=discount-matrix-region-weekly-peaks walked=[resting,tab:region-weekly-peaks]
 CrossCheck: clean — both A△B review-set elements in this state are classified (see Coverage Manifest notes)
