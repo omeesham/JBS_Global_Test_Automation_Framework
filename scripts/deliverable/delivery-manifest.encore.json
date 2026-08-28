@@ -1191,7 +1191,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 49,
-    "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
+    "blob_sha": "f29315369c462c5e48a15026297ce7e99d842380"
    },
    "specs": [
     "tests/corporate-override/corporate-override-labor-grid.spec.ts"
@@ -1265,7 +1265,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 50,
-    "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
+    "blob_sha": "f29315369c462c5e48a15026297ce7e99d842380"
    },
    "specs": [
     "tests/corporate-override/corporate-override-export.spec.ts"
@@ -1310,7 +1310,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 51,
-    "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
+    "blob_sha": "f29315369c462c5e48a15026297ce7e99d842380"
    },
    "specs": [
     "tests/corporate-override/corporate-override-import.spec.ts"
@@ -1608,7 +1608,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 52,
-    "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
+    "blob_sha": "f29315369c462c5e48a15026297ce7e99d842380"
    }
   },
   {
@@ -1652,7 +1652,161 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 53,
-    "blob_sha": "f92fbf58ab61c4e1722779fef7b4a329f321f42c"
+    "blob_sha": "f29315369c462c5e48a15026297ce7e99d842380"
+   }
+  },
+  {
+   "code": "DSM.CRT",
+   "name": "Discount Matrix — Search Criteria",
+   "status": "approved-next",
+   "specs": [
+    "tests/discount-matrix/discount-matrix-criteria.spec.ts"
+   ],
+   "workbooks": [
+    "testcases/discount-matrix/discount-matrix-search-criteria.xlsx"
+   ],
+   "tc_ids": [
+    "TC-DSM-CRT-001",
+    "TC-DSM-CRT-002",
+    "TC-DSM-CRT-003",
+    "TC-DSM-CRT-004",
+    "TC-DSM-CRT-005",
+    "TC-DSM-CRT-006",
+    "TC-DSM-CRT-007",
+    "TC-DSM-CRT-008",
+    "TC-DSM-CRT-009",
+    "TC-DSM-CRT-010",
+    "TC-DSM-CRT-011",
+    "TC-DSM-CRT-012",
+    "TC-DSM-CRT-013",
+    "TC-DSM-CRT-014",
+    "TC-DSM-CRT-015",
+    "TC-DSM-CRT-016",
+    "TC-DSM-CRT-017",
+    "TC-DSM-CRT-018",
+    "TC-DSM-CRT-019",
+    "TC-DSM-CRT-020",
+    "TC-DSM-CRT-021",
+    "TC-DSM-CRT-022",
+    "TC-DSM-CRT-023",
+    "TC-DSM-CRT-024",
+    "TC-DSM-CRT-025",
+    "TC-DSM-CRT-026",
+    "TC-DSM-CRT-027",
+    "TC-DSM-CRT-028",
+    "TC-DSM-CRT-029",
+    "TC-DSM-CRT-030"
+   ],
+   "delivered_on": null,
+   "delivered_via": null,
+   "evidence": null,
+   "src": [
+    "src/data/discount-matrix/discount-matrix.ts",
+    "src/pages/discount-matrix/discount-matrix.page.ts",
+    "src/selectors/discount-matrix/shared.ts"
+   ],
+   "sheets": [
+    "discount_matrix_criteria"
+   ],
+   "approved_ref": {
+    "path": "scripts/deliverable/approval-log.md",
+    "line": 54,
+    "blob_sha": "f29315369c462c5e48a15026297ce7e99d842380"
+   }
+  },
+  {
+   "code": "DSM.RWP",
+   "name": "Discount Matrix — Region Weekly Peaks",
+   "status": "approved-next",
+   "specs": [
+    "tests/discount-matrix/region-weekly-peaks.spec.ts"
+   ],
+   "workbooks": [
+    "testcases/discount-matrix/discount-matrix-region-weekly-peaks.xlsx"
+   ],
+   "tc_ids": [
+    "TC-DSM-RWP-001",
+    "TC-DSM-RWP-002",
+    "TC-DSM-RWP-003",
+    "TC-DSM-RWP-004",
+    "TC-DSM-RWP-005",
+    "TC-DSM-RWP-006",
+    "TC-DSM-RWP-007",
+    "TC-DSM-RWP-008",
+    "TC-DSM-RWP-009",
+    "TC-DSM-RWP-010",
+    "TC-DSM-RWP-011",
+    "TC-DSM-RWP-012",
+    "TC-DSM-RWP-013",
+    "TC-DSM-RWP-014",
+    "TC-DSM-RWP-015",
+    "TC-DSM-RWP-016",
+    "TC-DSM-RWP-017",
+    "TC-DSM-RWP-018",
+    "TC-DSM-RWP-019",
+    "TC-DSM-RWP-020",
+    "TC-DSM-RWP-021",
+    "TC-DSM-RWP-022",
+    "TC-DSM-RWP-023",
+    "TC-DSM-RWP-024",
+    "TC-DSM-RWP-025",
+    "TC-DSM-RWP-026"
+   ],
+   "delivered_on": null,
+   "delivered_via": null,
+   "evidence": null,
+   "src": [
+    "src/pages/discount-matrix/region-weekly-peaks.page.ts",
+    "src/selectors/discount-matrix/region-weekly-peaks.ts"
+   ],
+   "sheets": [
+    "discount_matrix_region_peaks"
+   ],
+   "approved_ref": {
+    "path": "scripts/deliverable/approval-log.md",
+    "line": 55,
+    "blob_sha": "f29315369c462c5e48a15026297ce7e99d842380"
+   }
+  },
+  {
+   "code": "DSM.LOA",
+   "name": "Discount Matrix — Location Activation",
+   "status": "approved-next",
+   "specs": [
+    "tests/discount-matrix/location-activation.spec.ts"
+   ],
+   "workbooks": [
+    "testcases/discount-matrix/discount-matrix-location-activation.xlsx"
+   ],
+   "tc_ids": [
+    "TC-DSM-LOA-001",
+    "TC-DSM-LOA-002",
+    "TC-DSM-LOA-003",
+    "TC-DSM-LOA-004",
+    "TC-DSM-LOA-005",
+    "TC-DSM-LOA-006",
+    "TC-DSM-LOA-007",
+    "TC-DSM-LOA-008",
+    "TC-DSM-LOA-009",
+    "TC-DSM-LOA-010",
+    "TC-DSM-LOA-011",
+    "TC-DSM-LOA-012",
+    "TC-DSM-LOA-013"
+   ],
+   "delivered_on": null,
+   "delivered_via": null,
+   "evidence": null,
+   "src": [
+    "src/pages/discount-matrix/location-activation.page.ts",
+    "src/selectors/discount-matrix/location-activation.ts"
+   ],
+   "sheets": [
+    "discount_matrix_loc_activation"
+   ],
+   "approved_ref": {
+    "path": "scripts/deliverable/approval-log.md",
+    "line": 56,
+    "blob_sha": "f29315369c462c5e48a15026297ce7e99d842380"
    }
   },
   {
