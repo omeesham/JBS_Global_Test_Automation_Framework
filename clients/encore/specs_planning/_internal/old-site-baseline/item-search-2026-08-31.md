@@ -25,6 +25,7 @@ Walk_Authorization: PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK Phase 0.3 (owner-appr
 | 3 | 2026-08-31T14:22 | msedge channel (system Edge, fresh session) | "Hmmm… can't reach this page — The connection was reset." |
 | 4 | 2026-08-31T14:23:52 | Playwright Chromium (fresh session, varied-wait retry) | "This site can't be reached — The connection was reset." |
 | 5 | (firefox engine) | not installed in this environment — launch failed before navigation | n/a |
+| 6 | 2026-08-31T15:14 | Playwright Chromium (fresh CLI session `nav2retry`, pre-GIVER varied-wait retry ~50 min after #4) | "This site can't provide a secure connection — navigator2.training.psav.com sent an invalid response." (identical SSL class; retry obligation from Disposition paragraph SATISFIED — blocker persists) |
 
 **Server-alive cross-evidence (same machine, same minutes)**: `curl` (Windows schannel TLS stack)
 returns `HTTP/1.1 200 OK` (`X-AspNetMvc-Version: 5.2`); protocol matrix: TLS 1.2-only server
@@ -36,8 +37,11 @@ loaded state), NOT office-specific (host-level). Prior sessions reached nav2 as 
 2026-08-26 (discount-matrix baseline) — access drift occurred after that date.
 
 **Disposition**: environment-blocked baseline READ, recorded per the plan's Phase 0.3 fallback and
-LR-060 obligation 2 (only the env-blocked step defers). One further varied-wait retry fires before
-the GIVER phase closes; if access returns, this artifact is refreshed in place with the real walk.
+LR-060 obligation 2 (only the env-blocked step defers). The pre-GIVER varied-wait retry fired at
+15:14 UTC (row 6): identical SSL failure — blocker CONFIRMED persistent for this execution.
+Baseline remains `baseline-absent (environment-blocked)`; divergence classes for this module stay
+Jira-lead-based (see counterpart-status table). If nav2 access returns in a later session, refresh
+this artifact in place with the real walk before any DEEP pass consumes it.
 
 ## Counterpart status (Jira-lead layer only — no DOM observation possible)
 

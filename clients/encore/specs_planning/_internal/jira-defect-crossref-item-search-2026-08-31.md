@@ -58,9 +58,20 @@ NM-2255 + NM-2257 (PCD), NM-2258 + NM-2259 (PGR). Dev epic: NM-4 "Products" (193
 **Live cross-check 2026-08-31 (own observation, office 1101 e2e, fresh navigation)** — D1: Qty>0
 renders UNCHECKED + Active CHECKED at fresh load (contradicts NM-1495 "both ON"; NM-1903 is the
 suspected redefinition → classify stale-ticket vs intentional-UX at walk close, read ×2 required).
+**D1 CLOSED at walk close (read ×3: pristine load ~14:05, restored-state fresh nav ~14:58, blind
+re-drive cold nav ~15:11 — identical all three: Qty>0 UNCHECKED, Active CHECKED)**. Verdict:
+NM-1495 prose is STALE for defaults; NM-1903 ("Active filter — when unselected", Done) is the
+governing redefinition. Live truth = Active-only default. TCs assert live truth; no bug filed
+(stale-ticket class, not regression — baseline env-blocked, Jira-lead classification per
+old-site-baseline artifact).
 D2: Location pre-fills `1101 - Corporate Office Encore USA SGA`, Region empty — NM-1493 CONFIRMED;
-the owner-screenshot divergence (empty location + Atlanta region) is NM-1616 URL-param persistence,
-not a fresh default. Grid paginates (rows-per-page 50; page textbox `1 / 318` on the unfiltered
+the owner-screenshot divergence (empty location + Atlanta region) is criteria persistence,
+not a fresh default. **NM-1616 mechanism-change (walk close 2026-08-31): the described URL-query-param
+persistence does NOT exist on this build — post-search URL is param-less (verified unfiltered AND
+"Amp"-filtered). Persistence is CLIENT-STORAGE-based and RETAINS the capability: criteria + result
+set + sort order all survive an away-and-back navigation (proven live; sort persistence caught by
+the Stage-3 blind re-drive). Class: divergence-by-ticket (b) — capability kept, mechanism swapped;
+TCs assert survive-leave-and-return, never URL shape.** Grid paginates (rows-per-page 50; page textbox `1 / 318` on the unfiltered
 15,874 set) — pagination family IN SCOPE. A `Product Organization` combobox (None/None) renders in
 the Filters card — present in no Appendix-A UI story; inventory it as a live-discovered control
 (leads NM-2077/2100/2111 "product-org All semantics" + NM-1982/83 org propagation are PCD-side).
