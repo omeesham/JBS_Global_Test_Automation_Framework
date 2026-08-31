@@ -64,6 +64,27 @@ export const MODULE_CONFIG = {
   // Override surface has two tabs (Equipment/Labor), a currency combobox, and a rows-per-page
   // combobox — each exposes distinct elements. A re-walk with a location selected and a non-ALL
   // currency additionally exposes the Product-Group Picker add controls (NM-1472).
+  // Item Search (NM-2253, office 1101 only) — products page: resting (search panel + empty grid +
+  // full header set) + post-search grid (pagination bar, result rows, selectItem/ownedCount cells
+  // mount only after a Search click) + Grid Options column menu. Row-selection toolbar and the
+  // View/Add Product Code dialogs are multi-step states (search → row click → button) the one-click
+  // branch mechanism cannot reach — they are walked agent-driven with snapshot/probe evidence and
+  // recorded in the walk artifact's opener-frontier section, per §20-Q.
+  'item-search': {
+    requiredStates: [
+      { label: 'resting' },
+      { label: 'search:executed' },
+      { label: 'expand:grid-options' },
+    ],
+  },
+  // Product Groups sibling URL (…/products/product-groups): own search panel + Add-group dialog.
+  'item-search-product-groups': {
+    requiredStates: [
+      { label: 'resting' },
+      { label: 'search:executed' },
+      { label: 'dialog:add-group' },
+    ],
+  },
   'corporate-override': {
     requiredStates: [
       { label: 'resting' },

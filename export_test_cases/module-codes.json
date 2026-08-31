@@ -8,7 +8,8 @@
     "TNC": { "name": "terms-conditions", "display": "Terms and Conditions", "dir": "terms-conditions" },
     "SCT": { "name": "service-charge-text", "display": "Service Charge Text", "dir": "service-charge-text" },
     "SVC": { "name": "service-charge", "display": "Service Charge", "dir": "service-charge" },
-    "DSM": { "name": "discount-matrix", "display": "Discount Matrix", "dir": "discount-matrix" }
+    "DSM": { "name": "discount-matrix", "display": "Discount Matrix", "dir": "discount-matrix" },
+    "ISR": { "name": "item-search", "display": "Item Search", "dir": "item-search" }
   },
   "submodules": {
     "LOC": {
@@ -63,6 +64,11 @@
       "CRT": { "name": "criteria", "display": "Search Criteria", "sheet": "discount_matrix_criteria", "mdBasename": "discount_matrix_criteria_test_cases" },
       "RWP": { "name": "region_weekly_peaks", "display": "Region Weekly Peaks", "sheet": "discount_matrix_region_peaks", "mdBasename": "discount_matrix_region_weekly_peaks_test_cases" },
       "LOA": { "name": "location_activation", "display": "Location Activation", "sheet": "discount_matrix_loc_activation", "mdBasename": "discount_matrix_location_activation_test_cases" }
+    },
+    "ISR": {
+      "PRS": { "name": "product_search", "display": "Product Search", "sheet": "item_search_product_search", "mdBasename": "item_search_product_search_test_cases" },
+      "PCD": { "name": "product_code", "display": "Product Code", "sheet": "item_search_product_code", "mdBasename": "item_search_product_code_test_cases" },
+      "PGR": { "name": "product_groups", "display": "Product Groups", "sheet": "item_search_product_groups", "mdBasename": "item_search_product_groups_test_cases" }
     }
   },
   "sheetNameNotes": {

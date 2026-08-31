@@ -355,7 +355,8 @@ grep -n "deferred-to-DEEP" clients/encore/specs_planning/_internal/field-invento
 
 | # | Date | Deviation | Why | Disposition |
 |---|---|---|---|---|
-| — | | | | |
+| D1 | 2026-08-31 | Owner in-chat rulings during execution: dates field-level-only (feature not functional yet — drops the NM-1388 availability-window behavioral assertions from QUICK), barcode filter data owner-provided (pending), Grid Options + full tooltip sweep explicitly in scope, region-overrides-location direction confirmed | Owner scope clarification mid-execution (recorded as OR-1..OR-6 in jira-defect-crossref-item-search-2026-08-31.md) | Case set narrowed/extended accordingly; availability-cell render-state assertion (numbers-or-dash) RETAINED (not date-coupled) |
+| D2 | 2026-08-31 | Phase 0.3 nav2 baseline walk env-blocked: host TLS-rejects all Playwright browser engines (Chromium ×2, Edge; curl/schannel 200 OK; TLS-1.2-only legacy server) — access drift since the 2026-08-26 DSM baseline | Environment, outside repo control | Blocker + evidence in old-site-baseline/item-search-2026-08-31.md; divergences classified (c) baseline-absent-this-execution; one varied-wait retry before GIVER close; LR-060 ob.2 — only this step defers |
 
 ---
 

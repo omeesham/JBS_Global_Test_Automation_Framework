@@ -201,6 +201,40 @@ export const MODULE_CONFIG = {
     ...MC_DATA['discount-matrix'],
   },
 
+  // ===========================================================================================
+  // Item Search (NM-2253) — MFE web component at a top-level products URL, office 1101 only.
+  // At-rest render measured fast (full panel + grid headers ≤18s; search → 15,874 rows ≤11s,
+  // probe session 2026-08-31). The results grid and its pagination bar mount ONLY after a Search
+  // click → 'search:executed' branch. Grid Options is a Radix menu opener present at rest.
+  // Row-selection toolbar + Product Code dialogs are multi-step (search → row click → button) —
+  // out of one-click branch reach; agent-driven probe evidence covers them (§20-Q opener frontier).
+  // ===========================================================================================
+  'item-search': {
+    path: (office) => `${BASE}/locations/${office}/products`,
+    // "N products found" renders at rest ("0 products found") and survives every state — and the
+    // grid column headers arrive with it. Anchor on the footer text (unique to this surface).
+    contentMarker: 'text=products found',
+    openerTestidPatterns: [],
+    openerRoleTextPatterns: [
+      { role: 'button', text: 'Search', branch: 'search:executed' },
+      { role: 'button', text: 'Grid Options', branch: 'expand:grid-options' },
+    ],
+    excludeOptionRoles: true,
+    ...MC_DATA['item-search'],
+  },
+  'item-search-product-groups': {
+    path: (office) => `${BASE}/locations/${office}/products/product-groups`,
+    // Grid header unique to this page (Name / Description / Service Type / Status).
+    contentMarker: 'text=Service Type',
+    openerTestidPatterns: [],
+    openerRoleTextPatterns: [
+      { role: 'button', text: 'Search', branch: 'search:executed' },
+      { role: 'button', text: 'Add', branch: 'dialog:add-group' },
+    ],
+    excludeOptionRoles: true,
+    ...MC_DATA['item-search-product-groups'],
+  },
+
   'corporate-pricing-override': {
     path: (office) => `${BASE}/locations/${office}/settings/corporate-pricing/pg-override`,
     contentMarker: 'h1:text-is("Product Group Override")',

@@ -198,6 +198,10 @@ export const KNOWN_SUB_CODES = [
   'CRT',  // criteria (search criteria bar)
   'RWP',  // region_weekly_peaks
   'LOA',  // location_activation
+  // item-search (ISR) — NM-2253, office 1101 only
+  'PRS',  // product_search
+  'PCD',  // product_code
+  'PGR',  // product_groups
 ] as const;
 
 export type SubCode = typeof KNOWN_SUB_CODES[number];
