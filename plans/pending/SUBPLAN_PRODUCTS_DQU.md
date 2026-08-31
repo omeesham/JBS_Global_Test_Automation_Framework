@@ -5,7 +5,7 @@
 **Created**: 2026-06-22
 **Identity**: OWNER (multi-identity within phases — GIVER → BUILDER → WATCHDOG → GARDENER → OWNER; HEALER conditional)
 **Parent**: PLAN_BIG_PIVOT_FCC_MASTER.md
-**Depends on**: SUBPLAN_PRODUCTS_FCC.md
+**Depends on**: PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md (repointed 2026-08-31 — SUBPLAN_PRODUCTS_FCC.md SUPERSEDED)
 **Blocks**: none
 **Model**: claude-opus-4-8
 **Thinking**: xhi
@@ -90,6 +90,12 @@ cross-field & cascade validation · grid virtualization / large-list stress · c
 compound multi-filter / multi-field save · neutral-eye adversarial findings · a11y (keyboard / aria) · RBAC
 (role-gated visibility) · file **import** round-trip (if present) · file **export** round-trip (if present).
 TC band: starts where FCC ends (post-walk).
+
+**NM-2253 repoint notes (2026-08-31)**: (1) Office scope is **1101** (`locations/1101/products`) per the NM-2253 ticket ruling — not 1604; all DQU work inherits that pin (LR-ENC-007 carve-out, LR-ENC-005 corporate office). (2) The `a11y (keyboard / aria)` seed item must be re-scoped to **behaviour-only** at activation — LR-ENC-009 (2026-08-28) bars DOM/markup accessibility findings as bugs/TCs/observations for Encore. (3) The upstream artifacts now live in the **item-search** namespace (module `ISR`, submodules `PRS`/`PCD`/`PGR`; `tests/item-search/`, `field-inventories/item-search-*`, `field-case-catalogs/item-search-*`), superseding this stub's `location-products` / `products-<DATE>` placeholders — re-path at activation.
+
+### NM-2253 deferred-to-DEEP seeds (appended at PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK closure)
+
+(rows appended by that plan's Phase 4 — each a grep-verifiable LR-040(b) line item)
 
 **Exhaustiveness guarantee:** the element set is already guaranteed by **LR-062** (Foundation Coverage
 Manifest — 100% dispositioned; Cx blocks <100%); DQU inherits it. The only axis LR-062 doesn't auto-enumerate

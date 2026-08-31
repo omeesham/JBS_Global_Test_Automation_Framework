@@ -1,6 +1,7 @@
 # SUBPLAN_PRODUCTS_00_FOUNDATION — discover Location Products from both sites + Jira, lay net-new scaffolding (no tests)
 
-**Status**: PENDING
+**Status**: SUPERSEDED
+**Superseded-by**: PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md (2026-08-31 — NM-2253 rules the module office-1101-only, contradicting this subplan's 1604 target; its discovery/scaffolding phases are absorbed by that plan's Phases 0.3–0.75 + 2)
 **Priority**: P0
 **Created**: 2026-06-22
 **Identity**: OWNER (multi-identity within phases — HUNTER → GIVER → BUILDER → OWNER; WATCHDOG/GARDENER/HEALER conditional)

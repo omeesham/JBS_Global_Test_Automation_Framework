@@ -1,6 +1,7 @@
 # SUBPLAN_PRODUCTS_FCC — full FCC field-matrix coverage for Location Products (P1, ship-first batch)
 
-**Status**: PENDING
+**Status**: SUPERSEDED
+**Superseded-by**: PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md (2026-08-31 — pre-dates the two-axis Case-Generation Standard, LR-072 CoverageMode, and the current LR-014 testid-gap form; its FCC scope is absorbed by that plan's Phase 1)
 **Priority**: P1
 **Created**: 2026-06-22
 **Identity**: OWNER (multi-identity within phases — GIVER → BUILDER → WATCHDOG → GARDENER → OWNER; HEALER conditional)

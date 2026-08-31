@@ -144,6 +144,8 @@ Each future subplan inherits the paradigm — no re-installing the runner, taxon
 
 ### Location Products (distinct surface — added 2026-06-22)
 
+> **2026-08-31 — superseded-for-NM-2253**: the Products wave now ships via `plans/pending/PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md` (office **1101** per the NM-2253 ticket ruling; module code `ISR`, submodules `PRS`/`PCD`/`PGR`). `SUBPLAN_PRODUCTS_00_FOUNDATION.md` + `SUBPLAN_PRODUCTS_FCC.md` are **SUPERSEDED** (five staleness epochs: 1604 target, pre-two-axis, pre-LR-072, old LR-014, pre-LR-ENC-009). `SUBPLAN_PRODUCTS_DQU.md` is **RETAINED** as the deferred-to-DEEP recipient, Depends-on repointed.
+
 Products is **not** a Location-Settings tab — it is a separate top-level URL
 `/locations/{id}/products` (old-site nav2 equivalent: "item search"), so `navigateToSubTab()` does NOT
 apply and Save-dialog / rendering parity must be walked, not assumed. This master now spans **multiple
@@ -311,7 +313,7 @@ Out-of-scope (deferred to named follow-up plans, NOT this master's cascade):
 - [ ] SSL FCC coverage shipped (✓ — already done via DQU pilot chain, 30 SSL TCs grandfathered).
 - [ ] SSL false-green sweep subplan closed GREEN (✓ — completed 2026-05-22 per user override; sweep report at `clients/encore/specs_planning/_internal/false-green-sweeps/shared-setup-locations-2026-05-22.md`; see [`SUBPLAN_SSL_FALSE_GREEN_SWEEP.md`](SUBPLAN_SSL_FALSE_GREEN_SWEEP.md) Execution Summary).
 - [ ] Every module in §Roadmap "Future per-module subplans" has a subplan in `plans/done/`.
-- [ ] Location Products (distinct surface): all 3 subplans (`SUBPLAN_PRODUCTS_00_FOUNDATION`, `_FCC`, `_DQU`) in `plans/done/`; preconditions `PLAN_SELF_HELP_RESEARCH_MANDATE` + `PLAN_TIERED_DELEGATED_WALK` closed first.
+- [ ] Location Products (distinct surface): **superseded-for-NM-2253 (2026-08-31)** — QUICK coverage ships via `PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md` (`SUBPLAN_PRODUCTS_00_FOUNDATION` + `_FCC` SUPERSEDED, never executed); remaining checkbox scope = `SUBPLAN_PRODUCTS_DQU.md` (retained DEEP recipient) in `plans/done/`.
 - [ ] DQU triage decision recorded (per remaining DQU subplan: subsumed / kept / dropped) in a follow-up plan or in this master's Execution Summary.
 - [ ] `/regression-guard` snapshot before/after = no silent breakage in framework-wide artifacts touched by paradigm install.
 - [ ] Activity-log row appended per LR-028 for each child subplan closure.
