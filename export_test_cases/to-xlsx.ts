@@ -213,6 +213,10 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   discount_matrix_location_activation: 'Discount Matrix — Location Activation',
   service_charge_basic_information: 'Service Charge — Basic Information',
   service_charge_history: 'Service Charge — History',
+  // Item Search (NM-2253)
+  item_search_product_search: 'Item Search — Product Search',
+  item_search_product_code: 'Item Search — Product Code',
+  item_search_product_groups: 'Item Search — Product Groups',
 };
 
 /** Sheet name → split-file group/stem for the `testcases/<group>/<stem>.xlsx` tree. */
@@ -260,6 +264,10 @@ const SPLIT_FILE_MAP: Record<string, { group: string; stem: string }> = {
   discount_matrix_loc_activation: { group: 'discount-matrix', stem: 'discount-matrix-location-activation' },
   service_charge_basic_info: { group: 'service-charge', stem: 'service-charge-basic-information' },
   service_charge_history: { group: 'service-charge', stem: 'service-charge-history' },
+  // Item Search (NM-2253)
+  item_search_product_search: { group: 'item-search', stem: 'item-search-product-search' },
+  item_search_product_code: { group: 'item-search', stem: 'item-search-product-code' },
+  item_search_product_groups: { group: 'item-search', stem: 'item-search-product-groups' },
 };
 
 const EXCEL_SHEET_NAME_LIMIT = 31;

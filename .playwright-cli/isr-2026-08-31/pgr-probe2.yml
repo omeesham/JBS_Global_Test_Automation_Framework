@@ -1,0 +1,386 @@
+- generic [ref=f5e1]:
+  - alert [ref=f5e18]
+  - generic [ref=f5e20]:
+    - generic [ref=f5e23]:
+      - list [ref=f5e25]:
+        - listitem [ref=f5e26]:
+          - button "1101 Corporate Office Encore USA SGA" [ref=f5e27] [cursor=pointer]:
+            - generic [ref=f5e29]: "1101"
+            - generic [ref=f5e30]:
+              - generic [ref=f5e31]: Corporate Office Encore USA SGA
+              - img [ref=f5e32]
+      - generic [ref=f5e38]:
+        - list [ref=f5e40]:
+          - listitem [ref=f5e41]:
+            - link "Home" [ref=f5e42] [cursor=pointer]:
+              - /url: /navigator/locations/1101/home
+              - img [ref=f5e43]
+              - generic [ref=f5e46]: Home
+          - listitem [ref=f5e47]:
+            - link "Inbox" [ref=f5e48] [cursor=pointer]:
+              - /url: /navigator/locations/1101/inbox
+              - img [ref=f5e49]
+              - generic [ref=f5e52]: Inbox
+          - listitem [ref=f5e53]:
+            - button "Actions" [ref=f5e54] [cursor=pointer]:
+              - img [ref=f5e55]
+              - generic [ref=f5e57]: Actions
+              - img [ref=f5e58]
+          - listitem [ref=f5e60]:
+            - button "Commissions" [ref=f5e61] [cursor=pointer]:
+              - img [ref=f5e62]
+              - generic [ref=f5e64]: Commissions
+              - img [ref=f5e65]
+          - listitem [ref=f5e67]:
+            - button "Tax" [ref=f5e68] [cursor=pointer]:
+              - img [ref=f5e69]
+              - generic [ref=f5e72]: Tax
+              - img [ref=f5e73]
+          - listitem [ref=f5e75]:
+            - button "Setup" [ref=f5e76] [cursor=pointer]:
+              - img [ref=f5e77]
+              - generic [ref=f5e80]: Setup
+              - img [ref=f5e81]
+          - listitem [ref=f5e83]:
+            - button "Studio" [ref=f5e84] [cursor=pointer]:
+              - img [ref=f5e85]
+              - generic [ref=f5e87]: Studio
+              - img [ref=f5e88]
+        - generic [ref=f5e90]:
+          - generic [ref=f5e91]: Search
+          - list [ref=f5e93]:
+            - listitem [ref=f5e94]:
+              - button "Order Search" [disabled]:
+                - img
+                - generic: Order Search
+            - listitem [ref=f5e95]:
+              - link "Job Search" [ref=f5e96] [cursor=pointer]:
+                - /url: /navigator/locations/1101/fulfillments
+                - img [ref=f5e97]
+                - generic [ref=f5e100]: Job Search
+            - listitem [ref=f5e101]:
+              - link "Asset Search" [ref=f5e102] [cursor=pointer]:
+                - /url: /navigator/locations/1101/assets
+                - img [ref=f5e103]
+                - generic [ref=f5e106]: Asset Search
+            - listitem [ref=f5e107]:
+              - link "Customer Search" [ref=f5e108] [cursor=pointer]:
+                - /url: /navigator/locations/1101/customers
+                - img [ref=f5e109]
+                - generic [ref=f5e112]: Customer Search
+            - listitem [ref=f5e113]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=f5e114]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=f5e115]:
+              - link "Item Search" [ref=f5e116] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+                - img [ref=f5e117]
+                - generic [ref=f5e127]: Item Search
+            - listitem [ref=f5e128]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=f5e129]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=f5e131]:
+          - listitem [ref=f5e132]:
+            - button "Navigator Assistant" [ref=f5e133] [cursor=pointer]:
+              - img [ref=f5e134]
+              - generic [ref=f5e136]: Navigator Assistant
+      - list [ref=f5e139]:
+        - listitem [ref=f5e140]:
+          - button "PC prd click auto" [ref=f5e141] [cursor=pointer]:
+            - generic [ref=f5e143]: PC
+            - generic [ref=f5e145]: prd click auto
+            - img [ref=f5e146]
+      - button "Click to restore sidebar" [ref=f5e150]
+    - main [ref=f5e151]:
+      - generic [ref=f5e152]:
+        - generic [ref=f5e154]:
+          - button "trigger-button" [ref=f5e155] [cursor=pointer]:
+            - img
+          - generic [ref=f5e157]:
+            - generic [ref=f5e158]:
+              - link "Products" [ref=f5e159] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+              - img [ref=f5e160]
+            - heading "Product Groups" [level=1] [ref=f5e163]
+        - generic [ref=f5e165]:
+          - generic [ref=f5e172]:
+            - generic [ref=f5e173]:
+              - generic [ref=f5e174]:
+                - generic [ref=f5e176]:
+                  - img [ref=f5e177]
+                  - text: Product Groups
+                - generic [ref=f5e182]:
+                  - img [ref=f5e184]
+                  - textbox "Search Product Groups..." [ref=f5e187]: Audio
+                  - button [ref=f5e296] [cursor=pointer]:
+                    - img
+              - generic [ref=f5e188]:
+                - generic [ref=f5e190]:
+                  - img [ref=f5e191]
+                  - text: Status
+                - generic [ref=f5e193]:
+                  - checkbox [checked] [ref=f5e194] [cursor=pointer]:
+                    - generic:
+                      - img
+                  - checkbox [checked]
+                  - generic [ref=f5e195]: Active
+            - generic [ref=f5e196]:
+              - button "Reset" [ref=f5e197] [cursor=pointer]:
+                - generic [ref=f5e198]: Reset
+              - button "Search" [active] [ref=f5e199] [cursor=pointer]:
+                - generic [ref=f5e200]: Search
+          - button "Collapse search panel" [ref=f5e202] [cursor=pointer]:
+            - img
+          - generic [ref=f5e204]:
+            - generic [ref=f5e205]:
+              - generic [ref=f5e206]:
+                - img [ref=f5e207]
+                - generic [ref=f5e211]: 82 product groups found
+              - generic [ref=f5e212]:
+                - button "Add" [ref=f5e213] [cursor=pointer]:
+                  - img
+                  - text: Add
+                - button "Grid Options" [ref=f5e215] [cursor=pointer]:
+                  - img
+                  - generic [ref=f5e216]: Grid Options
+            - table [ref=f5e301]:
+              - rowgroup [ref=f5e302]:
+                - row "Name Resize column productGroupName Description Resize column productGroupDescription Service Type Resize column serviceTypeName Status Resize column active" [ref=f5e303]:
+                  - columnheader "Name Resize column productGroupName" [ref=f5e304]:
+                    - generic [ref=f5e305]:
+                      - img [ref=f5e306]
+                      - button "Name" [ref=f5e315] [cursor=pointer]:
+                        - generic [ref=f5e316]: Name
+                        - img
+                    - button "Resize column productGroupName" [ref=f5e317]
+                  - columnheader "Description Resize column productGroupDescription" [ref=f5e318]:
+                    - generic [ref=f5e319]:
+                      - img [ref=f5e320]
+                      - button "Description" [ref=f5e329] [cursor=pointer]:
+                        - generic [ref=f5e330]: Description
+                        - img
+                    - button "Resize column productGroupDescription" [ref=f5e331]
+                  - columnheader "Service Type Resize column serviceTypeName" [ref=f5e332]:
+                    - generic [ref=f5e333]:
+                      - img [ref=f5e334]
+                      - button "Service Type" [ref=f5e343] [cursor=pointer]:
+                        - generic [ref=f5e344]: Service Type
+                        - img
+                    - button "Resize column serviceTypeName" [ref=f5e345]
+                  - columnheader "Status Resize column active" [ref=f5e346]:
+                    - generic [ref=f5e347]:
+                      - img [ref=f5e348]
+                      - button "Status" [ref=f5e357] [cursor=pointer]:
+                        - generic [ref=f5e358]: Status
+                    - button "Resize column active" [ref=f5e359]
+              - rowgroup [ref=f5e360]:
+                - row "Audio Adaptor Audio Adaptor Equipment Rental Active" [ref=f5e361] [cursor=pointer]:
+                  - cell "Audio Adaptor" [ref=f5e362]:
+                    - generic [ref=f5e363]: Audio Adaptor
+                  - cell "Audio Adaptor" [ref=f5e364]:
+                    - generic [ref=f5e365]: Audio Adaptor
+                  - cell "Equipment Rental" [ref=f5e366]:
+                    - generic [ref=f5e367]: Equipment Rental
+                  - cell "Active" [ref=f5e368]:
+                    - generic [ref=f5e369]: Active
+                - row "Audio Amp Rack Audio Amp Rack Equipment Rental Active" [ref=f5e370] [cursor=pointer]:
+                  - cell "Audio Amp Rack" [ref=f5e371]:
+                    - generic [ref=f5e372]: Audio Amp Rack
+                  - cell "Audio Amp Rack" [ref=f5e373]:
+                    - generic [ref=f5e374]: Audio Amp Rack
+                  - cell "Equipment Rental" [ref=f5e375]:
+                    - generic [ref=f5e376]: Equipment Rental
+                  - cell "Active" [ref=f5e377]:
+                    - generic [ref=f5e378]: Active
+                - row "Audio Amplifier >2000W Audio Amplifier >2000W Equipment Rental Active" [ref=f5e379] [cursor=pointer]:
+                  - cell "Audio Amplifier >2000W" [ref=f5e380]:
+                    - generic [ref=f5e381]: Audio Amplifier >2000W
+                  - cell "Audio Amplifier >2000W" [ref=f5e382]:
+                    - generic [ref=f5e383]: Audio Amplifier >2000W
+                  - cell "Equipment Rental" [ref=f5e384]:
+                    - generic [ref=f5e385]: Equipment Rental
+                  - cell "Active" [ref=f5e386]:
+                    - generic [ref=f5e387]: Active
+                - row "Audio Amplifier up to 2000W Audio Amplifier up to 2000W Equipment Rental Active" [ref=f5e388] [cursor=pointer]:
+                  - cell "Audio Amplifier up to 2000W" [ref=f5e389]:
+                    - generic [ref=f5e390]: Audio Amplifier up to 2000W
+                  - cell "Audio Amplifier up to 2000W" [ref=f5e391]:
+                    - generic [ref=f5e392]: Audio Amplifier up to 2000W
+                  - cell "Equipment Rental" [ref=f5e393]:
+                    - generic [ref=f5e394]: Equipment Rental
+                  - cell "Active" [ref=f5e395]:
+                    - generic [ref=f5e396]: Active
+                - row "Audio Cable Lot Large Audio Cable Lot Large Equipment Rental Active" [ref=f5e397] [cursor=pointer]:
+                  - cell "Audio Cable Lot Large" [ref=f5e398]:
+                    - generic [ref=f5e399]: Audio Cable Lot Large
+                  - cell "Audio Cable Lot Large" [ref=f5e400]:
+                    - generic [ref=f5e401]: Audio Cable Lot Large
+                  - cell "Equipment Rental" [ref=f5e402]:
+                    - generic [ref=f5e403]: Equipment Rental
+                  - cell "Active" [ref=f5e404]:
+                    - generic [ref=f5e405]: Active
+                - row "Audio Cable Lot Small Audio Cable Lot Small Equipment Rental Active" [ref=f5e406] [cursor=pointer]:
+                  - cell "Audio Cable Lot Small" [ref=f5e407]:
+                    - generic [ref=f5e408]: Audio Cable Lot Small
+                  - cell "Audio Cable Lot Small" [ref=f5e409]:
+                    - generic [ref=f5e410]: Audio Cable Lot Small
+                  - cell "Equipment Rental" [ref=f5e411]:
+                    - generic [ref=f5e412]: Equipment Rental
+                  - cell "Active" [ref=f5e413]:
+                    - generic [ref=f5e414]: Active
+                - row "Audio Cable Lot Standard Audio Cable Lot Standard Equipment Rental Active" [ref=f5e415] [cursor=pointer]:
+                  - cell "Audio Cable Lot Standard" [ref=f5e416]:
+                    - generic [ref=f5e417]: Audio Cable Lot Standard
+                  - cell "Audio Cable Lot Standard" [ref=f5e418]:
+                    - generic [ref=f5e419]: Audio Cable Lot Standard
+                  - cell "Equipment Rental" [ref=f5e420]:
+                    - generic [ref=f5e421]: Equipment Rental
+                  - cell "Active" [ref=f5e422]:
+                    - generic [ref=f5e423]: Active
+                - row "Audio Cable Tracking Kit-Internal Use Audio Cable Tracking Kit-Internal Use Equipment Rental Active" [ref=f5e424] [cursor=pointer]:
+                  - cell "Audio Cable Tracking Kit-Internal Use" [ref=f5e425]:
+                    - generic [ref=f5e426]: Audio Cable Tracking Kit-Internal Use
+                  - cell "Audio Cable Tracking Kit-Internal Use" [ref=f5e427]:
+                    - generic [ref=f5e428]: Audio Cable Tracking Kit-Internal Use
+                  - cell "Equipment Rental" [ref=f5e429]:
+                    - generic [ref=f5e430]: Equipment Rental
+                  - cell "Active" [ref=f5e431]:
+                    - generic [ref=f5e432]: Active
+                - row "Audio Conferencing Audio Conferencing Audio Conferencing Active" [ref=f5e433] [cursor=pointer]:
+                  - cell "Audio Conferencing" [ref=f5e434]:
+                    - generic [ref=f5e435]: Audio Conferencing
+                  - cell "Audio Conferencing" [ref=f5e436]:
+                    - generic [ref=f5e437]: Audio Conferencing
+                  - cell "Audio Conferencing" [ref=f5e438]:
+                    - generic [ref=f5e439]: Audio Conferencing
+                  - cell "Active" [ref=f5e440]:
+                    - generic [ref=f5e441]: Active
+                - row "Audio Crossover Audio Crossover Equipment Rental Active" [ref=f5e442] [cursor=pointer]:
+                  - cell "Audio Crossover" [ref=f5e443]:
+                    - generic [ref=f5e444]: Audio Crossover
+                  - cell "Audio Crossover" [ref=f5e445]:
+                    - generic [ref=f5e446]: Audio Crossover
+                  - cell "Equipment Rental" [ref=f5e447]:
+                    - generic [ref=f5e448]: Equipment Rental
+                  - cell "Active" [ref=f5e449]:
+                    - generic [ref=f5e450]: Active
+                - row "Audio DA 2-8 Ch Audio DA 2-8 Ch Equipment Rental Active" [ref=f5e451] [cursor=pointer]:
+                  - cell "Audio DA 2-8 Ch" [ref=f5e452]:
+                    - generic [ref=f5e453]: Audio DA 2-8 Ch
+                  - cell "Audio DA 2-8 Ch" [ref=f5e454]:
+                    - generic [ref=f5e455]: Audio DA 2-8 Ch
+                  - cell "Equipment Rental" [ref=f5e456]:
+                    - generic [ref=f5e457]: Equipment Rental
+                  - cell "Active" [ref=f5e458]:
+                    - generic [ref=f5e459]: Active
+                - row "Audio DA 8+ Ch Audio DA 8+ Ch Equipment Rental Active" [ref=f5e460] [cursor=pointer]:
+                  - cell "Audio DA 8+ Ch" [ref=f5e461]:
+                    - generic [ref=f5e462]: Audio DA 8+ Ch
+                  - cell "Audio DA 8+ Ch" [ref=f5e463]:
+                    - generic [ref=f5e464]: Audio DA 8+ Ch
+                  - cell "Equipment Rental" [ref=f5e465]:
+                    - generic [ref=f5e466]: Equipment Rental
+                  - cell "Active" [ref=f5e467]:
+                    - generic [ref=f5e468]: Active
+                - row "Audio Delay Audio Delay Equipment Rental Active" [ref=f5e469] [cursor=pointer]:
+                  - cell "Audio Delay" [ref=f5e470]:
+                    - generic [ref=f5e471]: Audio Delay
+                  - cell "Audio Delay" [ref=f5e472]:
+                    - generic [ref=f5e473]: Audio Delay
+                  - cell "Equipment Rental" [ref=f5e474]:
+                    - generic [ref=f5e475]: Equipment Rental
+                  - cell "Active" [ref=f5e476]:
+                    - generic [ref=f5e477]: Active
+                - row "Audio Dynamic/Effect Processor Audio Dynamic/Effect Processor Equipment Rental Active" [ref=f5e478] [cursor=pointer]:
+                  - cell "Audio Dynamic/Effect Processor" [ref=f5e479]:
+                    - generic [ref=f5e480]: Audio Dynamic/Effect Processor
+                  - cell "Audio Dynamic/Effect Processor" [ref=f5e481]:
+                    - generic [ref=f5e482]: Audio Dynamic/Effect Processor
+                  - cell "Equipment Rental" [ref=f5e483]:
+                    - generic [ref=f5e484]: Equipment Rental
+                  - cell "Active" [ref=f5e485]:
+                    - generic [ref=f5e486]: Active
+                - row "Audio Effects Processor Audio Effects Processor Equipment Rental Active" [ref=f5e487] [cursor=pointer]:
+                  - cell "Audio Effects Processor" [ref=f5e488]:
+                    - generic [ref=f5e489]: Audio Effects Processor
+                  - cell "Audio Effects Processor" [ref=f5e490]:
+                    - generic [ref=f5e491]: Audio Effects Processor
+                  - cell "Equipment Rental" [ref=f5e492]:
+                    - generic [ref=f5e493]: Equipment Rental
+                  - cell "Active" [ref=f5e494]:
+                    - generic [ref=f5e495]: Active
+                - row "Audio Engineer To Set Audio Engineer To Set Setup Charges Active" [ref=f5e496] [cursor=pointer]:
+                  - cell "Audio Engineer To Set" [ref=f5e497]:
+                    - generic [ref=f5e498]: Audio Engineer To Set
+                  - cell "Audio Engineer To Set" [ref=f5e499]:
+                    - generic [ref=f5e500]: Audio Engineer To Set
+                  - cell "Setup Charges" [ref=f5e501]:
+                    - generic [ref=f5e502]: Setup Charges
+                  - cell "Active" [ref=f5e503]:
+                    - generic [ref=f5e504]: Active
+                - row "Audio Graphic EQ Audio Graphic EQ Equipment Rental Active" [ref=f5e505] [cursor=pointer]:
+                  - cell "Audio Graphic EQ" [ref=f5e506]:
+                    - generic [ref=f5e507]: Audio Graphic EQ
+                  - cell "Audio Graphic EQ" [ref=f5e508]:
+                    - generic [ref=f5e509]: Audio Graphic EQ
+                  - cell "Equipment Rental" [ref=f5e510]:
+                    - generic [ref=f5e511]: Equipment Rental
+                  - cell "Active" [ref=f5e512]:
+                    - generic [ref=f5e513]: Active
+                - row "Audio Interface Audio Interface Equipment Rental Active" [ref=f5e514] [cursor=pointer]:
+                  - cell "Audio Interface" [ref=f5e515]:
+                    - generic [ref=f5e516]: Audio Interface
+                  - cell "Audio Interface" [ref=f5e517]:
+                    - generic [ref=f5e518]: Audio Interface
+                  - cell "Equipment Rental" [ref=f5e519]:
+                    - generic [ref=f5e520]: Equipment Rental
+                  - cell "Active" [ref=f5e521]:
+                    - generic [ref=f5e522]: Active
+                - row "Audio Mic Line Driver Audio Mic Line Driver Equipment Rental Active" [ref=f5e523] [cursor=pointer]:
+                  - cell "Audio Mic Line Driver" [ref=f5e524]:
+                    - generic [ref=f5e525]: Audio Mic Line Driver
+                  - cell "Audio Mic Line Driver" [ref=f5e526]:
+                    - generic [ref=f5e527]: Audio Mic Line Driver
+                  - cell "Equipment Rental" [ref=f5e528]:
+                    - generic [ref=f5e529]: Equipment Rental
+                  - cell "Active" [ref=f5e530]:
+                    - generic [ref=f5e531]: Active
+                - row "Audio Mixer Accessory Audio Mixer Accessory Equipment Rental Active" [ref=f5e532] [cursor=pointer]:
+                  - cell "Audio Mixer Accessory" [ref=f5e533]:
+                    - generic [ref=f5e534]: Audio Mixer Accessory
+                  - cell "Audio Mixer Accessory" [ref=f5e535]:
+                    - generic [ref=f5e536]: Audio Mixer Accessory
+                  - cell "Equipment Rental" [ref=f5e537]:
+                    - generic [ref=f5e538]: Equipment Rental
+                  - cell "Active" [ref=f5e539]:
+                    - generic [ref=f5e540]: Active
+            - generic [ref=f5e286]:
+              - generic [ref=f5e288]:
+                - combobox [ref=f5e289] [cursor=pointer]:
+                  - generic: "20"
+                  - img
+                - paragraph [ref=f5e290]: rows per page
+              - generic [ref=f5e291]:
+                - button "Go to first page" [disabled]:
+                  - img
+                - button "Go to previous page" [disabled]:
+                  - img
+                - generic [ref=f5e292]:
+                  - textbox "Current page number" [ref=f5e293]: "1"
+                  - generic [ref=f5e294]: /
+                  - text: "5"
+                - button "Go to next page" [ref=f5e541] [cursor=pointer]:
+                  - img
+                - button "Go to last page" [ref=f5e542] [cursor=pointer]:
+                  - img
+  - region "Notifications alt+T"

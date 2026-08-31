@@ -1,0 +1,1793 @@
+- generic:
+  - alert
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic: "1101"
+                    - generic:
+                      - generic: Corporate Office Encore USA SGA
+                      - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - list:
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1101/home
+                            - img
+                            - generic: Home
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1101/inbox
+                            - img
+                            - generic: Inbox
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Actions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Commissions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Tax
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Setup
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Studio
+                            - img
+                    - generic:
+                      - generic: Search
+                      - generic:
+                        - list:
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Order Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/fulfillments
+                              - img
+                              - generic: Job Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/assets
+                              - img
+                              - generic: Asset Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/customers
+                              - img
+                              - generic: Customer Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: DRO Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Payment Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/products
+                              - img
+                              - generic: Item Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: ECT Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Event Agendas
+                    - generic:
+                      - list:
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Navigator Assistant
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - button:
+                      - generic:
+                        - generic: PC
+                      - generic:
+                        - generic: prd click auto
+                      - img
+            - button
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - button:
+                - img
+              - generic:
+                - generic:
+                  - generic:
+                    - heading [level=1]: Products
+                  - button:
+                    - img
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - img
+                                    - text: Product
+                                    - button:
+                                      - img
+                                - generic:
+                                  - group:
+                                    - radio [checked]:
+                                      - img
+                                      - generic: Any Field
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - img
+                                      - textbox:
+                                        - /placeholder: Any Field
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - img
+                                        - textbox:
+                                          - /placeholder: Enter barcode
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - img
+                                    - text: Filters
+                                - generic:
+                                  - generic:
+                                    - checkbox
+                                    - checkbox
+                                    - generic: Quantity Greater Than Zero
+                                  - generic:
+                                    - checkbox [checked]:
+                                      - generic:
+                                        - img
+                                    - checkbox [checked]
+                                    - generic: Active
+                                  - generic:
+                                    - generic: Location
+                                    - generic:
+                                      - combobox:
+                                        - generic: 1101 - Corporate Office Encore USA SGA
+                                        - img
+                                  - generic:
+                                    - generic: Region
+                                    - generic:
+                                      - combobox:
+                                        - generic: Select Region
+                                        - img
+                                  - generic:
+                                    - generic: Product Organization
+                                    - generic:
+                                      - combobox:
+                                        - generic:
+                                          - generic: None
+                                          - generic: None
+                                        - img
+                              - generic:
+                                - generic:
+                                  - generic: Prep / Return Date Time
+                                - generic:
+                                  - generic:
+                                    - paragraph: Prep Date Time
+                                    - button:
+                                      - img
+                                      - text: August 31st, 2026 12:00 AM
+                                  - generic:
+                                    - paragraph: Return Date Time
+                                    - button:
+                                      - img
+                                      - text: August 31st, 2026 11:59 PM
+                            - generic:
+                              - button:
+                                - generic: Reset
+                              - button:
+                                - generic: Search
+              - generic:
+                - button:
+                  - img
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                      - generic: 15,874 products found
+                    - generic:
+                      - button:
+                        - img
+                        - text: Product Group
+                      - generic:
+                        - button:
+                          - img
+                          - generic: Grid Options
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - table:
+                            - rowgroup:
+                              - row:
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button [expanded]:
+                                          - generic: Category
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Sub Category
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Class
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Product Group
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Sub Class
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Item
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Product Code ID
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Description
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Available
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Owned
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Out of Service
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: In Sequence
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Location Name
+                                          - img
+                                  - button
+                            - rowgroup:
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: vMix Rack Webcasting Switching PC
+                                - cell:
+                                  - generic: Webcasting Production Computer - 8 Input
+                                - cell:
+                                  - button:
+                                    - generic: vMix Rack PC Intel i9 10th Gen
+                                - cell:
+                                  - generic: "94681"
+                                - cell:
+                                  - generic: vMix Rack PC Intel i9 10th Gen
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: vMix Laptop Webcasting PC
+                                - cell:
+                                  - generic: Webcasting Production Computer - 4 Input
+                                - cell:
+                                  - button:
+                                    - generic: Dell vMix Precision 7560
+                                - cell:
+                                  - generic: "97312"
+                                - cell:
+                                  - generic: Webcasting Production Computer - 4 Input
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: vMix Laptop Webcasting PC
+                                - cell:
+                                  - generic: Webcasting Production Computer - 4 Input
+                                - cell:
+                                  - button:
+                                    - generic: Dell vMix Alienware M15 R3 Laptop
+                                - cell:
+                                  - generic: "94683"
+                                - cell:
+                                  - generic: Dell vMix Alienware M15 R3 Laptop
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Wowza ClearCaster Live Streaming Encoder
+                                - cell:
+                                  - generic: "92635"
+                                - cell:
+                                  - generic: Wowza ClearCaster Live Streaming Encoder
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Teradek VidiU 10-0245
+                                - cell:
+                                  - generic: "92634"
+                                - cell:
+                                  - generic: Camera Wireless Streaming Encoder
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Seneca HDS V2 Media Player
+                                - cell:
+                                  - generic: "92633"
+                                - cell:
+                                  - generic: Seneca HDS V2 Media Player
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Matrox Monarch HD Stream/Record
+                                - cell:
+                                  - generic: "92632"
+                                - cell:
+                                  - generic: Matrox Monarch HD Stream/Record
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Matrox Maevex 6122 Dual 4K Enterprise Encoder
+                                - cell:
+                                  - generic: "100406"
+                                - cell:
+                                  - generic: Matrox Maevex 6122 Dual 4K Enterprise Encoder
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Extron SMP 351
+                                - cell:
+                                  - generic: "96614"
+                                - cell:
+                                  - generic: H.264 Streaming Media Processor
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Epiphan Pearl2 Dual Twin Digital Swticher
+                                - cell:
+                                  - generic: "92631"
+                                - cell:
+                                  - generic: Epiphan Pearl2 Dual Twin Digital Swticher
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Epiphan Pearl2 Digital Swticher
+                                - cell:
+                                  - generic: "92630"
+                                - cell:
+                                  - generic: Epiphan Pearl2 Digital Swticher
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Epiphan Pearl Nano
+                                - cell:
+                                  - generic: "97423"
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: "2"
+                                - cell:
+                                  - generic: "2"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Epiphan Pearl Mini
+                                - cell:
+                                  - generic: "89031"
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Epiphan Pearl EV Digital Switcher
+                                - cell:
+                                  - generic: "92629"
+                                - cell:
+                                  - generic: Epiphan Pearl EV Digital Switcher
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Elgato Stream Deck
+                                - cell:
+                                  - generic: "90822"
+                                - cell:
+                                  - generic: 15 Key Livestream Content Controller
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Blackmagic Design Web Presenter
+                                - cell:
+                                  - generic: "92628"
+                                - cell:
+                                  - generic: Blackmagic Design Web Presenter
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - generic: Webcasting and Recording Hardware
+                                - cell:
+                                  - button:
+                                    - generic: ADTEC Digital edje Media Player
+                                - cell:
+                                  - generic: "92627"
+                                - cell:
+                                  - generic: ADTEC Digital edje Media Player
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Webcasting Equipment
+                                - cell:
+                                  - generic: Multicaster
+                                - cell:
+                                  - generic: Multicaster
+                                - cell:
+                                  - button:
+                                    - generic: Multicaster Recording and Webcasting System
+                                - cell:
+                                  - generic: "80797"
+                                - cell:
+                                  - generic: Multicast Recording and Webcasting System
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Web Conferencing USB Camera and Audio All-in-One
+                                - cell:
+                                  - generic: Web Conferencing USB Camera and Audio All-in-One
+                                - cell:
+                                  - button:
+                                    - generic: Marantz AVS
+                                - cell:
+                                  - generic: "94363"
+                                - cell:
+                                  - generic: Broadcast Audio/Video USB All-in-One
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Owl Labs The Meeting Owl 360
+                                - cell:
+                                  - generic: "92626"
+                                - cell:
+                                  - generic: HD Video Conferencing System
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Owl Labs Meeting Owl 3
+                                - cell:
+                                  - generic: "98144"
+                                - cell:
+                                  - generic: HD Video Conferencing System
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Owl Labs FRS100-1000 Owl Bar
+                                - cell:
+                                  - generic: "100684"
+                                - cell:
+                                  - generic: Owl Labs Front-of-Room Camera
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Meeting Owl Pro MTW200 Video Conferencing Device
+                                - cell:
+                                  - generic: "91134"
+                                - cell:
+                                  - generic: Meeting Owl Pro Video Conferencing Device
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Meeting Owl 3 BND300 Video Conferencing Device
+                                - cell:
+                                  - generic: "98928"
+                                - cell:
+                                  - generic: Meeting Owl 3 Video Conferencing Device
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - generic: Video Conferencing Hardware
+                                - cell:
+                                  - button:
+                                    - generic: Logitech BCC950
+                                - cell:
+                                  - generic: "92625"
+                                - cell:
+                                  - generic: HD Video Conferencing System
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Small Meeting Web Camera w/ Mic and Spkr
+                                - cell:
+                                  - generic: Small Meeting Web Camera w/ Mic and Spkr
+                                - cell:
+                                  - button:
+                                    - generic: Poly Studio X70
+                                - cell:
+                                  - generic: "98161"
+                                - cell:
+                                  - generic: Small Meeting Web Camera w/ Mic and Spkr
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Small Meeting PTZ Web Camera w/ Mic and Spkr
+                                - cell:
+                                  - generic: Small Meeting PTZ Web Camera w/ Mic and Spkr
+                                - cell:
+                                  - button:
+                                    - generic: Logitech Rally Plus
+                                - cell:
+                                  - generic: "94753"
+                                - cell:
+                                  - generic: Small Meeting PTZ Web Camera w/ Mic and Spkr
+                                - cell:
+                                  - generic: "1"
+                                - cell:
+                                  - generic: "1"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Polycom Video Conferencing System
+                                - cell:
+                                  - generic: Polycom Video Conferencing System
+                                - cell:
+                                  - button:
+                                    - generic: Polycom HDX 8000-1080
+                                - cell:
+                                  - generic: "29391"
+                                - cell:
+                                  - generic: Polycom HDX 8000-1080
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Meeting Owl Accessory
+                                - cell:
+                                  - generic: Owl Labs Meeting Owl Expansion Mic
+                                - cell:
+                                  - generic: Owl Labs Meeting Owl 3 Expansion Mic
+                                - cell:
+                                  - generic: "100275"
+                                - cell:
+                                  - generic: Owl Labs Meeting Owl 3 Expansion Mic
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Meeting Owl Accessory
+                                - cell:
+                                  - generic: Meeting Owl Accessory
+                                - cell:
+                                  - generic: Owl Labs USB Extension Cable 16'
+                                - cell:
+                                  - generic: "94764"
+                                - cell:
+                                  - generic: USB Extension Cable 16'
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Meeting Owl Accessory
+                                - cell:
+                                  - generic: Meeting Owl Accessory
+                                - cell:
+                                  - generic: Owl Labs Lock Adaptor
+                                - cell:
+                                  - generic: "94765"
+                                - cell:
+                                  - generic: Owl Labs Lock Adaptor
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Meeting Owl Accessory
+                                - cell:
+                                  - generic: Meeting Owl Accessory
+                                - cell:
+                                  - generic: Micro USB(M) - USB 2.0(M) 6.5'
+                                - cell:
+                                  - generic: "94816"
+                                - cell:
+                                  - generic: Micro USB(M) - USB 2.0(M) 6.5'
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Rally Plus Mic Pod Hub
+                                - cell:
+                                  - generic: "98082"
+                                - cell:
+                                  - generic: Rally Plus Microphone Interface Adapter
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Table Hub
+                                - cell:
+                                  - generic: "94772"
+                                - cell:
+                                  - generic: Logitech Rally Table Hub
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Speaker
+                                - cell:
+                                  - generic: "94770"
+                                - cell:
+                                  - generic: Logitech Rally Speaker
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Remote Control
+                                - cell:
+                                  - generic: "94774"
+                                - cell:
+                                  - generic: Logitech Rally Remote Control
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Mic Extension Cable 33'
+                                - cell:
+                                  - generic: "94775"
+                                - cell:
+                                  - generic: Logitech Rally Mic Extension Cable 33'
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Expansion Microphone
+                                - cell:
+                                  - generic: "94771"
+                                - cell:
+                                  - generic: Logitech Rally Expansion Microphone
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Accessory
+                                - cell:
+                                  - generic: Logitech Rally Display Hub
+                                - cell:
+                                  - generic: "94773"
+                                - cell:
+                                  - generic: Logitech Rally Display Hub
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Logitech MeetUp Accessory
+                                - cell:
+                                  - generic: Logitech MeetUp Accessory
+                                - cell:
+                                  - generic: USB 2.0 to USBC 16'
+                                - cell:
+                                  - generic: "94854"
+                                - cell:
+                                  - generic: USB 2.0 to USBC 16'
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Logitech MeetUp Accessory
+                                - cell:
+                                  - generic: Logitech MeetUp Accessory
+                                - cell:
+                                  - generic: Logitech MeetUp Remote Control
+                                - cell:
+                                  - generic: "94768"
+                                - cell:
+                                  - generic: Logitech MeetUp Remote Control
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Logitech MeetUp Accessory
+                                - cell:
+                                  - generic: Logitech MeetUp Accessory
+                                - cell:
+                                  - generic: Logitech Meetup Expansion Microphone
+                                - cell:
+                                  - generic: "94767"
+                                - cell:
+                                  - generic: Logitech Meetup Expansion Microphone
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: Boardroom Web Conference Camera w/ Mic and Spkr
+                                - cell:
+                                  - generic: Boardroom Web Conference Camera w/ Mic and Spkr
+                                - cell:
+                                  - button:
+                                    - generic: Logitech MeetUp
+                                - cell:
+                                  - generic: "94690"
+                                - cell:
+                                  - generic: Web Conferencing Camera All-In-One
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "1"
+                                - cell: "1"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Virtual Events Equipment
+                                - cell:
+                                  - generic: Video Conference System
+                                - cell:
+                                  - generic: 360 Web Conference 4K Camera w/Mic and Spkr
+                                - cell:
+                                  - generic: 360 Web Conference 4K Camera w/Mic and Spkr
+                                - cell:
+                                  - button:
+                                    - generic: Owl Labs Meeting Owl 4+
+                                - cell:
+                                  - generic: "101350"
+                                - cell:
+                                  - generic: 360 Web Conference 4K Camera w/Mic and Spkr
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Video Wall LED Indoor
+                                - cell:
+                                  - generic: Video Wall LED Data Distribution
+                                - cell:
+                                  - generic: LED Wall Accessory
+                                - cell:
+                                  - generic: LED Wall Data Ethercon Cable
+                                - cell:
+                                  - generic: ROE LED 10m Ethercon Cable
+                                - cell:
+                                  - generic: "98019"
+                                - cell:
+                                  - generic: ROE LED Wall 10m Ethercon Cable
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Video Wall LED Indoor
+                                - cell:
+                                  - generic: Video Wall LED Data Distribution
+                                - cell:
+                                  - generic: LED Wall Accessory
+                                - cell:
+                                  - generic: LED Wall Data Ethercon Cable
+                                - cell:
+                                  - generic: Oracle XWave 0.75m Ethercon Cable
+                                - cell:
+                                  - generic: "96570"
+                                - cell:
+                                  - generic: Oracle XWave 0.75m Ethercon Cable
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Video Wall LED Indoor
+                                - cell:
+                                  - generic: Video Wall LED Data Distribution
+                                - cell:
+                                  - generic: LED Wall Accessory
+                                - cell:
+                                  - generic: LED Wall Data Ethercon Cable
+                                - cell:
+                                  - generic: Oracle XWave 0.4m Ethercon Cable
+                                - cell:
+                                  - generic: "96571"
+                                - cell:
+                                  - generic: Oracle XWave 0.4m Ethercon Cable
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Video Wall LED Indoor
+                                - cell:
+                                  - generic: Video Wall LED Data Distribution
+                                - cell:
+                                  - generic: LED Wall Accessory
+                                - cell:
+                                  - generic: LED Wall Data Ethercon Cable
+                                - cell:
+                                  - generic: LED Wall Data 1-Ch Cat5 Ethercon-RJ45 Cable 30'
+                                - cell:
+                                  - generic: "99065"
+                                - cell:
+                                  - generic: 30' LED Wall Data 1-Ch Cat5 Ethercon-RJ45 Cable
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Video Wall LED Indoor
+                                - cell:
+                                  - generic: Video Wall LED Data Distribution
+                                - cell:
+                                  - generic: LED Wall Accessory
+                                - cell:
+                                  - generic: LED Wall Data Ethercon Cable
+                                - cell:
+                                  - generic: LED Wall Data 1-Ch Cat5 Ethercon-RJ45 Cable 15'
+                                - cell:
+                                  - generic: "99066"
+                                - cell:
+                                  - generic: 15' LED Wall Data 1-Ch Cat5 Ethercon-RJ45 Cable
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Video
+                                - cell:
+                                  - generic: Video Wall LED Indoor
+                                - cell:
+                                  - generic: Video Wall LED Data Distribution
+                                - cell:
+                                  - generic: LED Wall Accessory
+                                - cell:
+                                  - generic: LED Wall Data Ethercon Cable
+                                - cell:
+                                  - generic: LED Wall Cat6a Ethercon Data Cable 50'
+                                - cell:
+                                  - generic: "101796"
+                                - cell:
+                                  - generic: LED Wall Data Ethercon Cable 50'
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - combobox:
+                            - generic: "50"
+                            - img
+                          - paragraph: rows per page
+                      - generic:
+                        - button [disabled]:
+                          - img
+                        - button [disabled]:
+                          - img
+                        - generic:
+                          - textbox: "1"
+                          - generic: /
+                          - text: "318"
+                        - button:
+                          - img
+                        - button:
+                          - img
+  - region "Notifications alt+T"
+  - menu "Category" [active] [ref=f4e1818]:
+    - menuitem "Sort ascending" [ref=f4e1819] [cursor=pointer]:
+      - img
+      - text: Sort ascending
+    - menuitem "Sort descending" [ref=f4e1820] [cursor=pointer]:
+      - img
+      - text: Sort descending
+    - separator [ref=f4e1821]
+    - menuitem "Hide column" [ref=f4e1822] [cursor=pointer]:
+      - img
+      - text: Hide column

@@ -1,0 +1,1791 @@
+- generic:
+  - alert
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic: "1101"
+                    - generic:
+                      - generic: Corporate Office Encore USA SGA
+                      - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - list:
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1101/home
+                            - img
+                            - generic: Home
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1101/inbox
+                            - img
+                            - generic: Inbox
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Actions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Commissions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Tax
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Setup
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Studio
+                            - img
+                    - generic:
+                      - generic: Search
+                      - generic:
+                        - list:
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Order Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/fulfillments
+                              - img
+                              - generic: Job Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/assets
+                              - img
+                              - generic: Asset Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/customers
+                              - img
+                              - generic: Customer Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: DRO Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Payment Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/products
+                              - img
+                              - generic: Item Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: ECT Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Event Agendas
+                    - generic:
+                      - list:
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Navigator Assistant
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - button:
+                      - generic:
+                        - generic: PC
+                      - generic:
+                        - generic: prd click auto
+                      - img
+            - button
+      - main:
+        - generic:
+          - generic:
+            - generic:
+              - button:
+                - img
+              - generic:
+                - generic:
+                  - generic:
+                    - heading [level=1]: Products
+                  - button:
+                    - img
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - img
+                                    - text: Product
+                                    - button:
+                                      - img
+                                - generic:
+                                  - group:
+                                    - radio [checked]:
+                                      - img
+                                      - generic: Any Field
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - img
+                                      - textbox:
+                                        - /placeholder: Any Field
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - img
+                                        - textbox:
+                                          - /placeholder: Enter barcode
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - img
+                                    - text: Filters
+                                - generic:
+                                  - generic:
+                                    - checkbox
+                                    - checkbox
+                                    - generic: Quantity Greater Than Zero
+                                  - generic:
+                                    - checkbox [checked]:
+                                      - generic:
+                                        - img
+                                    - checkbox [checked]
+                                    - generic: Active
+                                  - generic:
+                                    - generic: Location
+                                    - generic:
+                                      - combobox:
+                                        - generic: 1101 - Corporate Office Encore USA SGA
+                                        - img
+                                  - generic:
+                                    - generic: Region
+                                    - generic:
+                                      - combobox:
+                                        - generic: Select Region
+                                        - img
+                                  - generic:
+                                    - generic: Product Organization
+                                    - generic:
+                                      - combobox:
+                                        - generic:
+                                          - generic: None
+                                          - generic: None
+                                        - img
+                              - generic:
+                                - generic:
+                                  - generic: Prep / Return Date Time
+                                - generic:
+                                  - generic:
+                                    - paragraph: Prep Date Time
+                                    - button:
+                                      - img
+                                      - text: August 31st, 2026 12:00 AM
+                                  - generic:
+                                    - paragraph: Return Date Time
+                                    - button:
+                                      - img
+                                      - text: August 31st, 2026 11:59 PM
+                            - generic:
+                              - button:
+                                - generic: Reset
+                              - button:
+                                - generic: Search
+              - generic:
+                - button:
+                  - img
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                      - generic: 15,874 products found
+                    - generic:
+                      - button:
+                        - img
+                        - text: Product Group
+                      - generic:
+                        - button:
+                          - img
+                          - generic: Grid Options
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - table:
+                            - rowgroup:
+                              - row:
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button [expanded]:
+                                          - generic: Category
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Sub Category
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Class
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Product Group
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Sub Class
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Item
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Product Code ID
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Description
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Available
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Owned
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Out of Service
+                                          - img
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: In Sequence
+                                  - button
+                                - columnheader:
+                                  - generic:
+                                    - img
+                                    - generic:
+                                      - generic:
+                                        - button:
+                                          - generic: Location Name
+                                          - img
+                                  - button
+                            - rowgroup:
+                              - row:
+                                - cell
+                                - cell:
+                                  - generic: Labor
+                                - cell:
+                                  - generic: Digital Services Labor
+                                - cell
+                                - cell:
+                                  - generic: Content1 Labor
+                                - cell:
+                                  - generic: Abstracts - Project Management
+                                - cell:
+                                  - generic: "73753"
+                                - cell:
+                                  - generic: Project Management
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - button:
+                                    - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amp Rack
+                                - cell:
+                                  - generic: Audio Amp Rack
+                                - cell:
+                                  - button:
+                                    - generic: Audio Amp Rack
+                                - cell:
+                                  - generic: "70509"
+                                - cell:
+                                  - generic: Audio Amp Rack
+                                - cell:
+                                  - generic: "1"
+                                - cell:
+                                  - generic: "1"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier <100W
+                                - cell:
+                                  - button:
+                                    - generic: Meyer MPS-488HPE
+                                - cell:
+                                  - generic: "70445"
+                                - cell:
+                                  - generic: 48V Subwoofer Power Supply
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier <100W
+                                - cell:
+                                  - button:
+                                    - generic: QSC CX108V
+                                - cell:
+                                  - generic: "29656"
+                                - cell:
+                                  - generic: QSC CX108V
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier <100W
+                                - cell:
+                                  - button:
+                                    - generic: QSC SPA2-60
+                                - cell:
+                                  - generic: "98151"
+                                - cell:
+                                  - generic: Audio Power Amplifier <100W/Ch
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier <100W
+                                - cell:
+                                  - button:
+                                    - generic: Ramsa WP9055
+                                - cell:
+                                  - generic: "45"
+                                - cell:
+                                  - generic: 50W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier <100W
+                                - cell:
+                                  - button:
+                                    - generic: Toa A706
+                                - cell:
+                                  - generic: "28738"
+                                - cell:
+                                  - generic: 8 Input 60W Mixer Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: Camco VORTEX6.0
+                                - cell:
+                                  - generic: "5737"
+                                - cell:
+                                  - generic: 2300W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: Crown IT6000
+                                - cell:
+                                  - generic: "28339"
+                                - cell:
+                                  - generic: 2 Input 2000W Power Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: Crown IT8000
+                                - cell:
+                                  - generic: "82297"
+                                - cell:
+                                  - generic: Audio Power Amplifier >2000W/Ch
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: Crown I-Tech 4x3500HDS
+                                - cell:
+                                  - generic: "84347"
+                                - cell:
+                                  - generic: Audio Power Amplifier >2000W/Ch
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: Crown MA24X6 Amplifier
+                                - cell:
+                                  - generic: "82300"
+                                - cell:
+                                  - generic: Audio Power Amplifier >2000W/Ch
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: Crown XTI6002
+                                - cell:
+                                  - generic: "70882"
+                                - cell:
+                                  - generic: Crown XTI6002 Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: JBL VRack 12000HD
+                                - cell:
+                                  - generic: "81007"
+                                - cell:
+                                  - generic: JBL VRack 12000HD
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: LA4X amplifier
+                                - cell:
+                                  - generic: "101922"
+                                - cell:
+                                  - generic: Multi-channel amplified controller
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: LA7-16 amplifier
+                                - cell:
+                                  - generic: "101921"
+                                - cell:
+                                  - generic: Multi-channel amplified controller
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: L-Acoustics LA12X
+                                - cell:
+                                  - generic: "91929"
+                                - cell:
+                                  - generic: L-Acoustics Amplified Controller 4x2600W
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: L-Acoustics LA48
+                                - cell:
+                                  - generic: "89684"
+                                - cell:
+                                  - generic: Audio Power Amplifier >2000W/Ch
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: QSC PL380
+                                - cell:
+                                  - generic: "27181"
+                                - cell:
+                                  - generic: 2500W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: QSC PL6.0II
+                                - cell:
+                                  - generic: "4965"
+                                - cell:
+                                  - generic: 2050W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: QSC PL9.0
+                                - cell:
+                                  - generic: "81"
+                                - cell:
+                                  - generic: 3200W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier >2000W
+                                - cell:
+                                  - generic: Power Amplifier >2000W
+                                - cell:
+                                  - button:
+                                    - generic: QSC RMX 4050HD
+                                - cell:
+                                  - generic: "95050"
+                                - cell:
+                                  - generic: 4000w Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: Crest CA12
+                                - cell:
+                                  - generic: "70"
+                                - cell:
+                                  - generic: 1100W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: Crown CE1000
+                                - cell:
+                                  - generic: "96575"
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: Crown K1
+                                - cell:
+                                  - generic: "95051"
+                                - cell:
+                                  - generic: 1500W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: Crown MA3600VZ
+                                - cell:
+                                  - generic: "72"
+                                - cell:
+                                  - generic: 1400W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: Crown XTI4002
+                                - cell:
+                                  - generic: "70881"
+                                - cell:
+                                  - generic: Crown XTI4002 Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: d&b audiotechnik D12
+                                - cell:
+                                  - generic: "91930"
+                                - cell:
+                                  - generic: 1200W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: L-Acoustics LA24a
+                                - cell:
+                                  - generic: "91931"
+                                - cell:
+                                  - generic: 1500W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: Meyer UPA-1 X4
+                                - cell:
+                                  - generic: "72286"
+                                - cell:
+                                  - generic: Audio Power Amplifier 1001-1500W/Ch
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: QSC PL236
+                                - cell:
+                                  - generic: "76"
+                                - cell:
+                                  - generic: 1100W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: QSC PL3.4
+                                - cell:
+                                  - generic: "78"
+                                - cell:
+                                  - generic: 1225W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: QSC PL340
+                                - cell:
+                                  - generic: "27180"
+                                - cell:
+                                  - generic: 1130W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1001-1500W
+                                - cell:
+                                  - button:
+                                    - generic: QSC PL4.0
+                                - cell:
+                                  - generic: "79"
+                                - cell:
+                                  - generic: 1400W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: Bose L1 PS15 Powerstand 220- 240V
+                                - cell:
+                                  - generic: "95052"
+                                - cell:
+                                  - generic: Bose L1S 240V Power Stand
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: Bose PS1
+                                - cell:
+                                  - generic: "26292"
+                                - cell:
+                                  - generic: 250W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: Crest CKS 400
+                                - cell:
+                                  - generic: "91933"
+                                - cell:
+                                  - generic: 200W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: Crown Com-tech 400
+                                - cell:
+                                  - generic: "82302"
+                                - cell:
+                                  - generic: Audio Power Amplifier 101-500W/Ch
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: Crown CTS4200
+                                - cell:
+                                  - generic: "20"
+                                - cell:
+                                  - generic: 215W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: Crown DCI4x600N-U-EKFX
+                                - cell:
+                                  - generic: "97681"
+                                - cell:
+                                  - generic: 4ch 300W @ 4 Ohm Analog Power Amp 70V/100V
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: Crown MA1200
+                                - cell:
+                                  - generic: "24"
+                                - cell:
+                                  - generic: 450W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: Crown MA1202
+                                - cell:
+                                  - generic: "25"
+                                - cell:
+                                  - generic: 450W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: Extron XPA 2001 (70 Volt)
+                                - cell:
+                                  - generic: "97992"
+                                - cell:
+                                  - generic: 70 Volt Single Channel 200W Amp
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: Lab Gruppen FP 2400Q
+                                - cell:
+                                  - generic: "91936"
+                                - cell:
+                                  - generic: 4x380W Audio Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: QSC CX204V
+                                - cell:
+                                  - generic: "72367"
+                                - cell:
+                                  - generic: Audio Power Amplifier 101-500W/Ch
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: QSC GX3
+                                - cell:
+                                  - generic: "96579"
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: QSC MX1500
+                                - cell:
+                                  - generic: "38"
+                                - cell:
+                                  - generic: 500W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: QSC PL1.4
+                                - cell:
+                                  - generic: "39"
+                                - cell:
+                                  - generic: 500W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 101-500W
+                                - cell:
+                                  - button:
+                                    - generic: TOA 1000 Series Dual
+                                - cell:
+                                  - generic: "95053"
+                                - cell:
+                                  - generic: 200W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                              - row:
+                                - cell:
+                                  - generic: Audio
+                                - cell:
+                                  - generic: Audio Amplifier
+                                - cell:
+                                  - generic: Amplifier
+                                - cell:
+                                  - generic: Audio Amplifier up to 2000W
+                                - cell:
+                                  - generic: Power Amplifier 1501-2000W
+                                - cell:
+                                  - button:
+                                    - generic: BOSE PM8250
+                                - cell:
+                                  - generic: "95054"
+                                - cell:
+                                  - generic: 1775W Stereo Amplifier
+                                - cell:
+                                  - generic: "0"
+                                - cell:
+                                  - generic: "0"
+                                - cell: "0"
+                                - cell: "0"
+                                - cell:
+                                  - generic:
+                                    - text: "1101"
+                                    - generic: "- Corporate Office Encore USA SGA"
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - combobox:
+                            - generic: "50"
+                            - img
+                          - paragraph: rows per page
+                      - generic:
+                        - button [disabled]:
+                          - img
+                        - button [disabled]:
+                          - img
+                        - generic:
+                          - textbox: "1"
+                          - generic: /
+                          - text: "318"
+                        - button:
+                          - img
+                        - button:
+                          - img
+  - region "Notifications alt+T"
+  - menu "Category" [active] [ref=f2e24762]:
+    - menuitem "Sort ascending" [ref=f2e24763] [cursor=pointer]:
+      - img
+      - text: Sort ascending
+    - menuitem "Sort descending" [ref=f2e24764] [cursor=pointer]:
+      - img
+      - text: Sort descending
+    - separator [ref=f2e24765]
+    - menuitem "Hide column" [ref=f2e24766] [cursor=pointer]:
+      - img
+      - text: Hide column
