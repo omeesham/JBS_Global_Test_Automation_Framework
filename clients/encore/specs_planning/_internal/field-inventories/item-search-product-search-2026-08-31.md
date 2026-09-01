@@ -94,7 +94,7 @@ No unsaved-changes guard exists anywhere in this module: three independent dirty
 ## Observations
 
 ### Bugs / Defects
-Recorded in the walk-evidence artifact (`walk-evidence-item-search-2026-08-31.md` § Observations): the View Product Code → Category silent no-op (dialog-side, sibling artifact scope), the inert View Availability button (owner-ruling-adjacent: date-driven behavior not functional yet), the sibling-page empty-search divergence, and the blank sort-key projection observation. None of the four sits on the search panel itself.
+Recorded in the walk-evidence artifact (`walk-evidence-item-search-2026-08-31.md` § Observations): the View Product Code → Category silent no-op (dialog-side, sibling artifact scope — **INVALIDATED 2026-09-01 by LR-044 live re-verification: Category opens its dialog; BUG-ISR-PCD-001 → invalid**), the inert View Availability button (owner-ruling-adjacent: date-driven behavior not functional yet), the sibling-page empty-search divergence, and the blank sort-key projection observation. None of the four sits on the search panel itself.
 
 ### Suggestions / Improvements
 - Extend the `e2e-*` data-testid pattern (already on the search panel) to the grid, toolbar, and pagination — those controls have no testids and fall back to role/name anchors.

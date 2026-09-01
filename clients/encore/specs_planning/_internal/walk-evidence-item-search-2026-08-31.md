@@ -239,6 +239,18 @@ list — none host in-scope QUICK fields beyond what is dispositioned.
    GIVER a READ-only consumer of bug files; filing landed under the spec-generation identity,
    and the note's `baseline-absent-env-blocked` is not a legal enum value — `baseline-absent`
    used, env-block detail kept in the bug's baselineEvidence.*
+   **INVALIDATED 2026-09-01 (owner-triggered LR-044 re-verification)**: verdict FALSE /
+   MISREAD. Live re-drive proved (a) the filed step order (dialog first, then caret) is
+   physically impossible — the modal overlay covers the toolbar caret (elementFromPoint
+   hit-test returns the overlay), and there is no caret inside the dialog; (b) via the only
+   reachable path (row selected, no dialog, toolbar caret → Category) the Product Code
+   Details dialog OPENS scoped to Category — twice, with each click checked for `### Error`
+   output (0 errors, closing the CEO-M17 blind-instrument hole this walk's original probe
+   did not check). The walk-time no-op is reclassified a stale-ref blind-instrument zero
+   (CEO-M17 class). Bug status → `invalid`; TC-ISR-PCD-005 extended to include Category
+   (spec run green 2026-09-01, 11 passed). Evidence:
+   `.playwright-cli/isr-2026-09-01/pcd-toolbar-after-row-select.yml`,
+   `pcd-caret-menu-reverify.yml`, `pcd-category-dialog-open-reverify.yml`.
 2. **View Availability toolbar button fully inert** — enabled-looking button; clicked ×3 (5s/15s/
    12s waits) on a Labor item row AND an equipment row (Available=1, Owned=1): no dialog, no
    popover, no navigation, ZERO network activity. **OR-1-adjacent**: availability is date-driven

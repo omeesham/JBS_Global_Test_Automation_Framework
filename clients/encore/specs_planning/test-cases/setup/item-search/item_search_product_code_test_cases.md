@@ -43,7 +43,7 @@
 | 3 | Item tab content | Hierarchy sections; editable name/description; Save disabled; identifier shown |
 | 4 | History tab | 15-column audit grid with its own Grid Options |
 | 5 | Translations tab | Four language rows, each with editable Name + Description |
-| 6 | Segment menu (View) | Item, Sub Class, Class, Sub Category open scoped dialogs; Category does nothing (3 attempts, no error, no request) |
+| 6 | Segment menu (View) | All five entries open scoped dialogs (an earlier "Category does nothing" reading was invalidated 2026-09-01 by live re-verification — the probe's click had never landed) |
 | 7 | Add dialog | Required-empty form flagged invalid; Save disabled; ancestor chain read-only |
 | 8 | Type list | 10 product types offered |
 | 9 | Cascade | Choosing LABOR enabled Service Type with a labor-only list (15+ entries) |
@@ -130,9 +130,10 @@
 | 1 | Click the arrow beside View Product Code | A menu lists Item, Sub Class, Class, Sub Category, Category |
 | 2 | Click Sub Category | The details dialog opens and its first tab is named "Sub Category" |
 | 3 | Close the dialog, reopen the menu, click Class | The dialog opens with its first tab named "Class" |
-| 4 | Close the dialog | The grid is unchanged |
+| 4 | Close the dialog, reopen the menu, click Category | The dialog opens with its first tab named "Category" |
+| 5 | Close the dialog | The grid is unchanged |
 
-**Notes**: The Category entry is deliberately NOT exercised here: it currently closes the menu without opening anything (confirmed three times; all four siblings work, and the add-side Category works). A defect record accompanies this module's findings; when it is fixed, extend this case to all five entries.
+**Notes**: All five entries rescope the dialog; the case samples Sub Category, Class and Category. An earlier walk observation that Category closed the menu without opening anything was invalidated by live re-verification on 2026-09-01 (the probe's click had never landed — see BUG-ISR-PCD-001, status invalid).
 
 ---
 

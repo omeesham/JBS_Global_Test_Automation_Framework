@@ -21,10 +21,10 @@ import {
  * test runs a search and selects the first row itself; assertions are structural
  * (sections, tabs, states), never bound to a specific product's values.
  *
- * The view menu's Category entry is deliberately NOT exercised: it currently closes the
- * menu without opening anything (confirmed three times; all four siblings work, and the
- * add-side Category works). A defect record accompanies this module's findings — extend
- * the segment case to all five entries when the fix lands.
+ * All five view-menu segment entries rescope the dialog. An earlier suspicion that the
+ * Category entry was inert did not survive live re-verification (the click had never
+ * landed); the segment case samples Sub Category, Class and Category to prove the
+ * rescope from both ends of the menu.
  */
 test.describe.configure({ timeout: 300_000 });
 
@@ -121,6 +121,10 @@ test.describe('Item Search Product Code dialogs @item-search @product-code', () 
     await pc.openViewSegmentMenu();
     await pc.chooseSegment('Class');
     expect(await pc.readActiveTab()).toBe('Class');
+    await pc.closeDialog();
+    await pc.openViewSegmentMenu();
+    await pc.chooseSegment('Category');
+    expect(await pc.readActiveTab()).toBe('Category');
     await pc.closeDialog();
     expect(await pc.readRowCount()).toBeGreaterThan(0);
   });

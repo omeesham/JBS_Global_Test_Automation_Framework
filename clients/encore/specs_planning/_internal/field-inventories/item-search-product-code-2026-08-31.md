@@ -195,7 +195,7 @@ Reading notes:
 
 ### Segment caret menus (View + Add; snapshots caret-view-pc.yml / caret-add-pc.yml)
 
-Both menus list: Item · Sub Class · Class · Sub Category · Category. Selecting rescopes the dialog (first tab renames to the segment). **View → Category silently no-ops** (3 attempts, varied waits, console + network clean; every sibling opens; Add → Category opens) — filed as `BUG-ISR-PCD-001` (2026-09-01); TC-ISR-PCD-005 covers the working segments and notes the defect.
+Both menus list: Item · Sub Class · Class · Sub Category · Category. Selecting rescopes the dialog (first tab renames to the segment). ~~**View → Category silently no-ops**~~ **RESCINDED 2026-09-01**: the walk-time "View → Category no-op" was a stale-ref blind-instrument zero (CEO-M17 class) — owner-triggered LR-044 live re-verification proved Category OPENS the dialog scoped to Category via the toolbar caret (twice, error-checked clicks; evidence `.playwright-cli/isr-2026-09-01/pcd-category-dialog-open-reverify.yml`). `BUG-ISR-PCD-001` → status invalid; TC-ISR-PCD-005 extended to all-five sampling (Sub Category, Class, Category), run green 2026-09-01. All five View segments AND all five Add segments rescope correctly.
 
 ### Add Product Code — dialog, Item scope (snapshot dlg-add-pc2.yml)
 
@@ -236,7 +236,7 @@ No unsaved-changes guard on either dialog: dirty View (edited Name) and dirty Ad
 ## Observations
 
 ### Bugs / Defects
-- **View Product Code → Category silent no-op** — full evidence + positive controls in `walk-evidence-item-search-2026-08-31.md` § Observations item 1; **filed 2026-09-01 as `BUG-ISR-PCD-001`** (the audit-phase filing note resolved — filing landed under the spec-generation identity, which holds the create right per §2). TC-ISR-PCD-005 notes it.
+- **View Product Code → Category silent no-op** — full evidence + positive controls in `walk-evidence-item-search-2026-08-31.md` § Observations item 1; **filed 2026-09-01 as `BUG-ISR-PCD-001`** (the audit-phase filing note resolved — filing landed under the spec-generation identity, which holds the create right per §2). **INVALIDATED later the same day**: owner-triggered LR-044 re-verification returned FALSE/MISREAD (stale-ref blind-instrument zero; Category opens its dialog via the only reachable path — see the walk-evidence INVALIDATED annotation). Bug status → invalid; TC-ISR-PCD-005 extended to include Category and run green.
 - **View Availability inert** (both a labor row and an equipment row, zero network) — owner-ruling-adjacent (dates not functional yet); walk-evidence item 2. TC-ISR-PCD-010 asserts presence/enabled only.
 
 ### Suggestions / Improvements
@@ -248,4 +248,4 @@ No unsaved-changes guard on either dialog: dirty View (edited Name) and dirty Ad
 - **Last verified**: 2026-08-31
 - **Fresh-until**: 2026-09-14
 - **Stale-after**: 2026-09-30
-- **Refresh triggers**: tab set ≠ 3 · segment menu set ≠ 5 · the Category segment starts opening (defect fixed — re-walk + extend TC-ISR-PCD-005) · availability goes functional (owner ruling lifts) · Save enablement condition determined (View dialog).
+- **Refresh triggers**: tab set ≠ 3 · segment menu set ≠ 5 · ~~the Category segment starts opening~~ (RESOLVED 2026-09-01: Category always opened — the walk reading was an instrument artifact; TC-ISR-PCD-005 extended) · availability goes functional (owner ruling lifts) · Save enablement condition determined (View dialog).
