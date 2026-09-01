@@ -111,6 +111,7 @@ Each element id below is the grep target back into its inventory row (reason ≥
 - [ ] Add-form deep mechanics: `pgr-add-duallist-drag` (drag-to-add on the sub-class picker — LR-061-C full-pointer-sequence + positive control mandatory), `pgr-add-servicetype-options` (option-set enumeration)
 - [ ] Extra pagination: `pgr-last-page-button`, `pgr-page-number-input`
 - [ ] Misc: `pgr-collapse-toggle` (per-state re-verify), `pgr-grid-options-state-button` (searched-state header cluster), `products-back-link` (navigation affordance), `unnamed-search-form-input` (identity unresolved — resolve at DQU recon before casing)
+- [ ] PRS Grid Options "Reset to Default View": TC-ISR-PRS-017 asserts the entry EXISTS and exercises hide/restore by re-checking, but the Reset button's own click-function (restore hidden columns + column order in one shot) is never driven — add a case that hides ≥2 columns, clicks Reset to Default View, and proves the default header set returns (owner pointed at this control 2026-09-01)
 
 **PCD — Product Code dialogs (1)**
 - [ ] In-grid quantity editing: `owned-count-cell-edit` (the `locations.product.ownedCount` cell button — editing owned quantities in the result grid is beyond the QUICK L1 case set; DEEP cases must cover edit → validate → persist/discard on the searched grid)
