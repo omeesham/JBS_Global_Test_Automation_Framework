@@ -363,4 +363,51 @@ test.describe('Item Search Products search panel — fields @item-search @produc
     // Drop the typed value so nothing leaks forward (it was never searched).
     await isr.typeAnyField('');
   });
+
+  test('TC-ISR-PRS-020: A Prep date after the Return date is rejected with a message', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    // Push Prep one month past Return (which rests on today) — the pair turns invalid.
+    await isr.openDatePopover(1);
+    await isr.calendarNextMonth();
+    await isr.pickCalendarDay('22nd');
+    await isr.closePopover();
+    await expect.poll(async () => await isr.isDateOrderMessageShown(), { timeout: 15_000 }).toBe(true);
+    // The invalid pair locks the search itself, not just a message.
+    expect(await isr.isSearchEnabled()).toBe(false);
+    // Reset is the recovery: defaults return and the message clears.
+    await isr.clickReset();
+    await expect.poll(async () => await isr.isDateOrderMessageShown(), { timeout: 15_000 }).toBe(false);
+    expect(await isr.readDateFieldText('Prep Date Time')).toContain('12:00 AM');
+    expect(await isr.isSearchEnabled()).toBe(true);
+  });
+
+  test('TC-ISR-PRS-021: A date value renders fully inside its box in every month', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(420_000);
+    // Known defect, reported 2026-09-01: wide dates paint their tail outside the box
+    // (8 of 12 months on Prep, up to 30 pixels; Return too). Marked expected-to-fail so
+    // the suite stays honest while the defect lives — when the fix lands this case will
+    // flag itself as unexpectedly passing, which is the signal to remove the marker.
+    test.fail();
+    const spills: string[] = [];
+    for (let month = 0; month < 12; month++) {
+      await isr.openDatePopover(1);
+      await isr.calendarNextMonth();
+      await isr.pickCalendarDay('22nd');
+      await isr.closePopover();
+      const prep = await isr.readDateOverflow(1);
+      if (prep.spill > 0) spills.push(`${prep.text} spills ${prep.spill}px`);
+    }
+    // One wide date on the Return side proves the twin field renders the same way.
+    await isr.openDatePopover(2);
+    await isr.calendarNextMonth();
+    await isr.calendarNextMonth();
+    await isr.pickCalendarDay('22nd');
+    await isr.closePopover();
+    const ret = await isr.readDateOverflow(2);
+    if (ret.spill > 0) spills.push(`${ret.text} spills ${ret.spill}px`);
+    // Leave the panel on its defaults before judging, so a failure never strands state.
+    await isr.clickReset();
+    expect(spills, `date values escaping their boxes:\n${spills.join('\n')}`).toEqual([]);
+  });
 });

@@ -312,6 +312,50 @@ export class ItemSearchPage extends ItemSearchGridBasePage {
     return this.page.locator('[data-radix-popper-content-wrapper]').last();
   }
 
+  /** Moves the open calendar forward one month. */
+  @step('Go to the calendar’s next month')
+  async calendarNextMonth(): Promise<void> {
+    await this.openPopover().getByRole('button', { name: 'Go to the Next Month' }).click();
+    await this.waitForAngularStable(3_000).catch(() => {});
+  }
+
+  /**
+   * Picks the day whose label carries the given fragment (day buttons are labelled with
+   * the full date, e.g. "Sunday, November 22nd, 2026") in the open calendar.
+   */
+  @step('Pick a day in the open calendar')
+  async pickCalendarDay(labelFragment: string): Promise<void> {
+    const day = this.openPopover().locator(`button[aria-label*="${labelFragment}"]`).first();
+    await day.waitFor({ state: 'visible', timeout: 5_000 });
+    await day.click();
+    await this.waitForAngularStable(3_000).catch(() => {});
+  }
+
+  /**
+   * The date trigger's rendered text and how far it spills past its visible box, in
+   * pixels (zero = fits). Wide dates paint their tail outside the border — found and
+   * reported 2026-09-01 — so render cases measure instead of eyeballing.
+   */
+  @step('Measure a date field’s rendered value')
+  async readDateOverflow(index: 1 | 2): Promise<{ text: string; spill: number }> {
+    return this.popoverButton(index).evaluate((b) => ({
+      text: (b.textContent ?? '').trim(),
+      spill: Math.max(0, b.scrollWidth - b.clientWidth),
+    }));
+  }
+
+  /** Whether the prep-after-return message is showing. */
+  @step('Look for the date-order message')
+  async isDateOrderMessageShown(): Promise<boolean> {
+    return this.page.evaluate(() => /prep date cannot be after the return date/i.test(document.body.innerText));
+  }
+
+  /** Whether the Search button is currently enabled. */
+  @step('Read the Search button state')
+  async isSearchEnabled(): Promise<boolean> {
+    return this.page.locator(S.btnSearch).isEnabled().catch(() => false);
+  }
+
   /** Closes any open popover with Escape. */
   @step('Close the open popover')
   async closePopover(): Promise<void> {

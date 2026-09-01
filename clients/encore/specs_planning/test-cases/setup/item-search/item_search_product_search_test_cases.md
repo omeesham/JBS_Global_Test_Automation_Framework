@@ -4,8 +4,8 @@
 **Submodule**: PRS
 **Page**: Products (`/locations/1101/products`) — search panel + result grid
 **Test Entity**: Office 1101
-**Updated**: 2026-08-31
-**Total TCs**: 19
+**Updated**: 2026-09-01
+**Total TCs**: 21
 **Coverage mode**: QUICK (L1)
 **Governing Requirement**: NM-2253
 **Verified against**: field inventory `item-search-product-search-2026-08-31.md`; machine denominators `reports/walk-coverage/isr.json` (70, resting) + `isr--search-executed.json` (29) + `isr--expand-grid-options.json` (63); live probes 2026-08-31 (walk evidence `walk-evidence-item-search-2026-08-31.md`)
@@ -42,7 +42,7 @@
 | Word search spans product fields | The help popover states the search covers item number, description, category and product group; a matching word filters to rows containing it. |
 | Sorting is menu-driven | Clicking a column header opens a small menu (Sort ascending / Sort descending / Hide column); clicking the header alone does not flip the sort. Default order is by Category ascending, and rows with an empty Category cell come first. |
 | Cell tooltips only on truncation | Grid cells show a tooltip with the full text only when the text is cut off; short values show none. Each cell caps its width and clips through an inner text element, so a cut-off check must measure that inner element — the cell box itself always reports its text as fitting (confirmed live 2026-09-01; an interim same-day note claiming "cells never truncate" came from measuring the cell box and was withdrawn). |
-| Dates are display-only for now | The two date fields open a calendar with a time spinner. Date-driven behavior is not functional yet per the product owner — cases verify the fields only. |
+| Dates are display-only for results, but the pair validates | The two date fields open a calendar with a time spinner. Date-driven RESULT behavior is not functional yet per the product owner — but the pair's own validation is live (proven 2026-09-01): a Prep date after the Return date shows "Prep date cannot be after the return date." and locks Search until corrected or Reset. |
 
 ## MCP_VERIFICATION_LOG
 
@@ -66,6 +66,8 @@
 | 16 | Persistence | "Amp" + 376 results + sort order restored after leaving and returning |
 | 17 | Search help | Click popover; text names the covered fields |
 | 18 | Collapse toggle | Panel hides and returns |
+| 19 | Date pair validation (2026-09-01) | Prep set past Return → "Prep date cannot be after the return date." + Search locked; Reset restores defaults and clears it |
+| 20 | Date render across months (2026-09-01) | 22nd picked in each of 12 months: 7 of 12 overspill the Prep box (up to +30 px, "AM" outside the border), Return +23 px — reported as a defect; March–July fit |
 
 ---
 
@@ -380,3 +382,35 @@
 | 2 | Click the button again | The search panel returns with its values intact |
 
 **Notes**: Chrome toggle; values must survive the collapse cycle.
+
+---
+
+## TC-ISR-PRS-020: A Prep date after the Return date is rejected with a message
+
+**Automatable**: Yes
+**Preconditions**: The Products page is open with default criteria (both dates on today).
+
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open the Prep Date Time calendar and pick a day in a later month | The field takes the future date |
+| 2 | Read the panel | "Prep date cannot be after the return date." appears in red and the Search button is locked |
+| 3 | Click Reset | Both dates return to today's defaults and the message clears |
+
+**Notes**: Proven live 2026-09-01: the cross-field rule fires as soon as the Prep date passes the Return date, Search stays locked for as long as the pair is invalid, and Reset is a full recovery. Date-driven RESULT behavior stays out of scope per the product owner; this case covers only the panel's own validation.
+
+---
+
+## TC-ISR-PRS-021: A date value renders fully inside its box in every month
+
+**Automatable**: Yes
+**Preconditions**: The Products page is open with default criteria.
+
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Pick the 22nd of each of the next twelve months on Prep Date Time, measuring the field after each pick | Every rendered value fits inside the field's box |
+| 2 | Pick a wide date on Return Date Time and measure it | The value fits inside the box |
+| 3 | Click Reset | Both fields return to defaults |
+
+**Notes**: KNOWN DEFECT (found 2026-09-01, reported): wide dates overspill the box — 7 of 12 months on Prep (up to 30 pixels past the edge; e.g. "November 22nd, 2026 12:00 AM" pushes "AM" outside the border) and Return likewise ("November 22nd, 2026 11:59 PM", 23 pixels). Only March–July fit. The automated case is marked expected-to-fail so the suite stays honest while the defect lives; when the fix lands the run will flag the case as unexpectedly passing, which is the signal to unmark it.
