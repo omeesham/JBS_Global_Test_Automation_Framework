@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 165 pending · 487 done · 160 stale (>14d) · 0 DONE-in-pending
+**Totals**: 166 pending · 487 done · 160 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -335,12 +335,13 @@ Within each dependency tier, plans are sorted by priority (P0 → P3) then newes
 | 142 | [PLAN_ULTRAAUDIT_FIX_WAVE.md](pending/PLAN_ULTRAAUDIT_FIX_WAVE.md) | PLAN_ULTRAAUDIT_FIX_WAVE.md | HIGH | — (ready) | PENDING | — | — | default | — | 2026-08-17 |
 | 143 | [PLAN_WALK_STATE_CONTRACT_REALIGN.md](pending/PLAN_WALK_STATE_CONTRACT_REALIGN.md) | PLAN_WALK_STATE_CONTRACT_REALIGN | — | — (ready) | PENDING | opus | xhi | auto | cli | 2026-08-06 |
 | 144 | [SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md](pending/SUBPLAN_DISPATCH_INTEGRITY_PERMANENT.md) | SUBPLAN_DISPATCH_INTEGRITY_PERMANENT | — | — (ready) | PENDING | — | — | acceptEdits | — | 2026-08-17 |
-| 145 | [SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md](pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md) | SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS | Medium — calendar-gated custodian for every in-flight LR-069 announce→deny ramp | — (ready) | PENDING | Opus | hi | auto | none | 2026-07-29 |
-| 146 | [SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md](pending/SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md) | SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE | High — closes the one coverage class the generative oracle structurally cannot derive | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-07-29 |
-| 147 | [SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH.md](pending/SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH.md) | SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH | — | — (ready) | PENDING | — | — | — | — | 2026-08-12 |
-| 148 | [SUBPLAN_WALKER_OBSERVATION_MANDATE.md](pending/SUBPLAN_WALKER_OBSERVATION_MANDATE.md) | SUBPLAN — Walker Observation Mandate (+ the Corp-Pricing error-state bug that exposed the gap) | High | — (ready) | PENDING | Opus | xhi | auto | chrome (Part 2 bug is visual; CLI is structurally blind to it) | 2026-06-26 |
-| 149 | [SUBPLAN_CORP_PRICING_1444_HISTORY.md](pending/SUBPLAN_CORP_PRICING_1444_HISTORY.md) | SUBPLAN_CORP_PRICING_1444_HISTORY — Pricebook Management History tab (GATED STUB) | P1 | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-06-05 |
-| 150 | [PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md](pending/PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md) | PLAN: Re-enable / de-flake the 6 fixable tests from the 2026-06-02 live QA verification | P1 | — (ready) | PENDING | opus | xhi | acceptEdits | cli | 2026-06-02 |
+| 145 | [SUBPLAN_GUARDRAIL_CLI_ERROR_CHANNEL.md](pending/SUBPLAN_GUARDRAIL_CLI_ERROR_CHANNEL.md) | SUBPLAN_GUARDRAIL_CLI_ERROR_CHANNEL | — | — (ready) | PENDING | — | — | — | — | 2026-09-01 |
+| 146 | [SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md](pending/SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS.md) | SUBPLAN_GUARDRAIL_RAMP_PROMOTIONS | Medium — calendar-gated custodian for every in-flight LR-069 announce→deny ramp | — (ready) | PENDING | Opus | hi | auto | none | 2026-07-29 |
+| 147 | [SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md](pending/SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE.md) | SUBPLAN_GUARDRAIL_ROLE_PARTITION_ORACLE | High — closes the one coverage class the generative oracle structurally cannot derive | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-07-29 |
+| 148 | [SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH.md](pending/SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH.md) | SUBPLAN_GUARDRAIL_RUN_ID_ARTIFACT_PATH | — | — (ready) | PENDING | — | — | — | — | 2026-08-12 |
+| 149 | [SUBPLAN_WALKER_OBSERVATION_MANDATE.md](pending/SUBPLAN_WALKER_OBSERVATION_MANDATE.md) | SUBPLAN — Walker Observation Mandate (+ the Corp-Pricing error-state bug that exposed the gap) | High | — (ready) | PENDING | Opus | xhi | auto | chrome (Part 2 bug is visual; CLI is structurally blind to it) | 2026-06-26 |
+| 150 | [SUBPLAN_CORP_PRICING_1444_HISTORY.md](pending/SUBPLAN_CORP_PRICING_1444_HISTORY.md) | SUBPLAN_CORP_PRICING_1444_HISTORY — Pricebook Management History tab (GATED STUB) | P1 | — (ready) | PENDING | Opus | xhi | auto | cli | 2026-06-05 |
+| 151 | [PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md](pending/PLAN_SPEC_FIX_HIST_SSL_ACC_REENABLE_2026_06_02.md) | PLAN: Re-enable / de-flake the 6 fixable tests from the 2026-06-02 live QA verification | P1 | — (ready) | PENDING | opus | xhi | acceptEdits | cli | 2026-06-02 |
 
 ### ⚠️ Cycle Detected
 These plans form a circular dependency (authoring error). Resolve by editing `**Depends on**` fields.
@@ -872,7 +873,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 ```
 plans/
   INDEX.md              ← this file (auto-generated)
-  pending/              ← active plans (165 files)
+  pending/              ← active plans (166 files)
   done/                 ← completed plans (487 files)
 ```
 
@@ -890,6 +891,7 @@ When completing a plan:
 | 2026-09-01 | pending | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PENDING |
 | 2026-09-01 | pending | [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | PENDING |
 | 2026-09-01 | pending | [PLAN_NM2253_ITEM_SEARCH_EXTERNAL_01_AUDIT.md](pending/PLAN_NM2253_ITEM_SEARCH_EXTERNAL_01_AUDIT.md) | PENDING |
+| 2026-09-01 | pending | [SUBPLAN_GUARDRAIL_CLI_ERROR_CHANNEL.md](pending/SUBPLAN_GUARDRAIL_CLI_ERROR_CHANNEL.md) | PENDING |
 | 2026-09-01 | pending | [SUBPLAN_PRODUCTS_DQU.md](pending/SUBPLAN_PRODUCTS_DQU.md) | GATED |
 | 2026-09-01 | done | [PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md](done/PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md) | DONE |
 | 2026-09-01 | done | [SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE.md](done/SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE.md) | DONE |
@@ -926,4 +928,3 @@ When completing a plan:
 | 2026-08-17 | pending | [PLAN_60_JIRA_READONLY_HARDGATE.md](pending/PLAN_60_JIRA_READONLY_HARDGATE.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_61_WORKER_DEATH_PERMAFIX.md](pending/PLAN_61_WORKER_DEATH_PERMAFIX.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_63_PC_BACKUP_ONEDRIVE_RESET_SURVIVAL.md](pending/PLAN_63_PC_BACKUP_ONEDRIVE_RESET_SURVIVAL.md) | PENDING |
-| 2026-08-17 | pending | [PLAN_64_PROFILE_MIGRATION_LOSSLESS.md](pending/PLAN_64_PROFILE_MIGRATION_LOSSLESS.md) | PENDING |
