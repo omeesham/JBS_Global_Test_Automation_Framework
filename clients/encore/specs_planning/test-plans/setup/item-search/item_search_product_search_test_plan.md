@@ -6,7 +6,7 @@
 **Test Entity**: Office 1101
 **Governing Requirement**: NM-2253
 **Updated**: 2026-09-01
-**Total Scenarios**: 21
+**Total Scenarios**: 30
 **Test Cases**: `item_search_product_search_test_cases.md`
 
 ---
@@ -81,3 +81,12 @@ verification, all rows matching).
 | TC-ISR-PRS-019 | The search panel collapses and expands | Field (Axis 1) | Yes |
 | TC-ISR-PRS-020 | A Prep date after the Return date is rejected with a message | Field (Axis 1) — cross-field validation | Yes |
 | TC-ISR-PRS-021 | A date value renders fully inside its box in every month | Surface — render detail (expected-to-fail on a reported defect) | Yes |
+| TC-ISR-PRS-022 | A numeric barcode returns the single product it is scanned under | Surface — result-fidelity (QUICK) | Yes |
+| TC-ISR-PRS-023 | A barcode with letters resolves the same way as a numeric one | Surface — result-fidelity (QUICK) | Yes |
+| TC-ISR-PRS-024 | Different barcodes on the same product all return that product | Surface — result-fidelity (QUICK) | Yes |
+| TC-ISR-PRS-025 | Barcode matching ignores letter case | Field (Axis 1) — case handling | Yes |
+| TC-ISR-PRS-026 | A shortened barcode matches nothing | Field (Axis 1) — negative/BVA with positive control | Yes |
+| TC-ISR-PRS-027 | The barcode box and the Any Field box clear each other | Surface — combination (QUICK) | Yes |
+| TC-ISR-PRS-028 | A barcode search survives leaving and returning | Surface — persistence (QUICK) | Yes |
+| TC-ISR-PRS-029 | A product found by barcode opens in the product-code dialog | Surface — combination (QUICK) | Yes |
+| TC-ISR-PRS-030 | The barcode box stops accepting characters at its limit | Field (Axis 1) — length boundary per NM-1494 | Yes |

@@ -1,6 +1,7 @@
 import { test, expect } from '../../src/fixtures/pages.fixture';
 import { ItemSearchPage } from '../../src/pages/item-search/item-search.page';
 import { ProductGroupsPage } from '../../src/pages/item-search/product-groups.page';
+import { ProductCodePage } from '../../src/pages/item-search/product-code.page';
 import {
   ISR_OFFICE,
   ISR_OFFICE_OPTION,
@@ -12,6 +13,14 @@ import {
   ISR_ORG_ENTRIES,
   ISR_SEARCH_WORD,
   ISR_NO_MATCH_BARCODE,
+  ISR_BARCODE_NUMERIC,
+  ISR_BARCODE_NUMERIC_ALT,
+  ISR_BARCODE_LETTERED,
+  ISR_BARCODES_SHARING_A_PRODUCT,
+  ISR_SHARED_PRODUCT_CODE_ID,
+  ISR_BARCODE_PREFIX,
+  ISR_BARCODE_MAX_LENGTH,
+  ISR_BARCODE_OVERLONG,
   ISR_COLUMNS,
   ISR_COLUMN_MENU_ITEMS,
   ISR_SORT_COLUMN,
@@ -219,6 +228,98 @@ test.describe('SBC — Item Search Products surface behaviors @item-search @prod
     await expect.poll(async () => await isr.readFoundCount(), { timeout: 120_000 }).toBe(count);
     expect(await isr.readRowCount()).toBeGreaterThan(0);
   });
+
+  test('TC-ISR-PRS-022: A numeric barcode returns the single product it is scanned under', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    await isr.typeBarcode(ISR_BARCODE_NUMERIC.code);
+    // The two boxes are alternatives, so feeding the barcode must leave the word box empty.
+    expect(await isr.readAnyField()).toBe('');
+    const found = await isr.clickSearchAndWait((n) => n === 1);
+    expect(found).toBe(1);
+    expect(await isr.readRowCount()).toBe(1);
+    // Which product came back is the assertion — a row count alone would pass on the wrong one.
+    expect(await isr.readColumnValues('Product Code ID')).toEqual([ISR_BARCODE_NUMERIC.productCodeId]);
+    expect(await isr.readColumnValues('Item')).toEqual([ISR_BARCODE_NUMERIC.item]);
+  });
+
+  test('TC-ISR-PRS-023: A barcode with letters resolves the same way as a numeric one', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    await isr.typeBarcode(ISR_BARCODE_LETTERED.code);
+    const found = await isr.clickSearchAndWait((n) => n === 1);
+    expect(found).toBe(1);
+    expect(await isr.readColumnValues('Product Code ID')).toEqual([ISR_BARCODE_LETTERED.productCodeId]);
+    expect(await isr.readColumnValues('Item')).toEqual([ISR_BARCODE_LETTERED.item]);
+  });
+
+  test('TC-ISR-PRS-024: Different barcodes on the same product all return that product', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(420_000);
+    // Two of these carry the site prefix and one is plain digits — the printed form of a
+    // barcode says nothing about which product it belongs to.
+    for (const code of ISR_BARCODES_SHARING_A_PRODUCT) {
+      await isr.typeBarcode(code);
+      const found = await isr.clickSearchAndWait((n) => n === 1);
+      expect(found, `barcode ${code} should find exactly one product`).toBe(1);
+      expect(await isr.readColumnValues('Product Code ID'), `barcode ${code}`).toEqual([
+        ISR_SHARED_PRODUCT_CODE_ID,
+      ]);
+    }
+  });
+
+  test('TC-ISR-PRS-027: The barcode box and the Any Field box clear each other', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    await isr.typeAnyField(ISR_SEARCH_WORD);
+    expect(await isr.readAnyField()).toBe(ISR_SEARCH_WORD);
+    expect(await isr.readBarcode()).toBe('');
+    // Feeding the barcode empties the word box.
+    await isr.typeBarcode(ISR_BARCODE_NUMERIC.code);
+    expect(await isr.readBarcode()).toBe(ISR_BARCODE_NUMERIC.code);
+    expect(await isr.readAnyField()).toBe('');
+    // And back the other way — last one set wins, exactly like Location and Region.
+    await isr.typeAnyField(ISR_SEARCH_WORD);
+    expect(await isr.readAnyField()).toBe(ISR_SEARCH_WORD);
+    expect(await isr.readBarcode()).toBe('');
+    await isr.clickReset();
+    expect(await isr.readAnyField()).toBe('');
+    expect(await isr.readBarcode()).toBe('');
+  });
+
+  test('TC-ISR-PRS-028: A barcode search survives leaving and returning', async ({ authenticatedSession, config, dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(420_000);
+    await isr.typeBarcode(ISR_BARCODE_NUMERIC_ALT.code);
+    const count = await isr.clickSearchAndWait((n) => n === 1);
+    expect(count).toBe(1);
+    // Leave the page entirely, then come back.
+    const groups = new ProductGroupsPage(authenticatedSession.page, config);
+    await groups.open(ISR_OFFICE);
+    await isr.open(ISR_OFFICE);
+    // The executed barcode search is restored without clicking Search again.
+    expect(await isr.readBarcode()).toBe(ISR_BARCODE_NUMERIC_ALT.code);
+    await expect.poll(async () => await isr.readFoundCount(), { timeout: 120_000 }).toBe(1);
+    expect(await isr.readColumnValues('Product Code ID')).toEqual([
+      ISR_BARCODE_NUMERIC_ALT.productCodeId,
+    ]);
+  });
+
+  test('TC-ISR-PRS-029: A product found by barcode opens in the product-code dialog', async ({ authenticatedSession, config, dependencyGate }) => {
+    dependencyGate([]);
+    await isr.typeBarcode(ISR_BARCODE_NUMERIC.code);
+    const found = await isr.clickSearchAndWait((n) => n === 1);
+    expect(found).toBe(1);
+    expect(await isr.readColumnValues('Product Code ID')).toEqual([ISR_BARCODE_NUMERIC.productCodeId]);
+    // A barcode result is an ordinary row — the toolbar and its dialog behave as always.
+    const pc = new ProductCodePage(authenticatedSession.page, config);
+    await pc.selectFirstRow();
+    await expect(pc.viewProductCodeButton()).toBeVisible();
+    await pc.openViewDialog();
+    expect(await pc.readActiveTab()).toBe('Item');
+    // The product's name sits in an editable box, so it is read as a value rather than
+    // from the dialog's text; the identifier is read from the text as a second anchor.
+    expect(await pc.dialogNameBox().inputValue()).toBe(ISR_BARCODE_NUMERIC.item);
+    expect(await pc.readDialogText()).toContain(`Product Code ID${ISR_BARCODE_NUMERIC.productCodeId}`);
+    await pc.closeDialog();
+  });
 });
 
 // ---------------------------------------------------------------------------- field cases
@@ -409,5 +510,46 @@ test.describe('Item Search Products search panel — fields @item-search @produc
     // Leave the panel on its defaults before judging, so a failure never strands state.
     await isr.clickReset();
     expect(spills, `date values escaping their boxes:\n${spills.join('\n')}`).toEqual([]);
+  });
+
+  test('TC-ISR-PRS-025: Barcode matching ignores letter case', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    await isr.typeBarcode(ISR_BARCODE_LETTERED.code);
+    expect(await isr.clickSearchAndWait((n) => n === 1)).toBe(1);
+    expect(await isr.readColumnValues('Product Code ID')).toEqual([ISR_BARCODE_LETTERED.productCodeId]);
+    // Someone typing a barcode by hand should not have to match the label's case.
+    await isr.typeBarcode(ISR_BARCODE_LETTERED.code.toLowerCase());
+    expect(await isr.clickSearchAndWait((n) => n === 1)).toBe(1);
+    expect(await isr.readColumnValues('Product Code ID')).toEqual([ISR_BARCODE_LETTERED.productCodeId]);
+  });
+
+  test('TC-ISR-PRS-026: A shortened barcode matches nothing', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    // The full barcode first, so a later zero can only mean "no match" and never
+    // "the search never ran".
+    await isr.typeBarcode(ISR_BARCODE_NUMERIC.code);
+    expect(await isr.clickSearchAndWait((n) => n === 1)).toBe(1);
+    // A prefix is not a match — one scan must not pull up a shelf of near-neighbours.
+    await isr.typeBarcode(ISR_BARCODE_PREFIX);
+    expect(await isr.clickSearchAndWait((n) => n === 0)).toBe(0);
+    await expect(isr.page.getByText('No results')).toBeVisible();
+    // A space in front is likewise not the same value. A trailing space IS tolerated,
+    // which is an inconsistency raised with the product owner rather than asserted here —
+    // a space is itself a legal barcode character, so neither half is obviously wrong.
+    await isr.typeBarcode(` ${ISR_BARCODE_NUMERIC.code}`);
+    expect(await isr.clickSearchAndWait((n) => n === 0)).toBe(0);
+  });
+
+  test('TC-ISR-PRS-030: The barcode box stops accepting characters at its limit', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    await isr.typeBarcode(ISR_BARCODE_OVERLONG);
+    // The box refuses the surplus rather than showing an error.
+    const held = await isr.readBarcode();
+    expect(held).toHaveLength(ISR_BARCODE_MAX_LENGTH);
+    expect(held).toBe(ISR_BARCODE_OVERLONG.slice(0, ISR_BARCODE_MAX_LENGTH));
+    expect(await isr.clickSearchAndWait((n) => n === 0)).toBe(0);
+    await expect(isr.page.getByText('No results')).toBeVisible();
+    await isr.clickReset();
+    expect(await isr.readBarcode()).toBe('');
   });
 });

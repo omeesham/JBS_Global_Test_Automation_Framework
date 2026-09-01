@@ -24,6 +24,38 @@ export const ISR_PGR_SEARCH_WORD = 'Audio';
 /** A barcode that matches nothing — drives the empty state deterministically. */
 export const ISR_NO_MATCH_BARCODE = 'ZZNOBARCODE99';
 
+/**
+ * Barcodes the product owner supplied on 2026-09-01, each resolved live on office 1101.
+ *
+ * A barcode belongs to one physical asset and every asset is scanned under one product,
+ * so a valid barcode returns exactly one row. Several assets share a product, which is
+ * why some of these different barcodes resolve to the same product code. The expected
+ * product travels with each constant so a case can assert which product came back, not
+ * merely that one row did.
+ *
+ * Twelve barcodes were supplied and all twelve were resolved; the five below are the ones
+ * the cases need. The other seven land on products these five already cover, so casing them
+ * would repeat coverage rather than add any. The full twelve-to-product mapping is recorded
+ * in the product search test-case document's verification log.
+ */
+export const ISR_BARCODE_NUMERIC = { code: '5052320', item: 'Allen & Heath ZED24', productCodeId: '28592' } as const;
+export const ISR_BARCODE_NUMERIC_ALT = { code: '1013104', item: 'Shure SCM268', productCodeId: '627' } as const;
+export const ISR_BARCODE_LETTERED = { code: 'DFW0082529', item: 'Shure ULXD1 Bodypack - G50', productCodeId: '71154' } as const;
+
+/**
+ * Three barcodes on ONE product (71154) — two in the site-prefixed form and one in plain
+ * digits, so the printed form is shown to have no bearing on which product is returned.
+ */
+export const ISR_BARCODES_SHARING_A_PRODUCT = ['DFW0082529', 'DFW0082517', '5189939'] as const;
+export const ISR_SHARED_PRODUCT_CODE_ID = '71154';
+
+/** The first six digits of ISR_BARCODE_NUMERIC — a prefix, which must not match. */
+export const ISR_BARCODE_PREFIX = '505232';
+
+/** The barcode box's character ceiling, and a value comfortably past it. */
+export const ISR_BARCODE_MAX_LENGTH = 42;
+export const ISR_BARCODE_OVERLONG = '1'.repeat(50);
+
 /** The 13 result-grid columns, verbatim and in order. */
 export const ISR_COLUMNS = [
   'Category',

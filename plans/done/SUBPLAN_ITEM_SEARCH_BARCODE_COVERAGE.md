@@ -1,6 +1,7 @@
 # SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE — close the barcode search gap on Item Search Products (OR-4 data now supplied)
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-09-01
 **Priority**: P1
 **Created**: 2026-09-01
 **Identity**: OWNER (shell; GIVER → BUILDER by phase)
@@ -123,7 +124,7 @@ LR-013 14-day window, so this phase takes the **spot-check path**, not a re-walk
 2. Drift on any of the three → fall through to a full re-walk and emit a refreshed dated inventory.
 3. Old-site baseline: `baselineScope: baseline-absent` — the 2026-08-31 old-site walk was environment-blocked
    (navigator2 rejects the automated-browser TLS handshake; recorded in
-   `old-site-baseline/item-search-2026-08-31.md`). Per LR-ENC-001 this is a recorded scope, **not a HALT**, and
+   `clients/encore/specs_planning/_internal/old-site-baseline/item-search-2026-08-31.md`). Per LR-ENC-001 this is a recorded scope, **not a HALT**, and
    no regression claim may be made against a baseline that was never observed.
 4. Update the inventory's barcode row (line 49) — replace "owner-provided numbers pending for positive data"
    with the observed positive behavior and the `OR-4 closed 2026-09-01` provenance.
@@ -167,9 +168,8 @@ Exit: `npm run check:tc-parity` exit 0; `npm run xlsx:build` clean.
 
 ## Phase 2 — BUILDER: implement the specs
 
-1. Extend `clients/encore/src/pages/item-search/product-search.page.ts` only if a needed helper is missing —
-   `typeBarcode` / `readBarcodeValue` / `readAnyFieldValue` are the likely additions. Reuse the existing search,
-   row-count, and header helpers; **no new runner**.
+1. Extend the module's page object (`clients/encore/src/pages/item-search/item-search.page.ts`) only if a needed
+   helper is missing. Reuse the existing search, row-count, column-read and header helpers; **no new runner**.
 2. Add TC-ISR-PRS-022…030 to `clients/encore/tests/item-search/product-search.spec.ts` in the existing describe.
 3. Per-test baseline (LR-019): each test starts from `ensureCleanSearch` so a prior test's criteria cannot leak.
 4. Run each new test **solo first**, then the whole file, then the module (LR-018 — run-all is the only truth).
@@ -203,13 +203,13 @@ Adjacent items noticed during recon, each already routed — no bare "out of sco
 
 | Identity | Owned artifact this subplan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HUNTER | old-site-baseline | `(skipped: navigator2 blocks automated-browser TLS; baseline-absent recorded 2026-08-31 per LR-ENC-001)` | grep `baselineScope` in the module baseline artifact |
+| HUNTER | old-site-baseline | `clients/encore/specs_planning/_internal/old-site-baseline/item-search-2026-08-31.md` | grep `baselineScope` in the module baseline artifact |
 | GIVER | test-cases MD + test-plan + inventory + workbook | `clients/encore/specs_planning/test-cases/setup/item-search/item_search_product_search_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/item-search/item_search_product_search_test_plan.md`<br>`clients/encore/specs_planning/_internal/field-inventories/item-search-product-search-2026-08-31.md`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` exit 0 |
-| BUILDER | spec + page object + test data | `clients/encore/tests/item-search/product-search.spec.ts`<br>`clients/encore/src/pages/item-search/product-search.page.ts`<br>`clients/encore/src/data/item-search/item-search.ts` | `npx playwright test tests/item-search/product-search.spec.ts` all green |
+| BUILDER | spec + test data (no page-object change needed — every helper already existed) | `clients/encore/tests/item-search/product-search.spec.ts`<br>`clients/encore/src/data/item-search/item-search.ts` | `npx playwright test tests/item-search/product-search.spec.ts` all green |
 | HEALER | (none) | `(none)` | n/a |
 | WATCHDOG | Phase 3 verification | `(skipped: verification findings are emitted in-session to chat and the activity log, no standalone audit artifact for a nine-case extension)` | Phase 3 checklist in the Execution Summary |
 | GARDENER | (none) | `(none)` | n/a |
-| OWNER | this plan + activity log | `plans/pending/SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE.md`<br>`clients/encore/specs_planning/_internal/agent-activity-log.md` | `node scripts/validate-plan-closure.mjs --plan plans/pending/SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE.md --enforce` |
+| OWNER | this plan + activity log | `plans/done/SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE.md`<br>`clients/encore/specs_planning/_internal/agent-activity-log.md` | `node scripts/validate-plan-closure.mjs --plan plans/done/SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE.md --enforce` |
 
 ---
 
@@ -247,6 +247,64 @@ npm run check:tc-parity
 # The barcode numbers live in test data, not inline in the spec (expect: 0)
 grep -c "5052320\|DFW0082529" clients/encore/tests/item-search/product-search.spec.ts
 ```
+
+---
+
+### Execution Summary
+
+**Executed**: 2026-09-01 · **Result**: all nine cases authored, implemented and green; no deviation from the plan's case set.
+
+**TCs implemented (9)** — TC-ISR-PRS-022 (numeric barcode → its one product), 023 (lettered barcode), 024 (three
+barcodes → one product code), 025 (case-insensitive), 026 (prefix and leading space match nothing, with a positive
+control), 027 (barcode ↔ Any Field clear each other), 028 (barcode search survives navigation), 029 (barcode result
+opens in the product-code dialog), 030 (42-character ceiling). **TCs dropped: none. TCs deferred: none.**
+
+**Test runs** — each new case solo first, then the file, then the module (LR-018): 9/9 solo green; whole
+`product-search.spec.ts` 31 passed; whole `tests/item-search/` module **51 passed** in 7.4 min. `npx tsc --noEmit`
+exit 0. `npm run check:spec-quality` exit 0 (the printed FAIL lines are pre-existing announce-mode findings on
+Service Charge History, a different module). `npm run check:tc-parity` PASS. `npm run xlsx:build` OK —
+`item_search_product_search` sheet now carries 30 rows.
+
+**Live verification (LR-015 — every constant is a live read)** — all twelve supplied barcodes were resolved on
+office 1101 with error-checked clicks, and each returns exactly one product across five distinct products:
+5052320 → 28592 · 1013104 → 627 · 5148547 + 5192290 → 73551 · 5056210/5056526/5056530/5056516 → 29205 ·
+DFW0082529/DFW0082517/DFW0082547/5189939 → 71154. Five carry cases; the other seven land on products those five
+already cover, so casing them would repeat coverage rather than add any. The full twelve-to-product mapping is
+recorded in `clients/encore/specs_planning/test-cases/setup/item-search/item_search_product_search_test_cases.md`
+(MCP_VERIFICATION_LOG row 21) and in the field inventory — the accounting LR-068 asks for, not a silent drop.
+A `ISR_BARCODES_SPARE` constant briefly held the seven in test data; see "Beyond the plan" below for why it went.
+
+**Phase 0.5b** — spot-check path taken (inventory dated 2026-08-31, inside the 14-day window): the barcode box, the
+Any Field box and Reset were each read live and agreed with the artifact on testid, default and enabled state; no
+drift, so no re-walk. Old-site baseline stays `baseline-absent` (navigator2 rejects automated browsers), so no
+regression claim is made against it.
+
+**Whitespace disposition (the plan's explicit requirement)** — re-driven with positive controls on both bookends
+of the same instrument run, reading the DOM value before each search. Result: a **trailing** space is tolerated and
+still finds the product, while a **leading** space finds nothing. Because the governing spec (NM-1494) makes SPACE a
+legal Code 39 character, neither half is provably wrong, so this is recorded as an **open question raised with the
+product owner** — not filed as a bug, and not asserted as intended behaviour. TC-ISR-PRS-026 asserts only the
+leading-space non-match and documents the trailing tolerance beside it.
+
+**Beyond the plan** — four corrections the work surfaced: (1) the plan's own Per-Identity matrix cited a page-object
+file that does not exist (`product-search.page.ts`); the closure validator caught it and the row now names what was
+actually touched — no page object needed changing, because `typeBarcode`, `readBarcode`, `readAnyField` and
+`readColumnValues` all already existed. (2) The exploration registry still carried the invalidated "View → Category
+no-op" claim that this morning's correction sweep missed; it is corrected and now also carries the barcode findings.
+(3) TC-ISR-PRS-029 failed on first run because it asserted the product name against the dialog's text while the name
+lives in an input; the assertion now reads the input value and anchors on the product-code identifier — the app was
+correct, the assertion was not. (4) The commit's dead-export gate flagged `ISR_BARCODES_SPARE` — the seven unused
+supplied barcodes — as an export nobody imports in shipped client source. The gate is right: the twelve-to-product
+accounting already lives in the test-case verification log and the field inventory, so the constant was duplicate
+dead weight in a file that ships. It was removed and the barcode block's comment now points at where the full
+mapping is recorded; nothing about the LR-068 accounting was lost.
+
+**Adjacent-Sweep (Phase 2.5)** — three APPEND dispositions, each grep-verified in
+`plans/pending/SUBPLAN_PRODUCTS_DQU.md`: barcode-versus-other-criteria, the Active filter's effect, and the Grid
+Options "Reset to Default View" click-function.
+
+**OR-4** — closed, in both the field inventory and the Jira cross-reference, naming the date the numbers arrived and
+the cases that consumed them.
 
 ---
 

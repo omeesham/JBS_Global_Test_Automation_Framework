@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE.md",
+  "plan_basename": "SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE.md",
+  "plan_sha256": "7237d6d2f160f17791b35c973e7835eab59de235f8a4a1addc10d735d3b4b4b1",
+  "passed_at": "2026-09-01T17:40:44.518Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "0b2b89845fd6f99c38e0e5422f5fda6590adf5ce23e5d43aa9b29beaee38dcb1",
+  "validator_invocation_id": "1788284444518-88819dc0a11b9f800381cd3b003f104c-7237d6d2f160f177",
+  "artifacts": [],
+  "provisional": false
+}
