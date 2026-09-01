@@ -1,0 +1,42 @@
+{
+  "id": "BUG-ISR-PCD-001",
+  "title": "Item Search — View Product Code dialog: the segment caret's 'Category' item silently does nothing",
+  "module": "Item Search",
+  "severity": "medium",
+  "status": "open",
+  "discoveredDate": "2026-08-31",
+  "requirementSource": "NM-2253 'Automate Item Search' (office 1101 scope). The Phase-0 Jira sweep (jira-defect-crossref-item-search-2026-08-31.md — full NM-4 child read, 193 tickets) surfaces no ticket that removes or disables the Category segment from the View flow, so no by-design reclassification applies; the sibling segments prove the intended pattern.",
+  "stepsToReproduce": [
+    "Open Item Search -> Products for office 1101 (cloudapps-e2e), search 'Amp', select a result row.",
+    "Click the Product Code toolbar button to open the View Product Code dialog.",
+    "Open the segment caret menu next to the code segments.",
+    "Click 'Category'.",
+    "Observe: the menu closes and nothing opens. Repeat for Item / Class / Sub Category / Sub Class: each opens its segment dialog."
+  ],
+  "expectedBehavior": "Clicking 'Category' in the View segment caret menu opens the Category segment view, the same way Item, Class, Sub Category and Sub Class each open theirs — and the same way the Add caret's own Category item does.",
+  "actualBehavior": "The menu closes and no dialog, popover, navigation or network activity follows. Reproduced on 3 attempts with 4s/8s/10s post-click waits; browser console clean of errors.",
+  "mcpEvidence": {
+    "sessionDate": "2026-08-31",
+    "findings": "Headless Playwright CLI probe on cloudapps-e2e office 1101. Positive controls in the SAME session: the other 4 View segments all open their dialog, and the Add caret's Category item opens fine — so the click primitive and the menu wiring are proven live, isolating the defect to the View->Category handler. Varied-wait retries (4s/8s/10s) discharge the lazy-window concern (LR-ENC-008). Snapshots: caret-view-pc.yml, tmp-menu5.yml plus eval reads, recorded in specs_planning/_internal/walk-evidence-item-search-2026-08-31.md (Observations, Bugs/Defects item 1)."
+  },
+  "baselineComparison": "baseline-absent",
+  "baselineEvidence": "Old-site walk environment-blocked: navigator2.training.psav.com rejects automated-browser TLS ClientHello (curl/schannel gets 200; Playwright Chromium/Edge refused) — 6 retries, recorded in specs_planning/_internal/old-site-baseline/item-search-2026-08-31.md. No legacy observation of this menu exists, so no regression claim is made.",
+  "affectedTests": [
+    "TC-ISR-PCD-005"
+  ],
+  "networkEvidence": "Zero network requests fire on the Category click (probe watched the request log across the 3 attempts); the working sibling segments each fire their dialog-load traffic.",
+  "verificationLog": [
+    {
+      "verifierAgent": "Claude (spec-generation identity, NM-2253 run)",
+      "verifiedDate": "2026-09-01",
+      "verdict": "CONFIRMED",
+      "detail": "Re-confirmed while building the Product Code dialog spec: the Category item remains a silent no-op while the other four segments open. TC-ISR-PCD-005 exercises the four working segments and deliberately excludes Category with a defect note pointing here, so the suite stays green while the defect is tracked.",
+      "minimalRepro": "View Product Code dialog -> segment caret -> click 'Category'.",
+      "evidence": [
+        "specs_planning/_internal/walk-evidence-item-search-2026-08-31.md",
+        "tests/item-search/product-code.spec.ts (TC-ISR-PCD-005 exclusion note)"
+      ]
+    }
+  ],
+  "notes": "The Add flow's Category item works; only the View flow's Category item is dead, which suggests a missing/unbound handler rather than a hidden feature flag. Filed from the walk's Bugs/Defects bucket item 1. The bucket note's suggested value 'baseline-absent-env-blocked' is not a legal enum value; 'baseline-absent' is used with the env-block detail kept in baselineEvidence."
+}

@@ -1,0 +1,276 @@
+- generic:
+  - alert
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic: "1101"
+                    - generic:
+                      - generic: Corporate Office Encore USA SGA
+                      - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - list:
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1101/home
+                            - img
+                            - generic: Home
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1101/inbox
+                            - img
+                            - generic: Inbox
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Actions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Commissions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Tax
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Setup
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Warehouse
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Studio
+                            - img
+                    - generic:
+                      - generic: Search
+                      - generic:
+                        - list:
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/orders
+                              - img
+                              - generic: Order Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/fulfillments
+                              - img
+                              - generic: Job Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/assets
+                              - img
+                              - generic: Asset Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/customers
+                              - img
+                              - generic: Customer Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: DRO Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Payment Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/packages
+                              - img
+                              - generic: Package Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/products
+                              - img
+                              - generic: Item Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: ECT Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Event Agendas
+                    - generic:
+                      - list:
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Ask Encore
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - button:
+                      - generic:
+                        - generic: PC
+                      - generic:
+                        - generic: prd click auto
+                      - img
+            - button
+      - generic:
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /navigator/locations/1101/products
+                        - text: Products
+                      - img
+                    - generic:
+                      - heading [level=1]: Product Groups
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - img
+                                      - text: Product Groups
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - img
+                                        - textbox:
+                                          - /placeholder: Search Product Groups...
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - img
+                                      - text: Status
+                                  - generic:
+                                    - generic:
+                                      - checkbox [checked]:
+                                        - generic:
+                                          - img
+                                      - checkbox [checked]
+                                      - generic: Active
+                              - generic:
+                                - button:
+                                  - generic: Reset
+                                - button:
+                                  - generic: Search
+                - generic:
+                  - button:
+                    - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                        - generic: 0 product groups found
+                      - generic:
+                        - button:
+                          - img
+                          - text: Add
+                        - generic:
+                          - button:
+                            - img
+                            - generic: Grid Options
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - table:
+                              - rowgroup:
+                                - row:
+                                  - columnheader:
+                                    - generic:
+                                      - img
+                                      - generic:
+                                        - generic:
+                                          - button [expanded]:
+                                            - generic: Name
+                                            - img
+                                    - button
+                                  - columnheader:
+                                    - generic:
+                                      - img
+                                      - generic:
+                                        - generic:
+                                          - button:
+                                            - generic: Description
+                                            - img
+                                    - button
+                                  - columnheader:
+                                    - generic:
+                                      - img
+                                      - generic:
+                                        - generic:
+                                          - button:
+                                            - generic: Service Type
+                                            - img
+                                    - button
+                                  - columnheader:
+                                    - generic:
+                                      - img
+                                      - generic:
+                                        - generic:
+                                          - button:
+                                            - generic: Status
+                                    - button
+                    - generic:
+                      - generic:
+                        - img
+                      - paragraph: No results
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - combobox:
+                              - generic: "20"
+                              - img
+                            - paragraph: rows per page
+                        - generic:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - generic:
+                            - textbox: "1"
+                            - generic: /
+                            - text: "1"
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+  - region "Notifications alt+T"
+  - menu "Name" [active] [ref=f2e317]:
+    - menuitem "Sort ascending" [ref=f2e318] [cursor=pointer]:
+      - img
+      - text: Sort ascending
+    - menuitem "Sort descending" [ref=f2e319] [cursor=pointer]:
+      - img
+      - text: Sort descending

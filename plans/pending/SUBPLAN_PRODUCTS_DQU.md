@@ -95,7 +95,27 @@ TC band: starts where FCC ends (post-walk).
 
 ### NM-2253 deferred-to-DEEP seeds (appended at PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK closure)
 
-(rows appended by that plan's Phase 4 — each a grep-verifiable LR-040(b) line item)
+Appended 2026-09-01 at that plan's Phase 4 (43 rows: PRS 26 · PGR 16 · PCD 1 — source inventories
+`field-inventories/item-search-product-search-2026-08-31.md` + `item-search-product-groups-2026-08-31.md`
++ `item-search-product-code-2026-08-31.md`).
+Each element id below is the grep target back into its inventory row (reason ≥20 chars lives there).
+
+**PRS — Products page (26)**
+- [ ] Column sort/hide menus, 11 remaining columns (archetype proven on Category + Owned): `colmenu-Available`, `colmenu-Class`, `colmenu-Description`, `colmenu-InSequence`, `colmenu-Item`, `colmenu-LocationName`, `colmenu-OutofService`, `colmenu-ProductCodeID`, `colmenu-ProductGroup`, `colmenu-SubCategory`, `colmenu-SubClass`
+- [ ] Column resize drag + geometry, all 13 columns: `resize-Available`, `resize-Class`, `resize-Description`, `resize-GroupName`, `resize-InSequence`, `resize-Item`, `resize-Location`, `resize-MajorCategory`, `resize-OutOfService`, `resize-Owned`, `resize-ProductCodeID`, `resize-SubCategory`, `resize-SubClass`
+- [ ] Extra pagination affordances: `last-page-button`, `page-number-input`
+
+**PGR — Product Groups page (16)**
+- [ ] Column sort menus (4 cols): `colmenu-pgrName`, `colmenu-pgrDescription`, `colmenu-pgrServiceType`, `colmenu-pgrStatus`; menu internals: `pgr-column-menu-items`
+- [ ] Column resize (4 cols): `resize-productGroupName`, `resize-productGroupDescription`, `resize-serviceTypeName`, `resize-active`
+- [ ] Add-form deep mechanics: `pgr-add-duallist-drag` (drag-to-add on the sub-class picker — LR-061-C full-pointer-sequence + positive control mandatory), `pgr-add-servicetype-options` (option-set enumeration)
+- [ ] Extra pagination: `pgr-last-page-button`, `pgr-page-number-input`
+- [ ] Misc: `pgr-collapse-toggle` (per-state re-verify), `pgr-grid-options-state-button` (searched-state header cluster), `products-back-link` (navigation affordance), `unnamed-search-form-input` (identity unresolved — resolve at DQU recon before casing)
+
+**PCD — Product Code dialogs (1)**
+- [ ] In-grid quantity editing: `owned-count-cell-edit` (the `locations.product.ownedCount` cell button — editing owned quantities in the result grid is beyond the QUICK L1 case set; DEEP cases must cover edit → validate → persist/discard on the searched grid)
+
+**Carried context**: date-block RESULT-side behavior (availability enrichment per NM-1388) stays excluded until the owner flips the dates-functional ruling; the pair-validation + render-integrity slice is already covered QUICK (TC-ISR-PRS-020/021, BUG-ISR-PRS-001). View Availability button behavior rides the same ruling (walk-evidence Observations item 2). Barcode positive-filter case lands when the owner supplies numbers (OR-4).
 
 **Exhaustiveness guarantee:** the element set is already guaranteed by **LR-062** (Foundation Coverage
 Manifest — 100% dispositioned; Cx blocks <100%); DQU inherits it. The only axis LR-062 doesn't auto-enumerate

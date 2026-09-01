@@ -11,16 +11,21 @@
 **Baseline_Artifact**: clients/encore/specs_planning/_internal/old-site-baseline/item-search-2026-08-31.md
 **Walk_Mode**: quick
 
-> **Denominator note (deliberate, §20-Q)**: the Product Code dialogs are **multi-step states**
-> (search → row click → toolbar button) that `enumerate-page.mjs`'s one-click branch mechanism
-> cannot reach — so this artifact carries **no machine Coverage Manifest**. The machine-bound
-> denominators for this module live in the sibling artifacts (`item-search-product-search-2026-08-31.md`,
-> `item-search-product-groups-2026-08-31.md`); the toolbar OPENERS to these dialogs are
-> dispositioned there. This artifact is the §20-Q opener-frontier walk record for what is BEHIND
-> those openers: an agent-driven element census with per-element snapshot evidence
-> (`.playwright-cli/isr-2026-08-31/dlg-*.yml`, `caret-*.yml`, `add-*.yml`), cross-verified in
-> `walk-evidence-item-search-2026-08-31.md`. Nothing was saved: every dialog was closed without
-> persisting (close-discards proven).
+Coverage_Ratio: 94/94 (100%) — the dialog:view-product-code machine denominator (re-enumerated 2026-09-01 after the portal-scan disabled-status fix), every row dispositioned in the Coverage Manifest below. The sibling dialog:add-product-code state (82 elements) is fully dispositioned in the state supplement after the manifest: 80 of its keys re-enumerate view-state controls (same dispositions) and its 2 add-only keys are dispositioned in the supplement.
+Completion_Record: reports/walk-coverage/isr-pcd--dialog-view-product-code.json (status=complete, elements=94) · reports/walk-coverage/isr-pcd--dialog-add-product-code.json (status=complete, elements=82)
+Walk_State: module=item-search-product-code walked=[dialog:view-product-code,dialog:add-product-code]
+CrossCheck: clean — no A△B review-set elements were flagged by the enumerator for these runs; every key sits in the union denominator and is dispositioned.
+
+> **Denominator note (updated 2026-09-01)**: the original 2026-08-31 walk carried no machine
+> manifest — the dialogs are multi-step states (search → row click → toolbar button) the one-click
+> branch mechanism could not reach, so this artifact was a §20-Q opener-frontier record only. On
+> 2026-09-01 `enumerate-page.mjs` gained a `preSteps` branch mechanism (search → row select →
+> opener click, with dialog `readySelector` + portal-aware branch scanning), and both dialog
+> states were machine-enumerated: the Coverage Manifest below is that machine denominator. The
+> agent-driven census (per-element snapshot evidence `.playwright-cli/isr-2026-08-31/dlg-*.yml`,
+> `caret-*.yml`, `add-*.yml`, cross-verified in `walk-evidence-item-search-2026-08-31.md`) remains
+> the per-element PROBE record the machine rows corroborate. Nothing was saved: every dialog was
+> closed without persisting (close-discards proven).
 
 jira_tickets: [NM-2253, NM-1921, NM-1982, NM-1983, NM-2077, NM-2100, NM-2111]
 baselineScope: baseline-absent (environment-blocked — see Baseline_Artifact)
@@ -42,6 +47,119 @@ baselineScope: baseline-absent (environment-blocked — see Baseline_Artifact)
 |---|---|---|---|
 | Dialog field values (View) | the selected row's hierarchy chain | row-dependent | The dialog renders the selected product's data; nothing here is a fixed default except the Add form's empty state. |
 | Save (both dialogs) | disabled | disabled until the form is valid (Add) / enablement condition undetermined (View) | Typing into the View dialog's Name changed the value but Save stayed disabled after blur — view-mode vs validity-gate is undetermined on a row whose required chain is incomplete. Never asserted either way. |
+
+## Coverage Manifest (machine-enumerated, 2026-09-01)
+
+Machine denominator: **94** — the dialog:view-product-code state. Provenance: `reports/walk-coverage/isr-pcd--dialog-view-product-code.json` (94, dialog:view-product-code; re-enumerated 2026-09-01). All 94 rows dispositioned, in machine order, keys verbatim. **Coverage_Ratio: 94/94.** Tally: 30 covered-by-TC · 63 out-of-scope (62 host-page controls beneath the open dialog → dispositioned by the product-search inventory; 1 app-shell sidebar toggle) · 1 deferred-to-DEEP (recipient seed `owned-count-cell-edit` in plans/pending/SUBPLAN_PRODUCTS_DQU.md).
+
+Reading notes:
+- The two segment-menu carets enumerate as unnamed session-variant `id:radix` buttons; they are bound by DOM order (first = View toolbar caret, second = Add toolbar caret) — the binding is stated in each row's disposition.
+- Radix id → control map (this run's session-variant ids, informational only): `_r_1b_`=Grid Options · `_r_15b_`=Out of Service · `_r_14n_`=Category · `_r_14p_`=Sub Category · `_r_14r_`=Class · `_r_14t_`=Product Group · `_r_14v_`=Sub Class · `_r_#_`=Item (+archetype siblings) · `_r_15d_`=In Sequence · `_r_15f_`=Location Name.
+- Disabled-at-rest controls (Save, Select service type, Barcodeable checkbox, the read-only input, first/previous pagination) carry `disabled: true` in the enumeration JSON — the machine evidence of the disabled contracts the TCs assert.
+
+| element-key | role | machine-found (date) | disposition |
+|---|---|---|---|
+| `struct:button|trigger-button|div/div/skip/div/div/div` | button | 2026-09-01 | out-of-scope: outside-module — app-shell sidebar toggle (Navigator shell chrome outside every products-module denominator; the same control is enumerated by the sibling item-search inventories) |
+| `struct:button|More information|skip/div/div/div/div/div` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-search-section-wrapper` | div | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-search-form` | form | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-card` | div | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-card-header` | div | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-card-title` | div | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-popover-trigger` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-card-content` | div | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-toggle-group` | group | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-toggle-keyword` | radio | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-search-input` | input | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-barcode-input` | input | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-checkbox` | checkbox | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:input||e2e-search-section-wrapper/e2e-search-form/div/div/div/div` | input | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:combobox|Select Location|e2e-search-form/div/div/div/div/div` | combobox | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:combobox|Select Region|e2e-search-form/div/div/div/div/div` | combobox | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:combobox|Open popover|e2e-search-form/div/div/div/div/div` | combobox | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Open popover|e2e-search-section-wrapper/e2e-search-form/div/div/div/div` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-reset-button` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `testid:e2e-search-button` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Collapse search panel|div/skip/div/div/div/div` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Product Group|div/div/div/div/div/div` | button | 2026-09-01 | covered-by-TC: TC-ISR-PCD-001 |
+| `struct:button|View Availability|div/div/div/div/div/div` | button | 2026-09-01 | covered-by-TC: TC-ISR-PCD-010 |
+| `struct:button|View Product Code|div/div/div/div/div/div` | button | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `id:radix-_r_k5_` | button | 2026-09-01 | covered-by-TC: TC-ISR-PCD-005 (View toolbar segment-menu caret — unnamed session-variant Radix trigger, first unnamed toolbar caret in DOM order) |
+| `id:radix-_r_k7_` | button | 2026-09-01 | covered-by-TC: TC-ISR-PCD-008 (Add toolbar segment-menu caret — unnamed session-variant Radix trigger, second unnamed toolbar caret in DOM order) |
+| `struct:button|Add Product Code|div/div/div/div/div/div` | button | 2026-09-01 | covered-by-TC: TC-ISR-PCD-006 |
+| `id:radix-_r_1b_` | button | 2026-09-01 | covered-by-TC: TC-ISR-PRS-017 |
+| `id:radix-_r_15b_` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Category|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `id:radix-_r_14n_` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column MajorCategory|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Sub Category|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `id:radix-_r_14p_` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column SubCategory|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Class|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `id:radix-_r_14r_` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column Class|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Product Group|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `id:radix-_r_14t_` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column GroupName|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Sub Class|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `id:radix-_r_14v_` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column SubClass|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Item|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `id:radix-_r_#_ [archetype×5]` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column Item|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Product Code ID|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column ProductCodeID|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Description|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column Description|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Available|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column Available|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Owned|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column Owned|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Out of Service|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column OutOfService|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|In Sequence|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `id:radix-_r_15d_` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column InSequence|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:th|Location Name|div/div/div/table/thead/tr` | th | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `id:radix-_r_15f_` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Resize column Location|div/div/table/thead/tr/th` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|locations.product.ownedCount|div/div/table/tbody/tr/td` | button | 2026-09-01 | deferred-to-DEEP: owned-count-cell-edit (in-grid quantity editing is beyond the QUICK L1 case set for this module) |
+| `struct:button|locations.product.selectItem|div/div/table/tbody/tr/td` | button | 2026-09-01 | covered-by-TC: TC-ISR-PCD-001 |
+| `struct:combobox|50|div/div/div/div/div/div` | combobox | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Go to first page|div/div/div/div/div/div` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Go to previous page|div/div/div/div/div/div` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:input|Current page number|div/div/div/div/div/span` | input | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Go to next page|div/div/div/div/div/div` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `struct:button|Go to last page|div/div/div/div/div/div` | button | 2026-09-01 | out-of-scope: outside-module — host Products page control beneath the open dialog; enumerated and dispositioned by the product-search inventory (item-search-product-search-2026-08-31.md) |
+| `role:tab:Item` | tab | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:tab:Product Code History` | tab | 2026-09-01 | covered-by-TC: TC-ISR-PCD-003 |
+| `role:tab:Translations` | tab | 2026-09-01 | covered-by-TC: TC-ISR-PCD-004 |
+| `role:combobox:Digital Services Labor` | combobox | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:select:Administrative LaborAudio LaborBusiness ` | select | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:combobox:Setup Charges` | combobox | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:select:Application DevelopmentApplication Devel` | select | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:combobox:Content1 Labor` | combobox | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:select:Attendee Tracking LaborBespoke Programmi` | select | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:combobox:Operator Labor` | combobox | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:combobox:Please select` | combobox | 2026-09-01 | covered-by-TC: TC-ISR-PCD-007 |
+| `role:select:Abstracts - Project ManagementContent1 L` | select | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:combobox:Select service type` | combobox | 2026-09-01 | covered-by-TC: TC-ISR-PCD-007 |
+| `role:checkbox:` | checkbox | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:input:` | input | 2026-09-01 | covered-by-TC: TC-ISR-PCD-009 |
+| `role:combobox:NoneNone` | combobox | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:combobox:CONSUMABLE` | combobox | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:select:CABLES AND CONSUMABLECONSUMABLEDAMAGE WA` | select | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:combobox:Audio Conferencing` | combobox | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:select:APP DownloadedApp Quality AssuranceApp Q` | select | 2026-09-01 | covered-by-TC: TC-ISR-PCD-002 |
+| `role:button:Save` | button | 2026-09-01 | covered-by-TC: TC-ISR-PCD-006 |
+| `role:button:Close` | button | 2026-09-01 | covered-by-TC: TC-ISR-PCD-009 |
+
+### State supplement — dialog:add-product-code (82 elements, reports/walk-coverage/isr-pcd--dialog-add-product-code.json)
+
+80 of the 82 keys re-enumerate controls already dispositioned in the manifest above (host-page substrate + shared dialog chrome + toolbar; dispositions identical). The 2 add-only keys:
+
+- `role:combobox:Select product type` (combobox) → covered-by-TC: TC-ISR-PCD-007
+- `role:select:` (select, disabled at rest) → covered-by-TC: TC-ISR-PCD-007 (empty-name native select backing the Add form cascade pair; options populate on Product Type selection)
 
 ## Field Inventory
 
@@ -77,7 +195,7 @@ baselineScope: baseline-absent (environment-blocked — see Baseline_Artifact)
 
 ### Segment caret menus (View + Add; snapshots caret-view-pc.yml / caret-add-pc.yml)
 
-Both menus list: Item · Sub Class · Class · Sub Category · Category. Selecting rescopes the dialog (first tab renames to the segment). **View → Category silently no-ops** (3 attempts, varied waits, console + network clean; every sibling opens; Add → Category opens) — defect candidate recorded in walk-evidence Observations; TC-ISR-PCD-005 covers the working segments and notes the defect.
+Both menus list: Item · Sub Class · Class · Sub Category · Category. Selecting rescopes the dialog (first tab renames to the segment). **View → Category silently no-ops** (3 attempts, varied waits, console + network clean; every sibling opens; Add → Category opens) — filed as `BUG-ISR-PCD-001` (2026-09-01); TC-ISR-PCD-005 covers the working segments and notes the defect.
 
 ### Add Product Code — dialog, Item scope (snapshot dlg-add-pc2.yml)
 
@@ -118,7 +236,7 @@ No unsaved-changes guard on either dialog: dirty View (edited Name) and dirty Ad
 ## Observations
 
 ### Bugs / Defects
-- **View Product Code → Category silent no-op** — full evidence + positive controls in `walk-evidence-item-search-2026-08-31.md` § Observations item 1; bug filing assigned to the audit phase (GIVER cannot write the bug register). TC-ISR-PCD-005 notes it.
+- **View Product Code → Category silent no-op** — full evidence + positive controls in `walk-evidence-item-search-2026-08-31.md` § Observations item 1; **filed 2026-09-01 as `BUG-ISR-PCD-001`** (the audit-phase filing note resolved — filing landed under the spec-generation identity, which holds the create right per §2). TC-ISR-PCD-005 notes it.
 - **View Availability inert** (both a labor row and an equipment row, zero network) — owner-ruling-adjacent (dates not functional yet); walk-evidence item 2. TC-ISR-PCD-010 asserts presence/enabled only.
 
 ### Suggestions / Improvements

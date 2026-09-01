@@ -18,7 +18,8 @@
 
 # PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK — NM-2253: QUICK coverage for Item Search (Product Search · Product Code · Product Groups)
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-08-31 → 2026-09-01 (branch NM-2253; commits 8cd3a355 · 0c375154 · 55611cc8 · 9f6418f6 · dee425df + closure)
 **Priority**: P1
 **Created**: 2026-08-31
 **Identity**: OWNER (multi-identity by phase — HUNTER → GIVER → BUILDER → WATCHDOG → OWNER)
@@ -63,7 +64,7 @@ The module splits into three sub-surfaces, mapped 1:1 onto the seven NM-2253 sub
 
 ### Supersession & disposition of the 2026-06-22 Products plan trio (executed in Phase 0)
 
-Not a recurrence-class plan: no prior fix is cited as failed (LR-069 §3.5 trial not required). The trio is retired for **staleness against five rule epochs**, not for having failed:
+Not LR-069 §3.5 territory: this plan puts no earlier remediation on trial, so the SURVIVES/CONVICTED ceremony does not apply. The trio is retired for **staleness against five rule epochs**, not for having failed:
 
 | Plan | Disposition | Why |
 |---|---|---|
@@ -174,7 +175,7 @@ LR-064 quick profile (LR-072):
 3. **Stage 3 — blind re-drive**: floor min(3, live-row count) per grid.
 4. **Stage 4 — disposition**: every manifest row exactly one of `covered-by-TC:` / `affordance-probed:` / `read-only-verified` / `out-of-scope: <reason ≥20c>` / `deferred-to-DEEP: <id> (<reason ≥20c>)`. No blanks. Claimed rows keep FULL LR-062 condition-5 provenance + LR-057 rigor (G2).
 
-**Binding walk rules**: LR-ENC-008 — prove functional settle before recording any contract; any NEGATIVE claim ("does nothing", "filters nothing") requires the identical interaction repeated after +60s and +120s idle before it may be recorded. LR-ENC-009 — no DOM/markup accessibility observations; selector constraints go to the LR-029 missing-testid report. ALL-045 — `## Observations` with both buckets (Bugs/Defects + Suggestions) per surface, `none` allowed, absence = incomplete walk. §20-Q — openers hosting in-scope fields walked fully; other openers enumerated + deferred. Emit `walk-evidence-item-search-<EXEC-DATE>.md` with per-field TDW tier + raw evidence + verdicts. Delegation per the worker ladder: Haiku/Sonnet may drive deterministic `playwright-cli` probes; every disposition, verify, and verdict stays Opus (LR-064; judgment never delegates).
+**Binding walk rules**: LR-ENC-008 — prove functional settle before recording any contract; any NEGATIVE claim ("does nothing", "filters nothing") requires the identical interaction re-run after +60s and +120s idle before it may be recorded. LR-ENC-009 — no DOM/markup accessibility observations; selector constraints go to the LR-029 missing-testid report. ALL-045 — `## Observations` with both buckets (Bugs/Defects + Suggestions) per surface, `none` allowed, absence = incomplete walk. §20-Q — openers hosting in-scope fields walked fully; other openers enumerated + deferred. Emit `walk-evidence-item-search-<EXEC-DATE>.md` with per-field TDW tier + raw evidence + verdicts. Delegation per the worker ladder: Haiku/Sonnet may drive deterministic `playwright-cli` probes; every disposition, verify, and verdict stays Opus (LR-064; judgment never delegates).
 
 ## Phase 1 — Case catalog, test cases, test plan, workbook (GIVER — adopt `/identity GIVER` first)
 
@@ -235,7 +236,7 @@ Zero-delta discipline (LR-040-D): any mandatory-effect probe (filter/sort) retur
 ### 1d — Artifacts and data discipline
 
 - Catalog: `field-case-catalogs/item-search-<EXEC-DATE>.md`.
-- Test cases: `specs_planning/test-cases/setup/item-search/item_search_product_search_test_cases.md` + `..._product_code_...` + `..._product_groups_...` — 9-field header incl. `Coverage mode` QUICK (L1), Test Entity office 1101, `Verified against` citing the inventories + machine JSONs.
+- Test cases: `clients/encore/specs_planning/test-cases/setup/item-search/item_search_product_search_test_cases.md` + `..._product_code_...` + `..._product_groups_...` — 9-field header incl. `Coverage mode` QUICK (L1), Test Entity office 1101, `Verified against` citing the inventories + machine JSONs.
 - Test plans: `specs_planning/test-plans/setup/item-search/` (matching basenames, `_test_plan.md`).
 - Workbook: `npm run planner:post-complete <id>` rebuild → `clients/encore/testcases/encore_test_cases.xlsx`; `npm run check:tc-parity` exit 0 per wave.
 - TC bodies: plain-English step tables with per-step Expected Result, no internal jargon (heading = client-facing Title; ALL-091 / xlsx-lint deny-list).
@@ -274,11 +275,11 @@ Emit `clients/encore/specs_planning/_internal/audit-item-search-<EXEC-DATE>.md`:
 
 | Identity | Owned artifact this plan touches | Concrete deliverable | Acceptance command |
 |---|---|---|---|
-| HUNTER | Jira crossref · old-site baseline · walk evidence | `clients/encore/specs_planning/_internal/jira-defect-crossref-item-search-2026-08-31.md`<br>`clients/encore/specs_planning/_internal/old-site-baseline/item-search-<EXEC-DATE>.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-item-search-<EXEC-DATE>.md` | `ls clients/encore/specs_planning/_internal/walk-evidence-item-search-*.md` |
-| GIVER | field inventories (one per sub-surface) · catalog · test-case MDs · test plans · XLSX | `clients/encore/specs_planning/_internal/field-inventories/item-search-product-search-<EXEC-DATE>.md`<br>`clients/encore/specs_planning/_internal/field-inventories/item-search-product-code-<EXEC-DATE>.md`<br>`clients/encore/specs_planning/_internal/field-inventories/item-search-product-groups-<EXEC-DATE>.md`<br>`clients/encore/specs_planning/_internal/field-case-catalogs/item-search-<EXEC-DATE>.md`<br>`clients/encore/specs_planning/test-cases/setup/item-search/item_search_product_search_test_cases.md`<br>`clients/encore/specs_planning/test-cases/setup/item-search/item_search_product_code_test_cases.md`<br>`clients/encore/specs_planning/test-cases/setup/item-search/item_search_product_groups_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/item-search/item_search_product_search_test_plan.md`<br>`clients/encore/specs_planning/test-plans/setup/item-search/item_search_product_code_test_plan.md`<br>`clients/encore/specs_planning/test-plans/setup/item-search/item_search_product_groups_test_plan.md`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` |
-| BUILDER | selectors · page objects · data · specs | `clients/encore/src/selectors/item-search/product-search.ts`<br>`clients/encore/src/selectors/item-search/product-code.ts`<br>`clients/encore/src/selectors/item-search/product-groups.ts`<br>`clients/encore/src/pages/item-search/product-search.page.ts`<br>`clients/encore/src/pages/item-search/product-code.page.ts`<br>`clients/encore/src/pages/item-search/product-groups.page.ts`<br>`clients/encore/src/data/item-search/item-search.ts`<br>`clients/encore/tests/item-search/product-search.spec.ts`<br>`clients/encore/tests/item-search/product-code.spec.ts`<br>`clients/encore/tests/item-search/product-groups.spec.ts` | `npx playwright test clients/encore/tests/item-search --list` |
+| HUNTER | Jira crossref · old-site baseline · walk evidence | `clients/encore/specs_planning/_internal/jira-defect-crossref-item-search-2026-08-31.md`<br>`clients/encore/specs_planning/_internal/old-site-baseline/item-search-2026-08-31.md`<br>`clients/encore/specs_planning/_internal/walk-evidence-item-search-2026-08-31.md` | `ls clients/encore/specs_planning/_internal/walk-evidence-item-search-*.md` |
+| GIVER | field inventories (one per sub-surface) · catalog · test-case MDs · test plans · XLSX | `clients/encore/specs_planning/_internal/field-inventories/item-search-product-search-2026-08-31.md`<br>`clients/encore/specs_planning/_internal/field-inventories/item-search-product-code-2026-08-31.md`<br>`clients/encore/specs_planning/_internal/field-inventories/item-search-product-groups-2026-08-31.md`<br>`clients/encore/specs_planning/_internal/field-case-catalogs/item-search-2026-08-31.md`<br>`clients/encore/specs_planning/test-cases/setup/item-search/item_search_product_search_test_cases.md`<br>`clients/encore/specs_planning/test-cases/setup/item-search/item_search_product_code_test_cases.md`<br>`clients/encore/specs_planning/test-cases/setup/item-search/item_search_product_groups_test_cases.md`<br>`clients/encore/specs_planning/test-plans/setup/item-search/item_search_product_search_test_plan.md`<br>`clients/encore/specs_planning/test-plans/setup/item-search/item_search_product_code_test_plan.md`<br>`clients/encore/specs_planning/test-plans/setup/item-search/item_search_product_groups_test_plan.md`<br>`clients/encore/testcases/encore_test_cases.xlsx` | `npm run check:tc-parity` |
+| BUILDER | selectors · page objects · data · specs | `clients/encore/src/selectors/item-search/products.ts`<br>`clients/encore/src/selectors/item-search/product-code.ts`<br>`clients/encore/src/selectors/item-search/product-groups.ts`<br>`clients/encore/src/pages/item-search/item-search.page.ts`<br>`clients/encore/src/pages/item-search/item-search-grid.page.ts`<br>`clients/encore/src/pages/item-search/product-code.page.ts`<br>`clients/encore/src/pages/item-search/product-groups.page.ts`<br>`clients/encore/src/data/item-search/item-search.ts`<br>`clients/encore/tests/item-search/product-search.spec.ts`<br>`clients/encore/tests/item-search/product-code.spec.ts`<br>`clients/encore/tests/item-search/product-groups.spec.ts` | `npx playwright test clients/encore/tests/item-search --list` |
 | HEALER | (none) — net-new module, no pre-existing failing specs; fires only if a wave goes red past BUILDER's fix budget | (none) | (none) |
-| WATCHDOG | completeness + bug-loop-closure audit | `clients/encore/specs_planning/_internal/audit-item-search-<EXEC-DATE>.md` | `npm run check:spec-quality` |
+| WATCHDOG | completeness + bug-loop-closure audit | `(skipped: AUD-017 §19 bars self-grading — the producing session may not audit its own delivery; deep audit deferred to plans/pending/PLAN_NM2253_ITEM_SEARCH_EXTERNAL_01_AUDIT.md with a 10-claim verification table; in-session WATCHDOG ran the machine gates only — tc-parity PASS, spec-quality 73/73 OK, module 42 passed — and closed the Observations bug-loop: BUG-ISR-PCD-001 + BUG-ISR-PRS-001 filed)` | `npm run check:spec-quality` |
 | GARDENER | (none) — net-new module; no structural refactor of existing code | (none) | (none) |
 | OWNER | trio disposition · module-code mint · registries · index | `plans/pending/SUBPLAN_PRODUCTS_00_FOUNDATION.md`<br>`plans/pending/SUBPLAN_PRODUCTS_FCC.md`<br>`plans/pending/SUBPLAN_PRODUCTS_DQU.md`<br>`plans/pending/PLAN_BIG_PIVOT_FCC_MASTER.md`<br>`export_test_cases/module-codes.json`<br>`.claude/context/navigation.md` | `node scripts/plans-reindex.mjs --check` |
 
@@ -356,7 +357,10 @@ grep -n "deferred-to-DEEP" clients/encore/specs_planning/_internal/field-invento
 | # | Date | Deviation | Why | Disposition |
 |---|---|---|---|---|
 | D1 | 2026-08-31 | Owner in-chat rulings during execution: dates field-level-only (feature not functional yet — drops the NM-1388 availability-window behavioral assertions from QUICK), barcode filter data owner-provided (pending), Grid Options + full tooltip sweep explicitly in scope, region-overrides-location direction confirmed | Owner scope clarification mid-execution (recorded as OR-1..OR-6 in jira-defect-crossref-item-search-2026-08-31.md) | Case set narrowed/extended accordingly; availability-cell render-state assertion (numbers-or-dash) RETAINED (not date-coupled) |
-| D2 | 2026-08-31 | Phase 0.3 nav2 baseline walk env-blocked: host TLS-rejects all Playwright browser engines (Chromium ×2, Edge; curl/schannel 200 OK; TLS-1.2-only legacy server) — access drift since the 2026-08-26 DSM baseline | Environment, outside repo control | Blocker + evidence in old-site-baseline/item-search-2026-08-31.md; divergences classified (c) baseline-absent-this-execution; one varied-wait retry before GIVER close; LR-060 ob.2 — only this step defers |
+| D2 | 2026-08-31 | Phase 0.3 nav2 baseline walk env-blocked: host TLS-rejects all Playwright browser engines (Chromium ×2, Edge; curl/schannel 200 OK; TLS-1.2-only legacy server) — access drift since the 2026-08-26 DSM baseline | Environment, outside repo control | Blocker + evidence in clients/encore/specs_planning/_internal/old-site-baseline/item-search-2026-08-31.md; divergences classified (c) baseline-absent-this-execution; one varied-wait retry before GIVER close; LR-060 ob.2 — only this step defers |
+| D3 | 2026-09-01 | Owner extended the date-block scope mid-execution: "yes add the month-cycling probe" + the pair-validation screenshot question → TC-ISR-PRS-020 (pair validation, green) + TC-ISR-PRS-021 (12-month render integrity, expected-fail) added beyond the D1 field-level-only ruling; PRS 19→21 TCs | Owner directive in chat (2026-09-01); the probe surfaced the value-overspill defect a single-month read had missed | Both TCs landed with page-object date helpers; plan/MD/XLSX synced; defect filed as BUG-ISR-PRS-001; result-side date behavior stays excluded per the unchanged OR-1 core |
+| D4 | 2026-09-01 | TC-ISR-PRS-006 correction cycle: an interim same-day rescope to "never truncates" (from a td-level census — a blind instrument returning a never-varying zero) was WITHDRAWN; the original truncation-tooltip contract was restored with the measurement pinned to the cell's inner element (positive control: 192 clipped cells) | The td always reports fitting (sw==cw); only the inner span clips — the first census measured the wrong node | All three artifacts (TC MD, test plan, inventory) carry dated withdrawn/rescind notes, no silent rewrites; spec asserts both tooltip halves with stage-clearing |
+| D5 | 2026-09-01 | Phase 3 restructured at execution: AUD-017 (AUDIT.md HARD STOP 0a) bars same-session self-grading, and §2 makes WATCHDOG READ-only on the bug register — so bugs filed under the spec-generation identity (which holds CREATE), in-session WATCHDOG limited to machine gates + Observations closure, deep audit deferred to PLAN_NM2253_ITEM_SEARCH_EXTERNAL_01_AUDIT.md (fresh session) | The plan's own Phase 3 header already said "fresh session, AUD-017"; the walk-evidence note "file at GIVER" contradicted §2 and was corrected with a dated note | LR-040(b): deep audit = grep-verifiable named recipient; bug-loop closed in-session (both bugs filed + back-referenced in walk-evidence, both inventories, both TC MDs) |
 
 ---
 
@@ -366,6 +370,30 @@ grep -n "deferred-to-DEEP" clients/encore/specs_planning/_internal/field-invento
 2. **Module code `ISR` + submodules `PRS`/`PCD`/`PGR`** (vs. the trio's `LOC`/`PRD` single flat namespace) — chosen for DSM-precedent consistency + per-Jira-sub-task traceability.
 3. **Smart Search = deterministic smoke only** at QUICK (NM-2031 In Progress).
 4. **Mutating flows run with `AUTO-`-prefixed self-produced data on the shared 1101 catalog** (LR-ENC-007 pre-authorizes; deactivate/restore discipline applies; no deletion path assumed).
+
+---
+
+## Execution Summary
+
+*(LR-027 — closed 2026-09-01)*
+
+**Delivered (all machine-verified at closure):**
+- **41 TCs** across 3 sub-surfaces (PRS 21 · PCD 10 · PGR 10), each an FCC/SBC-QUICK case per the catalog; `check:tc-parity` PASS (spec↔MD↔XLSX; ISR workbook sheets 21/10/10 rows).
+- **3 specs green as a module**: final full run **42 passed (6.1m, 2026-09-01)** after the wave-2 date TCs — plus the earlier ×2 module runs (7.8m/6.8m, 40 passed) pre-wave-2. TC-ISR-PRS-021 is a deliberate expected-fail pinning BUG-ISR-PRS-001 (verified failing on the intended spills assertion, not an incidental crash).
+- **BUILDER stack**: 3 selector files, 3 page objects (+ shared ItemSearchPage helpers: keystroke-debounce-safe `typeByKeys` 800ms settle, popover index anchors around the accessible-name trap, tooltip stage-clearing, cmdk Enter-commit, inner-element truncation measurement with positive control, collapse name-flip oracle, calendar month-cycling + overflow measurement + pair-validation readers), 1 data file.
+- **HUNTER stack**: Jira crossref (193-child NM-4 sweep + OR-1..OR-6 owner rulings), nav2 baseline attempt (env-blocked, evidenced), walk evidence with TDW-Q stages 1–4 complete, 2 machine-bound coverage manifests verifyDenominator-green; Coverage_Ratio 100% with 42 G1-clean `deferred-to-DEEP` rows.
+- **Bugs filed (LR-034, baseline-absent)**: `BUG-ISR-PCD-001` (View→Category segment silent no-op; 4 sibling positive controls) + `BUG-ISR-PRS-001` (date value overspill, 7/12 months Prep up to +30px, Return +23px; screenshot + expected-fail TC pin). Both back-referenced in walk-evidence Observations, both inventories, both TC MDs. Discussion-items (not bugs): PGR empty-search 0-vs-all divergence; Labor blank-Category projection. Held under owner ruling OR-1: View Availability inert button (enabled-state TC only).
+- **Closure artifacts**: 42 DQU seeds appended + full-42 grep-verified (`SUBPLAN_PRODUCTS_DQU.md`); AUD-017 external audit plan `PLAN_NM2253_ITEM_SEARCH_EXTERNAL_01_AUDIT.md` (10-claim verification table); registries + navigation updated; D1–D5 deviations logged.
+
+**NOT done, honestly, with recipients:**
+- Deep audit (plan Phase 3 judgment half) — barred in-session by AUD-017; handoff-target: PLAN_NM2253_ITEM_SEARCH_EXTERNAL_01_AUDIT.md recipient-required-token: 10-claim
+- nav2 baseline walk — env-blocked (TLS middlebox); evidence + retry protocol in `clients/encore/specs_planning/_internal/old-site-baseline/item-search-2026-08-31.md`; unlock = infra allowing Playwright ClientHello, or a human-driven manual baseline pass.
+- Barcode positive-filter TC — awaits owner-supplied numbers (OR-4); recipient: DQU seed section "Carried context".
+- Date RESULT-side behavior + View Availability behavior — owner ruling OR-1 (feature not functional yet); recipient: DQU "Carried context" + walk-evidence Observations item 2.
+- L2/L3 depth (42 elements) — quick-tier by design; → DQU seed list.
+- No push / no PR / no Jira transition — house rule, owner-only actions.
+
+**Known pre-existing signals NOT introduced here** (verified against gate output): tc-parity title-divergence FLAGs in CPR/LOS/LOC families; `check:spec-quality` reject-oracle announce for TC-SVC-HIS-012 (Service Charge module).
 
 ---
 

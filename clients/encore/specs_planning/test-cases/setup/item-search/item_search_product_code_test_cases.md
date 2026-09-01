@@ -32,7 +32,7 @@
 | Service Type follows Product Type | In the Add dialog, Service Type is locked until a Product Type is chosen, then offers only types that belong to it (choosing LABOR yields a labor-specific list). |
 | Save is held back | Add: Save stays disabled while required fields are incomplete. View: Save stayed disabled even after an edit on the probed row — do not assert when it enables. |
 | Closing discards silently | Closing either dialog with unsaved edits discards them with no warning prompt. |
-| One segment option is broken | In the View menu, Category closes the menu and nothing opens (confirmed three times; every sibling works and the Add menu's Category works). A defect record accompanies this module's findings. |
+| One segment option is broken | In the View menu, Category closes the menu and nothing opens (confirmed three times; every sibling works and the Add menu's Category works). Filed as BUG-ISR-PCD-001 (2026-09-01). |
 
 ## MCP_VERIFICATION_LOG
 

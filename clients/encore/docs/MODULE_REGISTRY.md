@@ -23,6 +23,7 @@ Every page in Navigator Cloud belongs to exactly ONE module. Module directory na
 | `corporate-override` | Corporate Override | `/pg-override` | core, location-picker, filters, grid-sort, labor-grid, export, import |
 | `auth` | Microsoft SSO login | `/auth/sign-in` | page object `src/pages/auth/login.page.ts`; session setup `tests/auth.setup.ts` |
 | `discount-matrix` | Discount Matrix | `/locations/{office}/settings/discount-matrix` | discount-matrix-criteria (Search Criteria bar), region-weekly-peaks, location-activation — L1 QUICK under NM-3530. The Company Matrix tab is NOT registered here: NM-3343 owns it and its future module registration (scope lock in `plans/pending/PLAN_DISCOUNT_MATRIX_AUTOMATION.md`) |
+| `item-search` | Item Search (page heading "Products") | `/locations/1101/products` — office 1101 ONLY per NM-2253 ticket ruling | product-search (panel + results grid), product-code (View/Add dialogs), product-groups (tab: search + create) — L1 QUICK under NM-2253; DEEP recipient `SUBPLAN_PRODUCTS_DQU.md` |
 
 > Spec file names are flat inside each module dir (e.g. `tests/locations/location-pricing.spec.ts`), NOT nested under a `setup/` or `history/` subfolder.
 

@@ -1,0 +1,12 @@
+{
+  "plan": "PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md",
+  "plan_basename": "PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md",
+  "plan_sha256": "93c0c62796b0160589d3ce3486ff9a63d976e05edefecfed8cf69b287bafb0f8",
+  "passed_at": "2026-09-01T12:32:11.305Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "0b2b89845fd6f99c38e0e5422f5fda6590adf5ce23e5d43aa9b29beaee38dcb1",
+  "validator_invocation_id": "1788265931304-242202419f738499921bf473f3ec8579-93c0c62796b01605",
+  "artifacts": [],
+  "provisional": false
+}

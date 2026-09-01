@@ -234,8 +234,11 @@ list — none host in-scope QUICK fields beyond what is dispositioned.
    the menu and NOTHING opens (3 attempts, 4s/8s/10s waits, console clean of errors). Positive
    controls: Item/Class/Sub Category/Sub Class ALL open the dialog in the same session, and the
    Add caret's Category item opens fine. LR-ENC-008 satisfied. Evidence: `caret-view-pc.yml`,
-   `tmp-menu5.yml`, eval reads. → BUG candidate (file at GIVER/close per LR-034 with
-   baselineComparison: baseline-absent-env-blocked).
+   `tmp-menu5.yml`, eval reads. → **FILED 2026-09-01 as `BUG-ISR-PCD-001`** (reports/bugs/).
+   *Routing correction 2026-09-01: the original note said "file at GIVER/close" — §2 makes
+   GIVER a READ-only consumer of bug files; filing landed under the spec-generation identity,
+   and the note's `baseline-absent-env-blocked` is not a legal enum value — `baseline-absent`
+   used, env-block detail kept in the bug's baselineEvidence.*
 2. **View Availability toolbar button fully inert** — enabled-looking button; clicked ×3 (5s/15s/
    12s waits) on a Labor item row AND an equipment row (Available=1, Owned=1): no dialog, no
    popover, no navigation, ZERO network activity. **OR-1-adjacent**: availability is date-driven
@@ -248,6 +251,13 @@ list — none host in-scope QUICK fields beyond what is dispositioned.
 4. **Search projection drops Category for some rows** — Labor rows render blank Category cells
    (empty MajorCategory in search index) though the dialog hierarchy shows Category=Labor; blank
    rows float to top on ascending sort. Observation/discussion-item (data projection, not UI).
+5. **Prep/Return date values overflow their box for most months** *(added 2026-09-01 — found
+   after this walk closed, during the owner-directed month-cycling probe)* — 7 of 12 months on
+   Prep spill the AM/PM tail past the field border (+5..+30px; Mar–Jul fit), Return +23px.
+   Screenshot `.playwright-cli/page-2026-09-01T10-59-30-124Z.png`; per-month px table in the
+   PRS field inventory. Pinned by expected-fail TC-ISR-PRS-021. **FILED 2026-09-01 as
+   `BUG-ISR-PRS-001`** (reports/bugs/). The pair VALIDATION (Prep > Return → inline error +
+   disabled Search) is separate and works — covered green by TC-ISR-PRS-020.
 
 ### Suggestions / Improvements
 
@@ -273,3 +283,42 @@ Stage 3 ✓ (blind anchors consistent; sort-persistence bonus find) · Stage 4 �
 enumerated; 10 deferred-to-DEEP rows, G1-clean). Nav2 baseline: environment-blocked, retry #6
 15:14 UTC identical failure — recorded in `old-site-baseline/item-search-2026-08-31.md`.
 HUNTER walk complete 2026-08-31T20:50+05:30.
+
+## Post-closure machine-gate pass (2026-09-01, GIVER)
+
+Closure gate Cx surfaced three artifact classes needing machine-grade upgrades; all resolved live:
+
+1. **PCD dialog machine enumerations re-run** (both `dialog:view-product-code` 94 elements and
+   `dialog:add-product-code` 82, completion_record.status=complete, 0 UNREACHABLE) after two tooling
+   fixes: the branch-path portal scan (added 2026-09-01) and the portal-scan disabled-status fix —
+   disabled portal elements previously minted `status: UNREACHABLE` (a semantics no other enumeration
+   path uses; first ever triggered by these dialog walks), now they carry `disabled: true` like every
+   other path. The 6 disabled-flagged view-state controls (Save, Select service type, Barcodeable
+   checkbox, read-only input, first/previous pagination) are the machine evidence of the disabled-at-rest
+   contracts TC-ISR-PCD-002/006/007 assert. Inventory manifest rebuilt: 94-row view-state table
+   (machine order, keys verbatim, carets bound by DOM order) + add-state supplement (2 add-only keys).
+   Case rows emitted for both JSONs (`emit-case-rows --merge`, Path A = Path B = 12841 view / add rows
+   merged); `verifyDenominator` ok:true.
+
+2. **th affordance probes — PRS 13 + PGR 4 (playwright-cli, session isr2, trusted clicks)**. Protocol:
+   settle proven (13/4 th present, 0 skeletons), positive control FIRST (column-menu button click →
+   menu open with Sort ascending/Sort descending[/Hide column] — `isr-2026-09-01/prs-positive-control-category-menu.yml`
+   PRS, `isr-2026-09-01/pgr-positive-control-name-menu.yml` PGR), then per-column trusted click on the columnheader
+   itself with an immediate eval oracle. **Finding: 17/17 th clicks OPEN the column menu** (menu:true,
+   aria-sort untouched, no navigation) — the th delegates to its embedded menu trigger. The prior
+   "static header cell" classification in both inventories was WRONG and is corrected to
+   `affordance-probed: affordance: popover → column sort/hide menu` with per-page post-click snapshot
+   evidence (PRS `isr-2026-09-01/prs-th-click-menu-open.yml`, PGR `isr-2026-09-01/pgr-th-click-menu-open.yml`).
+   Probe-hygiene note: the first 4 clicks of the run silently no-oped on stale snapshot refs ("Ref not
+   found") and read menu:false — caught by checking the click output for errors before trusting the
+   oracle (blind-instrument zero); re-run with a fresh snapshot per click.
+
+3. **Out-of-scope citation upgrades** (no behavior change): PRS/PGR app-shell sidebar rows →
+   `outside-module` (cross-registry evidenced), PRS 7 structural wrappers → `not-interactive` prefix,
+   PCD host-page rows → `outside-module` → product-search inventory. Module-own OOS after upgrades:
+   PRS 7/69 ≈ 10%, PGR 0, PCD 0 — all under the 15% cap, no exemption needed.
+
+Auth note: the shared CLI state expired mid-pass; refreshed via the suite's own
+`npx playwright test --project=setup` (unattended, no MFA) and `state-load` of
+`clients/encore/.auth/encore-state.json` (client path, per the state-file gotcha), then `goto` on the
+existing tab (a fresh `open` recreates the context and drops the loaded state).

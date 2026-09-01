@@ -77,6 +77,15 @@ export const MODULE_CONFIG = {
       { label: 'expand:grid-options' },
     ],
   },
+  // Product Code dialogs (View/Add) on the products URL — multi-step states reached via the
+  // enumerate-page preSteps mechanism (2026-09-01; supersedes the "cannot reach" note above for
+  // this sub-surface). Artifact: field-inventories/item-search-product-code-<DATE>.md.
+  'item-search-product-code': {
+    requiredStates: [
+      { label: 'dialog:view-product-code' },
+      { label: 'dialog:add-product-code' },
+    ],
+  },
   // Product Groups sibling URL (…/products/product-groups): own search panel + Add-group dialog.
   'item-search-product-groups': {
     requiredStates: [

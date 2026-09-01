@@ -214,6 +214,7 @@ export const MODULE_CONFIG = {
     // "N products found" renders at rest ("0 products found") and survives every state — and the
     // grid column headers arrive with it. Anchor on the footer text (unique to this surface).
     contentMarker: 'text=products found',
+    urlGroup: 'products-page',
     openerTestidPatterns: [],
     openerRoleTextPatterns: [
       { role: 'button', text: 'Search', branch: 'search:executed' },
@@ -233,6 +234,37 @@ export const MODULE_CONFIG = {
     ],
     excludeOptionRoles: true,
     ...MC_DATA['item-search-product-groups'],
+  },
+  // Product Code dialogs (NM-2253 PCD sub-surface) — same products URL, but the View/Add Product
+  // Code dialogs need search → row-select before their toolbar openers enable. Reached via the
+  // preSteps mechanism (added 2026-09-01, closing the "one-click branch reach" gap the item-search
+  // comment above documents): empty-criteria Search returns the full catalog (~11s), the first row
+  // click arms the toolbar, then the branch opener click opens the dialog.
+  'item-search-product-code': {
+    path: (office) => `${BASE}/locations/${office}/products`,
+    contentMarker: 'text=products found',
+    urlGroup: 'products-page',
+    openerTestidPatterns: [],
+    openerRoleTextPatterns: [
+      {
+        role: 'button', text: 'View Product Code', branch: 'dialog:view-product-code',
+        readySelector: '[role="dialog"]',
+        preSteps: [
+          { role: 'button', text: 'Search', waitSelector: 'tbody tr', waitTimeout: 90000 },
+          { selector: 'tbody tr', waitSelector: 'button:has-text("View Product Code")' },
+        ],
+      },
+      {
+        role: 'button', text: 'Add Product Code', branch: 'dialog:add-product-code',
+        readySelector: '[role="dialog"]',
+        preSteps: [
+          { role: 'button', text: 'Search', waitSelector: 'tbody tr', waitTimeout: 90000 },
+          { selector: 'tbody tr', waitSelector: 'button:has-text("Add Product Code")' },
+        ],
+      },
+    ],
+    excludeOptionRoles: true,
+    ...MC_DATA['item-search-product-code'],
   },
 
   'corporate-pricing-override': {
@@ -506,6 +538,10 @@ async function scanPortalElements(page) {
           if (seen.has(key)) continue;
           seen.add(key);
           const isDisabled = child.disabled === true || child.getAttribute('aria-disabled') === 'true';
+          // Disabled portal elements carry `disabled: true` like every other enumeration path
+          // (enumerateState, cdp:listener) — never `status: UNREACHABLE`, which verify-denominator
+          // reserves for found-but-unverifiable elements and gates on human exemption. A disabled
+          // control IS verified: it is present in the DOM and its disabled contract was read live.
           const entry = {
             key,
             role: child.getAttribute('role') || child.tagName.toLowerCase(),
@@ -515,7 +551,6 @@ async function scanPortalElements(page) {
             inB: false,
             disabled: isDisabled,
           };
-          if (isDisabled) entry.status = 'UNREACHABLE';
           results.push(entry);
         }
       }
@@ -696,10 +731,37 @@ export function resolveBranchOpener(cfg, branchArg) {
 // by deriveAllFieldTypes' re-establish step, so both reach the surface the same way and cannot drift.
 export async function activateBranch(page, cfg, branchLabel) {
   const branchPattern = resolveBranchOpener(cfg, branchLabel);
+  // Multi-step branches: a branch pattern may declare `preSteps` — an ordered list of clicks that
+  // establish the state the opener needs (e.g. run a search and select a row before a toolbar
+  // button enables). Each step is {selector}|{role,text} [+ timeout, waitSelector, waitTimeout];
+  // a missing target fails loudly (same posture as resolveBranchOpener — silence would re-hide the
+  // multi-step surfaces this exists to reach). Shared with deriveAllFieldTypes' re-establish path
+  // by construction, since both call this function.
+  for (const st of branchPattern.preSteps || []) {
+    const stepLoc = st.selector
+      ? page.locator(st.selector)
+      : page.getByRole(st.role, { name: st.text, exact: true });
+    await stepLoc.first().click({ timeout: st.timeout ?? 15000 });
+    if (st.waitSelector) {
+      await page.locator(st.waitSelector).first().waitFor({ state: 'visible', timeout: st.waitTimeout ?? 30000 });
+    }
+  }
   const loc = branchPattern.selector
     ? page.locator(branchPattern.selector)
     : page.getByRole(branchPattern.role, { name: branchPattern.text, exact: true });
-  await loc.first().click({ timeout: 5000 });
+  await loc.first().click({ timeout: branchPattern.preSteps ? 15000 : 5000 });
+  // Portal-mounted branch surfaces (Radix dialogs) render seconds AFTER the opener click, while
+  // waitReady below passes instantly on the host page's testids — so an immediate enumeration
+  // snapshots the page without the branch surface (measured 2026-09-01: both Product Code dialog
+  // runs emitted host-page-only manifests). `readySelector` names the branch surface's own root;
+  // enumeration must not start until it is visible and its skeleton placeholders are gone.
+  if (branchPattern.readySelector) {
+    await page.locator(branchPattern.readySelector).first().waitFor({ state: 'visible', timeout: 30000 });
+    await page.waitForFunction(
+      () => document.querySelectorAll('[data-slot="skeleton"]').length === 0,
+      undefined, { timeout: 20000 },
+    ).catch(() => { /* hydration slower than the bound — enumerate what is rendered */ });
+  }
   // Content-gated branches (e.g. Service Charge History) wait for rendered DOM markers, not testid counts.
   if (branchPattern.contentGate) {
     await waitReadyContent(page);
@@ -1120,7 +1182,13 @@ async function main() {
       const branchPattern = await activateBranch(page, cfg, args.branch);
       const branchState = await enumerateState(page);
       mergeEntries(accum, branchState.entries, args.branch, excludeOptions);
-      report.branches.push({ branch: args.branch, openerText: branchPattern.text, addedKeys: branchState.entries.length, ok: true });
+      // Portal-mounted branch surfaces live OUTSIDE <main> (Radix dialogs portal to body level),
+      // so the container-scoped enumerateState above cannot see them — only the resting path ran
+      // the portal scan before this fix (measured 2026-09-01: two Product Code dialog runs emitted
+      // host-page-only manifests while the dialog was verifiably open via readySelector).
+      const branchPortalEntries = await scanPortalElements(page);
+      const branchPortalAdded = mergeEntries(accum, branchPortalEntries, args.branch, false);
+      report.branches.push({ branch: args.branch, openerText: branchPattern.text, addedKeys: branchState.entries.length, portalKeys: branchPortalEntries.length, portalAdded: branchPortalAdded, ok: true });
     } else {    // --- resting-state enumeration + CDP G1 on its candidates (Pay To Address lives here) ---
     // Item 1(a): detect whether the page is genuinely at rest (no open dialogs/modals/popovers).
     // Only mark resting as observed when no overlay is blocking the base surface.

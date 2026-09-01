@@ -1407,6 +1407,22 @@ Columns 33–40 (labor-to-hourly) are present in history even for US locations; 
 
 ---
 
+## Item Search Page (`/locations/1101/products` — left-nav Search › Item Search, heading "Products")
+
+> **Added 2026-09-01** (NM-2253 QUICK closure) — orientation summary, not a re-transcription. Dated truth lives in `specs_planning/_internal/field-inventories/item-search-{product-search,product-code,product-groups}-2026-08-31.md`, `_internal/walk-evidence-item-search-2026-08-31.md`, `_internal/jira-defect-crossref-item-search-2026-08-31.md` (OR-1..OR-6 owner rulings) and the exploration-registry row. Next.js MFE web component hosted inside legacy Angular Navigator. **Office 1101 ONLY by ticket ruling** (admin-scoped feature; not 1604). Old-site baseline env-blocked (nav2 TLS-rejects automated browsers — evidence in `_internal/old-site-baseline/item-search-2026-08-31.md`).
+
+**Sub-surfaces (one spec each in `tests/item-search/`; IDs `TC-ISR-{PRS,PCD,PGR}-NNN`)**:
+
+| Surface | What it covers | One-line behavior (see the dated inventory for full findings) |
+|---|---|---|
+| Product Search (`product-search`) | search panel + 13-column results grid | Search boxes **debounce keystrokes into the model (~600ms)** — an immediate Search reads the stale model (page object settles 800ms); results load only on Search; executed criteria/results/sort **restore on later visits** (NM-1616 URL params); sorting only via column-header menus; cell tooltips fire **only on cut-off text measured on the cell's inner span** (the td always reads as fitting); pair validation live: Prep > Return → red message + Search disabled (TC-020); **date values overspill the box in 7/12 months** (BUG-ISR-PRS-001, expected-fail TC-021); dates do NOT shape results yet (owner ruling OR-1) and View Availability is enabled-but-inert under the same ruling. |
+| Product Code (`product-code`) | View/Add Product Code dialogs, 5-level hierarchy | Cascading segment dialogs (Item/Class/Sub Category/Sub Class work); **View→Category is a silent no-op** (BUG-ISR-PCD-001; Add→Category works); History tab renders chrome seconds before grid headers (gate on skeletons + `thead th`); product-type list is a fixed 10-entry SET whose order varies by day (sort-agnostic compare); dirty dialogs close silently (no unsaved-changes guard). |
+| Product Groups (`product-groups`) | Product Groups tab: search + create flow | Empty-criteria search returns **0 groups** while Products returns ALL (~15.8k) — divergent sibling semantics, discussion-item; default page size 20 vs Products 50; add-form dual-list sub-class picker (drag mechanics deferred to DEEP). |
+
+**Module-wide notes**: three trigger buttons share `aria-label="Open popover"` but role-name queries resolve only the 2 date buttons — anchor by CSS attribute + index; cmdk dropdowns commit via Enter on the `aria-selected` option (mouse can land under the sticky search bar); panel collapse slides content out of viewport (assert the toggle name flip + `toBeInViewport`, never visibility); nothing in the QUICK suite persists app data (no Save; probes end with Reset). QUICK plan: `plans/done/PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md`; DEEP recipient: `plans/pending/SUBPLAN_PRODUCTS_DQU.md` (42 seeded elements); fresh-session audit: `plans/pending/PLAN_NM2253_ITEM_SEARCH_EXTERNAL_01_AUDIT.md`.
+
+---
+
 ## Auth Protocol
 
 Authoritative reference for auth flow parameters when agents need to know what auth Encore uses. Full narrative is in `## Authentication System` (L11) above — this is the named anchor agents reference from their Client Context Bootstrap.
@@ -1464,6 +1480,7 @@ Used by all pipeline agents when generating files, test IDs, selectors, module r
 | `TC-LOC-ACC-*` / `LGL` / `NTS` / `SSL` / `AAO` / `CUR` / `PRI` / `LP` / `MGH` | Locations — Account-Address / Legal / Notes / Shared-Setup / Auto-Add-On / Currency / Pricing / Left-Panel / Mgmt-History | `TC-LOC-PRI-012` |
 | `TC-LOS-*` / `TC-LOS-ECT-*` / `TC-LOS-HIS-*` | Local Office Settings — general / ECT / History | `TC-LOS-ECT-008` |
 | `TC-CPR-{SRC,STR,DET,NPB,OVR,TIO}-*` | Corporate Pricing — Search / Strategy / Detail / New-Pricebook / Override / Toolbar-I-O | `TC-CPR-SRC-019` |
+| `TC-ISR-{PRS,PCD,PGR}-*` | Item Search — Product Search / Product Code / Product Groups (office 1101, NM-2253) | `TC-ISR-PRS-020` |
 
 Legacy band-style IDs (`TC-LOC-CPR-NNN`, `TC-PRC-*`, `TC-ECT-*`) were re-grammared 2026-06-11; old↔new map at `clients/encore/specs_planning/_internal/id-audit-2026-06-10/id-rename-map.csv`. New modules: mint the code in `export_test_cases/module-codes.json` and add a registry row in `MODULE_REGISTRY.md` before creating any TC.
 

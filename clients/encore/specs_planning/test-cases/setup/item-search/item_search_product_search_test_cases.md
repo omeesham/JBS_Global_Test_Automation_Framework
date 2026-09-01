@@ -413,4 +413,4 @@
 | 2 | Pick a wide date on Return Date Time and measure it | The value fits inside the box |
 | 3 | Click Reset | Both fields return to defaults |
 
-**Notes**: KNOWN DEFECT (found 2026-09-01, reported): wide dates overspill the box — 7 of 12 months on Prep (up to 30 pixels past the edge; e.g. "November 22nd, 2026 12:00 AM" pushes "AM" outside the border) and Return likewise ("November 22nd, 2026 11:59 PM", 23 pixels). Only March–July fit. The automated case is marked expected-to-fail so the suite stays honest while the defect lives; when the fix lands the run will flag the case as unexpectedly passing, which is the signal to unmark it.
+**Notes**: KNOWN DEFECT (found 2026-09-01, filed as BUG-ISR-PRS-001): wide dates overspill the box — 7 of 12 months on Prep (up to 30 pixels past the edge; e.g. "November 22nd, 2026 12:00 AM" pushes "AM" outside the border) and Return likewise ("November 22nd, 2026 11:59 PM", 23 pixels). Only March–July fit. The automated case is marked expected-to-fail so the suite stays honest while the defect lives; when the fix lands the run will flag the case as unexpectedly passing, which is the signal to unmark it.
