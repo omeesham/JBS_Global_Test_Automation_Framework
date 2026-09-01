@@ -41,7 +41,7 @@
 | Reset restores defaults and empties results | Text fields clear, Location returns to the current office, Region clears, Quantity stays unchecked, Active stays checked, and the count shows zero until the next Search. |
 | Word search spans product fields | The help popover states the search covers item number, description, category and product group; a matching word filters to rows containing it. |
 | Sorting is menu-driven | Clicking a column header opens a small menu (Sort ascending / Sort descending / Hide column); clicking the header alone does not flip the sort. Default order is by Category ascending, and rows with an empty Category cell come first. |
-| Cell tooltips only on truncation | Grid cells show a tooltip with the full text only when the text is cut off; short values show none. |
+| Cell tooltips only on truncation | Grid cells show a tooltip with the full text only when the text is cut off; short values show none. Each cell caps its width and clips through an inner text element, so a cut-off check must measure that inner element — the cell box itself always reports its text as fitting (confirmed live 2026-09-01; an interim same-day note claiming "cells never truncate" came from measuring the cell box and was withdrawn). |
 | Dates are display-only for now | The two date fields open a calendar with a time spinner. Date-driven behavior is not functional yet per the product owner — cases verify the fields only. |
 
 ## MCP_VERIFICATION_LOG
@@ -62,7 +62,7 @@
 | 12 | Pagination | 318 pages at 50/page; next → page 2, first/prev enable; back to 1 |
 | 13 | Rows-per-page options | 10 / 20 / 30 / 40 / 50 |
 | 14 | Grid Options | Reset to Default View + 12 column toggles; Owned hide→restore cycle |
-| 15 | Tooltips | Info icon ("future products page"), "Hide search", "Grid Options", truncated-cell full text; none on headers/location chip |
+| 15 | Tooltips | Info icon ("future products page"), "Hide search", "Grid Options", cut-off-cell full text (re-proven 2026-09-01: a clipped Description cell tooltipped its full text; a fitting cell stayed clear); none on headers/location chip |
 | 16 | Persistence | "Amp" + 376 results + sort order restored after leaving and returning |
 | 17 | Search help | Click popover; text names the covered fields |
 | 18 | Collapse toggle | Panel hides and returns |
@@ -160,10 +160,10 @@
 **Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
-| 1 | Find a cell whose text is visibly truncated and hover it | A tooltip shows the cell's full text |
+| 1 | Find a cell whose text is visibly cut off and hover it | A tooltip shows the cell's full text |
 | 2 | Hover a cell whose text fits fully | No tooltip appears |
 
-**Notes**: The truncation check should be computed (text wider than the cell), not hardcoded to a specific product, so the case survives data changes.
+**Notes**: The cut-off check should be computed (text wider than its box), not hardcoded to a specific product, so the case survives data changes — and it must measure the cell's INNER text element: each cell caps its width and clips through that inner element, so the cell box itself always reads as fitting. Re-proven live 2026-09-01 (a clipped Description cell tooltipped its full 42-character text; a fitting cell stayed clear across the tooltip delay). An interim same-day rewrite of this case to "text never truncates" was itself wrong — it measured the cell box — and was withdrawn the same day.
 
 ---
 

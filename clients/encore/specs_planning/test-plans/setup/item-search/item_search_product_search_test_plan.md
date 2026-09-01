@@ -53,7 +53,7 @@ verification, all rows matching).
 | Executed criteria, results and sort order are restored on later visits | Every case starts from Reset (or sets its own criteria); defaults are asserted immediately after Reset, never on a bare load |
 | The page hydrates in stages (~20s cold, ~11s per unfiltered search) | Readiness gates on the loading-placeholder census reaching zero — never on row count |
 | Sorting flips only through the column-header menu | Cases open the menu; a bare header click is not a sort action |
-| Cell tooltips fire only on truncated text | The tooltip case computes truncation instead of hardcoding a product |
+| Cell tooltips fire only on cut-off text | The tooltip case computes the cut-off state on each cell's inner text element (the cell box always reads as fitting) instead of hardcoding a product; measurement point pinned 2026-09-01 |
 | Office 1101 is live shared data | This plan's cases mutate nothing but filter state; each restores defaults via Reset |
 
 ## 4. Scenarios
