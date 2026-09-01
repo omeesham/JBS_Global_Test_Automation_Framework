@@ -112,6 +112,7 @@ Each element id below is the grep target back into its inventory row (reason ≥
 - [ ] Extra pagination: `pgr-last-page-button`, `pgr-page-number-input`
 - [ ] Misc: `pgr-collapse-toggle` (per-state re-verify), `pgr-grid-options-state-button` (searched-state header cluster), `products-back-link` (navigation affordance), `unnamed-search-form-input` (identity unresolved — resolve at DQU recon before casing)
 - [ ] PRS Grid Options "Reset to Default View": TC-ISR-PRS-017 asserts the entry EXISTS and exercises hide/restore by re-checking, but the Reset button's own click-function (restore hidden columns + column order in one shot) is never driven — add a case that hides ≥2 columns, clicks Reset to Default View, and proves the default header set returns (owner pointed at this control 2026-09-01)
+- [ ] PRS "Active" filter checkbox EFFECT: the QUICK filter-family L1 rode Quantity>0 (TC-ISR-PRS-012); the Active checkbox is inventoried (server flag `active:true` observed in the search request) but no TC toggles it and asserts the result-set delta — add the toggle-and-compare case (NM-2254 scope; flagged during the owner's 2026-09-01 coverage review)
 
 **PCD — Product Code dialogs (1)**
 - [ ] In-grid quantity editing: `owned-count-cell-edit` (the `locations.product.ownedCount` cell button — editing owned quantities in the result grid is beyond the QUICK L1 case set; DEEP cases must cover edit → validate → persist/discard on the searched grid)
