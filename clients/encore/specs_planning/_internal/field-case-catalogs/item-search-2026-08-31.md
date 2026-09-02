@@ -16,7 +16,7 @@
 | Active (PRS) | Checkbox | none | TC-ISR-PRS-002 (default checked) | inactive-set assertion (needs known-inactive product data) |
 | Location (PRS) | Dropdown / combobox (Radix, typeahead) | none | TC-ISR-PRS-007 (options render) + TC-ISR-PRS-009 (exclusivity) | typeahead filtering; selecting a foreign office (result reshaping) |
 | Region (PRS) | Dropdown / combobox | none | TC-ISR-PRS-008 + TC-ISR-PRS-009 | region-scoped result assertions (needs region-tagged expectations) |
-| Product Organization (PRS) | Multi-select popover | none | TC-ISR-PRS-010 (itemization) | filter effect (needs org-tagged data) |
+| Product Organization (PRS) | Multi-select popover | none | TC-ISR-PRS-010 (itemization) + TC-ISR-PRS-032 (filter effect delta — added 2026-09-02) | — (the earlier "needs org-tagged data" gap is CLOSED: tagged data exists on 1101 and the effect is deterministic; see the inventory's Product Organization row) |
 | Prep / Return Date Time (PRS) | Date/offset | none | TC-ISR-PRS-011 (field-level open/structure — OR-1) | ALL date-driven behavior (owner ruling: not functional yet) |
 | View dialog editable set (PCD) | Plain text ×3, Dropdown ×6, Checkbox ×2, popover | none | TC-ISR-PCD-002 (render + values + Save state) | per-field save-cycles (nothing may be persisted at QUICK without owner data) |
 | Sub-Class Service Type (PCD) | Cascading dropdown | none | TC-ISR-PCD-002 (disabled-at-rest evidence in View) | full cascade drive in View dialog |

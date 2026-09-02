@@ -5,10 +5,10 @@
 **Page**: Products (`/locations/1101/products`) — search panel + result grid
 **Test Entity**: Office 1101
 **Updated**: 2026-09-02
-**Total TCs**: 31
+**Total TCs**: 32
 **Coverage mode**: QUICK (L1)
 **Governing Requirement**: NM-2253 (barcode cases additionally governed by NM-1494)
-**Verified against**: field inventory `item-search-product-search-2026-08-31.md`; machine denominators `reports/walk-coverage/isr.json` (70, resting) + `isr--search-executed.json` (29) + `isr--expand-grid-options.json` (63); live probes 2026-08-31 (walk evidence `walk-evidence-item-search-2026-08-31.md`), the 2026-09-01 barcode session (twelve supplied barcodes resolved live), and the 2026-09-02 Active-filter session (anchor SM58 39 → 45 → 39 across checked/unchecked/re-checked, plus ULXD1 10 → 11, Amp 378 → 669, ZED 305 → 402; walk evidence `walk-evidence-item-search-save-flows-2026-09-02.md`)
+**Verified against**: field inventory `item-search-product-search-2026-08-31.md`; machine denominators `reports/walk-coverage/isr.json` (70, resting) + `isr--search-executed.json` (29) + `isr--expand-grid-options.json` (63); live probes 2026-08-31 (walk evidence `walk-evidence-item-search-2026-08-31.md`), the 2026-09-01 barcode session (twelve supplied barcodes resolved live), the 2026-09-02 Active-filter session (anchor SM58 39 → 45 → 39 across checked/unchecked/re-checked, plus ULXD1 10 → 11, Amp 378 → 669, ZED 305 → 402; walk evidence `walk-evidence-item-search-save-flows-2026-09-02.md`), and the 2026-09-02 coverage re-audit (denominator re-enumerated live at raw 70 — unchanged from 08-31; Product Organization effect proven, UI 15,881 → 1 → restored and API `productOrgIds` `[]`→15881 / `[1|2|3]`→1 / `[999]`→0, which authored TC-ISR-PRS-032 and superseded the artifact's "needs org-tagged data" deferral)
 
 ---
 
@@ -586,3 +586,22 @@
 | 4 | Re-check Active and click Search | The result returns to the step 1 set — the added rows are gone again |
 
 **Notes**: NM-2254. The assertion is identity-based, not a bare count: the Active-off row set must be a strict superset of the Active-on set (every active Product Code ID still present, at least one inactive ID added) and re-checking must restore the original set — together this proves both that the filter has an effect and its direction (off widens the set by adding inactive products). `SM58` is the anchor because both states fit on a single page (39 active, 45 with the inactive ones included — a margin of six rows) so the two ID sets diff cleanly on one page; confirmed live 2026-09-02, the count moving 39 → 45 → 39 across checked, unchecked and re-checked. The same effect was confirmed on broader searches (`Amp` 378 → 669, `ZED` 305 → 402) and held steady across a 30-second watch, so it is a real filter and not a loading-window read (LR-ENC-008). The case asserts the superset relationship rather than hardcoding any single ID, so ordinary catalog changes cannot make it lie. This case mutates only filter state — nothing is saved.
+
+---
+
+## TC-ISR-PRS-032: The Product Organization filter narrows the results and clearing it restores them
+
+**Automatable**: Yes
+**Surface_Family**: combination (QUICK)
+**Preconditions**: The Products page is open with default criteria (Product Organization shows `None`); no search has been executed.
+
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Click Search with Product Organization left at `None` | The unfiltered result loads; record the count as the baseline total |
+| 2 | Open the Product Organization popover and choose `United States` | The popover closes and the field now reads `United States` instead of `None` |
+| 3 | Click Search again | The count drops to a strictly smaller, non-zero number — the filter narrowed the set rather than emptying or ignoring it |
+| 4 | Read the returned rows | Every visible row belongs to the filtered set; the set is a strict subset of the step 1 result |
+| 5 | Click Reset, then Search once more | Product Organization returns to `None` and the count returns to the step 1 baseline |
+
+**Notes**: NM-2254. **Authored 2026-09-02 by the coverage re-audit** — this is the effect-delta case TC-ISR-PRS-010 structurally could not provide. TC-010 opens the popover, asserts the country checklist is itemised, then dismisses **without choosing**, so it never proves the control filters anything; a filter with no BEFORE/AFTER delta is the silent-omission class the walk doctrine forbids. The 2026-08-31 inventory had recorded this effect as deferred "needs org-tagged data" — that reading was **wrong and is superseded**: org-tagged data exists on office 1101 and the effect is deterministic. Measured live 2026-09-02 — unfiltered `15,881 products found`, `United States` → `1 products found` (item 102182), Reset → back to the baseline; skeleton census 132 → 0 before each read, so these are post-settle values (LR-ENC-008). The direct API probe on `POST /navigator/api/products/search` supplies the positive control demanded before any zero/degenerate reading may be trusted (HARD STOP #21): `productOrgIds:[]` → totalCount 15881, `[1]`/`[2]`/`[3]` → 1, `[1,2,3]` → 1, and nonsense ids `[999]`/`[42]` → **0**. The nonsense-id zeros prove the server genuinely honours the parameter, so the fact that all three countries return the same single row is **sparse tagging — product 102182 is the only org-tagged product in the catalogue and it carries all three countries — not a defect**; no bug is filed. Because of that sparsity the case deliberately asserts the *relationship* (strictly smaller, non-zero, restored by Reset) instead of hardcoding `1` or any country's identity, so it stays honest if the catalogue is ever tagged more widely. This case mutates only filter state — nothing is saved.

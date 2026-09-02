@@ -197,7 +197,7 @@ Stage 2; enriched: 82 total, 20/page).
   - `Translations tab save-cycle` (mutating; QUICK stays read/field-level)
   - `History tab in-dialog Grid Options + column sorts` (per-STATE chrome duplicate walk)
   - `PGR Add dual-list drag path` (drag mechanics; double-click path is the QUICK TC)
-  - `Product Org popover country-filter effect on results` (needs org-tagged data)
+  - ~~`Product Org popover country-filter effect on results` (needs org-tagged data)~~ — **WITHDRAWN 2026-09-02**: the deferral was wrong. Org-tagged data exists on office 1101 and the effect is deterministic (UI 15,881 → 1 on a country, restored by Reset; API `productOrgIds` `[]`→15881, `[1|2|3]`→1, `[999]`→**0**, the nonsense-id zero proving the server honours the parameter). Now covered by TC-ISR-PRS-032. The 2026-08-31 pass skipped the LR-040-D rung-2 SELF-SERVE hunt that would have found the data.
   - `per-column menu sweep across all 13 columns` (Category+Owned probed; remaining 11 same
     archetype)
   - `page-number textbox direct entry` (next/first proven; textbox entry same family)

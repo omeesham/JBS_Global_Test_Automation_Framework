@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 165 pending · 488 done · 162 stale (>14d) · 0 DONE-in-pending
+**Totals**: 165 pending · 490 done · 162 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -380,6 +380,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | File | Title | Status | Completed |
 |---|---|---|---|
 | [SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md](done/SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md) | SUBPLAN: LI Test-Case MD — Phase 0 Lint Sweep | SUPERSEDED | never (folded scope) |
+| [PLAN_NM2254_PRODUCT_SEARCH_FILTERS.md](done/PLAN_NM2254_PRODUCT_SEARCH_FILTERS.md) | PLAN_NM2254_PRODUCT_SEARCH_FILTERS — own the Filters half of the Product Search page | DONE | 2026-09-02 (ownership split; the coverage itself landed 2026-08-31 → 2026-09-01 under the parent) |
+| [PLAN_NM3650_PRODUCT_SEARCH.md](done/PLAN_NM3650_PRODUCT_SEARCH.md) | PLAN_NM3650_PRODUCT_SEARCH — own the search + result-grid half of the Product Search page | DONE | 2026-09-02 (ownership split; the coverage itself landed 2026-08-31 → 2026-09-01 under the parent) |
 | [SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md](done/SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md) | SUBPLAN_ITEM_SEARCH_SAVE_FLOWS — close the save half of NM-2253 | DONE | 2026-09-02 |
 | [SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE.md](done/SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE.md) | SUBPLAN_ITEM_SEARCH_BARCODE_COVERAGE — close the barcode search gap on Item Search Products (OR-4 data now supplied) | DONE | 2026-09-01 |
 | [PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md](done/PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md) | PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK — NM-2253: QUICK coverage for Item Search (Product Search · Product Code · Product Groups) | DONE | 2026-08-31 → 2026-09-01 (branch NM-2253; commits 8cd3a355 · 0c375154 · 55611cc8 · 9f6418f6 · dee425df + closure) |
@@ -876,7 +878,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 plans/
   INDEX.md              ← this file (auto-generated)
   pending/              ← active plans (165 files)
-  done/                 ← completed plans (488 files)
+  done/                 ← completed plans (490 files)
 ```
 
 When completing a plan:
@@ -891,6 +893,8 @@ When completing a plan:
 | Date | Folder | File | Status |
 |---|---|---|---|
 | 2026-09-02 | pending | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PENDING |
+| 2026-09-02 | done | [PLAN_NM2254_PRODUCT_SEARCH_FILTERS.md](done/PLAN_NM2254_PRODUCT_SEARCH_FILTERS.md) | DONE |
+| 2026-09-02 | done | [PLAN_NM3650_PRODUCT_SEARCH.md](done/PLAN_NM3650_PRODUCT_SEARCH.md) | DONE |
 | 2026-09-02 | done | [SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md](done/SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md) | DONE |
 | 2026-09-01 | pending | [PLAN_DELIVERABLE_QUALITY_UPGRADE.md](pending/PLAN_DELIVERABLE_QUALITY_UPGRADE.md) | PENDING |
 | 2026-09-01 | pending | [PLAN_NM2253_ITEM_SEARCH_EXTERNAL_01_AUDIT.md](pending/PLAN_NM2253_ITEM_SEARCH_EXTERNAL_01_AUDIT.md) | PENDING |
@@ -928,5 +932,3 @@ When completing a plan:
 | 2026-08-18 | done | [SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md](done/SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md) | SUPERSEDED |
 | 2026-08-17 | pending | [godsplan.md](pending/godsplan.md) | PENDING |
 | 2026-08-17 | pending | [PLAN_60_JIRA_READONLY_HARDGATE.md](pending/PLAN_60_JIRA_READONLY_HARDGATE.md) | PENDING |
-| 2026-08-17 | pending | [PLAN_61_WORKER_DEATH_PERMAFIX.md](pending/PLAN_61_WORKER_DEATH_PERMAFIX.md) | PENDING |
-| 2026-08-17 | pending | [PLAN_63_PC_BACKUP_ONEDRIVE_RESET_SURVIVAL.md](pending/PLAN_63_PC_BACKUP_ONEDRIVE_RESET_SURVIVAL.md) | PENDING |

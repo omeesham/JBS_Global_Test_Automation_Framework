@@ -283,6 +283,22 @@ export class ItemSearchPage extends ItemSearchGridBasePage {
     return text;
   }
 
+  /**
+   * Chooses one country in the Product Organization popover, closes it, and confirms the
+   * field shows that country — a click that silently fails to register and a country the
+   * page rejects look identical without the read-back.
+   */
+  @step('Choose a Product Organization country')
+  async selectOrgCountry(country: string): Promise<void> {
+    await this.popoverButton(0).click();
+    const popper = this.page.locator('[data-radix-popper-content-wrapper]').last();
+    await popper.waitFor({ state: 'visible', timeout: 5_000 });
+    await popper.getByRole('option', { name: country, exact: true }).click();
+    await this.page.keyboard.press('Escape');
+    await popper.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => {});
+    await expect(this.popoverButton(0)).toContainText(country, { timeout: 5_000 });
+  }
+
   /** The full text of the labeled wrapper holding one date field, value included. */
   @step('Read a date field')
   async readDateFieldText(label: 'Prep Date Time' | 'Return Date Time'): Promise<string> {

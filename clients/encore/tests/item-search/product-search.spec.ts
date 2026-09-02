@@ -581,4 +581,32 @@ test.describe('Item Search Products search panel — fields @item-search @produc
     await isr.clickReset();
     expect(await isr.readBarcode()).toBe('');
   });
+
+  test('TC-ISR-PRS-032: The Product Organization filter narrows the results and clearing it restores them', async ({
+    dependencyGate,
+  }) => {
+    dependencyGate([]);
+    // Product Organization filters by country. Only a small slice of this catalogue carries
+    // country tagging, so the case asserts the relationship — the filter must shrink the set
+    // without emptying it, and Reset must bring the whole set back — instead of any fixed
+    // count, which would start lying the moment more products are tagged. NM-2254.
+    const country = 'United States';
+    const baseline = await isr.clickSearchAndWait((n) => n !== null && n > 0);
+    expect(await isr.readOrgValueText()).toContain('None');
+
+    await isr.selectOrgCountry(country);
+    const filtered = await isr.clickSearchAndWait(
+      (n) => n !== null && n > 0 && n < (baseline as number),
+    );
+    // Narrowed, but not emptied — an ignored filter would leave the total untouched and a
+    // broken one would return nothing, so both failure directions are covered.
+    expect(filtered as number).toBeGreaterThan(0);
+    expect(filtered as number).toBeLessThan(baseline as number);
+    expect((await isr.readColumnValues('Product Code ID')).length).toBeGreaterThan(0);
+
+    // Reset clears the country, and the unfiltered total comes back unchanged.
+    await isr.clickReset();
+    expect(await isr.readOrgValueText()).toContain('None');
+    expect(await isr.clickSearchAndWait((n) => n === baseline)).toBe(baseline);
+  });
 });

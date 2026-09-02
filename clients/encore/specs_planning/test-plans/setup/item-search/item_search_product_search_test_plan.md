@@ -6,7 +6,7 @@
 **Test Entity**: Office 1101
 **Governing Requirement**: NM-2253
 **Updated**: 2026-09-02
-**Total Scenarios**: 31
+**Total Scenarios**: 32
 **Test Cases**: `item_search_product_search_test_cases.md`
 
 ---
@@ -91,3 +91,4 @@ verification, all rows matching).
 | TC-ISR-PRS-029 | A product found by barcode opens in the product-code dialog | Surface — combination (QUICK) | Yes |
 | TC-ISR-PRS-030 | The barcode box stops accepting characters at its limit | Field (Axis 1) — length boundary per NM-1494 | Yes |
 | TC-ISR-PRS-031 | The Active filter narrows the results to active products | Surface — combination (QUICK) | Yes |
+| TC-ISR-PRS-032 | The Product Organization filter narrows the results and clearing it restores them | Surface — combination (QUICK) | Yes |
