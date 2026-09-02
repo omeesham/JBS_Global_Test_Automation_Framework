@@ -1814,7 +1814,8 @@
    "name": "Item Search — Product Search",
    "status": "approved-next",
    "specs": [
-    "tests/item-search/product-search.spec.ts"
+    "tests/item-search/product-search.spec.ts",
+    "tests/item-search/product-search-filters.spec.ts"
    ],
    "workbooks": [
     "testcases/item-search/item-search-product-search.xlsx"

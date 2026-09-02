@@ -4,15 +4,8 @@ import { ProductGroupsPage } from '../../src/pages/item-search/product-groups.pa
 import { ProductCodePage } from '../../src/pages/item-search/product-code.page';
 import {
   ISR_OFFICE,
-  ISR_OFFICE_OPTION,
-  ISR_LOCATION_PLACEHOLDER,
   ISR_REGION_PLACEHOLDER,
-  ISR_REGION_SAMPLE,
-  ISR_LOCATION_LIST_FLOOR,
-  ISR_REGION_LIST_FLOOR,
-  ISR_ORG_ENTRIES,
   ISR_SEARCH_WORD,
-  ISR_ACTIVE_FILTER_WORD,
   ISR_NO_MATCH_BARCODE,
   ISR_BARCODE_NUMERIC,
   ISR_BARCODE_NUMERIC_ALT,
@@ -35,7 +28,11 @@ import {
 } from '../../src/data/item-search/item-search';
 
 /**
- * Item Search — Products page (NM-2253), office 1101 (admin-only surface).
+ * Item Search — Products page (NM-3650), office 1101 (admin-only surface).
+ *
+ * Covers the search inputs above the "Filters" heading and the results grid below it. The
+ * companion file product-search-filters.spec.ts covers the Filters controls themselves —
+ * Location, Region, Product Organization, the date pair, and the two checkboxes.
  *
  * Two live behaviors shape every test:
  *  - Results load only on Search, and Reset empties to "0 products found" until the next
@@ -114,67 +111,6 @@ test.describe('SBC — Item Search Products surface behaviors @item-search @prod
         return Date.now() - started > 2_000 ? 'stayed clear' : 'still watching';
       }, { timeout: 10_000 })
       .toBe('stayed clear');
-  });
-
-  test('TC-ISR-PRS-009: Location and Region clear each other', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    await isr.selectLocation(ISR_OFFICE_OPTION, ISR_OFFICE);
-    expect(await isr.readLocationText()).toContain(ISR_OFFICE);
-    // Feeding Region overrides the office — the last one set wins.
-    await isr.selectRegion(ISR_REGION_SAMPLE);
-    expect(await isr.readRegionText()).toContain(ISR_REGION_SAMPLE);
-    expect(await isr.readLocationText()).toBe(ISR_LOCATION_PLACEHOLDER);
-    // And back the other way.
-    await isr.selectLocation(ISR_OFFICE_OPTION, ISR_OFFICE);
-    expect(await isr.readLocationText()).toContain(ISR_OFFICE);
-    expect(await isr.readRegionText()).toBe(ISR_REGION_PLACEHOLDER);
-    // Reset restores the current office and clears the region.
-    await isr.clickReset();
-    expect(await isr.readLocationText()).toContain(ISR_OFFICE);
-    expect(await isr.readRegionText()).toBe(ISR_REGION_PLACEHOLDER);
-  });
-
-  test('TC-ISR-PRS-012: Quantity Greater Than Zero narrows the results', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    const total = await isr.clickSearchAndWait((n) => n !== null && n > 0);
-    await isr.toggleFilter(0);
-    expect(await isr.isFilterChecked(0)).toBe(true);
-    const narrowed = await isr.clickSearchAndWait((n) => n !== null && n > 0 && n < (total as number));
-    expect(narrowed as number).toBeGreaterThan(0);
-    expect(narrowed as number).toBeLessThan(total as number);
-    // Unchecking brings the unfiltered total back.
-    await isr.toggleFilter(0);
-    expect(await isr.isFilterChecked(0)).toBe(false);
-    const restored = await isr.clickSearchAndWait((n) => n === total);
-    expect(restored).toBe(total);
-  });
-
-  test('TC-ISR-PRS-031: The Active filter narrows the results to active products', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    // The Active filter is checked at rest, so the first search returns active products
-    // only. This word was chosen because its result set includes deactivated products, so
-    // unchecking Active must grow the set — never shrink it or leave it unchanged.
-    await isr.typeAnyField(ISR_ACTIVE_FILTER_WORD);
-    expect(await isr.isFilterChecked(1)).toBe(true);
-    const activeCount = await isr.clickSearchAndWait((n) => n !== null && n > 0);
-    const activeIds = await isr.readColumnValues('Product Code ID');
-    // Uncheck Active — the same search now also returns the inactive products.
-    await isr.toggleFilter(1);
-    expect(await isr.isFilterChecked(1)).toBe(false);
-    const allCount = await isr.clickSearchAndWait((n) => n !== null && n > (activeCount as number));
-    const allIds = await isr.readColumnValues('Product Code ID');
-    expect(allCount as number).toBeGreaterThan(activeCount as number);
-    // The relationship is the assertion, not the counts: every active product is still
-    // present with the filter off, plus at least one product the filter had hidden.
-    for (const id of activeIds) {
-      expect(allIds, `active product ${id} should still be present with Active off`).toContain(id);
-    }
-    const revealed = allIds.filter((id) => !activeIds.includes(id));
-    expect(revealed.length, 'unchecking Active should reveal at least one inactive product').toBeGreaterThan(0);
-    // Re-checking restores the smaller active-only set.
-    await isr.toggleFilter(1);
-    expect(await isr.isFilterChecked(1)).toBe(true);
-    expect(await isr.clickSearchAndWait((n) => n === activeCount)).toBe(activeCount);
   });
 
   test('TC-ISR-PRS-013: A barcode with no match shows the empty state', async ({ dependencyGate }) => {
@@ -406,54 +342,6 @@ test.describe('Item Search Products search panel — fields @item-search @produc
     expect(await isr.hoverAndReadTooltip(isr.gridOptionsButton())).toContain(ISR_TOOLTIP_GRID_OPTIONS);
   });
 
-  test('TC-ISR-PRS-007: The Location dropdown lists offices', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    // The office list is data-driven (5,110 entries at the last check) — assert a floor.
-    expect(await isr.readLocationOptionCount()).toBeGreaterThan(ISR_LOCATION_LIST_FLOOR);
-    expect(await isr.locationListHas(ISR_LOCATION_PLACEHOLDER)).toBe(true);
-    expect(await isr.locationListHas(ISR_OFFICE_OPTION)).toBe(true);
-    // Escape closed each open list without selecting — the value is unchanged.
-    expect(await isr.readLocationText()).toContain(ISR_OFFICE);
-  });
-
-  test('TC-ISR-PRS-008: The Region dropdown lists regions', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    const regions = await isr.readRegionOptions();
-    expect(regions.length).toBeGreaterThan(ISR_REGION_LIST_FLOOR);
-    expect(regions).toContain(ISR_REGION_SAMPLE);
-    expect(regions).toContain(ISR_REGION_PLACEHOLDER);
-    expect(await isr.readRegionText()).toBe(ISR_REGION_PLACEHOLDER);
-  });
-
-  test('TC-ISR-PRS-010: The Product Organization popover offers the country checklist', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    const text = await isr.readOrgPopoverText();
-    for (const entry of ISR_ORG_ENTRIES) {
-      expect(text).toContain(entry);
-    }
-    // The popover was dismissed without choosing — the field still shows None.
-    expect(await isr.readOrgValueText()).toContain('None');
-  });
-
-  test('TC-ISR-PRS-011: The date fields open a calendar with a time spinner', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    // Field-level verification only — the product owner has ruled date-driven behavior
-    // is not functional yet, so no case asserts how dates change results.
-    const prepBefore = await isr.readDateFieldText('Prep Date Time');
-    expect(prepBefore).toContain('12:00 AM');
-    expect(await isr.readDateFieldText('Return Date Time')).toContain('11:59 PM');
-    await isr.openDatePopover(1);
-    const popover = isr.openPopover();
-    await expect(popover.locator('[role="grid"]').first()).toBeVisible({ timeout: 5_000 });
-    // The time spinner sits below the calendar; some builds expose it as spin buttons,
-    // others as plain time text — accept either rendering of the same control.
-    if ((await popover.getByRole('spinbutton').count()) === 0) {
-      expect((await popover.textContent()) ?? '').toMatch(/AM|PM/);
-    }
-    await isr.closePopover();
-    expect(await isr.readDateFieldText('Prep Date Time')).toBe(prepBefore);
-  });
-
   test('TC-ISR-PRS-017: Grid Options hides and restores a column', async ({ dependencyGate }) => {
     dependencyGate([]);
     await isr.clickSearchAndWait((n) => n !== null && n > 0);
@@ -492,53 +380,6 @@ test.describe('Item Search Products search panel — fields @item-search @produc
     expect(await isr.readAnyField()).toBe('zz');
     // Drop the typed value so nothing leaks forward (it was never searched).
     await isr.typeAnyField('');
-  });
-
-  test('TC-ISR-PRS-020: A Prep date after the Return date is rejected with a message', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    // Push Prep one month past Return (which rests on today) — the pair turns invalid.
-    await isr.openDatePopover(1);
-    await isr.calendarNextMonth();
-    await isr.pickCalendarDay('22nd');
-    await isr.closePopover();
-    await expect.poll(async () => await isr.isDateOrderMessageShown(), { timeout: 15_000 }).toBe(true);
-    // The invalid pair locks the search itself, not just a message.
-    expect(await isr.isSearchEnabled()).toBe(false);
-    // Reset is the recovery: defaults return and the message clears.
-    await isr.clickReset();
-    await expect.poll(async () => await isr.isDateOrderMessageShown(), { timeout: 15_000 }).toBe(false);
-    expect(await isr.readDateFieldText('Prep Date Time')).toContain('12:00 AM');
-    expect(await isr.isSearchEnabled()).toBe(true);
-  });
-
-  test('TC-ISR-PRS-021: A date value renders fully inside its box in every month', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    test.setTimeout(420_000);
-    // Known defect, reported 2026-09-01: wide dates paint their tail outside the box
-    // (8 of 12 months on Prep, up to 30 pixels; Return too). Marked expected-to-fail so
-    // the suite stays honest while the defect lives — when the fix lands this case will
-    // flag itself as unexpectedly passing, which is the signal to remove the marker.
-    test.fail();
-    const spills: string[] = [];
-    for (let month = 0; month < 12; month++) {
-      await isr.openDatePopover(1);
-      await isr.calendarNextMonth();
-      await isr.pickCalendarDay('22nd');
-      await isr.closePopover();
-      const prep = await isr.readDateOverflow(1);
-      if (prep.spill > 0) spills.push(`${prep.text} spills ${prep.spill}px`);
-    }
-    // One wide date on the Return side proves the twin field renders the same way.
-    await isr.openDatePopover(2);
-    await isr.calendarNextMonth();
-    await isr.calendarNextMonth();
-    await isr.pickCalendarDay('22nd');
-    await isr.closePopover();
-    const ret = await isr.readDateOverflow(2);
-    if (ret.spill > 0) spills.push(`${ret.text} spills ${ret.spill}px`);
-    // Leave the panel on its defaults before judging, so a failure never strands state.
-    await isr.clickReset();
-    expect(spills, `date values escaping their boxes:\n${spills.join('\n')}`).toEqual([]);
   });
 
   test('TC-ISR-PRS-025: Barcode matching ignores letter case', async ({ dependencyGate }) => {
@@ -580,33 +421,5 @@ test.describe('Item Search Products search panel — fields @item-search @produc
     await expect(isr.page.getByText('No results')).toBeVisible();
     await isr.clickReset();
     expect(await isr.readBarcode()).toBe('');
-  });
-
-  test('TC-ISR-PRS-032: The Product Organization filter narrows the results and clearing it restores them', async ({
-    dependencyGate,
-  }) => {
-    dependencyGate([]);
-    // Product Organization filters by country. Only a small slice of this catalogue carries
-    // country tagging, so the case asserts the relationship — the filter must shrink the set
-    // without emptying it, and Reset must bring the whole set back — instead of any fixed
-    // count, which would start lying the moment more products are tagged. NM-2254.
-    const country = 'United States';
-    const baseline = await isr.clickSearchAndWait((n) => n !== null && n > 0);
-    expect(await isr.readOrgValueText()).toContain('None');
-
-    await isr.selectOrgCountry(country);
-    const filtered = await isr.clickSearchAndWait(
-      (n) => n !== null && n > 0 && n < (baseline as number),
-    );
-    // Narrowed, but not emptied — an ignored filter would leave the total untouched and a
-    // broken one would return nothing, so both failure directions are covered.
-    expect(filtered as number).toBeGreaterThan(0);
-    expect(filtered as number).toBeLessThan(baseline as number);
-    expect((await isr.readColumnValues('Product Code ID')).length).toBeGreaterThan(0);
-
-    // Reset clears the country, and the unfiltered total comes back unchanged.
-    await isr.clickReset();
-    expect(await isr.readOrgValueText()).toContain('None');
-    expect(await isr.clickSearchAndWait((n) => n === baseline)).toBe(baseline);
   });
 });
