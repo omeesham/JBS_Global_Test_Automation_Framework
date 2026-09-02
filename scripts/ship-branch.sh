@@ -110,9 +110,14 @@ fi
 # Sev S2 (LR-069 §3.1) — process defect, not a leak; fails fast with the correct name in the message.
 # Graduating directive: Rutvik 2026-08-05 — team standard is feature/sprint<N>-<name>-NM-<ticket>
 #   e.g. feature/sprint17-vikas-NM-4333   ("feature/sprint" fixed, sprint number and name and ticket vary)
+# Widened 2026-09-02 by Vikas (owner): a delivery may close more than one ticket, so the name may
+# carry more than one, each keeping its own NM- prefix so the name stays unambiguous:
+#   e.g. feature/sprint17-vikas-NM-2254-NM-3650
+# Single-ticket names are unaffected. Separator-only forms (NM-2254-3650, NM-2254_3650) stay invalid
+# — a bare trailing number cannot be told apart from a typo in the first one.
 # The gate fires ONLY on branch CREATION. Branches that already exist on the remote are grandfathered:
 # refusing to push to one cannot rename it, it only blocks a legitimate delivery.
-BRANCH_CONVENTION='^feature/sprint[0-9]+-[a-z][a-z0-9]*-NM-[0-9]+$'
+BRANCH_CONVENTION='^feature/sprint[0-9]+-[a-z][a-z0-9]*-NM-[0-9]+(-NM-[0-9]+)*$'
 LS_OUT="$(git ls-remote --heads "$REMOTE_URL" "$BRANCH" 2>/dev/null)"; LS_RC=$?
 if [[ $LS_RC -ne 0 ]]; then
   echo "[ship-branch] WARN - could not reach $REMOTE_NAME to check whether '$BRANCH' exists;" >&2
@@ -124,6 +129,8 @@ elif [[ ! "$BRANCH" =~ $BRANCH_CONVENTION ]]; then
   echo "[ship-branch] FATAL - '$BRANCH' does not exist on $REMOTE_NAME, so this push would CREATE it," >&2
   echo "[ship-branch] and a new branch must follow the team standard:" >&2
   echo "[ship-branch]     feature/sprint<N>-<name>-NM-<ticket>    e.g. feature/sprint17-vikas-NM-4333" >&2
+  echo "[ship-branch] A delivery closing several tickets repeats the NM- prefix for each:" >&2
+  echo "[ship-branch]     feature/sprint<N>-<name>-NM-<t1>-NM-<t2>  e.g. feature/sprint17-vikas-NM-2254-NM-3650" >&2
   echo "[ship-branch] Fix the name, or target an existing branch. List them with:" >&2
   echo "[ship-branch]     git ls-remote --heads $REMOTE_URL" >&2
   exit 2
