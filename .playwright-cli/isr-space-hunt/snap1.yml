@@ -1,0 +1,19 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]: Sign in | Navigator
+  - main [ref=e19]:
+    - generic [ref=e20]:
+      - link "Navigator" [ref=e21] [cursor=pointer]:
+        - /url: /navigator
+        - generic [ref=e22]:
+          - img [ref=e25]
+          - generic [ref=e100]: Navigator
+      - generic [ref=e101]:
+        - generic [ref=e103]: Welcome to Navigator
+        - generic [ref=e104]:
+          - generic [ref=e105]: For security, all team members must sign in with their Encore Account.
+          - button "Continue Now" [ref=e106] [cursor=pointer]
+          - generic [ref=e107]: Need help? Contact the service desk.
+    - button "Toggle theme" [ref=e108] [cursor=pointer]:
+      - img
+      - generic [ref=e109]: Toggle theme
+  - region "Notifications alt+T"
