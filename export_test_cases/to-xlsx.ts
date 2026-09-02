@@ -47,6 +47,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
 import ExcelJS from 'exceljs';
+import JSZip from 'jszip';
 import {
   augmentByTcId,
   AugmentData,
@@ -56,6 +57,13 @@ import {
 import { CsvConverter } from './to-csv';
 import { scrubInternalVocab } from './humanize';
 import { parseSteps, deriveTestData, DEFAULT_TYPE, DEFAULT_PRIORITY } from './testrail-format';
+
+// Fixed epoch stamped into every workbook's metadata (docProps/core.xml) AND every zip
+// entry header, so rebuilding an unchanged corpus is byte-identical (NM-2253, 2026-09-02).
+// ExcelJS serializes via JSZip, which stamps every entry's DOS mod-time with `new Date()`
+// at write time; two builds seconds apart otherwise differ at offset 10 (the mod-time
+// field), dirtying all ~40 committed workbooks whenever any single module changes.
+const DETERMINISTIC_TIMESTAMP = new Date('2020-01-01T00:00:00.000Z');
 
 // ────────────────────────── Paths ──────────────────────────
 
@@ -705,8 +713,6 @@ export function buildFromMdSource(mdFiles: string[]): Map<string, { tcs: ParsedT
 }
 
 export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: string; sheetsBuilt: string[]; rowsPerSheet: Record<string, number>; fingerprint?: string }> {
-  const buildTimestamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
-
   // Resolve output path early — needed by gates and date derivation.
   const outPath = opts.outPath ?? XLSX_PATH;
   const isCanonical = outPath === XLSX_PATH;
@@ -899,15 +905,20 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
   // 5. Emit workbook
   const wb = new ExcelJS.Workbook();
   wb.creator = 'encore_framework xlsx:build';
-  wb.created = new Date();
+  wb.created = DETERMINISTIC_TIMESTAMP;
+  wb.modified = DETERMINISTIC_TIMESTAMP;
 
   const overviewRows: { sheet: string; metrics: SheetMetrics; mdPath: string }[] = [];
   const sortedSheetNames = Array.from(tcsBySheet.keys()).sort((a, b) => orderSheets(a, b));
   const rowsPerSheet: Record<string, number> = {};
 
-  // Overview sheet first
+  // Overview sheet first. "generated on" uses the latest content-change date across the
+  // source MDs (deterministic) — NOT wall-clock — so an unchanged corpus rebuilds byte-
+  // identically (NM-2253). Falls back to today only if no dated source exists.
+  const contentDates = Array.from(mdDateMap.values()).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d));
+  const generatedOn = contentDates.length ? contentDates.sort().at(-1)! : new Date().toISOString().slice(0, 10);
   const overview = wb.addWorksheet('Overview', { views: [{ state: 'frozen', ySplit: 4 }] });
-  overview.addRow([`Encore Test Case Workbook — generated on ${buildTimestamp}`]);
+  overview.addRow([`Encore Test Case Workbook — generated on ${generatedOn}`]);
   overview.mergeCells(1, 1, 1, OVERVIEW_HEADERS.length);
   overview.getCell(1, 1).font = { bold: true, size: 14 };
   overview.addRow([`Workbook version: encore_test_cases.xlsx`]);
@@ -1052,11 +1063,11 @@ export async function buildWorkbook(opts: BuildOptions): Promise<{ outPath: stri
   // 6. Write — to opts.outPath for a throwaway build (freshness gate), else the canonical path.
   const outDir = path.dirname(outPath);
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-  await wb.xlsx.writeFile(outPath);
+  await writeWorkbookDeterministic(wb, outPath);
 
   // Write split files — one workbook per module sheet (PLAN_59 D2).
   if (outPath === XLSX_PATH) {
-    await writeSplitFiles(wb, fingerprint);
+    await writeSplitFiles(wb);
     pruneStaleeSplitFiles();
   }
 
@@ -1468,11 +1479,49 @@ function pruneStaleeSplitFiles(): void {
 }
 
 /**
+ * Deterministic workbook writer (NM-2253, 2026-09-02). ExcelJS serializes through JSZip,
+ * which stamps every zip entry's local + central header with `new Date()` at write time —
+ * so pinning `wb.created`/`wb.modified` alone (docProps/core.xml, the content layer) still
+ * leaves the zip *container* timestamps churning, and every rebuild is byte-different.
+ *
+ * Serialize to a buffer, then re-emit the zip with every entry's date pinned to
+ * DETERMINISTIC_TIMESTAMP. Each entry's decompressed bytes are copied through unchanged, so
+ * all workbook content (sheets, styles) is preserved exactly; only the container timestamps
+ * are normalized. Write-only: a global JSZip.prototype patch would also corrupt ExcelJS's
+ * shared read path, so the normalization is confined here.
+ */
+async function writeWorkbookDeterministic(wb: ExcelJS.Workbook, outFile: string): Promise<void> {
+  const buf = await wb.xlsx.writeBuffer();
+  const src = await JSZip.loadAsync(buf as ArrayBuffer);
+  const normalized = new JSZip();
+  for (const [name, entry] of Object.entries(src.files)) {
+    if (entry.dir) {
+      // Directory entries carry a DOS timestamp too; JSZip's folder() would stamp them
+      // with wall-clock (2-second resolution), so recreate them with the fixed date.
+      normalized.file(name, '', { dir: true, date: DETERMINISTIC_TIMESTAMP });
+      continue;
+    }
+    const content = await entry.async('nodebuffer');
+    normalized.file(name, content, { date: DETERMINISTIC_TIMESTAMP, binary: true, createFolders: false });
+  }
+  const out = await normalized.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE', platform: 'UNIX' });
+  fs.writeFileSync(outFile, out);
+}
+
+/**
  * Write split files — one single-sheet workbook per module under testcases/<group>/.
  * Each split workbook clones the corresponding sheet from the consolidated workbook
  * with its header, data rows, blank separator, and SUMMARY row intact (PLAN_59 D2).
+ *
+ * Splits deliberately do NOT embed the global input fingerprint (NM-2253): it was
+ * write-only dead metadata there — only the consolidated workbook's fingerprint is ever
+ * read (skip-detection + the xlsx-freshness gate) — and stamping the all-modules
+ * fingerprint into every split meant a one-module edit rewrote all 39 splits. Without it
+ * (plus the pinned timestamps) an unchanged module's split is byte-identical across
+ * rebuilds, so editing one module now touches only the consolidated workbook + that
+ * module's own split.
  */
-async function writeSplitFiles(consolidatedWb: ExcelJS.Workbook, fingerprint: string): Promise<void> {
+async function writeSplitFiles(consolidatedWb: ExcelJS.Workbook): Promise<void> {
   for (const [sheetName, mapping] of Object.entries(SPLIT_FILE_MAP)) {
     const srcWs = consolidatedWb.getWorksheet(sheetName);
     if (!srcWs) continue;
@@ -1480,6 +1529,9 @@ async function writeSplitFiles(consolidatedWb: ExcelJS.Workbook, fingerprint: st
     if (!fs.existsSync(splitDir)) fs.mkdirSync(splitDir, { recursive: true });
     const splitPath = path.join(splitDir, `${mapping.stem}.xlsx`);
     const splitWb = new ExcelJS.Workbook();
+    splitWb.creator = 'encore_framework xlsx:build';
+    splitWb.created = DETERMINISTIC_TIMESTAMP;
+    splitWb.modified = DETERMINISTIC_TIMESTAMP;
     const destWs = splitWb.addWorksheet(sheetName, { views: [{ state: 'frozen', ySplit: 1 }] });
     srcWs.eachRow({ includeEmpty: true }, (row, rowNumber) => {
       const destRow = destWs.getRow(rowNumber);
@@ -1493,8 +1545,7 @@ async function writeSplitFiles(consolidatedWb: ExcelJS.Workbook, fingerprint: st
     for (let c = 1; c <= MODULE_SHEET_HEADERS.length; c++) {
       destWs.getColumn(c).width = srcWs.getColumn(c).width;
     }
-    if (fingerprint) embedFingerprint(splitWb, fingerprint);
-    await splitWb.xlsx.writeFile(splitPath);
+    await writeWorkbookDeterministic(splitWb, splitPath);
   }
 }
 
