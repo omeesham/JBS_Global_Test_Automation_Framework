@@ -30,4 +30,18 @@ export const itemSearchProductGroups = {
   PLACEHOLDER_ADD_DESC: 'Enter Product Group Description',
   TEXT_CANCEL: 'Cancel',
   TEXT_SAVE: 'Save',
+  /** The required Service Type selector shows this label until a type is chosen. */
+  TEXT_SERVICE_TYPE: 'Service Type',
+  /** The sub-class picker: a search box over a list of draggable item rows. A row is
+   *  added to the group by double-clicking it (the reliable path the picker offers). */
+  PLACEHOLDER_SUBCLASS_SEARCH: 'Search',
+  subClassItem: '[draggable="true"]',
+
+  // ---------------------------------------------------------------- create confirmation
+  /** Backend endpoint the add form posts to — filtered on so the save wait keys only on
+   *  the real create call, never the page's own render requests. */
+  CREATE_ENDPOINT: '/navigator/api/location/add-update-product-group',
+  /** The confirmation toast container and its message after a successful create. */
+  TOAST: '[data-sonner-toast]',
+  TOAST_GROUP_CREATED: 'Product Group created successfully',
 } as const;

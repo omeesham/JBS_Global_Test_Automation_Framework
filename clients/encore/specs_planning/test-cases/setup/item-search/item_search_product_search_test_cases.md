@@ -4,11 +4,11 @@
 **Submodule**: PRS
 **Page**: Products (`/locations/1101/products`) — search panel + result grid
 **Test Entity**: Office 1101
-**Updated**: 2026-09-01
-**Total TCs**: 30
+**Updated**: 2026-09-02
+**Total TCs**: 31
 **Coverage mode**: QUICK (L1)
 **Governing Requirement**: NM-2253 (barcode cases additionally governed by NM-1494)
-**Verified against**: field inventory `item-search-product-search-2026-08-31.md`; machine denominators `reports/walk-coverage/isr.json` (70, resting) + `isr--search-executed.json` (29) + `isr--expand-grid-options.json` (63); live probes 2026-08-31 (walk evidence `walk-evidence-item-search-2026-08-31.md`) and the 2026-09-01 barcode session (twelve supplied barcodes resolved live)
+**Verified against**: field inventory `item-search-product-search-2026-08-31.md`; machine denominators `reports/walk-coverage/isr.json` (70, resting) + `isr--search-executed.json` (29) + `isr--expand-grid-options.json` (63); live probes 2026-08-31 (walk evidence `walk-evidence-item-search-2026-08-31.md`), the 2026-09-01 barcode session (twelve supplied barcodes resolved live), and the 2026-09-02 Active-filter session (anchor SM58 39 → 45 → 39 across checked/unchecked/re-checked, plus ULXD1 10 → 11, Amp 378 → 669, ZED 305 → 402; walk evidence `walk-evidence-item-search-save-flows-2026-09-02.md`)
 
 ---
 
@@ -39,6 +39,7 @@
 | Executed criteria persist | Search text, checkbox states and sort order survive leaving and returning to the page. Input typed but never searched is dropped. Tests must Reset (or set their own criteria) before asserting defaults. |
 | Location and Region exclude each other | Setting one clears the other, in both directions. The last one set wins. |
 | Reset restores defaults and empties results | Text fields clear, Location returns to the current office, Region clears, Quantity stays unchecked, Active stays checked, and the count shows zero until the next Search. |
+| The Active filter narrows to active products | With the Active checkbox on (the default) a search returns only active products; unchecking it adds the inactive matches, so the Active-off set is a strict superset of the Active-on set — every active row still present, plus at least one inactive one. Confirmed live 2026-09-02: the anchor SM58 returned 39 with Active on and 45 with it off (six inactive rows added) and restored to 39 on re-check, plus ULXD1 10 → 11 (extra row an inactive product, Product Code ID 92342), Amp 378 → 669, ZED 305 → 402; the larger count held steady across a 30-second watch, so the effect is a real filter and not a loading-window artifact. |
 | Word search spans product fields | The help popover states the search covers item number, description, category and product group; a matching word filters to rows containing it. |
 | A barcode identifies one product | A barcode belongs to a single physical asset, and every asset is scanned under one product, so a valid barcode returns exactly one row. Several assets share a product, so several different barcodes legitimately return the same product — of the twelve barcodes verified on 2026-09-01, four returned the same product and another four returned a second one. |
 | Barcode matching is exact, and case does not matter | The value must match a whole barcode: a shortened value returns nothing. Letter case is ignored, so a lowercase form finds the same product as the printed uppercase one. A leading space also finds nothing, while a trailing space is tolerated — the asymmetry is recorded as an open question rather than a rule, since a space is itself a legal barcode character. |
@@ -76,6 +77,7 @@
 | 22 | Barcode matching rules (2026-09-01) | Lowercase dfw0082529 → same product; six-digit prefix 505232 → 0 found; leading space → 0 found; trailing space → still 1 found (asymmetry raised with the owner) |
 | 23 | Barcode ↔ Any Field exclusivity (2026-09-01) | Filling either box empties the other, proven in both directions by reading both values from the page after each keystroke set |
 | 24 | Barcode length + character set (2026-09-01) | The box reports a 42-character ceiling and truncates a 50-character value to 42; no character-set policing on entry — "AB@#12" is accepted, marked valid, and simply returns 0 found |
+| 25 | Active filter effect (2026-09-02) | Unchecking Active enlarges every executed search into a superset. Anchor SM58 39 → 45 → 39 (checked/unchecked/re-checked; six inactive products added, re-verified live 2026-09-02, and the case reads the whole set on one page). Corroborated across words: ULXD1 10 → 11 (adds "Shure ULXD1 Bodypack - M1", Product Code ID 92342, absent when Active is on and present when it is off — every one of the 10 active IDs also present in the 11), Amp 378 → 669, ZED 305 → 402; ZED24 stayed 1 → 1 where the data has no inactive match. The 669/378 counts held for 30 seconds, ruling out a loading-window read (LR-ENC-008). |
 
 ---
 
@@ -566,3 +568,21 @@
 | 3 | Click Reset | The box is empty again |
 
 **Notes**: Forty-two characters is the ceiling the feature was specified against (NM-1494), and the box enforces it by refusing the extra characters rather than by showing an error. The specification also names a character set, but that half is not policed as you type — an unusual character can be entered and simply matches nothing, which step 2 records. Verified live 2026-09-01.
+
+---
+
+## TC-ISR-PRS-031: The Active filter narrows the results to active products
+
+**Automatable**: Yes
+**Surface_Family**: combination (QUICK)
+**Preconditions**: The Products page is open with default criteria (Active checked); no search has been executed.
+
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Type `SM58` into the Any Field box and click Search with Active checked | A set of products loads; record every visible row's Product Code ID |
+| 2 | Uncheck the Active filter and click Search again | The count grows, and the new result contains every Product Code ID from step 1 plus at least one more — a strict superset |
+| 3 | Compare the two Product Code ID sets | The unchecked set holds every ID from step 1 plus at least one the Active filter had hidden — an inactive product for the same search |
+| 4 | Re-check Active and click Search | The result returns to the step 1 set — the added rows are gone again |
+
+**Notes**: NM-2254. The assertion is identity-based, not a bare count: the Active-off row set must be a strict superset of the Active-on set (every active Product Code ID still present, at least one inactive ID added) and re-checking must restore the original set — together this proves both that the filter has an effect and its direction (off widens the set by adding inactive products). `SM58` is the anchor because both states fit on a single page (39 active, 45 with the inactive ones included — a margin of six rows) so the two ID sets diff cleanly on one page; confirmed live 2026-09-02, the count moving 39 → 45 → 39 across checked, unchecked and re-checked. The same effect was confirmed on broader searches (`Amp` 378 → 669, `ZED` 305 → 402) and held steady across a 30-second watch, so it is a real filter and not a loading-window read (LR-ENC-008). The case asserts the superset relationship rather than hardcoding any single ID, so ordinary catalog changes cannot make it lie. This case mutates only filter state — nothing is saved.

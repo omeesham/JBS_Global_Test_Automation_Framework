@@ -249,3 +249,9 @@ No unsaved-changes guard on either dialog: dirty View (edited Name) and dirty Ad
 - **Fresh-until**: 2026-09-14
 - **Stale-after**: 2026-09-30
 - **Refresh triggers**: tab set ≠ 3 · segment menu set ≠ 5 · ~~the Category segment starts opening~~ (RESOLVED 2026-09-01: Category always opened — the walk reading was an instrument artifact; TC-ISR-PCD-005 extended) · availability goes functional (owner ruling lifts) · Save enablement condition determined (View dialog).
+
+## Save & cleanup disposition (2026-09-02)
+
+- **Add Product Code save is now covered** by TC-ISR-PCD-011 (Item segment only): a completed form (Name / Item Description / Product Type / Service Type) saves via `POST /navigator/api/product/create` — verified live, product id 102184 — and is confirmed by an Any Field search-back per LR-067.
+- **Cleanup**: there is no hard delete for a product code. The reversal is a deactivate (uncheck Active in the View dialog and Save), whose save round-trip was **not** exercised this pass, so the save case leaves its per-run-unique code on 1101. This accumulation is accepted test residue on the fully-writable e2e environment (LR-ENC-007), stated here rather than hidden.
+- **Segment coverage (LR-066)**: the Item Add segment is real-saved (TC-ISR-PCD-011). The other four Add segments (Sub Class / Class / Sub Category / Category) each open their own hierarchy-level form (active tab renames; field set differs per level — probed 2026-09-02, field counts grow Sub Class→Category) with its own Save, creating catalog-classification nodes, not product codes — a catalog-management feature outside the whole NM-2253 Item Search epic. They are **WAIVED with that stated reason and its probe evidence** (LR-066), not silently narrowed; a future catalog-management effort could cover them.

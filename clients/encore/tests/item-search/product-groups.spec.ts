@@ -8,6 +8,7 @@ import {
   ISR_PGR_SEARCH_WORD,
   ISR_PGR_COLUMNS,
   ISR_PGR_DEFAULT_PAGE_SIZE,
+  ISR_ADD_GROUP,
 } from '../../src/data/item-search/item-search';
 
 /**
@@ -19,8 +20,9 @@ import {
  * inconsistency is flagged for discussion; this suite asserts today's behavior), and the
  * grid turns 20 rows per page instead of 50.
  *
- * Nothing is ever created: the Add page is exercised at field level and always exited
- * through Cancel, which discards typed input silently (that behavior is itself a case).
+ * The Add page is mostly exercised at field level and exited through Cancel, which
+ * discards typed input silently (that behavior is itself a case); one case drives a real
+ * create end to end and proves the new group is found again after the list reloads.
  */
 test.describe.configure({ timeout: 300_000 });
 
@@ -201,5 +203,32 @@ test.describe('Item Search Product Groups panel and Add page — fields @item-se
     await pgr.clickAdd();
     expect(await pgr.addNameBox().inputValue()).toBe('');
     await pgr.clickAddCancel();
+  });
+
+  test('TC-ISR-PGR-011: A completed Add page saves and the new group is found again', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    test.setTimeout(420_000);
+    // A per-run unique suffix so repeated runs never collide on the same name.
+    const unique = Date.now();
+    const name = `${ISR_ADD_GROUP.namePrefix} ${unique}`;
+    const description = `${ISR_ADD_GROUP.descriptionPrefix} ${unique}`;
+    await pgr.clickAdd();
+    await pgr.typeAddName(name);
+    await pgr.typeAddDescription(description);
+    await pgr.selectServiceType(ISR_ADD_GROUP.serviceType);
+    // A group needs at least one sub-class; the first available item is added by
+    // double-click (the reliable path — drag frequently never fires the drop).
+    await pgr.addFirstSubClass();
+    expect(await pgr.isAddSaveEnabled()).toBe(true);
+    await pgr.saveNewGroupAndConfirm();
+    // The save call is never the proof — reset the list and search the new name back
+    // after the grid reloads.
+    await pgr.ensureCleanSearch(ISR_OFFICE);
+    await pgr.typeSearch(name);
+    expect(await pgr.clickSearchAndWait((n) => n === 1)).toBe(1);
+    expect(await pgr.readColumnValues('Name')).toEqual([name]);
+    expect(await pgr.readColumnValues('Service Type')).toEqual([ISR_ADD_GROUP.serviceType]);
+    // The group is created active, and the list's Active filter is on, so it shows Active.
+    expect(await pgr.readColumnValues('Status')).toEqual(['Active']);
   });
 });

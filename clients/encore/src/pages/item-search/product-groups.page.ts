@@ -166,4 +166,70 @@ export class ProductGroupsPage extends ItemSearchGridBasePage {
   async readAddPageText(): Promise<string> {
     return this.page.evaluate(() => document.body.innerText);
   }
+
+  // ---------------------------------------------------------------- add-page save flow
+
+  /** Types into the Add page's Description box. */
+  @step('Type into the group Description box')
+  async typeAddDescription(value: string): Promise<void> {
+    await this.typeByKeys(this.addDescriptionBox(), value);
+  }
+
+  /** The required Service Type selector (labelled with its placeholder until chosen). */
+  private serviceTypeCombo(): Locator {
+    return this.page.locator('button[role="combobox"]').filter({ hasText: S.TEXT_SERVICE_TYPE }).first();
+  }
+
+  /** Opens the Service Type list and chooses a service. */
+  @step('Choose a Service Type')
+  async selectServiceType(name: string): Promise<void> {
+    await this.serviceTypeCombo().click();
+    const listbox = this.page.locator('[role="listbox"]');
+    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+    await this.page.getByRole('option', { name, exact: true }).click();
+    await listbox.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+    await this.waitForAngularStable(5_000).catch(() => {});
+  }
+
+  /**
+   * Adds the first available sub-class to the group and returns its label. Double-click
+   * moves the item into the group's Sub Classes — the reliable path the picker offers;
+   * drag is flaky and frequently never fires the drop.
+   */
+  @step('Add the first available sub-class')
+  async addFirstSubClass(): Promise<string> {
+    const first = this.page.locator(S.subClassItem).first();
+    await first.waitFor({ state: 'visible', timeout: 10_000 });
+    const label = ((await first.textContent()) ?? '').trim();
+    await first.dblclick();
+    await this.waitForAngularStable(5_000).catch(() => {});
+    return label;
+  }
+
+  /**
+   * Saves the completed Add page and confirms the create landed: Save must be enabled, the
+   * create request must return success, the confirmation toast must appear, and the page
+   * must return to the group list. The create response is never treated as proof on its own —
+   * persistence is proven by the caller searching the new group's name back.
+   */
+  @step('Save the new group and confirm it was created')
+  async saveNewGroupAndConfirm(): Promise<void> {
+    const save = this.addSaveButton();
+    await expect(save, 'Save should be enabled once the required fields are set')
+      .toBeEnabled({ timeout: 10_000 });
+    const created = this.page.waitForResponse(
+      (r) => r.url().includes(S.CREATE_ENDPOINT) && r.request().method() === 'POST',
+      { timeout: 30_000 },
+    );
+    // Set the toast watch before clicking so it is caught even as the redirect starts.
+    const toastShown = this.page.locator(S.TOAST).filter({ hasText: S.TOAST_GROUP_CREATED })
+      .waitFor({ state: 'visible', timeout: 20_000 });
+    await save.click();
+    const res = await created;
+    expect(res.status(), 'the create request should return 200').toBe(200);
+    expect(((await res.json()) as { success?: boolean })?.success, 'the create response should report success').toBe(true);
+    await toastShown;
+    // Success redirects back to the group list.
+    await this.waitForReady();
+  }
 }

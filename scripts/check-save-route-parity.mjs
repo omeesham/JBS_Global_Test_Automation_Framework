@@ -33,6 +33,18 @@ const REGISTRY = [
       'Corporate Pricing — New Pricebook (Labor)',
     ],
   },
+  {
+    specPath: 'clients/encore/tests/item-search/product-code.spec.ts',
+    // Item Search Add Product Code — the Item segment is the save-capable create route; its
+    // real-Save test commits a product code and re-reads it after reload (LR-067).
+    saveRouteDescribes: ['Item Search Product Code dialogs'],
+  },
+  {
+    specPath: 'clients/encore/tests/item-search/product-groups.spec.ts',
+    // Item Search Create Product Group — the Add-page describe carries the real-Save
+    // create-and-find-again test.
+    saveRouteDescribes: ['Item Search Product Groups panel and Add page'],
+  },
 ];
 
 // Helpers that drive a REAL Save (reach the confirm dialog and/or commit). A describe that calls any of
@@ -44,6 +56,8 @@ const REAL_SAVE_HELPERS = [
   'confirmSaveAndGetNewId',
   'saveAndVerifyCase',
   'saveAndConfirm',
+  'saveNewCodeAndConfirm',
+  'saveNewGroupAndConfirm',
 ];
 
 const WAIVER_RE = /parity-waived:\s*\S.{19,}/; // marker + a non-space + >=19 more chars => reason >= 20 chars

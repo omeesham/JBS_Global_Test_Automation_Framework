@@ -5,8 +5,8 @@
 **Page**: Products (`/locations/1101/products`) — row-selection toolbar + Product Code Details dialogs
 **Test Entity**: Office 1101
 **Governing Requirement**: NM-2253
-**Updated**: 2026-08-31
-**Total Scenarios**: 10
+**Updated**: 2026-09-02
+**Total Scenarios**: 11
 **Test Cases**: `item_search_product_code_test_cases.md`
 
 ---
@@ -16,21 +16,22 @@
 Cover the product-code layer behind the result grid: the selection-driven toolbar, the
 "Product Code Details" dialog in view and add flows, its three tabs (Item, Product Code History,
 Translations), the five-segment scoping menus on both split buttons, the type/service pairing
-rule in the add form, and the dialogs' close-discards behavior. Nothing is ever saved.
+rule in the add form, and the dialogs' close-discards behavior. One case saves: a completed
+Add form on the Item segment creates a product code and proves it persists by finding it again.
 
 ## 2. Scope
 
 **In scope**: toolbar mounting on selection; view dialog structure and values on the Item tab;
-History and Translations tab renders; segment rescoping via both caret menus (the four working
-view segments + the add-side Category); add form's required-empty state; the Product Type →
-Service Type unlock-and-filter rule; silent discard on close; the availability button's presence.
+History and Translations tab renders; segment rescoping via both caret menus (all five view
+segments + the add-side Category); add form's required-empty state; the Product Type →
+Service Type unlock-and-filter rule; silent discard on close; the availability button's presence;
+one real save — a completed Add form on the Item segment creates a product code and is found again.
 
 **Out of scope, with reasons**:
 
 | Excluded | Reason |
 |---|---|
-| Saving anything (view edits, adds, translations) | Creates permanent catalog data; the quick pass is read/field-level by design |
-| The view menu's Category entry | Currently opens nothing — a defect record accompanies this module; the case covers the working segments and is extended when the fix lands |
+| Saving view-dialog edits, translations, and the four non-Item Add segments | The one covered save is the Item-segment Add (TC-ISR-PCD-011 — NM-2257). The four non-Item Add segments (Sub Class / Class / Sub Category / Category) create catalog-classification nodes — a catalog-management feature outside the NM-2253 epic — waived with reason (LR-066). View-dialog and translation edit-saves are the View surface's own edit path (NM-2255), not part of this save pass. |
 | Availability behavior | Availability is driven by the date fields, which the product owner ruled not functional yet; only presence is asserted |
 | In-dialog History grid behaviors (its own sorting/options) | Per-state duplicate of the page grid; deeper pass |
 | When the view dialog's Save enables | Undetermined on rows with an incomplete required chain — asserting either way would guess |
@@ -49,7 +50,7 @@ not value-bound to a specific product.
 | The toolbar mounts only with a selected row | Every case clicks a row first and re-selects after any full grid re-render |
 | Dialog controls re-render on tab switches | Element references are re-resolved after each tab click |
 | Close discards edits silently | Cases relying on a clean dialog reopen it rather than trusting prior state |
-| Nothing may be persisted | Save is never clicked; any typed value is discarded by Close and verified gone |
+| Only the one Add-save case persists | Every other case clicks no Save and verifies typed values are discarded by Close; TC-ISR-PCD-011 is the single exception — it saves a per-run unique Item-segment code and proves it by search-back, leaving the record as accepted e2e residue (LR-ENC-007) |
 
 ## 4. Scenarios
 
@@ -65,3 +66,4 @@ not value-bound to a specific product.
 | TC-ISR-PCD-008 | The Add segment menu opens per-segment forms | Field (Axis 1) | Yes |
 | TC-ISR-PCD-009 | Closing a dialog with edits discards them silently | Field (Axis 1) — guard behavior | Yes |
 | TC-ISR-PCD-010 | View Availability is present and enabled with a row selected | Field (Axis 1) — presence only | Yes |
+| TC-ISR-PCD-011 | A completed Add Product Code form saves and the new code is found again | Field (Axis 1) — create + persistence (LR-067) | Yes |

@@ -160,3 +160,37 @@ export const ISR_HISTORY_COLUMN_SAMPLES = [
   'Modified Date',
 ] as const;
 
+/**
+ * A search word whose result set includes deactivated products, so unchecking the Active
+ * filter grows it. At verification SM58 returned 39 active products and 45 with inactive
+ * ones included — both on a single page, the six extra rows being inactive. The case
+ * asserts the superset relationship (every active row still present, plus at least one
+ * inactive), never the exact counts, so ordinary catalog changes cannot make it lie.
+ */
+export const ISR_ACTIVE_FILTER_WORD = 'SM58';
+
+/**
+ * Values for creating a product code from the Add dialog. Product Type and Service Type
+ * are a paired selector — the service list is filtered to the chosen type, and Equipment
+ * Rental belongs to the EQUIPMENT list. A per-run unique name is appended in the test so
+ * repeated runs never collide; the created record is proven by searching the name back.
+ */
+export const ISR_ADD_CODE = {
+  productType: 'EQUIPMENT',
+  serviceType: 'Equipment Rental',
+  namePrefix: 'ZZ E2E Code',
+  descriptionPrefix: 'Automated create check',
+} as const;
+
+/**
+ * Values for creating a product group from the Add page. A group needs a name, a
+ * description, a service type and at least one sub-class (added by double-clicking any
+ * item in the picker's list). A per-run unique name is appended in the test so repeated
+ * runs never collide; the created group is proven by searching the name back.
+ */
+export const ISR_ADD_GROUP = {
+  serviceType: 'Equipment Rental',
+  namePrefix: 'ZZ E2E Group',
+  descriptionPrefix: 'Automated group create check',
+} as const;
+

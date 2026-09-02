@@ -12,6 +12,7 @@ import {
   ISR_REGION_LIST_FLOOR,
   ISR_ORG_ENTRIES,
   ISR_SEARCH_WORD,
+  ISR_ACTIVE_FILTER_WORD,
   ISR_NO_MATCH_BARCODE,
   ISR_BARCODE_NUMERIC,
   ISR_BARCODE_NUMERIC_ALT,
@@ -146,6 +147,34 @@ test.describe('SBC — Item Search Products surface behaviors @item-search @prod
     expect(await isr.isFilterChecked(0)).toBe(false);
     const restored = await isr.clickSearchAndWait((n) => n === total);
     expect(restored).toBe(total);
+  });
+
+  test('TC-ISR-PRS-031: The Active filter narrows the results to active products', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    // The Active filter is checked at rest, so the first search returns active products
+    // only. This word was chosen because its result set includes deactivated products, so
+    // unchecking Active must grow the set — never shrink it or leave it unchanged.
+    await isr.typeAnyField(ISR_ACTIVE_FILTER_WORD);
+    expect(await isr.isFilterChecked(1)).toBe(true);
+    const activeCount = await isr.clickSearchAndWait((n) => n !== null && n > 0);
+    const activeIds = await isr.readColumnValues('Product Code ID');
+    // Uncheck Active — the same search now also returns the inactive products.
+    await isr.toggleFilter(1);
+    expect(await isr.isFilterChecked(1)).toBe(false);
+    const allCount = await isr.clickSearchAndWait((n) => n !== null && n > (activeCount as number));
+    const allIds = await isr.readColumnValues('Product Code ID');
+    expect(allCount as number).toBeGreaterThan(activeCount as number);
+    // The relationship is the assertion, not the counts: every active product is still
+    // present with the filter off, plus at least one product the filter had hidden.
+    for (const id of activeIds) {
+      expect(allIds, `active product ${id} should still be present with Active off`).toContain(id);
+    }
+    const revealed = allIds.filter((id) => !activeIds.includes(id));
+    expect(revealed.length, 'unchecking Active should reveal at least one inactive product').toBeGreaterThan(0);
+    // Re-checking restores the smaller active-only set.
+    await isr.toggleFilter(1);
+    expect(await isr.isFilterChecked(1)).toBe(true);
+    expect(await isr.clickSearchAndWait((n) => n === activeCount)).toBe(activeCount);
   });
 
   test('TC-ISR-PRS-013: A barcode with no match shows the empty state', async ({ dependencyGate }) => {

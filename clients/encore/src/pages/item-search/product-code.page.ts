@@ -188,4 +188,73 @@ export class ProductCodePage extends ItemSearchPage {
     await listbox.waitFor({ state: 'hidden', timeout: 3_000 }).catch(() => {});
     return options.map((o) => o.trim()).filter((o) => o.length > 0);
   }
+
+  // ---------------------------------------------------------------- add-form save flow
+
+  /** The add form's required item description box. */
+  dialogDescriptionBox(): Locator {
+    return this.dialog().getByPlaceholder(S.PLACEHOLDER_ITEM_DESCRIPTION).first();
+  }
+
+  /** Opens the Product Type list and chooses a type, letting the pairing rule settle. */
+  @step('Select a Product Type')
+  async selectProductType(type: string): Promise<void> {
+    await this.productTypeCombo().click();
+    await this.page.locator('[role="listbox"]').waitFor({ state: 'visible', timeout: 5_000 });
+    await this.chooseProductType(type);
+  }
+
+  /** Opens the (now unlocked) Service Type list and chooses a service. */
+  @step('Select a Service Type')
+  async selectServiceType(name: string): Promise<void> {
+    await this.serviceTypeCombo().click();
+    const listbox = this.page.locator('[role="listbox"]');
+    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+    await this.page.getByRole('option', { name, exact: true }).click();
+    await listbox.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+    await this.waitForAngularStable(5_000).catch(() => {});
+  }
+
+  /**
+   * Fills the four required add-form fields in the order the pairing rule needs: the two
+   * text fields, then the Product Type (which unlocks Service Type), then the Service Type.
+   */
+  @step('Fill the add product code form')
+  async fillAddForm(fields: {
+    name: string;
+    description: string;
+    productType: string;
+    serviceType: string;
+  }): Promise<void> {
+    await this.typeByKeys(this.dialogNameBox(), fields.name);
+    await this.typeByKeys(this.dialogDescriptionBox(), fields.description);
+    await this.selectProductType(fields.productType);
+    await this.selectServiceType(fields.serviceType);
+  }
+
+  /**
+   * Saves the completed add form and confirms the create landed: Save must be enabled, the
+   * create request must return success, the dialog must close, and the confirmation toast
+   * must appear. The create response is never treated as proof on its own — persistence is
+   * proven by the caller searching the new code's name back after the grid reloads.
+   */
+  @step('Save the new product code and confirm it was created')
+  async saveNewCodeAndConfirm(): Promise<void> {
+    const save = this.dialog().getByRole('button', { name: S.NAME_SAVE, exact: true });
+    await expect(save, 'Save should be enabled once the required fields are set')
+      .toBeEnabled({ timeout: 10_000 });
+    const created = this.page.waitForResponse(
+      (r) => r.url().includes(S.CREATE_ENDPOINT) && r.request().method() === 'POST',
+      { timeout: 30_000 },
+    );
+    // Set the toast watch before clicking so it is caught the moment it appears.
+    const toastShown = this.page.locator(S.TOAST).filter({ hasText: S.TOAST_CODE_CREATED })
+      .waitFor({ state: 'visible', timeout: 15_000 });
+    await save.click();
+    const res = await created;
+    expect(res.status(), 'the create request should return 200').toBe(200);
+    expect(((await res.json()) as { success?: boolean })?.success, 'the create response should report success').toBe(true);
+    await toastShown;
+    await this.dialog().waitFor({ state: 'hidden', timeout: 15_000 });
+  }
 }

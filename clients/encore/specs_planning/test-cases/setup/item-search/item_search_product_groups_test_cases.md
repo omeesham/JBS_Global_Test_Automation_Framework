@@ -4,11 +4,11 @@
 **Submodule**: PGR
 **Page**: Product Groups (`/locations/1101/products/product-groups`) + its Add page
 **Test Entity**: Office 1101
-**Updated**: 2026-08-31
-**Total TCs**: 10
+**Updated**: 2026-09-02
+**Total TCs**: 11
 **Coverage mode**: QUICK (L1)
 **Governing Requirement**: NM-2253
-**Verified against**: field inventory `item-search-product-groups-2026-08-31.md`; machine denominators `reports/walk-coverage/isr-pgr.json` (28) + siblings; live probes 2026-08-31 (walk evidence `walk-evidence-item-search-2026-08-31.md`)
+**Verified against**: field inventory `item-search-product-groups-2026-08-31.md`; machine denominators `reports/walk-coverage/isr-pgr.json` (28) + siblings; live probes 2026-08-31 (walk evidence `walk-evidence-item-search-2026-08-31.md`) and the 2026-09-02 create-group session (walk evidence `walk-evidence-item-search-save-flows-2026-09-02.md` — product group id 4581)
 
 ---
 
@@ -37,6 +37,7 @@
 | Reset clears and empties | The text box clears, results empty to zero found, and Active stays checked. |
 | This page turns 20 rows per page | Its default page size is 20 (the Products page uses 50). |
 | Save on the Add page is held back | It stays disabled while the required fields are incomplete; typing a name alone does not enable it. |
+| A completed Add page saves and persists | With Name, Description, Service Type and at least one Sub Class (added by double-clicking an item in the left list) all set, Save enables; clicking it creates the group, shows a "Product Group created successfully" toast, redirects to the groups list, and posts to `POST /navigator/api/location/add-update-product-group`. The saved group is then returned by a Product Groups search on its name — persistence proven by the search-back, not by the Save click. |
 | Cancel discards silently | Leaving the Add page via Cancel drops typed input with no warning prompt. |
 
 ## MCP_VERIFICATION_LOG
@@ -51,6 +52,8 @@
 | 6 | Add page | Route opens; required-empty form; Save disabled; instruction "Drag or double-click items from the left to add sub-classes" |
 | 7 | Cancel with typed name | Returned to the list silently; input discarded |
 | 8 | Page size | Rows-per-page control shows 20 |
+| 9 | Create group save (2026-09-02) | Name + Description filled, Service Type chosen, one sub-class "Audio Mixer AES Card" added by double-click → Save enabled → click → "Product Group created successfully" toast and redirect to the groups list; `POST /navigator/api/location/add-update-product-group` returned 200 |
+| 10 | Created group found by search (2026-09-02) | A Product Groups search on the new name returned exactly one row — the created group with its Description and Service Type "Equipment" (product group id 4581) |
 
 ---
 
@@ -162,7 +165,7 @@
 | 1 | Read the left panel | A search box and a long list of sub-class items |
 | 2 | Read the Sub Classes area on the right | It is marked required and shows the instruction "Drag or double‑click items from the left to add sub‑classes" |
 
-**Notes**: Structure only at this depth — actually adding a sub-class (by drag or double-click) builds a group and is left for the deeper, data-writing pass.
+**Notes**: Structure only at this depth — this case reads the picker's two panels without adding anything. Actually adding a sub-class (by double-click) and creating the group is now covered by TC-ISR-PGR-011.
 
 ---
 
@@ -210,3 +213,21 @@
 | 2 | Read the Service Type column | Each row carries a service type (e.g. `Equipment Rental`) |
 
 **Notes**: Render check under the active filter; inactive-group rendering needs the filter unchecked and known inactive data — deferred.
+
+---
+
+## TC-ISR-PGR-011: A completed Add page saves a new product group and it is found again
+
+**Automatable**: Yes
+**Preconditions**: The Product Groups page is open for office 1101.
+
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Click Add, then fill Name and Description with a per-run unique value (e.g. a `ZZ-E2E-<timestamp>` name) | Both required fields hold the typed values, read back from the boxes |
+| 2 | Choose a Service Type | The Service Type selector shows the chosen value |
+| 3 | In the sub-class picker, double-click one item in the left list | The item moves to the Sub Classes area on the right, and — with Name, Description, Service Type and one sub-class all set — Save enables |
+| 4 | Click Save | A "Product Group created successfully" toast appears and the page redirects to the groups list; `POST /navigator/api/location/add-update-product-group` returns 200 |
+| 5 | Search the groups list for the new group's exact Name | Exactly one row returns — the group just created, showing its Description and Service Type |
+
+**Notes**: NM-2259. This is the module's first proof a product group can be created; the earlier cases (006–008) only proved the Add page opens, gates Save, shows the two-panel picker and discards on Cancel. The sub-class is added by **double-click**, the reliable path the picker itself offers — drag is flaky and frequently never fires the drop. Persistence is proven by searching the name back after the redirect and reload (LR-067), not by the Save click. The Name is per-run unique so reruns never collide. There is no hard delete for a product group and the deactivate-via-edit path was not pinned this pass, so the case leaves its group on 1101 — accepted test residue on the writable e2e environment (LR-ENC-007), recorded in the field inventory. Verified live 2026-09-02 (product group id 4581).

@@ -9,6 +9,7 @@ import {
   ISR_LABOR_SERVICE_SAMPLES,
   ISR_TRANSLATION_LANGUAGES,
   ISR_HISTORY_COLUMN_SAMPLES,
+  ISR_ADD_CODE,
 } from '../../src/data/item-search/item-search';
 
 /**
@@ -204,5 +205,28 @@ test.describe('Item Search Product Code dialogs @item-search @product-code', () 
     // real availability behavior cases when dates go live.
     await expect(pc.viewAvailabilityButton()).toBeVisible();
     await expect(pc.viewAvailabilityButton()).toBeEnabled();
+  });
+
+  test('TC-ISR-PCD-011: A completed Add Product Code form saves and the new code is found again', async ({ dependencyGate }) => {
+    dependencyGate([]);
+    await searchAndSelect();
+    // A per-run unique suffix so repeated runs never collide on the same name.
+    const unique = Date.now();
+    const name = `${ISR_ADD_CODE.namePrefix} ${unique}`;
+    const description = `${ISR_ADD_CODE.descriptionPrefix} ${unique}`;
+    await pc.openAddDialog();
+    await pc.fillAddForm({
+      name,
+      description,
+      productType: ISR_ADD_CODE.productType,
+      serviceType: ISR_ADD_CODE.serviceType,
+    });
+    await pc.saveNewCodeAndConfirm();
+    // The save call is never the proof — reset the search and look the new code up again
+    // after the grid reloads. The code's name is what lands in the Item column.
+    await pc.ensureCleanSearch(ISR_OFFICE);
+    await pc.typeAnyField(name);
+    expect(await pc.clickSearchAndWait((n) => n === 1)).toBe(1);
+    expect(await pc.readColumnValues('Item')).toEqual([name]);
   });
 });

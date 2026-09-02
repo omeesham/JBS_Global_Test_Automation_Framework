@@ -4,11 +4,11 @@
 **Submodule**: PCD
 **Page**: Products (`/locations/1101/products`) — row-selection toolbar + Product Code Details dialogs
 **Test Entity**: Office 1101
-**Updated**: 2026-08-31
-**Total TCs**: 10
+**Updated**: 2026-09-02
+**Total TCs**: 11
 **Coverage mode**: QUICK (L1)
 **Governing Requirement**: NM-2253
-**Verified against**: field inventory `item-search-product-code-2026-08-31.md`; dialog snapshots under `.playwright-cli/isr-2026-08-31/` (2026-08-31 session); walk evidence `walk-evidence-item-search-2026-08-31.md`
+**Verified against**: field inventory `item-search-product-code-2026-08-31.md`; dialog snapshots under `.playwright-cli/isr-2026-08-31/` (2026-08-31 session); walk evidence `walk-evidence-item-search-2026-08-31.md` and `walk-evidence-item-search-save-flows-2026-09-02.md` (Add Product Code real save — product id 102184)
 
 ---
 
@@ -32,7 +32,8 @@
 | Service Type follows Product Type | In the Add dialog, Service Type is locked until a Product Type is chosen, then offers only types that belong to it (choosing LABOR yields a labor-specific list). |
 | Save is held back | Add: Save stays disabled while required fields are incomplete. View: Save stayed disabled even after an edit on the probed row — do not assert when it enables. |
 | Closing discards silently | Closing either dialog with unsaved edits discards them with no warning prompt. |
-| One segment option is broken | In the View menu, Category closes the menu and nothing opens (confirmed three times; every sibling works and the Add menu's Category works). Filed as BUG-ISR-PCD-001 (2026-09-01). |
+| Every View segment opens its dialog | All five entries in the View caret menu (Item, Sub Class, Class, Sub Category, Category) open their scoped dialog. An earlier "Category opens nothing" reading was a probe artifact — the click had never landed — and was invalidated by live re-verification on 2026-09-01 (BUG-ISR-PCD-001, status invalid). |
+| A completed Add form saves and persists | With Name, Item Description, Product Type and Service Type all set, Save enables; clicking it creates the product code under the selected row's category hierarchy, shows a "Product created successfully." toast, closes the dialog, and posts to `POST /navigator/api/product/create`. The saved code is then returned by an Any Field search on its name — persistence proven by the search-back, not by the Save click. |
 
 ## MCP_VERIFICATION_LOG
 
@@ -50,6 +51,8 @@
 | 10 | Segment menu (Add) | Category opens the add form scoped to Category |
 | 11 | Dirty close | Edited View dialog and Add dialog with a chosen type both closed silently, edits discarded |
 | 12 | View Availability | No response on a labor row and an equipment row (zero requests) — feature tied to dates, which are not functional yet |
+| 13 | Add Product Code save (2026-09-02) | Name + Item Description filled, Product Type EQUIPMENT, Service Type Equipment Rental → Save enabled → click → "Product created successfully." toast and the dialog closed; `POST /navigator/api/product/create` returned `{"success":true,"data":{"id":102184}}` |
+| 14 | Created code found by search (2026-09-02) | An Any Field search for the new code's exact name returned exactly one row — the created product, carrying the category path of the row selected when Add opened |
 
 ---
 
@@ -183,7 +186,7 @@
 | 2 | Click Category | The dialog opens and its single tab is named "Category" |
 | 3 | Close the dialog | The grid is unchanged |
 
-**Notes**: The add-side Category works — which is exactly why the view-side Category's silence is a defect and not a data limitation.
+**Notes**: The add-side Category opens its scoped form, as does the view-side Category (TC-ISR-PCD-005). An earlier reading that the view-side Category opened nothing was a probe artifact and was invalidated on 2026-09-01 — BUG-ISR-PCD-001, status invalid.
 
 ---
 
@@ -215,3 +218,20 @@
 | 1 | Read the View Availability button | It is visible and enabled |
 
 **Notes**: Presence check only, deliberately. Clicking it currently does nothing on any row type — availability is driven by the date fields, and the product owner has ruled dates are not functional yet. When dates go live, replace this case with real availability behavior cases.
+
+---
+
+## TC-ISR-PCD-011: A completed Add Product Code form saves and the new code is found again
+
+**Automatable**: Yes
+**Preconditions**: A default search has been executed on the Products page for office 1101 and a result row is selected (the new code is created under that row's category hierarchy).
+
+**Steps**:
+| # | Step | Expected Result |
+|---|------|-----------------|
+| 1 | Open Add Product Code and fill Name and Item Description with a per-run unique value (e.g. a `ZZ-E2E-<timestamp>` name) | Both required text fields hold the typed values, read back from the boxes |
+| 2 | Choose Product Type `EQUIPMENT`, then choose Service Type `Equipment Rental` | Service Type unlocks once the Product Type is set; with all four required fields present, Save enables |
+| 3 | Click Save | A "Product created successfully." toast appears and the dialog closes; `POST /navigator/api/product/create` returns success with a new id |
+| 4 | Reset the search, type the new code's exact Name into Any Field, and click Search | Exactly one row returns — the product just created, carrying the category path of the row that was selected when Add opened |
+
+**Notes**: NM-2257. This is the module's first proof that a product code can actually be created; the earlier cases (006–009) only proved the form opens, gates Save, filters Service Type and discards on close. Persistence is proven by searching the saved name back after the grid reloads (LR-067), never by the Save click's own return. The Name is per-run unique so reruns never collide. Only the **Item** segment is exercised here — the Item segment IS NM-2257's Add Product Code. The other four Add segments (Sub Class / Class / Sub Category / Category) each open a DISTINCT hierarchy-level form with its own Save (confirmed by live probe 2026-09-02 — field counts grow up the tree, Sub Class through Category) and create catalog-classification nodes, not product codes, which is a distinct catalog-management feature outside the whole NM-2253 Item Search epic. Per LR-066 they are WAIVED with that stated reason and its probe evidence, never silently narrowed; a future catalog-management effort could cover them. There is no hard delete for a product code — the reversal is a deactivate (uncheck Active in the View dialog and Save), whose save round-trip was not exercised this pass — so the case leaves its product on 1101, accepted test residue on the writable e2e environment (LR-ENC-007), recorded in the field inventory. Verified live 2026-09-02 (product id 102184).

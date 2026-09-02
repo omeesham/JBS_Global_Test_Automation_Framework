@@ -5,8 +5,8 @@
 **Page**: Products (`/locations/1101/products`) — search panel + result grid
 **Test Entity**: Office 1101
 **Governing Requirement**: NM-2253
-**Updated**: 2026-09-01
-**Total Scenarios**: 30
+**Updated**: 2026-09-02
+**Total Scenarios**: 31
 **Test Cases**: `item_search_product_search_test_cases.md`
 
 ---
@@ -90,3 +90,4 @@ verification, all rows matching).
 | TC-ISR-PRS-028 | A barcode search survives leaving and returning | Surface — persistence (QUICK) | Yes |
 | TC-ISR-PRS-029 | A product found by barcode opens in the product-code dialog | Surface — combination (QUICK) | Yes |
 | TC-ISR-PRS-030 | The barcode box stops accepting characters at its limit | Field (Axis 1) — length boundary per NM-1494 | Yes |
+| TC-ISR-PRS-031 | The Active filter narrows the results to active products | Surface — combination (QUICK) | Yes |

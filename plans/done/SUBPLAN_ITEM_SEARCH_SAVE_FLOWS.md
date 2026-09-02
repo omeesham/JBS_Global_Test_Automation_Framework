@@ -17,7 +17,8 @@
 
 # SUBPLAN_ITEM_SEARCH_SAVE_FLOWS — close the save half of NM-2253
 
-**Status**: PENDING
+**Status**: DONE
+**Executed**: 2026-09-02
 **Priority**: P1
 **Created**: 2026-09-02
 **Identity**: OWNER (shell; HUNTER → GIVER → BUILDER by phase)
@@ -217,27 +218,27 @@ plan hash); parent-cascade annotation into `PLAN_BIG_PIVOT_FCC_MASTER.md`.
 | HEALER | (none) | `(none)` | n/a |
 | WATCHDOG | (none — this module's independent audit is owned elsewhere) | `(skipped: independent audit of this module belongs to PLAN_NM2253_ITEM_SEARCH_EXTERNAL_01_AUDIT, which exists so a fresh session reviews this work rather than the session that wrote it)` | n/a |
 | GARDENER | (none) | `(none)` | n/a |
-| OWNER | this plan + activity log | `plans/pending/SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md`<br>`clients/encore/specs_planning/_internal/agent-activity-log.md` | `node scripts/validate-plan-closure.mjs --plan plans/pending/SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md --enforce` |
+| OWNER | this plan + activity log | `plans/done/SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md`<br>`clients/encore/specs_planning/_internal/agent-activity-log.md` | `node scripts/validate-plan-closure.mjs --plan plans/done/SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md --enforce` |
 
 ---
 
 ## Acceptance criteria
 
-- [ ] Phase 0.5 recon artifact exists, with R1–R5 each answered from live evidence and every claim's
+- [x] Phase 0.5 recon artifact exists, with R1–R5 each answered from live evidence and every claim's
       instrument error-checked.
-- [ ] NM-2254: a case toggles the Active filter and asserts the result-set change.
-- [ ] NM-2257: a product code is created and found again after a reload — or, if R1 hit the
+- [x] NM-2254: a case toggles the Active filter and asserts the result-set change.
+- [x] NM-2257: a product code is created and found again after a reload — or, if R1 hit the
       invent-business-data HALT, the plan stopped and asked rather than fabricating values.
-- [ ] NM-2259: a product group is created and found again by search after a reload.
-- [ ] NM-2256: covered by a case, OR recorded as blocked with positive-control and varied-wait
+- [x] NM-2259: a product group is created and found again by search after a reload.
+- [x] NM-2256: covered by a case, OR recorded as blocked with positive-control and varied-wait
       evidence plus a named owner question. An inherited claim is not an acceptable closure.
-- [ ] Every save case proves persistence by re-read, not by the save call's return (LR-067).
-- [ ] The five Add segment routes are each covered, waived with a stated reason of at least 20
+- [x] Every save case proves persistence by re-read, not by the save call's return (LR-067).
+- [x] The five Add segment routes are each covered, waived with a stated reason of at least 20
       characters, or named as a follow-up — no silent narrowing (LR-066).
-- [ ] Item Search save describes registered in `check-save-route-parity.mjs`, and that gate passes.
-- [ ] MD + test-plan + workbook parity landed in this wave; `check:tc-parity` exit 0.
-- [ ] `tests/item-search/` run-all green; `check:spec-quality` exit 0 on the working tree.
-- [ ] Cleanup disposition recorded: records removed, or accumulation stated explicitly in the field
+- [x] Item Search save describes registered in `check-save-route-parity.mjs`, and that gate passes.
+- [x] MD + test-plan + workbook parity landed in this wave; `check:tc-parity` exit 0.
+- [x] `tests/item-search/` run-all green; `check:spec-quality` exit 0 on the working tree.
+- [x] Cleanup disposition recorded: records removed, or accumulation stated explicitly in the field
       inventory.
 
 ---
@@ -245,7 +246,7 @@ plan hash); parent-cascade annotation into `PLAN_BIG_PIVOT_FCC_MASTER.md`.
 ## Verification
 
 ```bash
-node scripts/validate-plan-closure.mjs --plan plans/pending/SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md --enforce
+node scripts/validate-plan-closure.mjs --plan plans/done/SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md --enforce
 ```
 
 ```bash
@@ -260,3 +261,47 @@ Reported in chat at closure: which sub-tasks moved from partial to complete, wha
 re-drive concluded, the cleanup disposition, and the one finding this plan deliberately does not fix
 — that the save-route-parity registry is opt-in with no forcing function, which is why this gap
 survived a gate built to catch exactly it.
+
+---
+
+## Execution Summary
+
+**Executed**: 2026-09-02 · **Verdict**: GREEN · **Identity**: OWNER shell (HUNTER Phase 0.5 recon, GIVER Phase 1 cases, BUILDER Phase 2 specs + runs, OWNER closure).
+
+### Sub-tasks moved partial → complete
+- **NM-2254 Product Search Filters** — `TC-ISR-PRS-031`: toggles the Active checkbox and asserts the result-set change by IDENTITY (unchecked Product-Code-ID set ⊇ active set, AND ≥1 inactive product revealed, AND re-checking restores the active set) — never a bare count. Anchor word SM58 (39 active / 45 unchecked / restored to 39), re-verified live 2026-09-02.
+- **NM-2257 Add Product Code** — `TC-ISR-PCD-011`: fills the Item-segment form (Name / Item Description / Product Type EQUIPMENT / Service Type Equipment Rental), Saves, and proves persistence by searching the new code's name back after a reload (LR-067). Real save `POST /navigator/api/product/create` (200, success), toast "Product created successfully.".
+- **NM-2259 Create Product Group** — `TC-ISR-PGR-011`: fills the Add page (Name / Description / Service Type / one sub-class via double-click), Saves, and finds the new group by search after the list reloads (LR-067). Real save `POST /navigator/api/location/add-update-product-group` (200, success), toast "Product Group created successfully".
+
+### NM-2256 View Availability — re-driven, not inherited (no TC authored)
+Phase 0.5 R5 re-drove the control with a positive control (View Product Code opens its dialog on the same instrument) plus varied waits (+2s / +60s / +3s): no dialog, no drawer, no URL change, constant body length. Verdict: inert **because it is app-gated behind the not-yet-functional Prep/Return date feature** (standing owner ruling), not a code defect. `TC-ISR-PRS-032` deliberately not authored; NM-2256 recorded as an evidenced block with the owner question in the walk-evidence Observations. (LR-ENC-009: markup/enable-state alone is never a bug here.)
+
+### 5-segment Add route disposition (LR-066 acceptance)
+Item Add segment covered by `TC-ISR-PCD-011` (real save). The four non-Item segments (Sub Class / Class / Sub Category / Category) were live-probed 2026-09-02: each opens its own hierarchy-level form with its own Save and required fields — they create catalog-classification nodes, not product codes, a distinct catalog-management feature outside the whole NM-2253 Item Search epic. **WAIVED with that stated reason and its probe evidence**, reconciled across the walk-evidence, field inventory, TC MD and test plan — no silent narrowing.
+
+### Prior-Fix Trial rewire (LR-066 registry)
+Registered the two Item Search save describes in `scripts/check-save-route-parity.mjs` REGISTRY and added `saveNewCodeAndConfirm` / `saveNewGroupAndConfirm` to its REAL_SAVE_HELPERS. `node scripts/check-save-route-parity.mjs` → PASS (4 routes). The registry-is-opt-in gap (no forcing function for an unregistered save-capable spec) is surfaced, not fixed — a guardrail-machinery change needs the owner's go.
+
+### TCs implemented / dropped
+- Implemented: 3 — `TC-ISR-PRS-031`, `TC-ISR-PCD-011`, `TC-ISR-PGR-011`.
+- Dropped: 1 — `TC-ISR-PRS-032` (NM-2256): NOT-AUTOMATABLE — the control is app-gated inert behind the disabled date feature; evidence in walk-evidence R5 plus a recorded owner question. This is the plan's own R5-conditional outcome, not a silent skip.
+
+### Verification (all green, 2026-09-02)
+- `npx tsc -p clients/encore/tsconfig.json --noEmit` → exit 0.
+- Solo (retries=0): `TC-ISR-PRS-031` 19.7s, `TC-ISR-PCD-011` 22.2s, `TC-ISR-PGR-011` 17.5s — all pass.
+- `tests/item-search/` run-all (retries=0): **54 passed, 0 failed** (9.5m) — no serial contamination (LR-018). (The reporter marks the passing date-render test PRS-021 with a cosmetic `x` glyph; a solo re-run confirmed Playwright exit 0 / "2 passed".)
+- `npm run check:spec-quality` → exit 0 (unfailable / swallowed / sleeps / reload gates clean; reject-oracle is announce-only, pre-existing, involving none of the new tests).
+- `npm run check:tc-parity` → PASS (3 new TCs present in spec + MD + XLSX).
+- `node scripts/check-save-route-parity.mjs` → PASS (4 routes).
+
+### Documentation / artifacts changed
+- Specs (+1 TC each): `product-search.spec.ts`, `product-code.spec.ts`, `product-groups.spec.ts`. Page objects: `product-code.page.ts`, `product-groups.page.ts` (fill + save-and-confirm). Selectors + data: create endpoints, toasts, `ISR_ADD_CODE` / `ISR_ADD_GROUP` / `ISR_ACTIVE_FILTER_WORD`.
+- TC MDs + test plans (product-search / product-code / product-groups), field inventories (product-code / product-groups), walk-evidence (Phase 0.5 recon), XLSX (item-search sheets + combined workbook rebuilt).
+- Gate: `scripts/check-save-route-parity.mjs` (registry + helpers).
+
+### Cleanup disposition (LR-ENC-007)
+No hard delete exists for either record type. The product-code reversal is deactivate-via-View-dialog (save round-trip not exercised this pass); the group reversal is deactivate-via-edit. Both save cases leave a per-run-unique record on office 1101 — accepted, expected test residue on the fully-writable e2e environment, stated in the field inventories, not hidden.
+
+### Findings surfaced (not fixed — out of scope, for the owner)
+1. **Save-route-parity registry is opt-in with no forcing function** — the exact reason this save gap survived a gate built to catch it. Making the registry self-populating is guardrail-machinery + wiring and needs the owner's go.
+2. **`xlsx:build` is non-deterministic** — `export_test_cases/to-xlsx.ts:902` stamps `wb.created = new Date()` into every workbook, so any build dirties all 40 workbooks by timestamp even when one module changed. Only the 4 item-search-related workbooks carry real content; the 36 timestamp-only churns were reverted at commit.

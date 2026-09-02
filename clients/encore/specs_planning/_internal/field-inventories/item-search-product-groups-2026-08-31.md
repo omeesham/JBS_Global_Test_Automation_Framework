@@ -173,3 +173,9 @@ The group list is a result surface. Families dispositioned —
 - **Per-column menus (4)**: enumerated, unopened at this tier — deferral rows above.
 - **Products back-link**: enumerated, unclicked — deferral row above.
 - **Out-of-module**: app-shell chrome — enumerated, deliberately not opened.
+
+## Save & cleanup disposition (2026-09-02)
+
+- **Create Product Group save is now covered** by TC-ISR-PGR-011: a completed Add page (Name / Description / Service Type / ≥1 Sub Class added by double-click) saves via `POST /navigator/api/location/add-update-product-group` — verified live, product group id 4581 — and is confirmed by a Product Groups search-back per LR-067.
+- **Cleanup**: there is no hard delete for a product group, and the deactivate-via-edit path was **not** pinned this pass, so the create case leaves its per-run-unique group on 1101. This accumulation is accepted test residue on the fully-writable e2e environment (LR-ENC-007), stated here rather than hidden.
+- **Sub-class add path**: the reliable **double-click** path is covered; the drag path is a deferral (flaky, frequently never fires the drop).

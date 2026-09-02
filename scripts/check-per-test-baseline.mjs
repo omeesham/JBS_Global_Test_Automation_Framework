@@ -127,6 +127,24 @@ const ENFORCED = [
       { title: 'SBC — Discount Matrix Region Weekly Peaks surface behaviors @discount-matrix @region-weekly-peaks', mechanism: 'beforeEach-reset' },
     ],
   },
+  {
+    // Item Search Add Product Code dialog: the dialogs describe drives a real product create
+    // (POST /product/create) and proves persistence by searching the new code back;
+    // ensureCleanSearch in beforeEach re-establishes the reset Products page per test.
+    specPath: 'clients/encore/tests/item-search/product-code.spec.ts',
+    describes: [
+      { title: 'Item Search Product Code dialogs @item-search @product-code', mechanism: 'beforeEach-reset' },
+    ],
+  },
+  {
+    // Item Search Add Product Group page: the fields describe drives a real group create
+    // (POST /add-update-product-group) and proves persistence by searching the new group back;
+    // ensureCleanSearch in beforeEach re-establishes the reset Product Groups page per test.
+    specPath: 'clients/encore/tests/item-search/product-groups.spec.ts',
+    describes: [
+      { title: 'Item Search Product Groups panel and Add page — fields @item-search @product-groups', mechanism: 'beforeEach-reset' },
+    ],
+  },
 ];
 
 // Helpers that drive a REAL Save — used by the glob WARN pass to spot save-capable describes.
@@ -141,6 +159,8 @@ const REAL_SAVE_HELPERS = [
   'clickPanelSave',
   'persistThreshold',
   'persistWeekClassification',
+  'saveNewCodeAndConfirm',
+  'saveNewGroupAndConfirm',
 ];
 
 // Per-test reset helpers that establish a known baseline (NOT plain navigation — a bare nav guard

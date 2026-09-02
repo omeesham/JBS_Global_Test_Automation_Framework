@@ -30,7 +30,17 @@ export const itemSearchProductCode = {
   NAME_CLOSE: 'Close',
   /** Editable name box in both dialogs (placeholder is stable across view and add). */
   PLACEHOLDER_NAME: 'Enter name',
+  /** The add form's required item description box. */
+  PLACEHOLDER_ITEM_DESCRIPTION: 'Enter item description',
   /** The add form's paired type selectors show these placeholders until chosen. */
   TEXT_SELECT_PRODUCT_TYPE: 'Select product type',
   TEXT_SELECT_SERVICE_TYPE: 'Select service type',
+
+  // ---------------------------------------------------------------- create confirmation
+  /** Backend endpoint the add form posts to — filtered on so a save wait ignores the
+   *  page's own render requests and keys only on the real create call. */
+  CREATE_ENDPOINT: '/navigator/api/product/create',
+  /** The confirmation toast container and its message after a successful create. */
+  TOAST: '[data-sonner-toast]',
+  TOAST_CODE_CREATED: 'Product created successfully.',
 } as const;
