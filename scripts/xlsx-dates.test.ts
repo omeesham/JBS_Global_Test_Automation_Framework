@@ -105,7 +105,7 @@ console.log('\nTest 2 — Gate 2: dirty source gates through buildWorkbook');
     try {
       fs.writeFileSync(targetPath, orig + '\n<!-- gate-test-2a -->', 'utf-8');
       const r = await tryBuild();
-      check('Gate 2a: buildWorkbook throws on unstaged edit in consumed MD', r.startsWith('THROW') && /uncommitted/i.test(r));
+      check('Gate 2a: buildWorkbook throws on unstaged edit in consumed MD', r.startsWith('THROW') && /not staged/i.test(r));
     } finally { fs.writeFileSync(targetPath, orig, 'utf-8'); }
   }
 
@@ -116,7 +116,9 @@ console.log('\nTest 2 — Gate 2: dirty source gates through buildWorkbook');
       fs.writeFileSync(targetPath, orig + '\n<!-- gate-test-2b -->', 'utf-8');
       execFileSync('git', ['add', targetPath], { cwd: REPO_ROOT });
       const r = await tryBuild();
-      check('Gate 2b: buildWorkbook throws on staged edit in consumed MD', r.startsWith('THROW') && /uncommitted/i.test(r));
+      // Staged markdown is ACCEPTED by design (buildWorkbook: "staged markdown is accepted
+      // because it lands in the same commit as the workbook", dated today) — it must NOT throw.
+      check('Gate 2b: buildWorkbook accepts a staged edit in consumed MD (lands in the same commit)', r === 'NO_THROW');
     } finally {
       fs.writeFileSync(targetPath, orig, 'utf-8');
       execFileSync('git', ['checkout', 'HEAD', '--', targetPath], { cwd: REPO_ROOT });
@@ -129,7 +131,7 @@ console.log('\nTest 2 — Gate 2: dirty source gates through buildWorkbook');
   try {
     fs.writeFileSync(untrackedMd, '## TC-9999\n**Title:** gate test\n**Steps:** 1. step\n**Expected:** result\n', 'utf-8');
     const r = await tryBuild();
-    check('Gate 2c: buildWorkbook throws on untracked .md under MD_ROOT', r.startsWith('THROW') && /uncommitted/i.test(r));
+    check('Gate 2c: buildWorkbook throws on untracked .md under MD_ROOT', r.startsWith('THROW') && /not staged/i.test(r));
   } finally {
     try { fs.unlinkSync(untrackedMd); } catch {}
     try { fs.unlinkSync(tmpOut2); } catch {}

@@ -50,7 +50,9 @@ if (!existsSync(XLSX_PATH)) {
 } else {
   const wb = XLSX.readFile(XLSX_PATH);
   for (const sheetName of wb.SheetNames) {
-    if (sheetName === 'Overview') continue;
+    // __fp__ is the hidden input-fingerprint sheet (skip-detection metadata; see
+    // FINGERPRINT_SHEET in to-xlsx.ts), not a module sheet — it has no 13-col header.
+    if (sheetName === 'Overview' || sheetName === '__fp__') continue;
     const aoa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' });
     const header = (aoa[0] || []).map(h => String(h).replace(/^﻿/, '').trim());
     const exact = header.length === MERGED_HEADERS.length && MERGED_HEADERS.every((h, i) => header[i] === h);
