@@ -81,7 +81,7 @@ verification, all rows matching).
 | TC-ISR-PRS-018 | An executed search survives leaving and returning | Surface — persistence (QUICK) | Yes |
 | TC-ISR-PRS-019 | The search panel collapses and expands | Field (Axis 1) | Yes |
 | TC-ISR-PRS-020 | A Prep date after the Return date is rejected with a message | Field (Axis 1) — cross-field validation | Yes |
-| TC-ISR-PRS-021 | A date value renders fully inside its box in every month | Surface — render detail (expected-to-fail on a reported defect) | Yes |
+| TC-ISR-PRS-021 | A date value renders fully inside its box in every month | Surface — render detail (regression guard; the 2026-09-01 overflow no longer reproduces — re-measured 2026-09-03) | Yes |
 | TC-ISR-PRS-022 | A numeric barcode returns the single product it is scanned under | Surface — result-fidelity (QUICK) | Yes |
 | TC-ISR-PRS-023 | A barcode with letters resolves the same way as a numeric one | Surface — result-fidelity (QUICK) | Yes |
 | TC-ISR-PRS-024 | Different barcodes on the same product all return that product | Surface — result-fidelity (QUICK) | Yes |

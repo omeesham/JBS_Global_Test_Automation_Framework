@@ -37,6 +37,17 @@
         "tests/item-search/product-search.spec.ts (TC-ISR-PRS-021 expected-fail)",
         "specs_planning/_internal/field-inventories/item-search-product-search-2026-08-31.md"
       ]
+    },
+    {
+      "verifierAgent": "Claude (test-healing identity, NM-2253 run)",
+      "verifiedDate": "2026-09-03",
+      "verdict": "NO LONGER REPRODUCES",
+      "detail": "Re-measured live on cloudapps-e2e office 1101 by the same method as the 2026-09-01 probe (trigger scrollWidth minus clientWidth, plus the computed box). The application now renders the month ABBREVIATED rather than in full: Prep reads 'Nov 22nd, 2026 12:00 AM' at 205.1 px of text inside a 232 px content box, Return reads 'Dec 22nd, 2026 11:59 PM' at 200.6 px — spill 0 on both, with overflow-x hidden on the trigger. The 2026-09-01 evidence quotes the same field as 'November 22nd, 2026 11:59 PM', so the format itself changed; the shorter string is what now fits. A viewport difference was ruled out first: the 2026-09-01 screenshot is 1920x1080, the same viewport the runner uses. TC-ISR-PRS-021 has had its expected-fail pin removed and now passes green as a live regression guard (solo run 2026-09-03, 9.6s, no teardown error) — the field clips its own overflow, so a return to the longer format would surface here immediately as spill. STATUS LEFT AT 'open' DELIBERATELY: this file records the measured fact, but closing or withdrawing the filing is the owner's triage call, and this repository has no 'fixed' status value in use (only open / invalid / withdrawn).",
+      "minimalRepro": "Prep popover -> next month -> pick the 22nd -> close -> compare value width vs box.",
+      "evidence": [
+        "tests/item-search/product-search-filters.spec.ts (TC-ISR-PRS-021, pin removed)",
+        "specs_planning/_internal/field-inventories/item-search-product-search-2026-08-31.md (Prep/Return rows, CORRECTION 2026-09-03)"
+      ]
     }
   ],
   "notes": "Rendering/layout defect (value paints outside its container) — a behaviour-of-the-pixels finding, not a markup/accessibility finding, so it is fileable for this client. Related but distinct: the pair validation (Prep > Return -> inline error + disabled Search) works correctly and is covered green by TC-ISR-PRS-020."

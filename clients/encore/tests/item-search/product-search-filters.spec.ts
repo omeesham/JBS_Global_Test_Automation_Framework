@@ -185,11 +185,12 @@ test.describe('Item Search Products filters — fields @item-search @product-sea
   test('TC-ISR-PRS-021: A date value renders fully inside its box in every month', async ({ dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(420_000);
-    // Known defect, reported 2026-09-01: wide dates paint their tail outside the box
-    // (8 of 12 months on Prep, up to 30 pixels; Return too). Marked expected-to-fail so
-    // the suite stays honest while the defect lives — when the fix lands this case will
-    // flag itself as unexpectedly passing, which is the signal to remove the marker.
-    test.fail();
+    // Wide dates used to paint their tail outside the box — 7 of 12 months on Prep, up to
+    // 30 pixels, and the Return field too. The app now abbreviates the month ("Nov 22nd,
+    // 2026" rather than "November 22nd, 2026"), which puts the widest value at roughly 205
+    // pixels inside a 232-pixel box, so every month fits. Re-measured live on both fields
+    // 2026-09-03. This case is the guard that keeps it that way: the field clips its own
+    // overflow, so a longer format would show up here immediately as spill.
     const spills: string[] = [];
     for (let month = 0; month < 12; month++) {
       await isr.openDatePopover(1);
