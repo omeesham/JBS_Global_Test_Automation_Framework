@@ -67,6 +67,7 @@
     },
     "ISR": {
       "PRS": { "name": "product_search", "display": "Product Search", "sheet": "item_search_product_search", "mdBasename": "item_search_product_search_test_cases" },
+      "PRF": { "name": "product_search", "display": "Product Search Filters", "sheet": "item_search_product_filters", "mdBasename": "item_search_product_search_filters_test_cases", "idModule": "ISR", "idSubmodule": "PRS" },
       "PCD": { "name": "product_code", "display": "Product Code", "sheet": "item_search_product_code", "mdBasename": "item_search_product_code_test_cases" },
       "PGR": { "name": "product_groups", "display": "Product Groups", "sheet": "item_search_product_groups", "mdBasename": "item_search_product_groups_test_cases" }
     }
@@ -77,7 +78,8 @@
     "locations_shared_setup_location": "31-char Excel cap truncation of locations_shared_setup_locations (trailing 's' lost) — by-design, approved 2026-06-11",
     "locations_left_panel_basic_info": "31-char Excel cap truncation of locations_left_panel_basic_information — by-design, approved 2026-06-11",
     "corporate_pricing_new_pricebook": "exactly 31 chars — at the Excel sheet-name limit",
-    "service_charge_basic_info": "shortened from service_charge_basic_information (32 chars) to fit the 31-char Excel sheet-name cap — by-design, approved 2026-08-10"
+    "service_charge_basic_info": "shortened from service_charge_basic_information (32 chars) to fit the 31-char Excel sheet-name cap — by-design, approved 2026-08-10",
+    "item_search_product_filters": "shortened from item_search_product_search_filters (34 chars) to fit the 31-char Excel sheet-name cap — the redundant second 'search' dropped; by-design, approved 2026-09-03"
   },
   "idRenames": {
     "$comment": "Old → new TC ID map summary (full map: clients/encore/specs_planning/_internal/id-audit-2026-06-10/id-rename-map.json). Historical artifacts (plans/done, dated _internal evidence) intentionally keep old IDs.",

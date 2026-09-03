@@ -1191,7 +1191,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 49,
-    "blob_sha": "4f6e6c10cc32af261ab473c704e5c91b07de10a6"
+    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
    },
    "specs": [
     "tests/corporate-override/corporate-override-labor-grid.spec.ts"
@@ -1265,7 +1265,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 50,
-    "blob_sha": "4f6e6c10cc32af261ab473c704e5c91b07de10a6"
+    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
    },
    "specs": [
     "tests/corporate-override/corporate-override-export.spec.ts"
@@ -1310,7 +1310,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 51,
-    "blob_sha": "4f6e6c10cc32af261ab473c704e5c91b07de10a6"
+    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
    },
    "specs": [
     "tests/corporate-override/corporate-override-import.spec.ts"
@@ -1608,7 +1608,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 52,
-    "blob_sha": "4f6e6c10cc32af261ab473c704e5c91b07de10a6"
+    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
    }
   },
   {
@@ -1652,7 +1652,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 53,
-    "blob_sha": "4f6e6c10cc32af261ab473c704e5c91b07de10a6"
+    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
    }
   },
   {
@@ -1711,7 +1711,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 54,
-    "blob_sha": "4f6e6c10cc32af261ab473c704e5c91b07de10a6"
+    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
    }
   },
   {
@@ -1765,7 +1765,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 55,
-    "blob_sha": "4f6e6c10cc32af261ab473c704e5c91b07de10a6"
+    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
    }
   },
   {
@@ -1806,7 +1806,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 56,
-    "blob_sha": "4f6e6c10cc32af261ab473c704e5c91b07de10a6"
+    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
    }
   },
   {
@@ -1814,8 +1814,7 @@
    "name": "Item Search — Product Search",
    "status": "approved-next",
    "specs": [
-    "tests/item-search/product-search.spec.ts",
-    "tests/item-search/product-search-filters.spec.ts"
+    "tests/item-search/product-search.spec.ts"
    ],
    "workbooks": [
     "testcases/item-search/item-search-product-search.xlsx"
@@ -1827,12 +1826,6 @@
     "TC-ISR-PRS-004",
     "TC-ISR-PRS-005",
     "TC-ISR-PRS-006",
-    "TC-ISR-PRS-007",
-    "TC-ISR-PRS-008",
-    "TC-ISR-PRS-009",
-    "TC-ISR-PRS-010",
-    "TC-ISR-PRS-011",
-    "TC-ISR-PRS-012",
     "TC-ISR-PRS-013",
     "TC-ISR-PRS-014",
     "TC-ISR-PRS-015",
@@ -1840,8 +1833,6 @@
     "TC-ISR-PRS-017",
     "TC-ISR-PRS-018",
     "TC-ISR-PRS-019",
-    "TC-ISR-PRS-020",
-    "TC-ISR-PRS-021",
     "TC-ISR-PRS-022",
     "TC-ISR-PRS-023",
     "TC-ISR-PRS-024",
@@ -1850,9 +1841,7 @@
     "TC-ISR-PRS-027",
     "TC-ISR-PRS-028",
     "TC-ISR-PRS-029",
-    "TC-ISR-PRS-030",
-    "TC-ISR-PRS-031",
-    "TC-ISR-PRS-032"
+    "TC-ISR-PRS-030"
    ],
    "delivered_on": null,
    "delivered_via": null,
@@ -1869,7 +1858,42 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 57,
-    "blob_sha": "4f6e6c10cc32af261ab473c704e5c91b07de10a6"
+    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+   }
+  },
+  {
+   "code": "ISR.PRF",
+   "name": "Item Search — Product Search Filters",
+   "status": "approved-next",
+   "specs": [
+    "tests/item-search/product-search-filters.spec.ts"
+   ],
+   "workbooks": [
+    "testcases/item-search/item-search-product-search-filters.xlsx"
+   ],
+   "tc_ids": [
+    "TC-ISR-PRS-007",
+    "TC-ISR-PRS-008",
+    "TC-ISR-PRS-009",
+    "TC-ISR-PRS-010",
+    "TC-ISR-PRS-011",
+    "TC-ISR-PRS-012",
+    "TC-ISR-PRS-020",
+    "TC-ISR-PRS-021",
+    "TC-ISR-PRS-031",
+    "TC-ISR-PRS-032"
+   ],
+   "delivered_on": null,
+   "delivered_via": null,
+   "evidence": null,
+   "src": [],
+   "sheets": [
+    "item_search_product_filters"
+   ],
+   "approved_ref": {
+    "path": "scripts/deliverable/approval-log.md",
+    "line": 58,
+    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
    }
   },
   {

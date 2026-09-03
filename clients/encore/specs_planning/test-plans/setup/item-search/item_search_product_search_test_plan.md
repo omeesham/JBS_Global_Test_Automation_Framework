@@ -5,9 +5,10 @@
 **Page**: Products (`/locations/1101/products`) — search panel + result grid
 **Test Entity**: Office 1101
 **Governing Requirement**: NM-2253
-**Updated**: 2026-09-02
-**Total Scenarios**: 32
-**Test Cases**: `item_search_product_search_test_cases.md`
+**Updated**: 2026-09-03
+**Total Scenarios**: 32 — 22 under NM-3650 (search inputs + results grid) and 10 under NM-2254 (the controls under the "Filters" heading)
+**Test Cases**: `item_search_product_search_test_cases.md` (22) + `item_search_product_search_filters_test_cases.md` (10). Split 2026-09-03 so each Jira sub-task ships its own workbook; the two halves share one `TC-ISR-PRS-*` numbering sequence, so no case id changed.
+**Specs**: `tests/item-search/product-search.spec.ts` (22) + `tests/item-search/product-search-filters.spec.ts` (10)
 
 ---
 

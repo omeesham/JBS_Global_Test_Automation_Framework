@@ -200,6 +200,7 @@ export const KNOWN_SUB_CODES = [
   'LOA',  // location_activation
   // item-search (ISR) — NM-2253, office 1101 only
   'PRS',  // product_search
+  'PRF',  // product_search filters — own workbook, ids stay in the PRS sequence
   'PCD',  // product_code
   'PGR',  // product_groups
 ] as const;
