@@ -1926,7 +1926,7 @@
     "tests/item-search/add-product-code.spec.ts"
    ],
    "workbooks": [
-    "testcases/add-product-code/add-product-code.xlsx"
+    "testcases/item-search/item-search-add-product-code.xlsx"
    ],
    "tc_ids": [
     "TC-ISR-PCD-006",
@@ -1946,7 +1946,7 @@
     "src/selectors/item-search/product-code.ts"
    ],
    "sheets": [
-    "add_product_code"
+    "item_search_add_product_code"
    ],
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",

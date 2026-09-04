@@ -180,9 +180,6 @@ const SHEET_NAMES: Record<string, string> = {
   service_charge_history: 'service_charge_history',
   // 34 chars unshortened — over the 31-char Excel cap, so the redundant second "search" goes.
   item_search_product_search_filters: 'item_search_product_filters',
-  // NM-2257 ships as its own sub-task deliverable, so its sheet is named for that
-  // feature alone rather than for the Item Search module it sits under.
-  item_search_add_product_code: 'add_product_code',
 };
 
 const SHEET_DISPLAY_NAMES: Record<string, string> = {
@@ -229,7 +226,7 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   // Item Search (NM-2253)
   item_search_product_search: 'Item Search — Product Search',
   item_search_product_search_filters: 'Item Search — Product Search Filters',
-  add_product_code: 'Add Product Code',
+  item_search_add_product_code: 'Item Search — Add Product Code',
   item_search_product_code: 'Item Search — Product Code',
   item_search_product_groups: 'Item Search — Product Groups',
 };
@@ -282,7 +279,7 @@ const SPLIT_FILE_MAP: Record<string, { group: string; stem: string }> = {
   // Item Search (NM-2253)
   item_search_product_search: { group: 'item-search', stem: 'item-search-product-search' },
   item_search_product_filters: { group: 'item-search', stem: 'item-search-product-search-filters' },
-  add_product_code: { group: 'add-product-code', stem: 'add-product-code' },
+  item_search_add_product_code: { group: 'item-search', stem: 'item-search-add-product-code' },
   item_search_product_code: { group: 'item-search', stem: 'item-search-product-code' },
   item_search_product_groups: { group: 'item-search', stem: 'item-search-product-groups' },
 };
