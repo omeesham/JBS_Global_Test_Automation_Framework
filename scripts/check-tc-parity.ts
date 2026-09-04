@@ -324,6 +324,20 @@ function parseTcId(id: string): { mod: string; sub: string; tail: string; extraS
 }
 
 function runGuardrail6and7(reg: ModuleRegistry, mdIdsBySheetExpectation: Set<string>): { failures: string[]; warnings: string[] } {
+  // A submodule may own its own directory (`dir` in module-codes.json) when it ships as a
+  // standalone sub-task deliverable — its folder is named for the sub-task so seven sibling
+  // delivery branches stay tellable apart. The case ids still carry the parent module's code,
+  // so this check accepts either the module's dir or the owning submodule's declared dir.
+  const submoduleOwnsDir = (parsed: { mod: string; sub: string }, dirName: string): boolean =>
+    Object.values(reg.submodules).some((subs: any) =>
+      Object.entries(subs as Record<string, any>).some(([code, e]) =>
+        e.dir === dirName &&
+        ((e.idModule ?? null) !== null
+          ? e.idModule === parsed.mod && e.idSubmodule === parsed.sub
+          : code === parsed.sub)
+      )
+    );
+
   const failures: string[] = [];
   const warnings: string[] = [];
   const testCasesDir = SHARED_PATHS.testCases;
@@ -352,7 +366,7 @@ function runGuardrail6and7(reg: ModuleRegistry, mdIdsBySheetExpectation: Set<str
         const crossGroupDir = Object.entries(reg.submodules).some(([ownerMod, subs]) =>
           Object.values(subs).some((e: any) => e.idModule === parsed.mod && e.idSubmodule === parsed.sub && reg.modules[ownerMod]?.dir === dirName)
         );
-        if (!crossGroupDir) failures.push(`[G6b] ${id} carries module ${parsed.mod} (dir "${mod.dir}") but lives in test-cases/setup/${dirName}/`);
+        if (!crossGroupDir && !submoduleOwnsDir(parsed, dirName)) failures.push(`[G6b] ${id} carries module ${parsed.mod} (dir "${mod.dir}") but lives in test-cases/setup/${dirName}/`);
       }
       const sub = reg.submodules[parsed.mod]?.[parsed.sub];
       if (!sub) { if (!isExcepted(reg, 'G6c-SUB', id)) failures.push(`[G6c] unregistered submodule code "${parsed.mod}/${parsed.sub}" in ${id} (${baseName}.md)`); continue; }
@@ -380,7 +394,7 @@ function runGuardrail6and7(reg: ModuleRegistry, mdIdsBySheetExpectation: Set<str
       const crossGroupDir = Object.entries(reg.submodules).some(([ownerMod, subs]) =>
         Object.values(subs).some((e: any) => e.idModule === parsed.mod && e.idSubmodule === parsed.sub && reg.modules[ownerMod]?.dir === specDir)
       );
-      if (!crossGroupDir) failures.push(`[G6b] spec ${fileMatch[1]} declares ${idMatch[0]} (module dir "${mod.dir}") under tests/${specDir}/`);
+      if (!crossGroupDir && !submoduleOwnsDir(parsed, specDir)) failures.push(`[G6b] spec ${fileMatch[1]} declares ${idMatch[0]} (module dir "${mod.dir}") under tests/${specDir}/`);
     }
   }
 

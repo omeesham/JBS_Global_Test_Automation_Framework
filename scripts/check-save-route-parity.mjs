@@ -34,7 +34,7 @@ const REGISTRY = [
     ],
   },
   {
-    specPath: 'clients/encore/tests/item-search/add-product-code.spec.ts',
+    specPath: 'clients/encore/tests/add-product-code/add-product-code.spec.ts',
     // Item Search Add Product Code — the Item segment is the save-capable create route; its
     // real-Save test commits a product code and re-reads it after reload (LR-067). The route
     // moved out of product-code.spec.ts on 2026-09-04 when NM-2257 split into its own

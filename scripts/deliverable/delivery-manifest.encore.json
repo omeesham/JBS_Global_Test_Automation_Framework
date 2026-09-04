@@ -1923,10 +1923,10 @@
    "name": "Item Search — Add Product Code",
    "status": "approved-next",
    "specs": [
-    "tests/item-search/add-product-code.spec.ts"
+    "tests/add-product-code/add-product-code.spec.ts"
    ],
    "workbooks": [
-    "testcases/item-search/item-search-add-product-code.xlsx"
+    "testcases/add-product-code/item-search-add-product-code.xlsx"
    ],
    "tc_ids": [
     "TC-ISR-PCD-006",

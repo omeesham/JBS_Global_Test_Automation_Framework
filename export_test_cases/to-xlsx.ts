@@ -279,7 +279,7 @@ const SPLIT_FILE_MAP: Record<string, { group: string; stem: string }> = {
   // Item Search (NM-2253)
   item_search_product_search: { group: 'item-search', stem: 'item-search-product-search' },
   item_search_product_filters: { group: 'item-search', stem: 'item-search-product-search-filters' },
-  item_search_add_product_code: { group: 'item-search', stem: 'item-search-add-product-code' },
+  item_search_add_product_code: { group: 'add-product-code', stem: 'item-search-add-product-code' },
   item_search_product_code: { group: 'item-search', stem: 'item-search-product-code' },
   item_search_product_groups: { group: 'item-search', stem: 'item-search-product-groups' },
 };

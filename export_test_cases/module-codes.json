@@ -69,7 +69,7 @@
       "PRS": { "name": "product_search", "display": "Product Search", "sheet": "item_search_product_search", "mdBasename": "item_search_product_search_test_cases" },
       "PRF": { "name": "product_search", "display": "Product Search Filters", "sheet": "item_search_product_filters", "mdBasename": "item_search_product_search_filters_test_cases", "idModule": "ISR", "idSubmodule": "PRS" },
       "PCD": { "name": "product_code", "display": "Product Code", "sheet": "item_search_product_code", "mdBasename": "item_search_product_code_test_cases" },
-      "APC": { "name": "product_code", "display": "Add Product Code", "sheet": "item_search_add_product_code", "mdBasename": "item_search_add_product_code_test_cases", "idModule": "ISR", "idSubmodule": "PCD" },
+      "APC": { "name": "product_code", "display": "Add Product Code", "sheet": "item_search_add_product_code", "mdBasename": "item_search_add_product_code_test_cases", "idModule": "ISR", "idSubmodule": "PCD", "dir": "add-product-code" },
       "PGR": { "name": "product_groups", "display": "Product Groups", "sheet": "item_search_product_groups", "mdBasename": "item_search_product_groups_test_cases" }
     }
   },
