@@ -1191,7 +1191,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 49,
-    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
    },
    "specs": [
     "tests/corporate-override/corporate-override-labor-grid.spec.ts"
@@ -1265,7 +1265,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 50,
-    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
    },
    "specs": [
     "tests/corporate-override/corporate-override-export.spec.ts"
@@ -1310,7 +1310,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 51,
-    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
    },
    "specs": [
     "tests/corporate-override/corporate-override-import.spec.ts"
@@ -1608,7 +1608,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 52,
-    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
    }
   },
   {
@@ -1652,7 +1652,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 53,
-    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
    }
   },
   {
@@ -1711,7 +1711,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 54,
-    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
    }
   },
   {
@@ -1765,7 +1765,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 55,
-    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
    }
   },
   {
@@ -1806,7 +1806,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 56,
-    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
    }
   },
   {
@@ -1858,7 +1858,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 57,
-    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
    }
   },
   {
@@ -1893,7 +1893,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 58,
-    "blob_sha": "e6284b9035887a5d64edcd715c402c870c3d2e2c"
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
    }
   },
   {
@@ -1921,14 +1921,23 @@
   {
    "code": "ISR.APC",
    "name": "Item Search — Add Product Code",
-   "status": "withheld",
+   "status": "approved-next",
    "specs": [
     "tests/item-search/add-product-code.spec.ts"
    ],
    "workbooks": [
     "testcases/item-search/item-search-add-product-code.xlsx"
    ],
-   "tc_ids": [],
+   "tc_ids": [
+    "TC-ISR-PCD-006",
+    "TC-ISR-PCD-007",
+    "TC-ISR-PCD-008",
+    "TC-ISR-PCD-011",
+    "TC-ISR-PCD-012",
+    "TC-ISR-PCD-013",
+    "TC-ISR-PCD-014",
+    "TC-ISR-PCD-015"
+   ],
    "delivered_on": null,
    "delivered_via": null,
    "evidence": null,
@@ -1938,7 +1947,12 @@
    ],
    "sheets": [
     "item_search_add_product_code"
-   ]
+   ],
+   "approved_ref": {
+    "path": "scripts/deliverable/approval-log.md",
+    "line": 60,
+    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+   }
   },
   {
    "code": "ISR.PGR",
