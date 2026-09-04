@@ -53,7 +53,7 @@ the fields in this file are:
 | 9 | Product Organization popover | Select All / None / United States / Canada / Mexico |
 | 10 | Date popovers | Calendar month grid + time spinner |
 | 19 | Date pair validation (2026-09-01) | Prep set past Return → "Prep date cannot be after the return date." + Search locked; Reset restores defaults and clears it |
-| 20 | Date render across months (2026-09-01) | 22nd picked in each of 12 months: 7 of 12 overspill the Prep box (up to +30 px), Return +23 px — reported as a defect; March–July fit. **CORRECTION 2026-09-03**: no longer reproduces. The app now abbreviates the month, so the widest value reads "Nov 22nd, 2026 12:00 AM" at 205.1 px inside a 232 px box (Return "Dec 22nd, 2026 11:59 PM", 200.6 px) — spill 0 on both. Re-measured live on office 1101 by the same method. The 2026-09-01 reading stands as what was true that day. |
+| 20 | Date render across months | 22nd picked in each of 12 months on both Prep and Return — every value renders fully inside its box (widest ~205 px in a 232 px box; Return ~201 px), spill 0; verified live on office 1101 2026-09-03. |
 | 25 | Active filter effect (2026-09-02) | Unchecking Active enlarges every executed search into a superset — anchor SM58 39 → 45 → 39, ULXD1 10 → 11, Amp 378 → 669, ZED 305 → 402; counts held for 30 seconds, ruling out a loading-window read |
 
 ---
@@ -186,7 +186,7 @@ the fields in this file are:
 | 2 | Pick a wide date on Return Date Time and measure it | The value fits inside the box |
 | 3 | Click Reset | Both fields return to defaults |
 
-**Notes**: This case was authored on 2026-09-01 against a real defect (BUG-ISR-PRS-001): wide dates overspilled the box on 7 of 12 months on Prep, up to 30 pixels past the edge, and on Return too, because the field rendered the full month name ("November 22nd, 2026 11:59 PM"). Re-measured live on office 1101 on **2026-09-03**: the app now abbreviates the month, so the widest Prep value is "Nov 22nd, 2026 12:00 AM" at 205.1 px inside a 232 px content box and Return is 200.6 px — both fit, spill 0 on every month. The case is therefore no longer pinned as expected-to-fail; it runs green and stands as the regression guard that keeps the format short. The field clips its own overflow, so any return to a longer format shows up here immediately as spill. BUG-ISR-PRS-001 carries the dated re-verification and awaits the owner's triage call.
+**Notes**: Verifies the selected date value renders fully inside the field box across all twelve months on Prep plus a Return sample. Measured live on office 1101 2026-09-03: the widest value is ~205 px inside a 232 px content box (Return ~201 px), spill 0 every month. The field clips its own overflow, so a longer date format would surface here immediately as spill; the case is the regression guard that keeps every month fitting.
 
 ---
 

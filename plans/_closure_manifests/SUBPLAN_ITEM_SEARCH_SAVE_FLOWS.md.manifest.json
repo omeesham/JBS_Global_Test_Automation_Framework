@@ -1,0 +1,12 @@
+{
+  "plan": "SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md",
+  "plan_basename": "SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md",
+  "plan_sha256": "463a5b3832e63dbcd1b4ba3cebb7f1754d33e937e1d4e4a13f4548faad992f20",
+  "passed_at": "2026-09-02T09:12:55.863Z",
+  "validator_version": "1.0",
+  "validator_config_sha256": "4389302264a95f47d2756f60e4a2d39d02f6d8766956c0e4d417b19bdb5f74ec",
+  "validator_self_hash": "0b2b89845fd6f99c38e0e5422f5fda6590adf5ce23e5d43aa9b29beaee38dcb1",
+  "validator_invocation_id": "1788340375863-ef52ec10031a3593d6bc2f4a89680a6b-463a5b3832e63dbc",
+  "artifacts": [],
+  "provisional": false
+}

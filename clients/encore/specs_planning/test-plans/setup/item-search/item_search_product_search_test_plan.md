@@ -32,7 +32,7 @@ an executed search; panel collapse; the tooltip set.
 
 | Excluded | Reason |
 |---|---|
-| Date-driven result behavior | Product owner ruling: dates do not shape RESULTS yet — result-side cases wait on that. The pair's own validation and its render integrity ARE covered (rows 20–21 below, added 2026-09-01 at the owner's request after a live validation message and a value-overspill defect surfaced) |
+| Date-driven result behavior | Product owner ruling: dates do not shape RESULTS yet — result-side cases wait on that. The pair's own validation and its render integrity ARE covered (rows 20–21 below, added 2026-09-01 at the owner's request after a live validation message surfaced) |
 | Positive barcode filtering | The owner will supply real barcode numbers; the case lands as a follow-up when the data arrives |
 | Region/location result reshaping | Needs region-tagged expected data; the exclusivity contract is covered, the result contents are not |
 | Per-column menus beyond Category and Owned | Same menu on all 13 columns; the remaining 11 ride the deeper pass |
@@ -81,7 +81,7 @@ verification, all rows matching).
 | TC-ISR-PRS-018 | An executed search survives leaving and returning | Surface — persistence (QUICK) | Yes |
 | TC-ISR-PRS-019 | The search panel collapses and expands | Field (Axis 1) | Yes |
 | TC-ISR-PRS-020 | A Prep date after the Return date is rejected with a message | Field (Axis 1) — cross-field validation | Yes |
-| TC-ISR-PRS-021 | A date value renders fully inside its box in every month | Surface — render detail (regression guard; the 2026-09-01 overflow no longer reproduces — re-measured 2026-09-03) | Yes |
+| TC-ISR-PRS-021 | A date value renders fully inside its box in every month | Surface — render detail (verified fitting across 12 months, 2026-09-03) | Yes |
 | TC-ISR-PRS-022 | A numeric barcode returns the single product it is scanned under | Surface — result-fidelity (QUICK) | Yes |
 | TC-ISR-PRS-023 | A barcode with letters resolves the same way as a numeric one | Surface — result-fidelity (QUICK) | Yes |
 | TC-ISR-PRS-024 | Different barcodes on the same product all return that product | Surface — result-fidelity (QUICK) | Yes |

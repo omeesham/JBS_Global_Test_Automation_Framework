@@ -1,0 +1,195 @@
+- generic [ref=f2e1]:
+  - alert [ref=f2e2]: Add
+  - generic [ref=f2e4]:
+    - generic [ref=f2e21]:
+      - list [ref=f2e23]:
+        - listitem [ref=f2e24]:
+          - button "1101 Corporate Office Encore USA SGA" [ref=f2e25] [cursor=pointer]:
+            - generic [ref=f2e27]: "1101"
+            - generic [ref=f2e28]:
+              - generic [ref=f2e29]: Corporate Office Encore USA SGA
+              - img [ref=f2e30]
+      - generic [ref=f2e36]:
+        - list [ref=f2e38]:
+          - listitem [ref=f2e39]:
+            - link "Home" [ref=f2e40] [cursor=pointer]:
+              - /url: /navigator/locations/1101/home
+              - img [ref=f2e41]
+              - generic [ref=f2e44]: Home
+          - listitem [ref=f2e45]:
+            - link "Inbox" [ref=f2e46] [cursor=pointer]:
+              - /url: /navigator/locations/1101/inbox
+              - img [ref=f2e47]
+              - generic [ref=f2e50]: Inbox
+          - listitem [ref=f2e51]:
+            - button "Actions" [ref=f2e52] [cursor=pointer]:
+              - img [ref=f2e53]
+              - generic [ref=f2e55]: Actions
+              - img [ref=f2e56]
+          - listitem [ref=f2e58]:
+            - button "Commissions" [ref=f2e59] [cursor=pointer]:
+              - img [ref=f2e60]
+              - generic [ref=f2e62]: Commissions
+              - img [ref=f2e63]
+          - listitem [ref=f2e65]:
+            - button "Tax" [ref=f2e66] [cursor=pointer]:
+              - img [ref=f2e67]
+              - generic [ref=f2e70]: Tax
+              - img [ref=f2e71]
+          - listitem [ref=f2e73]:
+            - button "Setup" [ref=f2e74] [cursor=pointer]:
+              - img [ref=f2e75]
+              - generic [ref=f2e78]: Setup
+              - img [ref=f2e79]
+          - listitem [ref=f2e81]:
+            - button "Warehouse" [ref=f2e82] [cursor=pointer]:
+              - img [ref=f2e83]
+              - generic [ref=f2e86]: Warehouse
+              - img [ref=f2e87]
+          - listitem [ref=f2e89]:
+            - button "Studio" [ref=f2e90] [cursor=pointer]:
+              - img [ref=f2e91]
+              - generic [ref=f2e93]: Studio
+              - img [ref=f2e94]
+        - generic [ref=f2e96]:
+          - generic [ref=f2e97]: Search
+          - list [ref=f2e99]:
+            - listitem [ref=f2e100]:
+              - link "Order Search" [ref=f2e101] [cursor=pointer]:
+                - /url: /navigator/locations/1101/orders
+                - img [ref=f2e102]
+                - generic [ref=f2e106]: Order Search
+            - listitem [ref=f2e107]:
+              - link "Job Search" [ref=f2e108] [cursor=pointer]:
+                - /url: /navigator/locations/1101/fulfillments
+                - img [ref=f2e109]
+                - generic [ref=f2e112]: Job Search
+            - listitem [ref=f2e113]:
+              - link "Asset Search" [ref=f2e114] [cursor=pointer]:
+                - /url: /navigator/locations/1101/assets
+                - img [ref=f2e115]
+                - generic [ref=f2e118]: Asset Search
+            - listitem [ref=f2e119]:
+              - link "Customer Search" [ref=f2e120] [cursor=pointer]:
+                - /url: /navigator/locations/1101/customers
+                - img [ref=f2e121]
+                - generic [ref=f2e124]: Customer Search
+            - listitem [ref=f2e125]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=f2e126]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=f2e127]:
+              - link "Package Search" [ref=f2e128] [cursor=pointer]:
+                - /url: /navigator/locations/1101/packages
+                - img [ref=f2e129]
+                - generic [ref=f2e133]: Package Search
+            - listitem [ref=f2e134]:
+              - link "Item Search" [ref=f2e135] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+                - img [ref=f2e136]
+                - generic [ref=f2e146]: Item Search
+            - listitem [ref=f2e147]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=f2e148]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=f2e150]:
+          - listitem [ref=f2e151]:
+            - button "Ask Encore" [ref=f2e152] [cursor=pointer]:
+              - img [ref=f2e153]
+              - generic [ref=f2e155]: Ask Encore
+      - list [ref=f2e158]:
+        - listitem [ref=f2e159]:
+          - button "PC prd click auto" [ref=f2e160] [cursor=pointer]:
+            - generic [ref=f2e162]: PC
+            - generic [ref=f2e164]: prd click auto
+            - img [ref=f2e165]
+      - button "Click to restore sidebar" [ref=f2e169]
+    - main [ref=f2e171]:
+      - generic [ref=f2e315]:
+        - generic [ref=f2e317]:
+          - button "trigger-button" [ref=f2e318] [cursor=pointer]:
+            - img
+          - generic [ref=f2e320]:
+            - generic [ref=f2e321]:
+              - link "Products" [ref=f2e322] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+              - img [ref=f2e323]
+            - generic [ref=f2e325]:
+              - link "Product Groups" [ref=f2e326] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products/product-groups
+              - img [ref=f2e327]
+            - heading "Add" [level=1] [ref=f2e330]
+        - generic [ref=f2e332]:
+          - generic [ref=f2e338]:
+            - generic [ref=f2e340]: SUB-CLASS
+            - generic [ref=f2e341]:
+              - generic [ref=f2e342]:
+                - img [ref=f2e344]
+                - textbox "Search" [active] [ref=f2e347]: Audio Amp
+                - button [ref=f2e15474] [cursor=pointer]:
+                  - img
+              - combobox [ref=f2e348] [cursor=pointer]:
+                - generic: Ascending
+                - img
+              - combobox [ref=f2e349]
+              - generic [ref=f2e350]:
+                - generic [ref=f2e351]:
+                  - checkbox [ref=f2e352] [cursor=pointer]
+                  - checkbox
+                  - generic [ref=f2e353]: Labor
+                - button "Reset" [ref=f2e354] [cursor=pointer]
+              - generic [ref=f2e2033]: Audio Amp Rack
+          - button "Collapse search panel" [ref=f2e15149] [cursor=pointer]:
+            - img
+          - generic [ref=f2e15151]:
+            - generic [ref=f2e15152]:
+              - button "Cancel" [ref=f2e15153] [cursor=pointer]:
+                - generic [ref=f2e15154]: Cancel
+              - button "Save" [disabled]:
+                - generic: Save
+            - generic [ref=f2e15155]:
+              - generic [ref=f2e15156]:
+                - generic [ref=f2e15157]: Name
+                - generic [ref=f2e15158]: "*"
+              - textbox "Enter Product Group Name" [ref=f2e15163]: ZZZ AutoProbe Group SF-8067
+            - generic [ref=f2e15164]:
+              - generic [ref=f2e15165]:
+                - generic [ref=f2e15166]: Description
+                - generic [ref=f2e15167]: "*"
+              - textbox "Product Group Description" [ref=f2e15171]:
+                - /placeholder: Enter Product Group Description
+                - text: Recon probe group for save-flow coverage
+            - generic [ref=f2e15173]:
+              - generic [ref=f2e15174]:
+                - generic [ref=f2e15175]:
+                  - generic [ref=f2e15176]: Service Type
+                  - generic [ref=f2e15177]: "*"
+                - generic [ref=f2e15180]:
+                  - combobox [ref=f2e15181] [cursor=pointer]:
+                    - generic: Equipment Rental
+                    - img
+                  - combobox [ref=f2e15182]
+              - generic [ref=f2e15184]:
+                - definition [ref=f2e15185]:
+                  - generic [ref=f2e15186]:
+                    - checkbox [checked] [ref=f2e15187] [cursor=pointer]:
+                      - generic:
+                        - img
+                    - checkbox [checked]
+                - term [ref=f2e15188]: Active
+            - generic [ref=f2e15189]:
+              - generic [ref=f2e15190]:
+                - generic [ref=f2e15191]: Sub Classes
+                - generic [ref=f2e15192]: "*"
+              - generic [ref=f2e15196]:
+                - img [ref=f2e15197]
+                - generic [ref=f2e15198]: Drag or double‑click items from the left to add sub‑classes
+  - region "Notifications alt+T"

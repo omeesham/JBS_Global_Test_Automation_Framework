@@ -1,0 +1,329 @@
+### Page
+- Page URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products
+- Page Title: Products | Navigator
+- Console: 2 errors, 0 warnings
+### Snapshot
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - generic [ref=e21]:
+      - list [ref=e23]:
+        - listitem [ref=e24]:
+          - button "1101 Corporate Office Encore USA SGA" [ref=e25] [cursor=pointer]:
+            - generic [ref=e27]: "1101"
+            - generic [ref=e28]:
+              - generic [ref=e29]: Corporate Office Encore USA SGA
+              - img [ref=e30]
+      - generic [ref=e36]:
+        - list [ref=e38]:
+          - listitem [ref=e39]:
+            - link "Home" [ref=e40] [cursor=pointer]:
+              - /url: /navigator/locations/1101/home
+              - img [ref=e41]
+              - generic [ref=e44]: Home
+          - listitem [ref=e45]:
+            - link "Inbox" [ref=e46] [cursor=pointer]:
+              - /url: /navigator/locations/1101/inbox
+              - img [ref=e47]
+              - generic [ref=e50]: Inbox
+          - listitem [ref=e51]:
+            - button "Actions" [ref=e52] [cursor=pointer]:
+              - img [ref=e53]
+              - generic [ref=e55]: Actions
+              - img [ref=e56]
+          - listitem [ref=e58]:
+            - button "Commissions" [ref=e59] [cursor=pointer]:
+              - img [ref=e60]
+              - generic [ref=e62]: Commissions
+              - img [ref=e63]
+          - listitem [ref=e65]:
+            - button "Tax" [ref=e66] [cursor=pointer]:
+              - img [ref=e67]
+              - generic [ref=e70]: Tax
+              - img [ref=e71]
+          - listitem [ref=e73]:
+            - button "Setup" [ref=e74] [cursor=pointer]:
+              - img [ref=e75]
+              - generic [ref=e78]: Setup
+              - img [ref=e79]
+          - listitem [ref=e81]:
+            - button "Warehouse" [ref=e82] [cursor=pointer]:
+              - img [ref=e83]
+              - generic [ref=e86]: Warehouse
+              - img [ref=e87]
+          - listitem [ref=e89]:
+            - button "Studio" [ref=e90] [cursor=pointer]:
+              - img [ref=e91]
+              - generic [ref=e93]: Studio
+              - img [ref=e94]
+        - generic [ref=e96]:
+          - generic [ref=e97]: Search
+          - list [ref=e99]:
+            - listitem [ref=e100]:
+              - link "Order Search" [ref=e101] [cursor=pointer]:
+                - /url: /navigator/locations/1101/orders
+                - img [ref=e102]
+                - generic [ref=e106]: Order Search
+            - listitem [ref=e107]:
+              - link "Job Search" [ref=e108] [cursor=pointer]:
+                - /url: /navigator/locations/1101/fulfillments
+                - img [ref=e109]
+                - generic [ref=e112]: Job Search
+            - listitem [ref=e113]:
+              - link "Asset Search" [ref=e114] [cursor=pointer]:
+                - /url: /navigator/locations/1101/assets
+                - img [ref=e115]
+                - generic [ref=e118]: Asset Search
+            - listitem [ref=e119]:
+              - link "Customer Search" [ref=e120] [cursor=pointer]:
+                - /url: /navigator/locations/1101/customers
+                - img [ref=e121]
+                - generic [ref=e124]: Customer Search
+            - listitem [ref=e125]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e126]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e127]:
+              - link "Package Search" [ref=e128] [cursor=pointer]:
+                - /url: /navigator/locations/1101/packages
+                - img [ref=e129]
+                - generic [ref=e133]: Package Search
+            - listitem [ref=e134]:
+              - link "Item Search" [ref=e135] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+                - img [ref=e136]
+                - generic [ref=e146]: Item Search
+            - listitem [ref=e147]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e148]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e150]:
+          - listitem [ref=e151]:
+            - button "Ask Encore" [ref=e152] [cursor=pointer]:
+              - img [ref=e153]
+              - generic [ref=e155]: Ask Encore
+      - list [ref=e158]:
+        - listitem [ref=e159]:
+          - button "PC prd click auto" [ref=e160] [cursor=pointer]:
+            - generic [ref=e162]: PC
+            - generic [ref=e164]: prd click auto
+            - img [ref=e165]
+      - button "Click to restore sidebar" [ref=e169]
+    - main [ref=e171]:
+      - generic [ref=e172]:
+        - generic [ref=e174]:
+          - button "trigger-button" [ref=e175] [cursor=pointer]:
+            - img
+          - generic [ref=e177]:
+            - heading "Products" [level=1] [ref=e179]
+            - button "More information" [ref=e180]:
+              - img [ref=e181]
+        - generic [ref=e184]:
+          - generic [ref=e191]:
+            - generic [ref=e192]:
+              - generic [ref=e193]:
+                - generic [ref=e195]:
+                  - img [ref=e196]
+                  - text: Product
+                  - button "Search help" [ref=e199]:
+                    - img [ref=e200]
+                - generic [ref=e202]:
+                  - group [ref=e203]:
+                    - radio "Keyword Search" [checked] [ref=e204]:
+                      - img
+                      - generic [ref=e205]: Any Field
+                  - generic [ref=e207]:
+                    - img [ref=e209]
+                    - textbox "Any Field" [ref=e212]
+                  - generic [ref=e215]:
+                    - img [ref=e217]
+                    - textbox "Enter barcode" [ref=e220]
+              - generic [ref=e221]:
+                - generic [ref=e223]:
+                  - img [ref=e224]
+                  - text: Filters
+                - generic [ref=e225]:
+                  - generic [ref=e226]:
+                    - checkbox [ref=e227] [cursor=pointer]
+                    - checkbox
+                    - generic [ref=e228]: Quantity Greater Than Zero
+                  - generic [ref=e229]:
+                    - checkbox [checked] [ref=e230] [cursor=pointer]:
+                      - generic:
+                        - img
+                    - checkbox [checked]
+                    - generic [ref=e231]: Active
+                  - generic [ref=e232]:
+                    - generic [ref=e234]: Location
+                    - combobox "Select Location" [ref=e236]:
+                      - generic [ref=e237]: 1101 - Corporate Office Encore USA SGA
+                      - img [ref=e238]
+                  - generic [ref=e241]:
+                    - generic [ref=e243]: Region
+                    - combobox "Select Region" [ref=e245]:
+                      - generic [ref=e246]: Select Region
+                      - img [ref=e247]
+                  - generic [ref=e250]:
+                    - generic [ref=e252]: Product Organization
+                    - combobox "Open popover" [ref=e254] [cursor=pointer]:
+                      - generic [ref=e255]:
+                        - generic [ref=e256]: None
+                        - generic [ref=e257]: None
+                      - img
+              - generic [ref=e258]:
+                - generic [ref=e260]: Prep / Return Date Time
+                - generic [ref=e261]:
+                  - generic [ref=e262]:
+                    - paragraph [ref=e263]: Prep Date Time
+                    - button "Open popover" [ref=e264] [cursor=pointer]:
+                      - img
+                      - generic [ref=e265]: Sep 3rd, 2026 12:00 AM
+                  - generic [ref=e266]:
+                    - paragraph [ref=e267]: Return Date Time
+                    - button "Open popover" [ref=e268] [cursor=pointer]:
+                      - img
+                      - generic [ref=e269]: Sep 3rd, 2026 11:59 PM
+            - generic [ref=e270]:
+              - button "Reset" [ref=e271] [cursor=pointer]:
+                - generic [ref=e272]: Reset
+              - button "Search" [ref=e273] [cursor=pointer]:
+                - generic [ref=e274]: Search
+          - button "Collapse search panel" [ref=e276] [cursor=pointer]:
+            - img
+          - generic [ref=e278]:
+            - generic [ref=e279]:
+              - generic [ref=e280]:
+                - img [ref=e281]
+                - generic [ref=e285]: 0 products found
+              - generic [ref=e286]:
+                - button "Product Group" [ref=e287] [cursor=pointer]:
+                  - img
+                  - text: Product Group
+                - button "Grid Options" [ref=e289] [cursor=pointer]:
+                  - img
+                  - generic [ref=e290]: Grid Options
+            - table [ref=e295]:
+              - rowgroup [ref=e296]:
+                - row "Category Resize column MajorCategory Sub Category Resize column SubCategory Class Resize column Class Product Group Resize column GroupName Sub Class Resize column SubClass Item Resize column Item Product Code ID Resize column ProductCodeID Description Resize column Description Available Resize column Available Owned Resize column Owned Out of Service Resize column OutOfService In Sequence Resize column InSequence Location Name Resize column Location" [ref=e297]:
+                  - columnheader "Category Resize column MajorCategory" [ref=e298]:
+                    - generic [ref=e299]:
+                      - img [ref=e300]
+                      - button "Category" [ref=e309] [cursor=pointer]:
+                        - generic [ref=e310]: Category
+                        - img
+                    - button "Resize column MajorCategory" [ref=e311]
+                  - columnheader "Sub Category Resize column SubCategory" [ref=e312]:
+                    - generic [ref=e313]:
+                      - img [ref=e314]
+                      - button "Sub Category" [ref=e323] [cursor=pointer]:
+                        - generic [ref=e324]: Sub Category
+                        - img
+                    - button "Resize column SubCategory" [ref=e325]
+                  - columnheader "Class Resize column Class" [ref=e326]:
+                    - generic [ref=e327]:
+                      - img [ref=e328]
+                      - button "Class" [ref=e337] [cursor=pointer]:
+                        - generic [ref=e338]: Class
+                        - img
+                    - button "Resize column Class" [ref=e339]
+                  - columnheader "Product Group Resize column GroupName" [ref=e340]:
+                    - generic [ref=e341]:
+                      - img [ref=e342]
+                      - button "Product Group" [ref=e351] [cursor=pointer]:
+                        - generic [ref=e352]: Product Group
+                        - img
+                    - button "Resize column GroupName" [ref=e353]
+                  - columnheader "Sub Class Resize column SubClass" [ref=e354]:
+                    - generic [ref=e355]:
+                      - img [ref=e356]
+                      - button "Sub Class" [ref=e365] [cursor=pointer]:
+                        - generic [ref=e366]: Sub Class
+                        - img
+                    - button "Resize column SubClass" [ref=e367]
+                  - columnheader "Item Resize column Item" [ref=e368]:
+                    - generic [ref=e369]:
+                      - img [ref=e370]
+                      - button "Item" [ref=e379] [cursor=pointer]:
+                        - generic [ref=e380]: Item
+                        - img
+                    - button "Resize column Item" [ref=e381]
+                  - columnheader "Product Code ID Resize column ProductCodeID" [ref=e382]:
+                    - generic [ref=e383]:
+                      - img [ref=e384]
+                      - button "Product Code ID" [ref=e393] [cursor=pointer]:
+                        - generic [ref=e394]: Product Code ID
+                        - img
+                    - button "Resize column ProductCodeID" [ref=e395]
+                  - columnheader "Description Resize column Description" [ref=e396]:
+                    - generic [ref=e397]:
+                      - img [ref=e398]
+                      - button "Description" [ref=e407] [cursor=pointer]:
+                        - generic [ref=e408]: Description
+                        - img
+                    - button "Resize column Description" [ref=e409]
+                  - columnheader "Available Resize column Available" [ref=e410]:
+                    - generic [ref=e411]:
+                      - img [ref=e412]
+                      - button "Available" [ref=e421] [cursor=pointer]:
+                        - generic [ref=e422]: Available
+                    - button "Resize column Available" [ref=e423]
+                  - columnheader "Owned Resize column Owned" [ref=e424]:
+                    - generic [ref=e425]:
+                      - img [ref=e426]
+                      - button "Owned" [ref=e435] [cursor=pointer]:
+                        - generic [ref=e436]: Owned
+                        - img
+                    - button "Resize column Owned" [ref=e437]
+                  - columnheader "Out of Service Resize column OutOfService" [ref=e438]:
+                    - generic [ref=e439]:
+                      - img [ref=e440]
+                      - button "Out of Service" [ref=e449] [cursor=pointer]:
+                        - generic [ref=e450]: Out of Service
+                        - img
+                    - button "Resize column OutOfService" [ref=e451]
+                  - columnheader "In Sequence Resize column InSequence" [ref=e452]:
+                    - generic [ref=e453]:
+                      - img [ref=e454]
+                      - button "In Sequence" [ref=e463] [cursor=pointer]:
+                        - generic [ref=e464]: In Sequence
+                    - button "Resize column InSequence" [ref=e465]
+                  - columnheader "Location Name Resize column Location" [ref=e466]:
+                    - generic [ref=e467]:
+                      - img [ref=e468]
+                      - button "Location Name" [ref=e477] [cursor=pointer]:
+                        - generic [ref=e478]: Location Name
+                        - img
+                    - button "Resize column Location" [ref=e479]
+            - generic [ref=e480]:
+              - img [ref=e482]
+              - paragraph [ref=e484]: No results
+            - generic [ref=e486]:
+              - generic [ref=e488]:
+                - combobox [ref=e489] [cursor=pointer]:
+                  - generic: "50"
+                  - img
+                - paragraph [ref=e490]: rows per page
+              - generic [ref=e491]:
+                - button "Go to first page" [disabled]:
+                  - img
+                - button "Go to previous page" [disabled]:
+                  - img
+                - generic [ref=e492]:
+                  - textbox "Current page number" [ref=e493]: "1"
+                  - generic [ref=e494]: /
+                  - text: "1"
+                - button "Go to next page" [disabled]:
+                  - img
+                - button "Go to last page" [disabled]:
+                  - img
+  - region "Notifications alt+T"
+```

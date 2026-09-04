@@ -1,0 +1,226 @@
+- generic [ref=f2e1]:
+  - alert [ref=f2e2]: Product Groups | Navigator
+  - generic [ref=f2e4]:
+    - generic [ref=f2e21]:
+      - list [ref=f2e23]:
+        - listitem [ref=f2e24]:
+          - button "1101 Corporate Office Encore USA SGA" [ref=f2e25] [cursor=pointer]:
+            - generic [ref=f2e27]: "1101"
+            - generic [ref=f2e28]:
+              - generic [ref=f2e29]: Corporate Office Encore USA SGA
+              - img [ref=f2e30]
+      - generic [ref=f2e36]:
+        - list [ref=f2e38]:
+          - listitem [ref=f2e39]:
+            - link "Home" [ref=f2e40] [cursor=pointer]:
+              - /url: /navigator/locations/1101/home
+              - img [ref=f2e41]
+              - generic [ref=f2e44]: Home
+          - listitem [ref=f2e45]:
+            - link "Inbox" [ref=f2e46] [cursor=pointer]:
+              - /url: /navigator/locations/1101/inbox
+              - img [ref=f2e47]
+              - generic [ref=f2e50]: Inbox
+          - listitem [ref=f2e51]:
+            - button "Actions" [ref=f2e52] [cursor=pointer]:
+              - img [ref=f2e53]
+              - generic [ref=f2e55]: Actions
+              - img [ref=f2e56]
+          - listitem [ref=f2e58]:
+            - button "Commissions" [ref=f2e59] [cursor=pointer]:
+              - img [ref=f2e60]
+              - generic [ref=f2e62]: Commissions
+              - img [ref=f2e63]
+          - listitem [ref=f2e65]:
+            - button "Tax" [ref=f2e66] [cursor=pointer]:
+              - img [ref=f2e67]
+              - generic [ref=f2e70]: Tax
+              - img [ref=f2e71]
+          - listitem [ref=f2e73]:
+            - button "Setup" [ref=f2e74] [cursor=pointer]:
+              - img [ref=f2e75]
+              - generic [ref=f2e78]: Setup
+              - img [ref=f2e79]
+          - listitem [ref=f2e81]:
+            - button "Warehouse" [ref=f2e82] [cursor=pointer]:
+              - img [ref=f2e83]
+              - generic [ref=f2e86]: Warehouse
+              - img [ref=f2e87]
+          - listitem [ref=f2e89]:
+            - button "Studio" [ref=f2e90] [cursor=pointer]:
+              - img [ref=f2e91]
+              - generic [ref=f2e93]: Studio
+              - img [ref=f2e94]
+        - generic [ref=f2e96]:
+          - generic [ref=f2e97]: Search
+          - list [ref=f2e99]:
+            - listitem [ref=f2e100]:
+              - link "Order Search" [ref=f2e101] [cursor=pointer]:
+                - /url: /navigator/locations/1101/orders
+                - img [ref=f2e102]
+                - generic [ref=f2e106]: Order Search
+            - listitem [ref=f2e107]:
+              - link "Job Search" [ref=f2e108] [cursor=pointer]:
+                - /url: /navigator/locations/1101/fulfillments
+                - img [ref=f2e109]
+                - generic [ref=f2e112]: Job Search
+            - listitem [ref=f2e113]:
+              - link "Asset Search" [ref=f2e114] [cursor=pointer]:
+                - /url: /navigator/locations/1101/assets
+                - img [ref=f2e115]
+                - generic [ref=f2e118]: Asset Search
+            - listitem [ref=f2e119]:
+              - link "Customer Search" [ref=f2e120] [cursor=pointer]:
+                - /url: /navigator/locations/1101/customers
+                - img [ref=f2e121]
+                - generic [ref=f2e124]: Customer Search
+            - listitem [ref=f2e125]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=f2e126]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=f2e127]:
+              - link "Package Search" [ref=f2e128] [cursor=pointer]:
+                - /url: /navigator/locations/1101/packages
+                - img [ref=f2e129]
+                - generic [ref=f2e133]: Package Search
+            - listitem [ref=f2e134]:
+              - link "Item Search" [ref=f2e135] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+                - img [ref=f2e136]
+                - generic [ref=f2e146]: Item Search
+            - listitem [ref=f2e147]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=f2e148]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=f2e150]:
+          - listitem [ref=f2e151]:
+            - button "Ask Encore" [ref=f2e152] [cursor=pointer]:
+              - img [ref=f2e153]
+              - generic [ref=f2e155]: Ask Encore
+      - list [ref=f2e158]:
+        - listitem [ref=f2e159]:
+          - button "PC prd click auto" [ref=f2e160] [cursor=pointer]:
+            - generic [ref=f2e162]: PC
+            - generic [ref=f2e164]: prd click auto
+            - img [ref=f2e165]
+      - button "Click to restore sidebar" [ref=f2e169]
+    - main [ref=f2e171]:
+      - generic [ref=f2e15485]:
+        - generic [ref=f2e15487]:
+          - button "trigger-button" [ref=f2e15488] [cursor=pointer]:
+            - img
+          - generic [ref=f2e15490]:
+            - generic [ref=f2e15491]:
+              - link "Products" [ref=f2e15492] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+              - img [ref=f2e15493]
+            - heading "Product Groups" [level=1] [ref=f2e15496]
+        - generic [ref=f2e15498]:
+          - generic [ref=f2e15505]:
+            - generic [ref=f2e15506]:
+              - generic [ref=f2e15507]:
+                - generic [ref=f2e15509]:
+                  - img [ref=f2e15510]
+                  - text: Product Groups
+                - generic [ref=f2e15515]:
+                  - img [ref=f2e15517]
+                  - textbox "Search Product Groups..." [ref=f2e15520]: ZZZ AutoProbe Group
+                  - button [ref=f2e15639] [cursor=pointer]:
+                    - img
+              - generic [ref=f2e15521]:
+                - generic [ref=f2e15523]:
+                  - img [ref=f2e15524]
+                  - text: Status
+                - generic [ref=f2e15526]:
+                  - checkbox [checked] [ref=f2e15527] [cursor=pointer]:
+                    - generic:
+                      - img
+                  - checkbox [checked]
+                  - generic [ref=f2e15528]: Active
+            - generic [ref=f2e15529]:
+              - button "Reset" [ref=f2e15530] [cursor=pointer]:
+                - generic [ref=f2e15531]: Reset
+              - button "Search" [active] [ref=f2e15532] [cursor=pointer]:
+                - generic [ref=f2e15533]: Search
+          - button "Collapse search panel" [ref=f2e15535] [cursor=pointer]:
+            - img
+          - generic [ref=f2e15537]:
+            - generic [ref=f2e15538]:
+              - generic [ref=f2e15539]:
+                - img [ref=f2e15540]
+                - generic [ref=f2e15544]: 1 product groups found
+              - generic [ref=f2e15545]:
+                - button "Add" [ref=f2e15546] [cursor=pointer]:
+                  - img
+                  - text: Add
+                - button "Grid Options" [ref=f2e15548] [cursor=pointer]:
+                  - img
+                  - generic [ref=f2e15549]: Grid Options
+            - table [ref=f2e15642]:
+              - rowgroup [ref=f2e15643]:
+                - row "Name Resize column productGroupName Description Resize column productGroupDescription Service Type Resize column serviceTypeName Status Resize column active" [ref=f2e15644]:
+                  - columnheader "Name Resize column productGroupName" [ref=f2e15645]:
+                    - generic [ref=f2e15646]:
+                      - img [ref=f2e15647]
+                      - button "Name" [ref=f2e15656] [cursor=pointer]:
+                        - generic [ref=f2e15657]: Name
+                        - img
+                    - button "Resize column productGroupName" [ref=f2e15658]
+                  - columnheader "Description Resize column productGroupDescription" [ref=f2e15659]:
+                    - generic [ref=f2e15660]:
+                      - img [ref=f2e15661]
+                      - button "Description" [ref=f2e15670] [cursor=pointer]:
+                        - generic [ref=f2e15671]: Description
+                        - img
+                    - button "Resize column productGroupDescription" [ref=f2e15672]
+                  - columnheader "Service Type Resize column serviceTypeName" [ref=f2e15673]:
+                    - generic [ref=f2e15674]:
+                      - img [ref=f2e15675]
+                      - button "Service Type" [ref=f2e15684] [cursor=pointer]:
+                        - generic [ref=f2e15685]: Service Type
+                        - img
+                    - button "Resize column serviceTypeName" [ref=f2e15686]
+                  - columnheader "Status Resize column active" [ref=f2e15687]:
+                    - generic [ref=f2e15688]:
+                      - img [ref=f2e15689]
+                      - button "Status" [ref=f2e15698] [cursor=pointer]:
+                        - generic [ref=f2e15699]: Status
+                    - button "Resize column active" [ref=f2e15700]
+              - rowgroup [ref=f2e15701]:
+                - row "ZZZ AutoProbe Group SF-8067 Recon probe group for save-flow coverage Equipment Rental Active" [ref=f2e15702] [cursor=pointer]:
+                  - cell "ZZZ AutoProbe Group SF-8067" [ref=f2e15703]:
+                    - generic [ref=f2e15704]: ZZZ AutoProbe Group SF-8067
+                  - cell "Recon probe group for save-flow coverage" [ref=f2e15705]:
+                    - generic [ref=f2e15706]: Recon probe group for save-flow coverage
+                  - cell "Equipment Rental" [ref=f2e15707]:
+                    - generic [ref=f2e15708]: Equipment Rental
+                  - cell "Active" [ref=f2e15709]:
+                    - generic [ref=f2e15710]: Active
+            - generic [ref=f2e15619]:
+              - generic [ref=f2e15621]:
+                - combobox [ref=f2e15622] [cursor=pointer]:
+                  - generic: "20"
+                  - img
+                - paragraph [ref=f2e15623]: rows per page
+              - generic [ref=f2e15624]:
+                - button "Go to first page" [disabled]:
+                  - img
+                - button "Go to previous page" [disabled]:
+                  - img
+                - generic [ref=f2e15625]:
+                  - textbox "Current page number" [ref=f2e15626]: "1"
+                  - generic [ref=f2e15627]: /
+                  - text: "1"
+                - button "Go to next page" [disabled]:
+                  - img
+                - button "Go to last page" [disabled]:
+                  - img
+  - region "Notifications alt+T"

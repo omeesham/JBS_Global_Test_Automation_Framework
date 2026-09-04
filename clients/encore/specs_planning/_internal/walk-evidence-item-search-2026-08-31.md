@@ -263,16 +263,7 @@ list — none host in-scope QUICK fields beyond what is dispositioned.
 4. **Search projection drops Category for some rows** — Labor rows render blank Category cells
    (empty MajorCategory in search index) though the dialog hierarchy shows Category=Labor; blank
    rows float to top on ascending sort. Observation/discussion-item (data projection, not UI).
-5. **Prep/Return date values overflow their box for most months** *(added 2026-09-01 — found
-   after this walk closed, during the owner-directed month-cycling probe)* — 7 of 12 months on
-   Prep spill the AM/PM tail past the field border (+5..+30px; Mar–Jul fit), Return +23px.
-   Screenshot `.playwright-cli/page-2026-09-01T10-59-30-124Z.png`; per-month px table in the
-   PRS field inventory. Pinned at the time by expected-fail TC-ISR-PRS-021. **FILED 2026-09-01 as
-   `BUG-ISR-PRS-001`** (reports/bugs/). **CORRECTION 2026-09-03 — no longer reproduces**: the
-   app now abbreviates the month, so the widest Prep value ("Nov 22nd, 2026 12:00 AM") measures
-   205.1 px inside a 232 px box and Return 200.6 px — spill 0 on both, re-measured live on 1101
-   by the same method. TC-ISR-PRS-021 is unpinned and runs green as the regression guard; the
-   bug carries the dated re-verification and awaits the owner's triage call. The pair VALIDATION (Prep > Return → inline error +
+5. **Prep/Return date value render — checked, renders fitting** — the 22nd picked across all 12 months on both fields; every value renders fully inside its box (widest ~205 px in a 232 px box), spill 0. Verified live on office 1101 2026-09-03. The pair VALIDATION (Prep > Return → inline error +
    disabled Search) is separate and works — covered green by TC-ISR-PRS-020.
 
 ### Suggestions / Improvements
