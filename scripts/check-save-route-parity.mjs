@@ -34,10 +34,12 @@ const REGISTRY = [
     ],
   },
   {
-    specPath: 'clients/encore/tests/item-search/product-code.spec.ts',
+    specPath: 'clients/encore/tests/item-search/add-product-code.spec.ts',
     // Item Search Add Product Code — the Item segment is the save-capable create route; its
-    // real-Save test commits a product code and re-reads it after reload (LR-067).
-    saveRouteDescribes: ['Item Search Product Code dialogs'],
+    // real-Save test commits a product code and re-reads it after reload (LR-067). The route
+    // moved out of product-code.spec.ts on 2026-09-04 when NM-2257 split into its own
+    // deliverable; the base spec keeps only the View dialog, whose save path is NM-2255 work.
+    saveRouteDescribes: ['Item Search Add Product Code'],
   },
   {
     specPath: 'clients/encore/tests/item-search/product-groups.spec.ts',

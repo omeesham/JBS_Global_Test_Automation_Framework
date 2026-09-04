@@ -183,6 +183,25 @@ export const ISR_ADD_CODE = {
 } as const;
 
 /**
+ * The most characters each product code text box accepts.
+ *
+ * Name and Item Description are capped at 50 by NM-1742, which shrank the product Name and
+ * Description database columns to 50 characters so they stay consistent with the legacy sizes
+ * the Oracle integration and the product sync expect. The older "256 characters" line in
+ * NM-1386 is out of date: QA raised the 50-character behaviour as NM-1835 and it was closed as
+ * working as intended. Use these numbers, not that line.
+ *
+ * The Oracle Item Number cap was measured on the live form; no ticket sets it.
+ *
+ * Both dialogs (Add Product Code and View Product Code) enforce the same three limits.
+ */
+export const ISR_CODE_FIELD_LIMITS = {
+  name: 50,
+  itemDescription: 50,
+  oracleItemNumber: 10,
+} as const;
+
+/**
  * Values for creating a product group from the Add page. A group needs a name, a
  * description, a service type and at least one sub-class (added by double-clicking any
  * item in the picker's list). A per-run unique name is appended in the test so repeated

@@ -196,6 +196,55 @@ export class ProductCodePage extends ItemSearchPage {
     return this.dialog().getByPlaceholder(S.PLACEHOLDER_ITEM_DESCRIPTION).first();
   }
 
+  // ---------------------------------------------------------------- field length limits
+
+  /** The optional identifier box, present in both dialogs. */
+  dialogOracleItemNumberBox(): Locator {
+    return this.dialog().getByPlaceholder(S.PLACEHOLDER_ORACLE_ITEM_NUMBER).first();
+  }
+
+  /**
+   * Types a value one key at a time and returns what actually ended up in the box.
+   *
+   * The boxes stop accepting keystrokes once they are full, so typing a value longer than the
+   * limit leaves only the part that fit. Returning the landed value rather than asserting here
+   * keeps the expected length in the test, where it is readable.
+   */
+  @step('Type a value into a dialog field and read back what fits')
+  async typeAndReadBack(box: Locator, value: string): Promise<string> {
+    await this.typeByKeys(box, value);
+    return box.inputValue();
+  }
+
+  /**
+   * Puts a value straight into a box the way a paste does, skipping the per-keystroke limit.
+   *
+   * Typing is capped by the box itself, so this is the only way to get an over-long value in
+   * front of the form's own checks. Setting `.value` alone would not register — the form listens
+   * for input events — so the value is set through the native setter and both events are raised,
+   * exactly as a real paste would.
+   */
+  @step('Paste a value into a dialog field')
+  async pasteIntoBox(box: Locator, value: string): Promise<string> {
+    await box.evaluate((el, text) => {
+      const input = el as HTMLInputElement;
+      const setValue = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value',
+      )?.set;
+      setValue?.call(input, text);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }, value);
+    return box.inputValue();
+  }
+
+  /** Whether a dialog field is currently marked as failing validation. */
+  @step('Read whether a dialog field is flagged invalid')
+  async isFieldFlaggedInvalid(box: Locator): Promise<boolean> {
+    return (await box.getAttribute('aria-invalid')) === 'true';
+  }
+
   /** Opens the Product Type list and chooses a type, letting the pairing rule settle. */
   @step('Select a Product Type')
   async selectProductType(type: string): Promise<void> {

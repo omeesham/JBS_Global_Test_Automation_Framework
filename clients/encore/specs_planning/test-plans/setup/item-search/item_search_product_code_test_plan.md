@@ -4,34 +4,35 @@
 **Submodule**: PCD
 **Page**: Products (`/locations/1101/products`) — row-selection toolbar + Product Code Details dialogs
 **Test Entity**: Office 1101
-**Governing Requirement**: NM-2253
-**Updated**: 2026-09-02
-**Total Scenarios**: 11
+**Governing Requirement**: NM-2253 (View Product Code NM-2255 / availability NM-2256); field lengths per NM-1742
+**Updated**: 2026-09-03
+**Total Scenarios**: 7
 **Test Cases**: `item_search_product_code_test_cases.md`
+**Sibling file**: `item_search_add_product_code_test_plan.md` — the Add Product Code cases (NM-2257), same TC-ISR-PCD-* sequence.
+**On pickup of NM-2255**: narrow TC-ISR-PCD-009 (and TC-ISR-PCD-001) to the View dialog only; the Add dialog's discard is owned by TC-ISR-PCD-015 in the sibling plan. Until then the two overlap on the Add half by design.
 
 ---
 
 ## 1. Purpose
 
 Cover the product-code layer behind the result grid: the selection-driven toolbar, the
-"Product Code Details" dialog in view and add flows, its three tabs (Item, Product Code History,
-Translations), the five-segment scoping menus on both split buttons, the type/service pairing
-rule in the add form, and the dialogs' close-discards behavior. One case saves: a completed
-Add form on the Item segment creates a product code and proves it persists by finding it again.
+"Product Code Details" dialog in its view flow, its three tabs (Item, Product Code History,
+Translations), the five-segment scoping menu on the View split button, the dialogs' close-discards
+behavior, and the availability button's presence. Nothing here saves. The Add Product Code flow
+is a separate sub-task and lives in the sibling plan.
 
 ## 2. Scope
 
 **In scope**: toolbar mounting on selection; view dialog structure and values on the Item tab;
-History and Translations tab renders; segment rescoping via both caret menus (all five view
-segments + the add-side Category); add form's required-empty state; the Product Type →
-Service Type unlock-and-filter rule; silent discard on close; the availability button's presence;
-one real save — a completed Add form on the Item segment creates a product code and is found again.
+History and Translations tab renders; segment rescoping via the View caret menu (all five segments);
+silent discard on close; the availability button's presence.
 
 **Out of scope, with reasons**:
 
 | Excluded | Reason |
 |---|---|
-| Saving view-dialog edits, translations, and the four non-Item Add segments | The one covered save is the Item-segment Add (TC-ISR-PCD-011 — NM-2257). The four non-Item Add segments (Sub Class / Class / Sub Category / Category) create catalog-classification nodes — a catalog-management feature outside the NM-2253 epic — waived with reason (LR-066). View-dialog and translation edit-saves are the View surface's own edit path (NM-2255), not part of this save pass. |
+| The Add Product Code flow | A separate sub-task (NM-2257) — its dialog, cascade rule, field lengths and two real saves live in `item_search_add_product_code_test_plan.md`, same TC-ISR-PCD-* sequence |
+| Saving view-dialog edits and translations | The View surface's own edit path (NM-2255); when the view dialog's Save enables is undetermined, so this pass asserts nothing about it |
 | Availability behavior | Availability is driven by the date fields, which the product owner ruled not functional yet; only presence is asserted |
 | In-dialog History grid behaviors (its own sorting/options) | Per-state duplicate of the page grid; deeper pass |
 | When the view dialog's Save enables | Undetermined on rows with an incomplete required chain — asserting either way would guess |
@@ -50,7 +51,8 @@ not value-bound to a specific product.
 | The toolbar mounts only with a selected row | Every case clicks a row first and re-selects after any full grid re-render |
 | Dialog controls re-render on tab switches | Element references are re-resolved after each tab click |
 | Close discards edits silently | Cases relying on a clean dialog reopen it rather than trusting prior state |
-| Only the one Add-save case persists | Every other case clicks no Save and verifies typed values are discarded by Close; TC-ISR-PCD-011 is the single exception — it saves a per-run unique Item-segment code and proves it by search-back, leaving the record as accepted e2e residue (LR-ENC-007) |
+| Nothing here saves | Every case clicks no Save and verifies typed values are discarded by Close; the saving cases moved to the Add plan |
+| Field lengths, when this file gains cases for them | The View dialog carries the same 50 / 50 / 10 limits as the Add dialog; they are asserted in the Add plan. NM-1386's "256 characters" is stale — superseded by NM-1742 and confirmed when NM-1835 was closed as a rejection |
 
 ## 4. Scenarios
 
@@ -61,9 +63,5 @@ not value-bound to a specific product.
 | TC-ISR-PCD-003 | The History tab shows the audit grid | Surface — render detail | Yes |
 | TC-ISR-PCD-004 | The Translations tab lists four editable languages | Field (Axis 1) | Yes |
 | TC-ISR-PCD-005 | The View segment menu rescopes the dialog | Field (Axis 1) | Yes |
-| TC-ISR-PCD-006 | Add Product Code opens a required-empty form with Save held back | Field (Axis 1) | Yes |
-| TC-ISR-PCD-007 | Choosing a Product Type unlocks and filters Service Type | Field (Axis 1) — paired selectors | Yes |
-| TC-ISR-PCD-008 | The Add segment menu opens per-segment forms | Field (Axis 1) | Yes |
 | TC-ISR-PCD-009 | Closing a dialog with edits discards them silently | Field (Axis 1) — guard behavior | Yes |
 | TC-ISR-PCD-010 | View Availability is present and enabled with a row selected | Field (Axis 1) — presence only | Yes |
-| TC-ISR-PCD-011 | A completed Add Product Code form saves and the new code is found again | Field (Axis 1) — create + persistence (LR-067) | Yes |

@@ -5,16 +5,16 @@ import {
   ISR_SEARCH_WORD,
   ISR_DIALOG_TABS,
   ISR_SEGMENTS,
-  ISR_PRODUCT_TYPES,
-  ISR_LABOR_SERVICE_SAMPLES,
   ISR_TRANSLATION_LANGUAGES,
   ISR_HISTORY_COLUMN_SAMPLES,
-  ISR_ADD_CODE,
 } from '../../src/data/item-search/item-search';
 
 /**
- * Item Search — product-code layer (NM-2253): the row-selection toolbar and the
- * "Product Code Details" dialogs, office 1101.
+ * Item Search — Product Code dialogs (NM-2253): the row-selection toolbar and the
+ * "Product Code Details" view dialog, office 1101.
+ *
+ * The Add Product Code flow is a separate sub-task and lives in `add-product-code.spec.ts`,
+ * which continues this same TC-ISR-PCD-* numbering.
  *
  * Everything here is read/field-level by design: Save is never clicked, and closing a
  * dialog discards edits silently (the app has no unsaved-changes prompt — that actual
@@ -130,52 +130,6 @@ test.describe('Item Search Product Code dialogs @item-search @product-code', () 
     expect(await pc.readRowCount()).toBeGreaterThan(0);
   });
 
-  test('TC-ISR-PCD-006: Add Product Code opens a required-empty form with Save held back', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    await searchAndSelect();
-    await pc.openAddDialog();
-    // The add flow opens a single tab scoped to Item.
-    const tabs = await pc.readDialogTabs();
-    expect(tabs).toEqual(['Item']);
-    expect(await pc.dialogNameBox().inputValue()).toBe('');
-    // The paired type selectors rest on their placeholders, service locked until a type
-    // is chosen.
-    await expect(pc.productTypeCombo()).toBeVisible();
-    expect(await pc.isServiceTypeEnabled()).toBe(false);
-    expect(await pc.isDialogSaveEnabled()).toBe(false);
-    await pc.closeDialog();
-  });
-
-  test('TC-ISR-PCD-007: Choosing a Product Type unlocks and filters Service Type', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    await searchAndSelect();
-    await pc.openAddDialog();
-    // The ten types are a fixed set but their rendered order shifted between two live
-    // reads a day apart — membership is the contract, so the compare is sort-agnostic.
-    const offered = await pc.readProductTypeOptions();
-    expect([...offered].sort()).toEqual([...ISR_PRODUCT_TYPES].sort());
-    await pc.chooseProductType('LABOR');
-    await expect.poll(async () => await pc.isServiceTypeEnabled(), { timeout: 15_000 }).toBe(true);
-    const services = await pc.readServiceTypeOptions();
-    expect(services.length).toBeGreaterThanOrEqual(10);
-    for (const sample of ISR_LABOR_SERVICE_SAMPLES) {
-      expect(services).toContain(sample);
-    }
-    await pc.closeDialog();
-  });
-
-  test('TC-ISR-PCD-008: The Add segment menu opens per-segment forms', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    await searchAndSelect();
-    await pc.openAddSegmentMenu();
-    expect(await pc.readOpenMenuItems()).toEqual([...ISR_SEGMENTS]);
-    // Category works on the add side — its single tab renames to the segment.
-    await pc.chooseSegment('Category');
-    expect(await pc.readActiveTab()).toBe('Category');
-    await pc.closeDialog();
-    expect(await pc.readRowCount()).toBeGreaterThan(0);
-  });
-
   test('TC-ISR-PCD-009: Closing a dialog with edits discards them silently', async ({ dependencyGate }) => {
     dependencyGate([]);
     await searchAndSelect();
@@ -207,26 +161,4 @@ test.describe('Item Search Product Code dialogs @item-search @product-code', () 
     await expect(pc.viewAvailabilityButton()).toBeEnabled();
   });
 
-  test('TC-ISR-PCD-011: A completed Add Product Code form saves and the new code is found again', async ({ dependencyGate }) => {
-    dependencyGate([]);
-    await searchAndSelect();
-    // A per-run unique suffix so repeated runs never collide on the same name.
-    const unique = Date.now();
-    const name = `${ISR_ADD_CODE.namePrefix} ${unique}`;
-    const description = `${ISR_ADD_CODE.descriptionPrefix} ${unique}`;
-    await pc.openAddDialog();
-    await pc.fillAddForm({
-      name,
-      description,
-      productType: ISR_ADD_CODE.productType,
-      serviceType: ISR_ADD_CODE.serviceType,
-    });
-    await pc.saveNewCodeAndConfirm();
-    // The save call is never the proof — reset the search and look the new code up again
-    // after the grid reloads. The code's name is what lands in the Item column.
-    await pc.ensureCleanSearch(ISR_OFFICE);
-    await pc.typeAnyField(name);
-    expect(await pc.clickSearchAndWait((n) => n === 1)).toBe(1);
-    expect(await pc.readColumnValues('Item')).toEqual([name]);
-  });
 });

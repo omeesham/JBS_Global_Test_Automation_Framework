@@ -32,6 +32,8 @@ export const itemSearchProductCode = {
   PLACEHOLDER_NAME: 'Enter name',
   /** The add form's required item description box. */
   PLACEHOLDER_ITEM_DESCRIPTION: 'Enter item description',
+  /** Optional identifier box shared by the add and view forms. */
+  PLACEHOLDER_ORACLE_ITEM_NUMBER: 'Enter oracle item number',
   /** The add form's paired type selectors show these placeholders until chosen. */
   TEXT_SELECT_PRODUCT_TYPE: 'Select product type',
   TEXT_SELECT_SERVICE_TYPE: 'Select service type',

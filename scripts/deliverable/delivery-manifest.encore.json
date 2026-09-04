@@ -1919,6 +1919,28 @@
    ]
   },
   {
+   "code": "ISR.APC",
+   "name": "Item Search — Add Product Code",
+   "status": "withheld",
+   "specs": [
+    "tests/item-search/add-product-code.spec.ts"
+   ],
+   "workbooks": [
+    "testcases/item-search/item-search-add-product-code.xlsx"
+   ],
+   "tc_ids": [],
+   "delivered_on": null,
+   "delivered_via": null,
+   "evidence": null,
+   "src": [
+    "src/pages/item-search/product-code.page.ts",
+    "src/selectors/item-search/product-code.ts"
+   ],
+   "sheets": [
+    "item_search_add_product_code"
+   ]
+  },
+  {
    "code": "ISR.PGR",
    "name": "Item Search — Product Groups",
    "status": "withheld",

@@ -175,9 +175,9 @@ Reading notes:
 | Sub-Class Service Type | `(none)` | Cascading dropdown | "Select service type" | starred | **disabled** until Sub-Class Name chosen | cascades from Sub-Class Name | |
 | Barcodeable | `(none)` | Checkbox (native + Radix) | unchecked (probed row) | n/a | **disabled** | n/a | |
 | Product Organization (section + item) | `(none) — "Open popover" trigger` | Dropdown / multi-select popover | None | n/a | enabled | n/a | Same country checklist as the search panel. |
-| Item Name | `(none) — placeholder "Enter name"` | Plain text | row value | starred | enabled | n/a | Typed "X" → value committed, Save stayed disabled (see caveat). |
-| Item Description | `(none) — placeholder "Enter item description"` | Plain text | row value | starred | enabled | n/a | |
-| Oracle Item Number | `(none) — placeholder "Enter oracle item number"` | Plain text | empty (probed row) | none observed | enabled | n/a | |
+| Item Name | `(none) — placeholder "Enter name"` | Plain text | row value | starred; **max 50** (`maxlength=50`) | enabled | n/a | Typed "X" → value committed, Save stayed disabled (see caveat). Length cap identical to the Add dialog (2026-09-03). |
+| Item Description | `(none) — placeholder "Enter item description"` | Plain text | row value | starred; **max 50** (`maxlength=50`) | enabled | n/a | Length cap identical to the Add dialog (2026-09-03). |
+| Oracle Item Number | `(none) — placeholder "Enter oracle item number"` | Plain text | empty (probed row) | optional; **max 10** (`maxlength=10`) | enabled | n/a | Length cap identical to the Add dialog (2026-09-03). |
 | Item Product Type | `(none)` | Dropdown / combobox (Radix) | row value (CONSUMABLE on probed row) | starred | enabled | pairs with Item Service Type | |
 | Item Service Type | `(none)` | Dropdown / combobox (Radix) | row value | starred | enabled | n/a | |
 | Active | `(none)` | Checkbox (native + Radix) | checked (probed row) | n/a | enabled | n/a | |
@@ -202,9 +202,9 @@ Both menus list: Item · Sub Class · Class · Sub Category · Category. Selecti
 | Field | data-testid | Control Type | Default Value | Validation Rules | Enabled/Disabled States | Cross-field deps | Notes |
 |---|---|---|---|---|---|---|---|
 | Ancestor chain (Category → Sub Class) | `(none)` | read-only text sections | selected row's chain ("—" where absent) | n/a | static | n/a | |
-| Name | `(none) — placeholder "Enter name"` | Plain text | empty, flagged invalid at rest | required | enabled | n/a | Error icon adjacent while empty. |
-| Item Description | `(none) — placeholder "Enter item description"` | Plain text | empty, flagged invalid | required | enabled | n/a | |
-| Oracle Item Number | `(none)` | Plain text | empty | none observed | enabled | n/a | |
+| Name | `(none) — placeholder "Enter name"` | Plain text | empty, flagged invalid at rest | required; **max 50** (`maxlength=50`) | enabled | n/a | Error icon adjacent while empty. Typing stops at 50 (silent, `aria-invalid` stays false); a bypass of the attribute to 60 flags invalid and holds Save disabled — measured 2026-09-03, see field-lengths walk evidence. |
+| Item Description | `(none) — placeholder "Enter item description"` | Plain text | empty, flagged invalid | required; **max 50** (`maxlength=50`) | enabled | n/a | Same two-layer limit as Name (2026-09-03). |
+| Oracle Item Number | `(none)` | Plain text | empty | optional; **max 10** (`maxlength=10`) | enabled | n/a | Not required per NM-1765. Typing stops at 10 (2026-09-03). |
 | Product Type | `(none) — "Select product type"` | Dropdown / combobox (Radix) | placeholder | required | enabled | **cascade parent** for Service Type | 10 options: EQUIPMENT, CONSUMABLE, FREIGHT, LABOR, EXPENSE, SERVICE CHARGE, DAMAGE WAIVER, EVENT TECHNOLOGY SUPPORT, FEE, CABLES AND CONSUMABLE. |
 | Service Type | `(none) — "Select service type"` | Cascading dropdown | placeholder | required | **disabled at rest**; enables on Product Type selection | filtered by the chosen Product Type (LABOR → labor-specific list of 15+: Application Development, Operator Labor, Rigging Labor, Setup Charges, …) | Cascade proven live both halves (enable + filter). |
 | Product Organization | `(none) — "Open popover"` | Dropdown / multi-select popover | None | n/a | enabled | n/a | |
@@ -249,6 +249,23 @@ No unsaved-changes guard on either dialog: dirty View (edited Name) and dirty Ad
 - **Fresh-until**: 2026-09-14
 - **Stale-after**: 2026-09-30
 - **Refresh triggers**: tab set ≠ 3 · segment menu set ≠ 5 · ~~the Category segment starts opening~~ (RESOLVED 2026-09-01: Category always opened — the walk reading was an instrument artifact; TC-ISR-PCD-005 extended) · availability goes functional (owner ruling lifts) · Save enablement condition determined (View dialog).
+
+## Field-length contract (added 2026-09-03)
+
+Measured live on both dialogs; evidence in `walk-evidence-item-search-field-lengths-2026-09-03.md`.
+
+| Field | Cap | Enforcement |
+|---|---|---|
+| Name | 50 | `maxlength=50` stops typing silently; form model additionally flags invalid + holds Save disabled if the attribute is bypassed |
+| Item Description | 50 | same two layers |
+| Oracle Item Number | 10 | `maxlength=10` |
+
+Governing requirement is **NM-1742** (Product `Name`/`Description` → `NVARCHAR(50)`, to keep the
+Oracle integration and legacy product sync consistent with legacy column sizes). **NM-1386's
+"256 characters" is stale** — QA raised the 50-char behaviour as NM-1835 and it was closed as a
+rejection. Content/character-class validation is out of scope by owner ruling on that same ticket
+(*"the current system allows anything… the field size is all that matters"*), so `.....` is a valid
+value and no negative content case may be authored. Covered by TC-ISR-PCD-012/013/014.
 
 ## Save & cleanup disposition (2026-09-02)
 

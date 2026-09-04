@@ -4,11 +4,13 @@
 **Submodule**: PCD
 **Page**: Products (`/locations/1101/products`) — row-selection toolbar + Product Code Details dialogs
 **Test Entity**: Office 1101
-**Updated**: 2026-09-02
-**Total TCs**: 11
+**Updated**: 2026-09-03
+**Total TCs**: 7
 **Coverage mode**: QUICK (L1)
-**Governing Requirement**: NM-2253
-**Verified against**: field inventory `item-search-product-code-2026-08-31.md`; dialog snapshots under `.playwright-cli/isr-2026-08-31/` (2026-08-31 session); walk evidence `walk-evidence-item-search-2026-08-31.md` and `walk-evidence-item-search-save-flows-2026-09-02.md` (Add Product Code real save — product id 102184)
+**Governing Requirement**: NM-2253 (View Product Code NM-2255 / availability NM-2256); field lengths per NM-1742
+**Verified against**: field inventory `item-search-product-code-2026-08-31.md`; dialog snapshots under `.playwright-cli/isr-2026-08-31/` (2026-08-31 session); walk evidence `walk-evidence-item-search-2026-08-31.md`, `walk-evidence-item-search-save-flows-2026-09-02.md` (Add Product Code real save — product id 102184) and `walk-evidence-item-search-field-lengths-2026-09-03.md` (field-length boundaries)
+**Sibling file**: `item_search_add_product_code_test_cases.md` holds the Add Product Code cases (NM-2257) — TC-ISR-PCD-006, 007, 008, 011, 012, 013, 014, 015 — from the same TC-ISR-PCD-* sequence.
+**On pickup of NM-2255**: narrow TC-ISR-PCD-009 (and TC-ISR-PCD-001) to the View dialog only; the Add dialog's discard behaviour is owned by TC-ISR-PCD-015 in the sibling file. Until then the two overlap on the Add half by design.
 
 ---
 
@@ -34,6 +36,8 @@
 | Closing discards silently | Closing either dialog with unsaved edits discards them with no warning prompt. |
 | Every View segment opens its dialog | All five entries in the View caret menu (Item, Sub Class, Class, Sub Category, Category) open their scoped dialog. An earlier "Category opens nothing" reading was a probe artifact — the click had never landed — and was invalidated by live re-verification on 2026-09-01 (BUG-ISR-PCD-001, status invalid). |
 | A completed Add form saves and persists | With Name, Item Description, Product Type and Service Type all set, Save enables; clicking it creates the product code under the selected row's category hierarchy, shows a "Product created successfully." toast, closes the dialog, and posts to `POST /navigator/api/product/create`. The saved code is then returned by an Any Field search on its name — persistence proven by the search-back, not by the Save click. |
+| Text fields stop at their maximum length | Name and Item Description accept at most 50 characters; Oracle Item Number accepts at most 10. Typing beyond the limit simply stops — the extra characters never appear and no error message is shown. The same limits apply in the View dialog. |
+| Over-length values are refused, not trimmed | If the typing limit is bypassed (a paste or scripted fill that puts more than 50 characters in the box), the field is flagged invalid and Save stays disabled, so an over-length value can never reach the server. |
 
 ## MCP_VERIFICATION_LOG
 
@@ -53,6 +57,10 @@
 | 12 | View Availability | No response on a labor row and an equipment row (zero requests) — feature tied to dates, which are not functional yet |
 | 13 | Add Product Code save (2026-09-02) | Name + Item Description filled, Product Type EQUIPMENT, Service Type Equipment Rental → Save enabled → click → "Product created successfully." toast and the dialog closed; `POST /navigator/api/product/create` returned `{"success":true,"data":{"id":102184}}` |
 | 14 | Created code found by search (2026-09-02) | An Any Field search for the new code's exact name returned exactly one row — the created product, carrying the category path of the row selected when Add opened |
+| 15 | Field length attributes (2026-09-03) | Add dialog: Name `maxlength=50`, Item Description `maxlength=50`, Oracle Item Number `maxlength=10`. View dialog carries the identical three limits |
+| 16 | Typing past the limit (2026-09-03) | Typed 60 characters into Name → exactly 50 landed; 70 into Item Description → exactly 50 landed; 15 digits into Oracle Item Number → exactly 10 landed. In every case the field stayed valid and no error text rendered — the truncation is silent |
+| 17 | Bypassing the typing limit (2026-09-03) | A scripted value-set placed 60 characters into Name and Item Description. Both fields flagged invalid and Save stayed disabled although Product Type (LABOR) and Service Type (Application Development) were both chosen |
+| 18 | Positive control for #17 (2026-09-03) | The same scripted value-set with a 20-character name cleared both invalid flags and enabled Save — proving #17 is the app refusing the over-length value, not an input method that failed to register |
 
 ---
 
@@ -140,56 +148,6 @@
 
 ---
 
-## TC-ISR-PCD-006: Add Product Code opens a required-empty form with Save held back
-
-**Automatable**: Yes
-**Preconditions**: A result row is selected.
-
-**Steps**:
-| # | Step | Expected Result |
-|---|------|-----------------|
-| 1 | Click Add Product Code | The dialog opens with a single tab named "Item" |
-| 2 | Read the ancestor sections | The selected row's Category, Sub Category, Class and Sub Class values display as plain text (dashes where the row has none) |
-| 3 | Read the entry form | Name and Item Description are empty and flagged as required; the type selector shows "Select product type"; the service selector shows "Select service type" and is locked |
-| 4 | Read the footer | Save is disabled |
-
-**Notes**: The service selector's locked state before any type is chosen is the resting half of the pairing rule; the live half is the next case.
-
----
-
-## TC-ISR-PCD-007: Choosing a Product Type unlocks and filters Service Type
-
-**Automatable**: Yes
-**Preconditions**: The Add Product Code dialog is open (previous case state).
-
-**Steps**:
-| # | Step | Expected Result |
-|---|------|-----------------|
-| 1 | Open the Product Type selector | Ten types are offered, including EQUIPMENT, CONSUMABLE, LABOR and FEE |
-| 2 | Choose LABOR | The Service Type selector unlocks |
-| 3 | Open the Service Type selector | Only labor services are offered (a list including Operator Labor, Rigging Labor and Setup Charges) |
-| 4 | Press Escape, then close the dialog | The dialog closes; nothing is saved |
-
-**Notes**: Pairing rule proven in both halves: unlock on selection, and the list is filtered to the chosen type's services.
-
----
-
-## TC-ISR-PCD-008: The Add segment menu opens per-segment forms
-
-**Automatable**: Yes
-**Preconditions**: A result row is selected; no dialog open.
-
-**Steps**:
-| # | Step | Expected Result |
-|---|------|-----------------|
-| 1 | Click the arrow beside Add Product Code | A menu lists Item, Sub Class, Class, Sub Category, Category |
-| 2 | Click Category | The dialog opens and its single tab is named "Category" |
-| 3 | Close the dialog | The grid is unchanged |
-
-**Notes**: The add-side Category opens its scoped form, as does the view-side Category (TC-ISR-PCD-005). An earlier reading that the view-side Category opened nothing was a probe artifact and was invalidated on 2026-09-01 — BUG-ISR-PCD-001, status invalid.
-
----
-
 ## TC-ISR-PCD-009: Closing a dialog with edits discards them silently
 
 **Automatable**: Yes
@@ -219,19 +177,3 @@
 
 **Notes**: Presence check only, deliberately. Clicking it currently does nothing on any row type — availability is driven by the date fields, and the product owner has ruled dates are not functional yet. When dates go live, replace this case with real availability behavior cases.
 
----
-
-## TC-ISR-PCD-011: A completed Add Product Code form saves and the new code is found again
-
-**Automatable**: Yes
-**Preconditions**: A default search has been executed on the Products page for office 1101 and a result row is selected (the new code is created under that row's category hierarchy).
-
-**Steps**:
-| # | Step | Expected Result |
-|---|------|-----------------|
-| 1 | Open Add Product Code and fill Name and Item Description with a per-run unique value (e.g. a `ZZ-E2E-<timestamp>` name) | Both required text fields hold the typed values, read back from the boxes |
-| 2 | Choose Product Type `EQUIPMENT`, then choose Service Type `Equipment Rental` | Service Type unlocks once the Product Type is set; with all four required fields present, Save enables |
-| 3 | Click Save | A "Product created successfully." toast appears and the dialog closes; `POST /navigator/api/product/create` returns success with a new id |
-| 4 | Reset the search, type the new code's exact Name into Any Field, and click Search | Exactly one row returns — the product just created, carrying the category path of the row that was selected when Add opened |
-
-**Notes**: NM-2257. This is the module's first proof that a product code can actually be created; the earlier cases (006–009) only proved the form opens, gates Save, filters Service Type and discards on close. Persistence is proven by searching the saved name back after the grid reloads (LR-067), never by the Save click's own return. The Name is per-run unique so reruns never collide. Only the **Item** segment is exercised here — the Item segment IS NM-2257's Add Product Code. The other four Add segments (Sub Class / Class / Sub Category / Category) each open a DISTINCT hierarchy-level form with its own Save (confirmed by live probe 2026-09-02 — field counts grow up the tree, Sub Class through Category) and create catalog-classification nodes, not product codes, which is a distinct catalog-management feature outside the whole NM-2253 Item Search epic. Per LR-066 they are WAIVED with that stated reason and its probe evidence, never silently narrowed; a future catalog-management effort could cover them. There is no hard delete for a product code — the reversal is a deactivate (uncheck Active in the View dialog and Save), whose save round-trip was not exercised this pass — so the case leaves its product on 1101, accepted test residue on the writable e2e environment (LR-ENC-007), recorded in the field inventory. Verified live 2026-09-02 (product id 102184).
