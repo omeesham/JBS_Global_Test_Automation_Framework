@@ -228,7 +228,8 @@ const SHEET_DISPLAY_NAMES: Record<string, string> = {
   item_search_product_search_filters: 'Item Search — Product Search Filters',
   item_search_add_product_code: 'Item Search — Add Product Code',
   item_search_product_code: 'Item Search — Product Code',
-  item_search_product_groups: 'Item Search — Product Groups',
+  item_search_product_groups: 'Item Search — Search For Product Groups',
+  item_search_add_product_group: 'Item Search — Create new Product Groups',
 };
 
 /** Sheet name → split-file group/stem for the `testcases/<group>/<stem>.xlsx` tree. */
@@ -281,7 +282,8 @@ const SPLIT_FILE_MAP: Record<string, { group: string; stem: string }> = {
   item_search_product_filters: { group: 'item-search', stem: 'item-search-product-search-filters' },
   item_search_add_product_code: { group: 'add-product-code', stem: 'item-search-add-product-code' },
   item_search_product_code: { group: 'item-search', stem: 'item-search-product-code' },
-  item_search_product_groups: { group: 'item-search', stem: 'item-search-product-groups' },
+  item_search_product_groups: { group: 'search-for-product-groups', stem: 'item-search-search-for-product-groups' },
+  item_search_add_product_group: { group: 'create-new-product-groups', stem: 'item-search-create-new-product-groups' },
 };
 
 const EXCEL_SHEET_NAME_LIMIT = 31;

@@ -1,8 +1,9 @@
 import { Locator, expect } from '@playwright/test';
 import { step } from '../../fixtures/step-decorator';
-import { ItemSearchGridBasePage } from './item-search-grid.page';
-import { itemSearchProductGroups as S } from '../../selectors/item-search/product-groups';
-import { ISR_OFFICE, ISR_PGR_ROUTE } from '../../data/item-search/item-search';
+import { ItemSearchGridBasePage } from '../item-search/item-search-grid.page';
+import { itemSearchProductGroups as S } from '../../selectors/product-groups/product-groups';
+import { ISR_OFFICE } from '../../data/item-search/item-search';
+import { PGR_ROUTE } from '../../data/product-groups/product-groups';
 
 /**
  * Product Groups page — search panel, 4-column grid at a 20-row page size, and the
@@ -11,7 +12,8 @@ import { ISR_OFFICE, ISR_PGR_ROUTE } from '../../data/item-search/item-search';
  * Shares the Products page's storage persistence: an EXECUTED search is restored on
  * return; typed-but-unsearched text is dropped. An empty-criteria search returns ZERO
  * groups here (unlike the Products page's return-all) — asserted as live behavior.
- * Nothing here ever clicks Save; the Add page is exercised read/field-level only.
+ * Serves both Product Groups sub-tasks: the list/search page (NM-2258) and the Add page
+ * reached from its Add button (NM-2259), which is driven through a real save.
  */
 export class ProductGroupsPage extends ItemSearchGridBasePage {
   /** The count label this grid renders after any Search or Reset. */
@@ -23,7 +25,7 @@ export class ProductGroupsPage extends ItemSearchGridBasePage {
   @step('Open the Product Groups page')
   async open(office: string = ISR_OFFICE): Promise<void> {
     const baseUrl = (this.config?.base_url ?? '').replace(/\/+$/, '');
-    await this.safeNavigateTo(`${baseUrl}${ISR_PGR_ROUTE(office)}`, {
+    await this.safeNavigateTo(`${baseUrl}${PGR_ROUTE(office)}`, {
       waitUntil: 'domcontentloaded',
       timeout: 120_000,
     });
@@ -45,7 +47,7 @@ export class ProductGroupsPage extends ItemSearchGridBasePage {
   async ensureCleanSearch(office: string = ISR_OFFICE): Promise<void> {
     // Path-end compare: the Add page's address CONTAINS this page's path, so a substring
     // check would mistake a stranded Add page for the list and hang on its search box.
-    const onPage = new URL(this.page.url()).pathname.endsWith(ISR_PGR_ROUTE(office));
+    const onPage = new URL(this.page.url()).pathname.endsWith(PGR_ROUTE(office));
     if (!onPage) {
       await this.open(office);
     } else {

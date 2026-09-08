@@ -42,10 +42,12 @@ const REGISTRY = [
     saveRouteDescribes: ['Item Search Add Product Code'],
   },
   {
-    specPath: 'clients/encore/tests/item-search/product-groups.spec.ts',
+    specPath: 'clients/encore/tests/create-new-product-groups/create-new-product-groups.spec.ts',
     // Item Search Create Product Group — the Add-page describe carries the real-Save
-    // create-and-find-again test.
-    saveRouteDescribes: ['Item Search Product Groups panel and Add page'],
+    // create-and-find-again test. The route moved out of product-groups.spec.ts on
+    // 2026-09-08 when NM-2259 split into its own deliverable; the list page it is reached
+    // from is NM-2258 and has no save of its own.
+    saveRouteDescribes: ['Item Search Add Product Group page'],
   },
 ];
 

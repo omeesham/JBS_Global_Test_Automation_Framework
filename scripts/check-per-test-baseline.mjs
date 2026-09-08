@@ -140,9 +140,9 @@ const ENFORCED = [
     // Item Search Add Product Group page: the fields describe drives a real group create
     // (POST /add-update-product-group) and proves persistence by searching the new group back;
     // ensureCleanSearch in beforeEach re-establishes the reset Product Groups page per test.
-    specPath: 'clients/encore/tests/item-search/product-groups.spec.ts',
+    specPath: 'clients/encore/tests/create-new-product-groups/create-new-product-groups.spec.ts',
     describes: [
-      { title: 'Item Search Product Groups panel and Add page — fields @item-search @product-groups', mechanism: 'beforeEach-reset' },
+      { title: 'Item Search Add Product Group page — fields and create @item-search @product-groups', mechanism: 'beforeEach-reset' },
     ],
   },
 ];

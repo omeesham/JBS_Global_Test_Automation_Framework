@@ -1956,24 +1956,61 @@
   },
   {
    "code": "ISR.PGR",
-   "name": "Item Search — Product Groups",
+   "name": "Item Search — Search For Product Groups",
    "status": "withheld",
    "specs": [
-    "tests/item-search/product-groups.spec.ts"
+    "tests/search-for-product-groups/search-for-product-groups.spec.ts"
    ],
    "workbooks": [
-    "testcases/item-search/item-search-product-groups.xlsx"
+    "testcases/search-for-product-groups/item-search-search-for-product-groups.xlsx"
    ],
-   "tc_ids": [],
+   "tc_ids": [
+    "TC-ISR-PGR-001",
+    "TC-ISR-PGR-002",
+    "TC-ISR-PGR-003",
+    "TC-ISR-PGR-004",
+    "TC-ISR-PGR-005",
+    "TC-ISR-PGR-009",
+    "TC-ISR-PGR-010"
+   ],
    "delivered_on": null,
    "delivered_via": null,
    "evidence": null,
    "src": [
-    "src/pages/item-search/product-groups.page.ts",
-    "src/selectors/item-search/product-groups.ts"
+    "src/data/product-groups/product-groups.ts",
+    "src/pages/product-groups/product-groups.page.ts",
+    "src/selectors/product-groups/product-groups.ts"
    ],
    "sheets": [
     "item_search_product_groups"
+   ]
+  },
+  {
+   "code": "ISR.APG",
+   "name": "Item Search — Create new Product Groups",
+   "status": "withheld",
+   "specs": [
+    "tests/create-new-product-groups/create-new-product-groups.spec.ts"
+   ],
+   "workbooks": [
+    "testcases/create-new-product-groups/item-search-create-new-product-groups.xlsx"
+   ],
+   "tc_ids": [
+    "TC-ISR-PGR-006",
+    "TC-ISR-PGR-007",
+    "TC-ISR-PGR-008",
+    "TC-ISR-PGR-011"
+   ],
+   "delivered_on": null,
+   "delivered_via": null,
+   "evidence": null,
+   "src": [
+    "src/data/product-groups/product-groups.ts",
+    "src/pages/product-groups/product-groups.page.ts",
+    "src/selectors/product-groups/product-groups.ts"
+   ],
+   "sheets": [
+    "item_search_add_product_group"
    ]
   },
   {

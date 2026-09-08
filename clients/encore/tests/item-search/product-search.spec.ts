@@ -1,6 +1,6 @@
 import { test, expect } from '../../src/fixtures/pages.fixture';
 import { ItemSearchPage } from '../../src/pages/item-search/item-search.page';
-import { ProductGroupsPage } from '../../src/pages/item-search/product-groups.page';
+import { ProductGroupsPage } from '../../src/pages/product-groups/product-groups.page';
 import { ProductCodePage } from '../../src/pages/item-search/product-code.page';
 import {
   ISR_OFFICE,

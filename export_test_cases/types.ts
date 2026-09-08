@@ -203,7 +203,8 @@ export const KNOWN_SUB_CODES = [
   'PRF',  // product_search filters — own workbook, ids stay in the PRS sequence
   'PCD',  // product_code
   'APC',  // add_product_code — own workbook, ids stay in the PCD sequence
-  'PGR',  // product_groups
+  'PGR',  // product_groups — search half (NM-2258), own workbook
+  'APG',  // add product group — own workbook, ids stay in the PGR sequence
 ] as const;
 
 export type SubCode = typeof KNOWN_SUB_CODES[number];

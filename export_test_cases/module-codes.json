@@ -70,7 +70,8 @@
       "PRF": { "name": "product_search", "display": "Product Search Filters", "sheet": "item_search_product_filters", "mdBasename": "item_search_product_search_filters_test_cases", "idModule": "ISR", "idSubmodule": "PRS" },
       "PCD": { "name": "product_code", "display": "Product Code", "sheet": "item_search_product_code", "mdBasename": "item_search_product_code_test_cases" },
       "APC": { "name": "product_code", "display": "Add Product Code", "sheet": "item_search_add_product_code", "mdBasename": "item_search_add_product_code_test_cases", "idModule": "ISR", "idSubmodule": "PCD", "dir": "add-product-code" },
-      "PGR": { "name": "product_groups", "display": "Product Groups", "sheet": "item_search_product_groups", "mdBasename": "item_search_product_groups_test_cases" }
+      "PGR": { "name": "product_groups", "display": "Search For Product Groups", "sheet": "item_search_product_groups", "mdBasename": "item_search_product_groups_test_cases", "dir": "search-for-product-groups" },
+      "APG": { "name": "product_groups", "display": "Create new Product Groups", "sheet": "item_search_add_product_group", "mdBasename": "item_search_add_product_group_test_cases", "idModule": "ISR", "idSubmodule": "PGR", "dir": "create-new-product-groups" }
     }
   },
   "sheetNameNotes": {

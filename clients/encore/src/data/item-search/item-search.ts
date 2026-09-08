@@ -1,6 +1,7 @@
 /**
- * Test data for the Item Search module (NM-2253): the Products search page, the
- * product-code dialogs behind its row toolbar, and the Product Groups sibling page.
+ * Test data for the Item Search module (NM-2253): the Products search page and the
+ * product-code dialogs behind its row toolbar. The Product Groups pages carry their own
+ * data module at `data/product-groups/product-groups.ts`.
  *
  * Every constant below was read from the live application on office 1101 during the
  * 2026-08-31 verification session (re-spot-checked 2026-09-01). Counts that are
@@ -13,13 +14,9 @@ export const ISR_OFFICE = '1101';
 
 /** URL path builders. */
 export const ISR_ROUTE = (office: string) => `/locations/${office}/products`;
-export const ISR_PGR_ROUTE = (office: string) => `/locations/${office}/products/product-groups`;
 
 /** Reference search word for the Products page — 376 of 15,874 rows at verification. */
 export const ISR_SEARCH_WORD = 'Amp';
-
-/** Reference search word for the Product Groups page — 82 groups at verification. */
-export const ISR_PGR_SEARCH_WORD = 'Audio';
 
 /** A barcode that matches nothing — drives the empty state deterministically. */
 export const ISR_NO_MATCH_BARCODE = 'ZZNOBARCODE99';
@@ -73,15 +70,9 @@ export const ISR_COLUMNS = [
   'Location Name',
 ] as const;
 
-/** The Product Groups grid columns, verbatim and in order. */
-export const ISR_PGR_COLUMNS = ['Name', 'Description', 'Service Type', 'Status'] as const;
-
 /** Rows-per-page option set on the Products page; 50 is the default there. */
 export const ISR_PAGE_SIZES = ['10', '20', '30', '40', '50'] as const;
 export const ISR_DEFAULT_PAGE_SIZE = '50';
-
-/** The Product Groups page turns a smaller page — 20 rows — by design difference. */
-export const ISR_PGR_DEFAULT_PAGE_SIZE = '20';
 
 /** The current-office entry as the Location dropdown and its resting value render it. */
 export const ISR_OFFICE_OPTION = '1101 - Corporate Office Encore USA SGA';
@@ -200,16 +191,3 @@ export const ISR_CODE_FIELD_LIMITS = {
   itemDescription: 50,
   oracleItemNumber: 10,
 } as const;
-
-/**
- * Values for creating a product group from the Add page. A group needs a name, a
- * description, a service type and at least one sub-class (added by double-clicking any
- * item in the picker's list). A per-run unique name is appended in the test so repeated
- * runs never collide; the created group is proven by searching the name back.
- */
-export const ISR_ADD_GROUP = {
-  serviceType: 'Equipment Rental',
-  namePrefix: 'ZZ E2E Group',
-  descriptionPrefix: 'Automated group create check',
-} as const;
-

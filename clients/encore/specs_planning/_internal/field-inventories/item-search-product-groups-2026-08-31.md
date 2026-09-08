@@ -16,6 +16,7 @@ Completion_Record: reports/walk-coverage/isr-pgr.json (status=complete, elements
 Walk_State: module=item-search-product-groups walked=[resting,search:executed,dialog:add-group]
 CrossCheck: clean — no A△B review-set elements were flagged by the enumerator for these runs; every key sits in the union denominator and is dispositioned.
 jira_tickets: [NM-2253, NM-1881, NM-1921]
+Subtask_Ownership: NM-2258 (Search For Product Groups) owns this artifact — the resting + search:executed states, TC-ISR-PGR-001, 002, 003, 004, 005, 009, 010. NM-2259 (Create new Product Groups) SPLIT OUT to `item-search-add-product-group-2026-08-31.md` on 2026-09-08 when it became its own deliverable (ISR.APG) — that artifact carries the Add-page form table, its save-cycle observations and TC-ISR-PGR-006, 007, 008, 011. No new walk was run for the split and no disposition changed; the two artifacts partition the same 2026-08-31 walk plus the 2026-09-02 create session.
 baselineScope: baseline-absent (environment-blocked — see Baseline_Artifact; 6 access attempts, TLS reset for automated browsers, curl 200)
 
 ---
@@ -53,37 +54,25 @@ baselineScope: baseline-absent (environment-blocked — see Baseline_Artifact; 6
 - Column headers carry per-column menu buttons (same archetype as the Products grid) — unprobed here at this tier.
 - Pagination: rows-per-page **20 default** (differs from the Products page's 50), page textbox, first/prev/next/last; "Audio" (82 found) paginates 5 pages.
 
-### Add Product Group page (agent-walked, §20-Q — snapshot `.playwright-cli/isr-2026-08-31/pgr-add-page.yml`)
+### Add Product Group page
 
-| Field | data-testid | Control Type | Default Value | Validation Rules | Enabled/Disabled States | Cross-field deps | Notes |
-|---|---|---|---|---|---|---|---|
-| Name | `(none) — placeholder "Enter Product Group Name"` | Plain text | empty | required (Save stays disabled with it empty; typed value alone did not enable Save) | enabled | n/a | `affordance: none`. |
-| Description | `(none) — placeholder "Enter Product Group Description"` | Plain text | empty | required | enabled | n/a | `affordance: none`. |
-| Service Type | `(none) — trigger shows "Service Type"` | Dropdown / combobox (Radix) | placeholder | required | enabled | n/a | Options unenumerated at this tier (deferral). |
-| Active | `(none) — checkbox in the form` | Checkbox (native + Radix) | checked | n/a | enabled | n/a | |
-| Sub Classes | `(none) — dual-list region` | Drag-and-drop source row (dual-list picker) | empty; instruction "Drag or double-click items from the left to add sub-classes" | required (starred) | enabled | picker search box filters the left list | Left list is very large (whole sub-class catalog). Drag path + double-click add are deep-tier; structure asserted at this tier. |
-| Cancel | `(none) — text "Cancel"` | *(action)* | n/a | n/a | enabled | returns to the list page; typed input discarded silently (no unsaved-changes prompt — probed live with Name="X") | |
-| Save | `(none) — text "Save"` | *(action)* | n/a | n/a | **disabled** at rest and with only Name filled | validity-gated | Never clicked — nothing was persisted during this walk. |
+Split out with NM-2259 — the form's field table, its labels and its save-cycle observations now
+live in `item-search-add-product-group-2026-08-31.md` (ISR.APG). Kept there only, not duplicated
+here, so a later correction cannot land in one copy and rot in the other. The list page's Add
+button is dispositioned below as a navigation affordance to that page.
+
 
 ## Labels + Section Names
 
 - Search panel: "Search Product Groups..." · "Active" · "Reset" · "Search" · "Add" · "Products" (link).
 - Grid: "Name" · "Description" · "Service Type" · "Status" · "N product groups found" · "rows per page".
-- Add page: "Add" (heading) · "Name" · "Description" · "Service Type" · "Active" · "Sub Classes" · "Drag or double-click items from the left to add sub-classes" · "Cancel" · "Save".
 
 ## Save-cycle observations
 
-### Save button behavior
-Add-page Save only; disabled at rest and while required fields are incomplete (Name alone did not enable it). Never clicked in this walk — no group was created.
-
-### Save dialog
-Not observed — no save executed. Unknown, not absent.
-
-### Post-save toast
-Not observed — same reason.
-
-### Dirty-state behavior
-No unsaved-changes guard: Cancel with a typed Name returned to the list silently, input discarded (probed live). Consistent with the module-wide guard absence (3 probes across surfaces).
+This surface has no save of its own — the list page only searches, resets and paginates. The
+module's single save is the Add Product Group page's create, which moved with NM-2259 to
+`item-search-add-product-group-2026-08-31.md`; its Save-button, dialog, toast and dirty-state
+observations live there.
 
 ## Observations
 
@@ -154,7 +143,7 @@ Re-enumerates the same controls with the grid populated; `id:radix-_r_10_` (an a
 
 ### State supplement — dialog:add-group (24 elements, reports/walk-coverage/isr-pgr--dialog-add-group.json)
 
-The branch clicked Add; the enumerated key set matches the list page (the run's snapshot preceded the route change — the label "dialog" is a recorded misnomer; Add is a page route). All 24 keys duplicate manifest dispositions above. The Add PAGE's form is agent-walked: fields inventoried in the Add-page table with snapshot evidence (`pgr-add-page.yml`), covered by TC-ISR-PGR-006/007/008; the dual-list drag path and Service Type option set are deep-tier (deferral rows conceptually ride the picker fields, recorded here: deferred-to-DEEP: pgr-add-duallist-drag (drag-to-add mechanics on the sub-class picker are deep-tier work) · deferred-to-DEEP: pgr-add-servicetype-options (option-set enumeration for the add-form dropdown is deep-tier here)).
+The branch clicked Add, but the run's snapshot preceded the route change, so the enumerated key set is the list page's (the state label "dialog" is a recorded misnomer — Add is a page route). All 24 keys therefore duplicate the manifest dispositions above. The Add PAGE's own form, its agent-walked evidence and its two deferrals moved with NM-2259 to `item-search-add-product-group-2026-08-31.md`, which carries this same state as its denominator with the caveat restated.
 
 ### §3 surface families (LR-065)
 
@@ -176,6 +165,4 @@ The group list is a result surface. Families dispositioned —
 
 ## Save & cleanup disposition (2026-09-02)
 
-- **Create Product Group save is now covered** by TC-ISR-PGR-011: a completed Add page (Name / Description / Service Type / ≥1 Sub Class added by double-click) saves via `POST /navigator/api/location/add-update-product-group` — verified live, product group id 4581 — and is confirmed by a Product Groups search-back per LR-067.
-- **Cleanup**: there is no hard delete for a product group, and the deactivate-via-edit path was **not** pinned this pass, so the create case leaves its per-run-unique group on 1101. This accumulation is accepted test residue on the fully-writable e2e environment (LR-ENC-007), stated here rather than hidden.
-- **Sub-class add path**: the reliable **double-click** path is covered; the drag path is a deferral (flaky, frequently never fires the drop).
+The create save, its live evidence (product group id 4581), the residue note and the sub-class add-path disposition moved with NM-2259 to `item-search-add-product-group-2026-08-31.md`. Nothing on this surface saves.
