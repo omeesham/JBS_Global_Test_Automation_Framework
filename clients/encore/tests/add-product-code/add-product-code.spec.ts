@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/fixtures/pages.fixture';
-import { ProductCodePage } from '../../src/pages/item-search/product-code.page';
+import { ProductCodePage } from '../../src/pages/products/product-code.page';
 import {
   ISR_OFFICE,
   ISR_SEARCH_WORD,
@@ -8,7 +8,7 @@ import {
   ISR_LABOR_SERVICE_SAMPLES,
   ISR_ADD_CODE,
   ISR_CODE_FIELD_LIMITS,
-} from '../../src/data/item-search/item-search';
+} from '../../src/data/products/products';
 
 /**
  * Item Search — Add Product Code (NM-2257): the add flow behind the Products page toolbar,

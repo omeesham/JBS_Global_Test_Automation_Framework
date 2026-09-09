@@ -478,3 +478,27 @@ grep-verifiable line item in PLAN_DELIVERABLE_QUALITY_UPGRADE.md.
 **What**: the save-flows session recorded the xlsx:build non-determinism as a single cause — `wb.created = new Date()` churns all 40 workbooks. Coming to fix it, I first built the timestamp fix alone (pin a fixed epoch + a write-only re-zip pass normalizing every zip entry's DOS mod-time, directory entries included). That is necessary but it does NOT solve the pain the owner actually feels — "edit one module, all 40 workbooks change" — because a SECOND, independent driver was never named in the finding: every split workbook embeds the global all-modules input fingerprint (hidden `__fp__` sheet), so changing one module rewrites the fingerprint cell in all 39 other splits as real content. The owner asked, in effect, "so this won't actually help me, right?" — and only then did I audit the split-write path and find the fingerprint. The full fix drops the fingerprint from splits (keeping it only in the consolidated workbook, the sole reader) on top of the timestamp normalization.
 
 **Rule**: an inherited or first-pass finding names the cause someone already SAW — it is not proof the cause is COMPLETE. Before scoping a fix to a stated root cause, ask "what ELSE could independently produce this exact symptom?" and audit each path — especially when the symptom (all 40 churn) has more than one plausible driver (a per-build restamp and a per-edit content-hash are different mechanisms). Here the timestamp fix and the fingerprint fix are orthogonal; either alone leaves half the churn. This is a NEVER-ASSUME instance: I assumed the handed-down diagnosis was the whole story. The concerning part is that the OWNER caught it, not my own audit — a completeness pass on the symptom's drivers would have found the fingerprint before the owner had to. Related: discovery-first-over-scope-minimalism, feedback_recurrence_convicts_prior_fix.md (symptom-driver discipline). Classification: S2 — caught before the fix shipped, corrected fully in-session (both drivers fixed; byte-determinism 41/41 and one-module isolation proven), but owner-caught rather than self-caught.
+
+## CEO-M25 — A stray click on an unscoped selector opened a shell dropdown, and every later CLI action in the chain was invalid (Sev S2, 2026-09-09)
+
+**What**: probing the added sub-class's × control on the Add Product Group page I clicked `button.cursor-pointer:has(svg) >> nth=0`. The first match was the top bar's dropdown trigger; the menu opened and set `pointer-events:none` on the body, the next actions "succeeded" in the CLI output while touching nothing, and I read "the left list emptied after remove" from that corrupted state. Escape, a scoped unique selector (`button.text-xs.cursor-pointer`) and a clean reload showed 7,394 rows and no defect.
+
+**Rule**: never chain CLI actions on an unscoped selector — verify uniqueness (count = 1) before the click, read back the post-click state, and never suppress CLI output. A state read after an unverified click is not evidence; it is the thing to distrust first when the page "suddenly" looks broken.
+
+## CEO-M26 — I built a boundary case on a shared typing helper without reading its body; it cleared the box first (Sev S2, 2026-09-09)
+
+**What**: TC-ISR-PGR-012/013 "type one more character at the cap" called the page's `typeAddName('X')`, which routes through the shared `typeByKeys` — click → Ctrl+A → Delete → type. The assertion read `"X"` instead of the 50-character value, and the first run failed both cases.
+
+**Rule**: before composing a case on a shared helper, read the helper's body — a "type" helper that also clears is a different primitive from "append". Boundary cases at a cap need an append primitive (click → End → type, no clearing); the fix was a dedicated `typeAtEnd` helper.
+
+## CEO-M27 — A presence wait on a locator that already matched passed vacuously, then broke under strict mode (Sev S1, 2026-09-09)
+
+**What**: `saveExpectingRejection` waited for `[data-sonner-toast]` filtered by the message pattern and read its text. Rejection toasts on this page never auto-hide and survive navigation: TC-ISR-PGR-018's second save "observed" the FIRST save's toast (identical text — a green read with no observation), and TC-ISR-PGR-019 in the same worker met two leftover toasts and failed with a strict-mode violation (flaky, green on the retry in a fresh worker). The failure screenshot, not the walk, showed the leftover text.
+
+**Rule**: a wait for "the thing exists" is vacuous when the thing already exists. For an event that can repeat, wait for the DELTA — count before, act, `toHaveCount(before + 1)`, read the newest — or dismiss the stale ones before acting. A toast's lifetime is unknown until measured; the success and error toasts here had different lifetimes. Memory: `feedback_presence_wait_is_vacuous_when_already_present.md`.
+
+## CEO-M28 — I cleared the run-1 artifacts before archiving the evidence they held (Sev S3, 2026-09-09)
+
+**What**: `rm -rf reports/test-results playwright-report/...` before run 2 destroyed the failure screenshot that proved the toast persistence (both leftover toasts with TC-018's values on TC-019's form). The inventory now cites my transcription of the screenshot plus the copied run log instead of the screenshot itself.
+
+**Rule**: before clearing a run's artifacts, copy anything cited — or citable — as evidence into the dated evidence directory. Cleaning protects the NEXT run's integrity; it is not a licence to destroy the last run's proof.

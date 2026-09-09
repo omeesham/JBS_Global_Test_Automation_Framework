@@ -1,8 +1,8 @@
 import { test, expect } from '../../src/fixtures/pages.fixture';
 import { ProductGroupsPage } from '../../src/pages/product-groups/product-groups.page';
-import { ProductCodePage } from '../../src/pages/item-search/product-code.page';
-import { ItemSearchPage } from '../../src/pages/item-search/item-search.page';
-import { ISR_OFFICE, ISR_SEARCH_WORD } from '../../src/data/item-search/item-search';
+import { ProductCodePage } from '../../src/pages/products/product-code.page';
+import { ProductsPage } from '../../src/pages/products/products.page';
+import { ISR_OFFICE, ISR_SEARCH_WORD } from '../../src/data/products/products';
 import {
   PGR_SEARCH_WORD,
   PGR_COLUMNS,
@@ -115,7 +115,7 @@ test.describe('SBC — Item Search Product Groups surface behaviors @item-search
     await pgr.typeSearch(PGR_SEARCH_WORD);
     const count = await pgr.clickSearchAndWait((n) => n !== null && n > 0);
     // Leave the page entirely, then come back.
-    const products = new ItemSearchPage(authenticatedSession.page, config);
+    const products = new ProductsPage(authenticatedSession.page, config);
     await products.open(ISR_OFFICE);
     await pgr.open(ISR_OFFICE);
     // The executed search is restored without clicking Search again.

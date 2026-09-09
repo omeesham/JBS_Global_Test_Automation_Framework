@@ -1847,10 +1847,10 @@
    "delivered_via": null,
    "evidence": null,
    "src": [
-    "src/data/item-search/item-search.ts",
-    "src/pages/item-search/item-search-grid.page.ts",
-    "src/pages/item-search/item-search.page.ts",
-    "src/selectors/item-search/products.ts"
+    "src/data/products/products.ts",
+    "src/pages/products/products-grid.page.ts",
+    "src/pages/products/products.page.ts",
+    "src/selectors/products/products.ts"
    ],
    "sheets": [
     "item_search_product_search"
@@ -1911,8 +1911,8 @@
    "delivered_via": null,
    "evidence": null,
    "src": [
-    "src/pages/item-search/product-code.page.ts",
-    "src/selectors/item-search/product-code.ts"
+    "src/pages/products/product-code.page.ts",
+    "src/selectors/products/product-code.ts"
    ],
    "sheets": [
     "item_search_product_code"
@@ -1942,8 +1942,8 @@
    "delivered_via": null,
    "evidence": null,
    "src": [
-    "src/pages/item-search/product-code.page.ts",
-    "src/selectors/item-search/product-code.ts"
+    "src/pages/products/product-code.page.ts",
+    "src/selectors/products/product-code.ts"
    ],
    "sheets": [
     "item_search_add_product_code"

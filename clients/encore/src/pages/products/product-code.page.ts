@@ -1,7 +1,7 @@
 import { Locator, expect } from '@playwright/test';
 import { step } from '../../fixtures/step-decorator';
-import { ItemSearchPage } from './item-search.page';
-import { itemSearchProductCode as S } from '../../selectors/item-search/product-code';
+import { ProductsPage } from './products.page';
+import { itemSearchProductCode as S } from '../../selectors/products/product-code';
 
 /**
  * The product-code layer of the Products page: the row-selection toolbar and the
@@ -12,7 +12,7 @@ import { itemSearchProductCode as S } from '../../selectors/item-search/product-
  * the current render. Closing a dialog discards unsaved edits silently (proven live);
  * nothing in this page object ever clicks Save.
  */
-export class ProductCodePage extends ItemSearchPage {
+export class ProductCodePage extends ProductsPage {
   // ---------------------------------------------------------------- row selection & toolbar
 
   /** Clicks the first result row and waits for the selection toolbar to mount. */

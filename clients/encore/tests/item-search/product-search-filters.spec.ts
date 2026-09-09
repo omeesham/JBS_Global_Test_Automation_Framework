@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/fixtures/pages.fixture';
-import { ItemSearchPage } from '../../src/pages/item-search/item-search.page';
+import { ProductsPage } from '../../src/pages/products/products.page';
 import {
   ISR_OFFICE,
   ISR_OFFICE_OPTION,
@@ -10,7 +10,7 @@ import {
   ISR_REGION_LIST_FLOOR,
   ISR_ORG_ENTRIES,
   ISR_ACTIVE_FILTER_WORD,
-} from '../../src/data/item-search/item-search';
+} from '../../src/data/products/products';
 
 /**
  * Item Search — Products page filters (NM-2254), office 1101 (admin-only surface).
@@ -38,10 +38,10 @@ test.describe.configure({ timeout: 300_000 });
 // ---------------------------------------------------------------------------- surface cases
 
 test.describe('SBC — Item Search Products filter behaviors @item-search @product-search', () => {
-  let isr: ItemSearchPage;
+  let isr: ProductsPage;
 
   test.beforeEach(async ({ authenticatedSession, config }) => {
-    isr = new ItemSearchPage(authenticatedSession.page, config);
+    isr = new ProductsPage(authenticatedSession.page, config);
     await isr.ensureCleanSearch(ISR_OFFICE);
   });
 
@@ -110,10 +110,10 @@ test.describe('SBC — Item Search Products filter behaviors @item-search @produ
 // ---------------------------------------------------------------------------- field cases
 
 test.describe('Item Search Products filters — fields @item-search @product-search', () => {
-  let isr: ItemSearchPage;
+  let isr: ProductsPage;
 
   test.beforeEach(async ({ authenticatedSession, config }) => {
-    isr = new ItemSearchPage(authenticatedSession.page, config);
+    isr = new ProductsPage(authenticatedSession.page, config);
     await isr.ensureCleanSearch(ISR_OFFICE);
   });
 

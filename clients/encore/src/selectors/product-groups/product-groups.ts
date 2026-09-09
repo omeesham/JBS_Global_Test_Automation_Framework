@@ -30,12 +30,47 @@ export const itemSearchProductGroups = {
   PLACEHOLDER_ADD_DESC: 'Enter Product Group Description',
   TEXT_CANCEL: 'Cancel',
   TEXT_SAVE: 'Save',
+  /** The breadcrumb crumb above the form that leads back to the group list — a plain link,
+   *  so it leaves the page without any unsaved-changes prompt (verified live 2026-09-09). */
+  LINK_PRODUCT_GROUPS: 'Product Groups',
   /** The required Service Type selector shows this label until a type is chosen. */
   TEXT_SERVICE_TYPE: 'Service Type',
+  /** The Service Type selector itself — the only combobox on the Add page without a testid
+   *  (the picker's sort-order selector carries one), so it stays addressable after a value
+   *  replaces its placeholder text. */
+  addServiceTypeCombo: 'button[role="combobox"]:not([data-testid])',
   /** The sub-class picker: a search box over a list of draggable item rows. A row is
-   *  added to the group by double-clicking it (the reliable path the picker offers). */
+   *  added to the group by double-clicking it or by dragging it onto the Sub Classes area. */
   PLACEHOLDER_SUBCLASS_SEARCH: 'Search',
   subClassItem: '[draggable="true"]',
+  /** The form's two text boxes, anchored on their form field names (no testids; verified
+   *  live 2026-09-09). Both carry a maxlength the browser enforces silently. */
+  addNameInput: 'input[name="productGroupName"]',
+  addDescriptionInput: 'input[name="productGroupDescription"]',
+  /** The form's Active checkbox is the only checkbox on the page without a testid; the
+   *  picker's Labor checkbox carries the shared `e2e-checkbox` testid instead. */
+  chkAddActive: 'button[role="checkbox"]:not([data-testid])',
+  chkPickerLabor: 'button[role="checkbox"][data-testid="e2e-checkbox"]',
+  /** The picker's sort-order selector. Its testid is a copy-paste from the currency
+   *  selector (verified live 2026-09-09) — stable, but misleading; kept as the anchor
+   *  because it is the only testid on the control. */
+  pickerSortCombo: 'button[role="combobox"][data-testid="select-currency"]',
+  TEXT_SORT_ASCENDING: 'Ascending',
+  TEXT_SORT_DESCENDING: 'Descending',
+  /** The picker's own Reset — the list page has a Reset too, so the text is scoped to the
+   *  Add page by the page object. */
+  TEXT_PICKER_RESET: 'Reset',
+  /** The × control on an added sub-class row has no accessible name; this class pair is
+   *  unique to those rows on the page (verified live 2026-09-09). */
+  addedSubClassRemove: 'button.text-xs.cursor-pointer',
+  /** The instruction shown in the Sub Classes area while it is empty. Rendered with
+   *  non-breaking hyphens, so it is matched hyphen-agnostically. */
+  SUBCLASS_INSTRUCTION: /Drag or double.click items from the left to add sub.classes/,
+  /** The divider toggle between the picker and the form; its label flips with the state. */
+  NAME_COLLAPSE_PANEL: 'Collapse search panel',
+  NAME_EXPAND_PANEL: 'Expand search panel',
+  /** The error toast the server answers a duplicate name or description with. */
+  TOAST_ALREADY_EXISTS: /already exists\.$/,
 
   // ---------------------------------------------------------------- create confirmation
   /** Backend endpoint the add form posts to — filtered on so the save wait keys only on

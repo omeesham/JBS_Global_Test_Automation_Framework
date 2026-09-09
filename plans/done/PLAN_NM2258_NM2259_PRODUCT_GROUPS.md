@@ -3,7 +3,7 @@
 **Status**: DONE
 **Priority**: P1
 **Created**: 2026-09-08
-**Executed**: 2026-09-08
+**Executed**: 2026-09-08 (Phases 1–5) · 2026-09-09 (Phases 6–7)
 **Identity**: OWNER (spec + data + page-object + selector work under BUILDER; registries, manifest and plan under OWNER)
 **Parent**: PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md
 **Depends on**: PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md, SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md
@@ -136,6 +136,117 @@ keys are the list page's control set (its snapshot fired before the route change
 not Add-form coverage — the form is agent-walked with snapshot evidence, and every field is
 inventoried. Both artifacts keep `Coverage_Ratio` 100% and `CrossCheck: clean`.
 
+**Phase 6 — the source tree renamed off the parent story name (added 2026-09-09, owner-directed).**
+
+Phases 1–5 shipped with Deviation #3 above: the shared grid base was left under
+`src/pages/item-search/` and flagged to the owner as "the one remaining Item Search path." **That
+flag under-counted the problem by a factor of six, and the correction is recorded here rather than
+quietly fixed.** The NM-2258 spec legitimately drives the Products page and the Product Code page —
+that is how a user reaches Product Groups in the application, and it is what TC-ISR-PGR-001 and
+TC-ISR-PGR-009 exercise — so the branch depended on six files across three `item-search`-named
+folders, not one:
+
+| Path | Why the branch needs it |
+|---|---|
+| `src/pages/item-search/item-search-grid.page.ts` | abstract grid base both page objects extend |
+| `src/pages/item-search/item-search.page.ts` | Products page — search persistence case |
+| `src/pages/item-search/product-code.page.ts` | in-app entry to Product Groups |
+| `src/selectors/item-search/products.ts` | reached through the Products page |
+| `src/selectors/item-search/product-code.ts` | reached through the Product Code page |
+| `src/data/item-search/item-search.ts` | the office constant and the Products search word |
+
+A second finding forced the shape of the fix: a folder cannot be named for one sub-task when two
+sub-tasks share the file. The Products page object serves NM-2254 and NM-3650; the Product Code page
+object serves ISR.PCD and NM-2257. Naming either folder for a single ticket would make another
+ticket's branch depend on a folder named for a ticket it is not. The achievable rule — and the one
+the structural-names gate already states — is that a folder carries the **feature** name.
+
+The owner chose the full rename to the application's own name for the area (the page is titled
+Products and lives at `/locations/{office}/products`), which drops the parent story name entirely:
+
+| Before | After |
+|---|---|
+| `src/pages/item-search/` | `src/pages/products/` |
+| `item-search-grid.page.ts` (`ItemSearchGridBasePage`) | `products-grid.page.ts` (`ProductsGridBasePage`) |
+| `item-search.page.ts` (`ItemSearchPage`) | `products.page.ts` (`ProductsPage`) |
+| `src/selectors/item-search/` | `src/selectors/products/` |
+| `src/data/item-search/item-search.ts` | `src/data/products/products.ts` |
+
+Renames plus import and identifier rewrites only — 52 insertions against 52 deletions, no logic
+touched. Three doc comments that named the parent story were rewritten in plain English. Six path
+entries in the delivery manifest were repointed (ISR.PRS, ISR.PCD, ISR.APC); no `evidence` or status
+field was altered. Constant prefixes (`ISR_*`) and the selector export names were deliberately left
+alone: they are file content, not structural names, and the naming gate scopes to basenames.
+
+**Why the blast radius is smaller than it looks.** `scripts/ship-branch.sh:251` records that
+source-level dead-code elimination was disabled on 2026-07-20 with the owner decision to ship the
+source tree whole. Every delivery branch therefore carries the entire `src/` tree regardless of which
+modules it declares — so this rename removes the parent story name from every future branch, not just
+this one, and no branch was ever pruned to the manifest path lists in the first place.
+
+**Still carrying the parent story name and deliberately out of this phase's scope**:
+`clients/encore/tests/item-search/` and `clients/encore/testcases/item-search/`, which hold the
+Product Search, Product Search Filters and Product Code deliverables. Surfaced to the owner as an
+open item; renaming them was not authorised here and was not assumed.
+
+**Phase 7 — the Add Product Group page re-walked and covered to depth (added 2026-09-09, owner-directed).**
+
+The owner asked whether the Add page's text boxes had been tried at their maximum and minimum
+lengths and with rejected input, and whether every Service Type option, the Active and Labor
+checkboxes, Ascending/Descending, every button, the left-list items and the search box had been
+exercised. The honest answer was no on every count: the 2026-08-31 inventory was split out of the
+list-page walk, carried seven form controls, and missed the picker's own controls entirely — three
+of them (the picker search, its sort order, its Labor filter) had never been inventoried. The page was
+re-walked in full on 2026-09-09 under GIVER, Jira first (NM-2043, NM-2055, NM-1757, NM-2050,
+NM-1907, NM-2036 — no Confluence spec exists), with on-disk evidence in
+`.playwright-cli/apg-2026-09-09/` and the artifact
+`clients/encore/specs_planning/_internal/field-inventories/item-search-add-product-group-2026-09-09.md`.
+Nineteen cases were added under BUILDER — TC-ISR-PGR-012 … 030 — beside the four already delivered,
+so the NM-2259 deliverable now carries 23 (workbook sheet `item_search_add_product_group`, 23 rows).
+
+| What the owner named | Cases |
+|---|---|
+| Text boxes at the caps and with rejected input | 012 (Name: 50-char cap — the 51st keystroke is dropped, an over-long paste is cut, the box still lets Tab out), 013 (Description: 100-char cap), 014 (clearing by select-all and by backspace both hold Save back and mark the box invalid — the Add-page twin of NM-1907), 015 (whitespace-only counts as empty; a padded name is accepted and trimmed) |
+| Service Type list | 017 (all 90 options verbatim and in order, no search box; first, middle and last select), 028 (the last option saves for real, with markup and quotes in the name stored as plain text) |
+| Active and Labor | 016 (each required field gates Save; Active does not), 027 (a group saved with Active cleared is created Inactive and found only with the list's Active filter cleared), 021 (Labor narrows the catalog to labor rows; unchecking restores it) |
+| Ascending / Descending | 022 (first and last row swap) |
+| Every button | 023 (Reset clears search, Labor and sort but keeps an added sub-class — NM-2050), 026 (the divider collapses and expands the panel, measured), 008 / 029 / 030 (Cancel, browser Back, breadcrumb — all leave without saving or warning), Save through every create and rejection case |
+| Left-list items | 024 (double-click adds once; × removes and the instruction returns), 025 (drag adds — full mouse sequence, proven against the double-click positive control), 020 / 021 / 022 (filtered and sorted reads) |
+| Search box | 020 (substring, case-insensitive; no match empties the list with no message; clearing restores the live count) |
+| Server rules | 018 (duplicate name rejected, with and without a trailing space — the server trims), 019 (duplicate description rejected even with a new name — a rule no Jira story states, tagged `DOM-only` in the spec) |
+
+**What the walk surfaced (recorded in the inventory's Observations; none filed as a bug yet):**
+(1) post-save landing — the live app lands on the group list; NM-2043 and NM-2055 (dev lead, June)
+say the group's details page. BUG-CANDIDATE pending an owner/dev answer; the cases pin the observed
+landing and cite the contradiction. (2) Description uniqueness is enforced with no stated requirement
+— discussion item. (3) Rejection toasts never auto-hide and follow the user to the list page and onto a
+fresh Add form until dismissed, while the success toast hides in ~3 s — BUG-CANDIDATE (UX) pending an
+owner ruling; found by the automation run, not the walk.
+
+**Automation fixes the first run forced (19 passed / 3 failed / 1 flaky → 23 passed, 0 retries).**
+The shared `typeByKeys` clears a box before typing, so "type one more character at the cap" had
+replaced the content — new `appendToAddName` / `appendToAddDescription` type at the end without
+clearing. The Service Type locator was anchored on its placeholder text, which vanishes once a value
+is chosen — re-anchored on the page's only testid-less combobox. The rejection read waited for "a
+toast matching the text", which resolved instantly on a toast left over from the previous save — a
+vacuous green in TC-018's second read and a strict-mode flake in TC-019 — so it now counts matching
+toasts before the click and waits for one more, reading the newest. The page object also asserts the
+post-save landing URL, and `ensureCleanSearch` restores the list's Active filter so the inactive-create
+case cannot leak its state into the next test.
+
+**The machine denominator could not be produced.** `enumerate-page.mjs` gained a config for the page
+(`item-search-add-product-group`, two opener branches) and hung on it twice — 27 min with the CDP
+pass, 25 min without, idle after the resting state's derive-type phase. The page holds 7,394 draggable
+catalog rows at rest. The inventory carries a disclosed snapshot census instead (112 keys, every one
+dispositioned, `Walk_Mode: deep`) and states in `Completion_Record` that no enumerator JSON exists,
+so the LR-062 completion-record check fails on it by design. The unlock is a fix to the enumerator
+(owner-only `scripts/`), a re-run for the three states, and a GIVER pass replacing the census with the
+machine manifest — routed to a task chip as a tooling defect, not chipped as a red test.
+
+The Phase 0.5 spot-check log `reports/walkthrough/isr-apg-2026-09-09.walkthrough.yaml` (local —
+`reports/` is gitignored) was written by OWNER at close-out: BUILDER ran the checks but has no §2 row
+for `reports/walkthrough/`, and the identity gate denied the write. Recorded as a §2 gap.
+
 ---
 
 ## Verification
@@ -156,6 +267,14 @@ inventoried. Both artifacts keep `Coverage_Ratio` 100% and `CrossCheck: clean`.
 | NM-2258 spec solo | **8 passed** (7 cases + auth setup), 0 failed |
 | NM-2259 spec solo | **5 passed** (4 cases + auth setup), 0 failed |
 | Full Item Search family (item-search + add-product-code + both new folders) | **59 passed, 0 failed** (9.3m) |
+| Full Item Search family after the Phase 6 rename (2026-09-09, before the re-walk) | **59 passed, 0 failed** (11.9m) |
+| NM-2259 spec after the re-walk — first run (22 cases) | 19 passed, 3 failed, 1 flaky (5.6m) — the three page-object defects in Phase 7, all fixed |
+| NM-2259 spec after the fixes (22 cases) | **23 passed** (22 cases + auth setup), 0 failed, 0 retries (3.5m) |
+| Full Item Search family after the fixes | **77 passed, 0 failed, 0 retries** (14.9m) — 59 → 77 because the NM-2259 spec grew from 4 cases to 22 |
+| NM-2259 spec with TC-ISR-PGR-030 (23 cases) | **24 passed** (23 cases + auth setup), 0 failed, 0 retries (3.5m) |
+| Close-out battery, 2026-09-09 | root + client `tsc` exit 0 · `check:tc-parity` PASS · `check:per-test-baseline` PASS (23 registered) · save-route parity PASS (4 routes) · `check:step-labels` PASS · `check:structural-names` PASS · `check:spec-quality` exit 0 (announce-mode receipt for TC-SVC-HIS-012, pre-existing) · `xlsx:build` green (`item_search_add_product_group` 23 rows) · `xlsx:lint` PASS · `check:coverage-manifest` 42/42 |
+| `check:walk-observations` | FAIL on 7 pre-existing artifacts (service-charge, barcode, save-flows evidence files); the 2026-09-09 Add-page inventory is not among them |
+| Closure dry-run after Phase 7 was added | PASS — but only because the validator reads the artifacts cited in the Per-Identity matrix (the 2026-08-31 walk that closed Phases 1–5), not the Phase 7 prose. A plan that cites the 2026-09-09 census artifact in its matrix is denied on `Completion_Record` until the enumerator runs; that is the intended state, not a pass to lean on |
 
 The full-family run is the load-bearing one: it proves the page-object move did not break the
 three sub-tasks already delivered to the client (ISR.PRS, ISR.PRF, ISR.APC).
@@ -178,13 +297,23 @@ in either.
    under the per-client planning tree, which is gitignored and never ships, and the parity gate
    accepts either the module's directory or the submodule's declared one. The folder rule applies
    to what actually reaches the client.
-3. **The shared grid base stays under the Item Search page directory.** It is an abstract base
-   extended by both `ItemSearchPage` and `ProductGroupsPage` and is therefore not ownable by any
-   one sub-task. Moving it would rewrite paths in ISR.PRS, ISR.PRF and ISR.APC, all already
-   delivered. Flagged to the owner as the one remaining Item Search path in the NM-2258/NM-2259
-   branch; a decision on it is open, not assumed.
+3. **The shared grid base stayed under the Item Search page directory at first commit — the owner
+   then reversed it (see Phase 6).** The original reasoning was that an abstract base extended by
+   both the Products page and `ProductGroupsPage` is not ownable by any one sub-task, so moving it
+   would rewrite paths in ISR.PRS, ISR.PRF and ISR.APC. It was flagged to the owner as the one
+   remaining Item Search path in the NM-2258/NM-2259 branch, and that flag was WRONG — see the
+   correction recorded in Phase 6. The owner chose the full rename.
 
 ---
+
+4. **The Add-page denominator is a disclosed snapshot census, not enumerator output (Phase 7).** The
+   walk doctrine wants the page to enumerate itself; the enumerator hung twice on this page. The
+   alternative — classifying from the census and calling it machine output — is the fabrication
+   class the doctrine exists to prevent, so the artifact names the census as a census, keeps
+   `Completion_Record: NONE`, and accepts the closure-gate failure until the tool is fixed.
+5. **The walkthrough spot-check log was written by OWNER.** BUILDER ran the three checks before the
+   spec was written but has no §2 row for `reports/walkthrough/`; the log's header records that
+   provenance rather than pretending BUILDER wrote it.
 
 ## Not done — and why
 
@@ -192,7 +321,24 @@ in either.
   instruction on this work was "don't push or ship until i asked you to", and an approval row
   records an owner decision that has not been given. The branch name and the push remain the
   owner's call.
-- **No new test coverage.** The 11 cases are the ones authored under the parent plan and
-  SUBPLAN_ITEM_SEARCH_SAVE_FLOWS. Anything deeper (drag-to-add sub-class, group edit/deactivate,
-  Service Type option set, inactive-group rendering, column sorting) stays in the DEEP seed list
-  in SUBPLAN_PRODUCTS_DQU.md.
+- **Coverage still open after Phase 7 (NM-2259).** Editing or deactivating a created group (a
+  different route with its own form; there is no delete), role-based access (NM-2036 — one
+  automation user), and saving each of the 90 Service Type options (presence and order are
+  asserted; the first and last are saved). Listed with reasons in the test plan's out-of-scope
+  table. The NM-2258 list page keeps its DEEP seed list (column sorting, inactive rendering) in
+  SUBPLAN_PRODUCTS_DQU.md.
+- **No machine denominator for the Add page.** `enumerate-page.mjs` hangs on the 7,394-row catalog
+  (Phase 7); the inventory carries a disclosed census and fails the completion-record check on
+  purpose. Unlock: fix the enumerator, re-run the three states, replace the census under GIVER.
+- **The three findings are unfiled.** The post-save landing contradiction (NM-2043 / NM-2055 vs
+  the live app), description uniqueness, and sticky rejection toasts each need an owner or dev
+  ruling before a bug is raised; they sit in the inventory's Observations as BUG-CANDIDATE /
+  discussion items.
+- **`reports/walkthrough/` has no §2 row for BUILDER.** The spot-check log was written by OWNER at
+  close-out after the identity gate denied BUILDER; a governance fix to §2 is the durable answer.
+- **One branch per ticket, each run on its own — not started.** The owner's process update (push
+  NM-2258 and NM-2259 on separate branches and run each independently) waits for the owner's go
+  on branch names; both specs already run standalone (NM-2258: 7 cases in
+  `search-for-product-groups`; NM-2259: 23 cases in `create-new-product-groups`). TC-ISR-PGR-011
+  proves its save through the list page's search-back, a one-way dependency that stays inside
+  NM-2259.

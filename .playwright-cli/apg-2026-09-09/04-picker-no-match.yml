@@ -1,0 +1,193 @@
+- generic [ref=e1]:
+  - alert [ref=e18]
+  - generic [ref=e20]:
+    - generic [ref=e23]:
+      - list [ref=e25]:
+        - listitem [ref=e26]:
+          - button "1101 Corporate Office Encore USA SGA" [ref=e27] [cursor=pointer]:
+            - generic [ref=e29]: "1101"
+            - generic [ref=e30]:
+              - generic [ref=e31]: Corporate Office Encore USA SGA
+              - img [ref=e32]
+      - generic [ref=e38]:
+        - list [ref=e40]:
+          - listitem [ref=e41]:
+            - link "Home" [ref=e42] [cursor=pointer]:
+              - /url: /navigator/locations/1101/home
+              - img [ref=e43]
+              - generic [ref=e46]: Home
+          - listitem [ref=e47]:
+            - link "Inbox" [ref=e48] [cursor=pointer]:
+              - /url: /navigator/locations/1101/inbox
+              - img [ref=e49]
+              - generic [ref=e52]: Inbox
+          - listitem [ref=e53]:
+            - button "Actions" [ref=e54] [cursor=pointer]:
+              - img [ref=e55]
+              - generic [ref=e57]: Actions
+              - img [ref=e58]
+          - listitem [ref=e60]:
+            - button "Commissions" [ref=e61] [cursor=pointer]:
+              - img [ref=e62]
+              - generic [ref=e64]: Commissions
+              - img [ref=e65]
+          - listitem [ref=e67]:
+            - button "Tax" [ref=e68] [cursor=pointer]:
+              - img [ref=e69]
+              - generic [ref=e72]: Tax
+              - img [ref=e73]
+          - listitem [ref=e75]:
+            - button "Setup" [ref=e76] [cursor=pointer]:
+              - img [ref=e77]
+              - generic [ref=e80]: Setup
+              - img [ref=e81]
+          - listitem [ref=e83]:
+            - button "Warehouse" [ref=e84] [cursor=pointer]:
+              - img [ref=e85]
+              - generic [ref=e88]: Warehouse
+              - img [ref=e89]
+          - listitem [ref=e91]:
+            - button "Studio" [ref=e92] [cursor=pointer]:
+              - img [ref=e93]
+              - generic [ref=e95]: Studio
+              - img [ref=e96]
+        - generic [ref=e98]:
+          - generic [ref=e99]: Search
+          - list [ref=e101]:
+            - listitem [ref=e102]:
+              - link "Order Search" [ref=e103] [cursor=pointer]:
+                - /url: /navigator/locations/1101/orders
+                - img [ref=e104]
+                - generic [ref=e108]: Order Search
+            - listitem [ref=e109]:
+              - link "Job Search" [ref=e110] [cursor=pointer]:
+                - /url: /navigator/locations/1101/fulfillments
+                - img [ref=e111]
+                - generic [ref=e114]: Job Search
+            - listitem [ref=e115]:
+              - link "Asset Search" [ref=e116] [cursor=pointer]:
+                - /url: /navigator/locations/1101/assets
+                - img [ref=e117]
+                - generic [ref=e120]: Asset Search
+            - listitem [ref=e121]:
+              - link "Customer Search" [ref=e122] [cursor=pointer]:
+                - /url: /navigator/locations/1101/customers
+                - img [ref=e123]
+                - generic [ref=e126]: Customer Search
+            - listitem [ref=e127]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e128]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e129]:
+              - link "Package Search" [ref=e130] [cursor=pointer]:
+                - /url: /navigator/locations/1101/packages
+                - img [ref=e131]
+                - generic [ref=e135]: Package Search
+            - listitem [ref=e136]:
+              - link "Item Search" [ref=e137] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+                - img [ref=e138]
+                - generic [ref=e148]: Item Search
+            - listitem [ref=e149]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e150]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e152]:
+          - listitem [ref=e153]:
+            - button "Ask Encore" [ref=e154] [cursor=pointer]:
+              - img [ref=e155]
+              - generic [ref=e157]: Ask Encore
+      - list [ref=e160]:
+        - listitem [ref=e161]:
+          - button "PC prd click auto" [ref=e162] [cursor=pointer]:
+            - generic [ref=e164]: PC
+            - generic [ref=e166]: prd click auto
+            - img [ref=e167]
+      - button "Click to restore sidebar" [ref=e171]
+    - main [ref=e173]:
+      - generic [ref=e174]:
+        - generic [ref=e176]:
+          - button "trigger-button" [ref=e177] [cursor=pointer]:
+            - img
+          - generic [ref=e179]:
+            - generic [ref=e180]:
+              - link "Products" [ref=e181] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+              - img [ref=e182]
+            - generic [ref=e184]:
+              - link "Product Groups" [ref=e185] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products/product-groups
+              - img [ref=e186]
+            - heading "Add" [level=1] [ref=e189]
+        - generic [ref=e191]:
+          - generic [ref=e197]:
+            - generic [ref=e199]: SUB-CLASS
+            - generic [ref=e200]:
+              - generic [ref=e201]:
+                - img [ref=e203]
+                - textbox "Search" [active] [ref=e206]: zzzzqqq
+                - button [ref=e15341] [cursor=pointer]:
+                  - img
+              - combobox [ref=e207] [cursor=pointer]:
+                - generic: Ascending
+                - img
+              - combobox [ref=e208]
+              - generic [ref=e209]:
+                - generic [ref=e210]:
+                  - checkbox [ref=e211] [cursor=pointer]
+                  - checkbox
+                  - generic [ref=e212]: Labor
+                - button "Reset" [ref=e213] [cursor=pointer]
+          - button "Collapse search panel" [ref=e15008] [cursor=pointer]:
+            - img
+          - generic [ref=e15010]:
+            - generic [ref=e15011]:
+              - button "Cancel" [ref=e15012] [cursor=pointer]:
+                - generic [ref=e15013]: Cancel
+              - button "Save" [disabled]:
+                - generic: Save
+            - generic [ref=e15014]:
+              - generic [ref=e15015]:
+                - generic [ref=e15016]: Name
+                - generic [ref=e15017]: "*"
+              - textbox "Enter Product Group Name" [ref=e15022]
+            - generic [ref=e15023]:
+              - generic [ref=e15024]:
+                - generic [ref=e15025]: Description
+                - generic [ref=e15026]: "*"
+              - textbox "Product Group Description" [ref=e15030]:
+                - /placeholder: Enter Product Group Description
+            - generic [ref=e15032]:
+              - generic [ref=e15033]:
+                - generic [ref=e15034]:
+                  - generic [ref=e15035]: Service Type
+                  - generic [ref=e15036]: "*"
+                - generic [ref=e15039]:
+                  - combobox [ref=e15040] [cursor=pointer]:
+                    - generic: Service Type
+                    - img
+                  - combobox [ref=e15041]
+              - generic [ref=e15043]:
+                - definition [ref=e15044]:
+                  - generic [ref=e15045]:
+                    - checkbox [checked] [ref=e15046] [cursor=pointer]:
+                      - generic:
+                        - img
+                    - checkbox [checked]
+                - term [ref=e15047]: Active
+            - generic [ref=e15048]:
+              - generic [ref=e15049]:
+                - generic [ref=e15050]: Sub Classes
+                - generic [ref=e15051]: "*"
+              - generic [ref=e15055]:
+                - img [ref=e15056]
+                - generic [ref=e15057]: Drag or double‑click items from the left to add sub‑classes
+  - region "Notifications alt+T"

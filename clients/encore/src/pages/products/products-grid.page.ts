@@ -4,7 +4,7 @@ import { BasePage } from '../base.page';
 import { IConfig } from '../../types';
 
 /**
- * Shared grid mechanics for the two Item Search grids (Products and Product Groups).
+ * Shared grid mechanics for the two Products-area grids (Products and Product Groups).
  * Both pages render the same archetype: a skeleton-hydrated result grid with a
  * "N ... found" count label, per-column header menus, and the same pagination cluster.
  *
@@ -12,7 +12,7 @@ import { IConfig } from '../../types';
  * their chrome (and, mid-reload, their previous rows) while loading, so a row count
  * is never a ready signal.
  */
-export abstract class ItemSearchGridBasePage extends BasePage {
+export abstract class ProductsGridBasePage extends BasePage {
   /** Ceiling for a cold hydration (~20s measured; the ceiling covers a slow evening). */
   protected static readonly HYDRATION_TIMEOUT = 120_000;
 
@@ -25,8 +25,8 @@ export abstract class ItemSearchGridBasePage extends BasePage {
 
   /** Waits until every loading placeholder is gone, then for the framework to go quiet. */
   @step('Wait for the page to finish loading')
-  async waitForNoSkeletons(timeout: number = ItemSearchGridBasePage.HYDRATION_TIMEOUT): Promise<void> {
-    await expect(this.page.locator(ItemSearchGridBasePage.SKELETON)).toHaveCount(0, { timeout });
+  async waitForNoSkeletons(timeout: number = ProductsGridBasePage.HYDRATION_TIMEOUT): Promise<void> {
+    await expect(this.page.locator(ProductsGridBasePage.SKELETON)).toHaveCount(0, { timeout });
     await this.waitForAngularStable();
   }
 
@@ -103,7 +103,7 @@ export abstract class ItemSearchGridBasePage extends BasePage {
   protected async waitForCount(
     pattern: RegExp,
     predicate: (n: number | null) => boolean,
-    timeout: number = ItemSearchGridBasePage.HYDRATION_TIMEOUT,
+    timeout: number = ProductsGridBasePage.HYDRATION_TIMEOUT,
   ): Promise<number | null> {
     let latest: number | null = null;
     await expect

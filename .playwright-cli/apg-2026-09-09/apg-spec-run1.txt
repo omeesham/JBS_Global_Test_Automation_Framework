@@ -1,0 +1,421 @@
+2026-09-09 11:10:52 [8084] INFO  AutomationFramework - === Global Test Setup Started ===
+2026-09-09 11:10:52 [8084] INFO  AutomationFramework - Workers: 1
+2026-09-09 11:10:52 [8084] INFO  AutomationFramework - Projects: 4
+2026-09-09 11:10:52 [8084] INFO  AutomationFramework - Created report directory: reports/test-results
+2026-09-09 11:10:54 [8084] INFO  AutomationFramework - Loading credentials from env source
+2026-09-09 11:10:54 [8084] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-09-09 11:10:54 [8084] INFO  AutomationFramework - === Global Test Setup Completed ===
+
+Running 23 tests using 1 worker
+
+[auth.setup] existing state stale -> refresh under lock
+2026-09-09 11:11:05 [20160] INFO  AutomationFramework - Loading credentials from env source
+2026-09-09 11:11:05 [20160] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-09-09 11:11:11 [20160] INFO  AutomationFramework - LoginPage constructed for Navigator Cloud
+2026-09-09 11:11:11 [20160] INFO  AutomationFramework - Starting Microsoft SSO login for s-prd-clickauto@psav.com
+2026-09-09 11:11:11 [20160] INFO  AutomationFramework - Waiting for Navigator Cloud sign-in page...
+2026-09-09 11:11:12 [20160] INFO  AutomationFramework - [OK] Clicked "Continue Now" on Navigator Cloud sign-in page
+2026-09-09 11:11:12 [20160] INFO  AutomationFramework - Waiting for Microsoft login page...
+2026-09-09 11:11:16 [20160] INFO  AutomationFramework - [OK] Microsoft login page loaded
+2026-09-09 11:11:16 [20160] INFO  AutomationFramework - Entering email...
+2026-09-09 11:11:16 [20160] INFO  AutomationFramework - Waiting for password field...
+2026-09-09 11:11:16 [20160] INFO  AutomationFramework - Entering password...
+2026-09-09 11:11:18 [20160] INFO  AutomationFramework - "Stay signed in?" prompt detected, clicking Yes...
+2026-09-09 11:11:19 [20160] INFO  AutomationFramework - [OK] "Stay signed in" accepted
+2026-09-09 11:11:19 [20160] INFO  AutomationFramework - Waiting for redirect to Navigator Cloud...
+2026-09-09 11:11:24 [20160] INFO  AutomationFramework - [wait] Waiting for domcontentloaded after redirect...
+2026-09-09 11:11:24 [20160] INFO  AutomationFramework - [wait] Waiting for full page load...
+2026-09-09 11:11:24 [20160] INFO  AutomationFramework - [OK] Page load complete after redirect
+2026-09-09 11:11:26 [20160] INFO  AutomationFramework - Authentication check: [OK] Authenticated -- URL: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/home
+2026-09-09 11:11:26 [20160] INFO  AutomationFramework - [OK] Microsoft SSO login successful
+[auth.setup] login succeeded on attempt 1/3
+[auth.setup] state saved -> C:\Encore Framework\clients\encore\.auth\encore-state.json
+[auth.setup] state file validates -> session+csrf cookies present, not expired
+  ok  1 [setup] › tests\auth.setup.ts:25:6 › acquire shared auth state (31.9s)
+2026-09-09 11:11:28 [27520] INFO  AutomationFramework - Loading credentials from env source
+2026-09-09 11:11:29 [27520] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-09-09 11:11:36 [27520] INFO  AutomationFramework - [OK] Authenticated session ready via shared storageState
+2026-09-09 11:11:36 [27520] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+2026-09-09 11:11:37 [27520] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+  ok  2 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:53:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-006: The Add page opens with a held-back Save (8.5s)
+  ok  3 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:68:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-007: The sub-class picker shows its two panels (3.5s)
+  ok  4 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:82:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-008: Cancel leaves the Add page without saving (6.7s)
+  ok  5 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:94:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-011: A completed Add page saves and the new group is found again (13.1s)
+  x   6 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:122:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-012: Name accepts exactly 50 characters and drops the rest silently (7.3s)
+2026-09-09 11:12:16 [9180] INFO  AutomationFramework - Loading credentials from env source
+2026-09-09 11:12:16 [9180] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-09-09 11:12:25 [9180] INFO  AutomationFramework - [OK] Authenticated session ready via shared storageState
+2026-09-09 11:12:25 [9180] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+2026-09-09 11:12:25 [9180] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+  x   7 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:122:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-012: Name accepts exactly 50 characters and drops the rest silently (retry #1) (11.2s)
+2026-09-09 11:12:37 [7264] INFO  AutomationFramework - Loading credentials from env source
+2026-09-09 11:12:37 [7264] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-09-09 11:12:46 [7264] INFO  AutomationFramework - [OK] Authenticated session ready via shared storageState
+2026-09-09 11:12:46 [7264] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+2026-09-09 11:12:46 [7264] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+  x   8 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:140:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-013: Description accepts exactly 100 characters and drops the rest silently (7.4s)
+2026-09-09 11:12:54 [23576] INFO  AutomationFramework - Loading credentials from env source
+2026-09-09 11:12:54 [23576] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-09-09 11:13:02 [23576] INFO  AutomationFramework - [OK] Authenticated session ready via shared storageState
+2026-09-09 11:13:02 [23576] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+2026-09-09 11:13:02 [23576] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+  x   9 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:140:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-013: Description accepts exactly 100 characters and drops the rest silently (retry #1) (8.3s)
+2026-09-09 11:13:11 [21420] INFO  AutomationFramework - Loading credentials from env source
+2026-09-09 11:13:11 [21420] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-09-09 11:13:19 [21420] INFO  AutomationFramework - [OK] Authenticated session ready via shared storageState
+2026-09-09 11:13:19 [21420] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+2026-09-09 11:13:20 [21420] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+  ok 10 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:154:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-014: Clearing a filled Name by either method holds Save back and marks the box invalid (16.7s)
+  ok 11 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:177:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-015: A whitespace-only Name counts as empty; a padded Name is accepted (8.7s)
+  ok 12 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:191:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-016: Every required field gates Save, and Active does not (9.7s)
+  x  13 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:221:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-017: The Service Type list offers its 90 options with no search box, and first, middle and last all select (14.8s)
+2026-09-09 11:14:10 [26836] INFO  AutomationFramework - Loading credentials from env source
+2026-09-09 11:14:10 [26836] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-09-09 11:14:15 [26836] INFO  AutomationFramework - [OK] Authenticated session ready via shared storageState
+2026-09-09 11:14:15 [26836] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+2026-09-09 11:14:16 [26836] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+  x  14 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:221:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-017: The Service Type list offers its 90 options with no search box, and first, middle and last all select (retry #1) (18.4s)
+2026-09-09 11:14:35 [13520] INFO  AutomationFramework - Loading credentials from env source
+2026-09-09 11:14:35 [13520] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-09-09 11:14:42 [13520] INFO  AutomationFramework - [OK] Authenticated session ready via shared storageState
+2026-09-09 11:14:42 [13520] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+2026-09-09 11:14:43 [13520] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+  ok 15 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:238:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-018: A name already used by another group is rejected, with or without a trailing space (16.8s)
+  x  16 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:256:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-019: A description already used by another group is rejected even with a new name (8.3s)
+2026-09-09 11:15:08 [26668] INFO  AutomationFramework - Loading credentials from env source
+2026-09-09 11:15:08 [26668] INFO  AutomationFramework - [OK] Credentials loaded for: s-prd-clickauto@psav.com
+2026-09-09 11:15:16 [26668] INFO  AutomationFramework - [OK] Authenticated session ready via shared storageState
+2026-09-09 11:15:16 [26668] INFO  AutomationFramework - Navigating to: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+2026-09-09 11:15:16 [26668] INFO  AutomationFramework - [OK] Navigation successful: https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups
+  ok 17 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:256:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-019: A description already used by another group is rejected even with a new name (retry #1) (12.4s)
+  ok 18 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:268:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-020: The picker search filters the catalog by substring regardless of case and empties on no match (4.7s)
+  ok 19 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:291:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-021: The Labor filter narrows the catalog and unchecking restores it (4.4s)
+  ok 20 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:307:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-022: Sort order flips the catalog between ascending and descending (4.8s)
+  ok 21 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:325:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-023: Reset clears the picker's search, filter and sort but keeps an added sub-class (4.2s)
+  ok 22 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:346:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-024: Double-click adds an item once and the × control removes it (3.7s)
+  ok 23 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:365:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-025: Dragging an item onto the Sub Classes area adds it (3.4s)
+  ok 24 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:376:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-026: The divider button collapses and expands the sub-class panel (3.4s)
+  ok 25 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:391:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-027: A group saved with Active cleared is created inactive and found with the list's Active filter cleared (14.0s)
+  ok 26 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:419:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-028: Special characters in the name are stored verbatim and the last Service Type saves (13.1s)
+  ok 27 [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:437:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-029: Browser Back leaves the Add page without saving or warning (5.4s)
+
+
+  1) [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:122:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-012: Name accepts exactly 50 characters and drops the rest silently 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"[39m
+    Received: [31m"X"[39m
+
+      128 |     // The 51st keystroke is dropped, with no message and no invalid mark.
+      129 |     await pgr.typeAddName('X');
+    > 130 |     expect(await pgr.readAddName()).toBe('N'.repeat(max));
+          |                                     ^
+      131 |     expect(await pgr.isAddNameInvalid()).toBe(false);
+      132 |     // A paste longer than the cap is cut to the cap.
+      133 |     await pgr.pasteAddName('P'.repeat(max + 10));
+        at C:\Encore Framework\clients\encore\tests\create-new-product-groups\create-new-product-groups.spec.ts:130:37
+
+    Error: browserContext._wrapApiCall: Must start tracing before stopping
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium\attachments\screenshot-ef25528a2f2a036db5bccd3f1282588532b67847.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium\attachments\trace-6bc14773c0807c5978ab64581b2020716a62cfc1.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium\attachments\trace-6bc14773c0807c5978ab64581b2020716a62cfc1.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"[39m
+    Received: [31m"X"[39m
+
+      128 |     // The 51st keystroke is dropped, with no message and no invalid mark.
+      129 |     await pgr.typeAddName('X');
+    > 130 |     expect(await pgr.readAddName()).toBe('N'.repeat(max));
+          |                                     ^
+      131 |     expect(await pgr.isAddNameInvalid()).toBe(false);
+      132 |     // A paste longer than the cap is cut to the cap.
+      133 |     await pgr.pasteAddName('P'.repeat(max + 10));
+        at C:\Encore Framework\clients\encore\tests\create-new-product-groups\create-new-product-groups.spec.ts:130:37
+
+    Error: browserContext._wrapApiCall: Must start tracing before stopping
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium-retry1\attachments\screenshot-b6f4306ad9fdfa61eecee6a10597e44f56aa753e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium-retry1\attachments\trace-ac948011e002f321f2e133900cb8596cf5dd8a14.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium-retry1\attachments\trace-ac948011e002f321f2e133900cb8596cf5dd8a14.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-1f793-and-drops-the-rest-silently-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:140:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-013: Description accepts exactly 100 characters and drops the rest silently 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"[39m
+    Received: [31m"Y"[39m
+
+      147 |     await pgr.addDescriptionBox().press('End');
+      148 |     await pgr.typeAddDescription('Y');
+    > 149 |     expect(await pgr.readAddDescription()).toBe('D'.repeat(max));
+          |                                            ^
+      150 |     expect(await pgr.tabOutOfBox('description')).toBe(true);
+      151 |     await pgr.clickAddCancel();
+      152 |   });
+        at C:\Encore Framework\clients\encore\tests\create-new-product-groups\create-new-product-groups.spec.ts:149:44
+
+    Error: browserContext._wrapApiCall: Must start tracing before stopping
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium\attachments\screenshot-a4741f563ee0563168dc1294523deff39d09c2fc.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium\attachments\trace-b28cf0d9e321d3980fa4ac8e7304ea3194ae16c5.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium\attachments\trace-b28cf0d9e321d3980fa4ac8e7304ea3194ae16c5.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"[39m
+    Received: [31m"Y"[39m
+
+      147 |     await pgr.addDescriptionBox().press('End');
+      148 |     await pgr.typeAddDescription('Y');
+    > 149 |     expect(await pgr.readAddDescription()).toBe('D'.repeat(max));
+          |                                            ^
+      150 |     expect(await pgr.tabOutOfBox('description')).toBe(true);
+      151 |     await pgr.clickAddCancel();
+      152 |   });
+        at C:\Encore Framework\clients\encore\tests\create-new-product-groups\create-new-product-groups.spec.ts:149:44
+
+    Error: browserContext._wrapApiCall: Must start tracing before stopping
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium-retry1\attachments\screenshot-8ce86e771a91e997c0f0f6e3319f4080aa854462.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium-retry1\attachments\trace-275102e565ccd4fc97c71e6cccbaaa3961eb4ef8.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium-retry1\attachments\trace-275102e565ccd4fc97c71e6cccbaaa3961eb4ef8.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-254bb-and-drops-the-rest-silently-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:221:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-017: The Service Type list offers its 90 options with no search box, and first, middle and last all select 
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button[role="combobox"]').filter({ hasText: 'Service Type' }).first()[22m
+
+
+       at src\pages\product-groups\product-groups.page.ts:200
+
+      198 |   @step('Choose a Service Type')
+      199 |   async selectServiceType(name: string): Promise<void> {
+    > 200 |     await this.serviceTypeCombo().click();
+          |                                   ^
+      201 |     const listbox = this.page.locator('[role="listbox"]');
+      202 |     await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+      203 |     await this.page.getByRole('option', { name, exact: true }).click();
+        at ProductGroupsPage.apply (C:\Encore Framework\clients\encore\src\pages\product-groups\product-groups.page.ts:200:35)
+        at C:\Encore Framework\clients\encore\src\fixtures\step-decorator.ts:33:60
+        at ProductGroupsPage.<anonymous> (C:\Encore Framework\clients\encore\src\fixtures\step-decorator.ts:33:16)
+        at C:\Encore Framework\clients\encore\tests\create-new-product-groups\create-new-product-groups.spec.ts:233:5
+
+    Error: browserContext._wrapApiCall: Must start tracing before stopping
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium\attachments\screenshot-b1cad2885ce16273964ad646ffbd36c4c2f274aa.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium\attachments\trace-6c7fde86d835de2afa4dae955e57bba5ae60ea58.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium\attachments\trace-6c7fde86d835de2afa4dae955e57bba5ae60ea58.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    TimeoutError: locator.click: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button[role="combobox"]').filter({ hasText: 'Service Type' }).first()[22m
+
+
+       at src\pages\product-groups\product-groups.page.ts:200
+
+      198 |   @step('Choose a Service Type')
+      199 |   async selectServiceType(name: string): Promise<void> {
+    > 200 |     await this.serviceTypeCombo().click();
+          |                                   ^
+      201 |     const listbox = this.page.locator('[role="listbox"]');
+      202 |     await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+      203 |     await this.page.getByRole('option', { name, exact: true }).click();
+        at ProductGroupsPage.apply (C:\Encore Framework\clients\encore\src\pages\product-groups\product-groups.page.ts:200:35)
+        at C:\Encore Framework\clients\encore\src\fixtures\step-decorator.ts:33:60
+        at ProductGroupsPage.<anonymous> (C:\Encore Framework\clients\encore\src\fixtures\step-decorator.ts:33:16)
+        at C:\Encore Framework\clients\encore\tests\create-new-product-groups\create-new-product-groups.spec.ts:233:5
+
+    Error: browserContext._wrapApiCall: Must start tracing before stopping
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium-retry1\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium-retry1\attachments\screenshot-563fee28ea5d93ad68854806a643693a0a7df74d.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium-retry1\attachments\trace-0f881537d11b696be7850dd42929e42ea3d4c82c.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium-retry1\attachments\trace-0f881537d11b696be7850dd42929e42ea3d4c82c.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium-retry1\trace.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-e94aa--middle-and-last-all-select-chromium-retry1\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:256:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-019: A description already used by another group is rejected even with a new name 
+
+    Error: locator.waitFor: Error: strict mode violation: locator('[data-sonner-toast]').filter({ hasText: /already exists\.$/ }) resolved to 2 elements:
+        1) <li tabindex="0" class="!pr-12" data-index="0" data-front="true" data-type="error" data-styled="true" data-mounted="true" data-swiped="false" data-visible="true" data-sonner-toast="" data-promise="false" data-removed="false" data-swiping="false" data-expanded="false" data-swipe-out="false" data-x-position="right" data-dismissible="true" data-y-position="bottom">…</li> aka getByRole('listitem').filter({ hasText: 'Product group name \'ZZ E2E' }).first()
+        2) <li tabindex="0" class="!pr-12" data-index="1" data-type="error" data-styled="true" data-front="false" data-mounted="true" data-swiped="false" data-visible="true" data-sonner-toast="" data-promise="false" data-removed="false" data-swiping="false" data-expanded="false" data-swipe-out="false" data-x-position="right" data-dismissible="true" data-y-position="bottom">…</li> aka getByRole('listitem').filter({ hasText: 'Product group name \'ZZ E2E' }).nth(1)
+
+    Call log:
+    [2m  - waiting for locator('[data-sonner-toast]').filter({ hasText: /already exists\.$/ }) to be visible[22m
+
+
+       at src\pages\product-groups\product-groups.page.ts:263
+
+      261 |     const toast = this.page.locator(S.TOAST).filter({ hasText: S.TOAST_ALREADY_EXISTS });
+      262 |     await this.addSaveButton().click();
+    > 263 |     await toast.waitFor({ state: 'visible', timeout: 20_000 });
+          |                 ^
+      264 |     const text = (await toast.innerText()).replace(/\s+/g, ' ').trim();
+      265 |     await expect(this.addNameBox(), 'the form should still be open after a rejected save').toBeVisible();
+      266 |     return text;
+        at ProductGroupsPage.saveExpectingRejection (C:\Encore Framework\clients\encore\src\pages\product-groups\product-groups.page.ts:263:17)
+        at ProductGroupsPage.<anonymous> (C:\Encore Framework\clients\encore\src\fixtures\step-decorator.ts:33:16)
+        at C:\Encore Framework\clients\encore\tests\create-new-product-groups\create-new-product-groups.spec.ts:262:12
+
+    Error: browserContext._wrapApiCall: Must start tracing before stopping
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-f2fb1-jected-even-with-a-new-name-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-f2fb1-jected-even-with-a-new-name-chromium\attachments\screenshot-447319815ad2299f16e38a32b0714116c6898a53.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-f2fb1-jected-even-with-a-new-name-chromium\attachments\trace-3082c7fb899de96d7c543079b59cede18f8fca4b.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-f2fb1-jected-even-with-a-new-name-chromium\attachments\trace-3082c7fb899de96d7c543079b59cede18f8fca4b.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    reports\test-results\tests-create-new-product-g-f2fb1-jected-even-with-a-new-name-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace reports\test-results\tests-create-new-product-g-f2fb1-jected-even-with-a-new-name-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:122:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-012: Name accepts exactly 50 characters and drops the rest silently 
+    [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:140:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-013: Description accepts exactly 100 characters and drops the rest silently 
+    [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:221:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-017: The Service Type list offers its 90 options with no search box, and first, middle and last all select 
+  1 flaky
+    [chromium] › tests\create-new-product-groups\create-new-product-groups.spec.ts:256:7 › Item Search Add Product Group page — fields and create @item-search @product-groups › TC-ISR-PGR-019: A description already used by another group is rejected even with a new name 
+  19 passed (5.6m)
+exit=1

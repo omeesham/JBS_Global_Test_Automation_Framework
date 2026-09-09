@@ -94,6 +94,13 @@ export const MODULE_CONFIG = {
       { label: 'dialog:add-group' },
     ],
   },
+  'item-search-add-product-group': {
+    requiredStates: [
+      { label: 'resting' },
+      { label: 'expand:service-type' },
+      { label: 'expand:sort-order' },
+    ],
+  },
   'corporate-override': {
     requiredStates: [
       { label: 'resting' },

@@ -235,6 +235,19 @@ export const MODULE_CONFIG = {
     excludeOptionRoles: true,
     ...MC_DATA['item-search-product-groups'],
   },
+  'item-search-add-product-group': {
+    // The Add Product Group PAGE (a route, not a dialog — the list module's 'dialog:add-group'
+    // branch snapshots before the route change, so this surface carries its own config).
+    path: (office) => `${BASE}/locations/${office}/products/product-groups/add`,
+    // Form section heading unique to the Add page; the list page never renders it.
+    contentMarker: 'text=Sub Classes',
+    openerTestidPatterns: [],
+    openerRoleTextPatterns: [
+      { role: 'combobox', text: 'Service Type', branch: 'expand:service-type' },
+      { role: 'combobox', text: 'Ascending',    branch: 'expand:sort-order' },
+    ],
+    ...MC_DATA['item-search-add-product-group'],
+  },
   // Product Code dialogs (NM-2253 PCD sub-surface) — same products URL, but the View/Add Product
   // Code dialogs need search → row-select before their toolbar openers enable. Reached via the
   // preSteps mechanism (added 2026-09-01, closing the "one-click branch reach" gap the item-search

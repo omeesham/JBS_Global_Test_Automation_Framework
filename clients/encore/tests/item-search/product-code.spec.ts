@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/fixtures/pages.fixture';
-import { ProductCodePage } from '../../src/pages/item-search/product-code.page';
+import { ProductCodePage } from '../../src/pages/products/product-code.page';
 import {
   ISR_OFFICE,
   ISR_SEARCH_WORD,
@@ -7,7 +7,7 @@ import {
   ISR_SEGMENTS,
   ISR_TRANSLATION_LANGUAGES,
   ISR_HISTORY_COLUMN_SAMPLES,
-} from '../../src/data/item-search/item-search';
+} from '../../src/data/products/products';
 
 /**
  * Item Search — Product Code dialogs (NM-2253): the row-selection toolbar and the

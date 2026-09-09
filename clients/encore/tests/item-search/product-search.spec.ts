@@ -1,7 +1,7 @@
 import { test, expect } from '../../src/fixtures/pages.fixture';
-import { ItemSearchPage } from '../../src/pages/item-search/item-search.page';
+import { ProductsPage } from '../../src/pages/products/products.page';
 import { ProductGroupsPage } from '../../src/pages/product-groups/product-groups.page';
-import { ProductCodePage } from '../../src/pages/item-search/product-code.page';
+import { ProductCodePage } from '../../src/pages/products/product-code.page';
 import {
   ISR_OFFICE,
   ISR_REGION_PLACEHOLDER,
@@ -25,7 +25,7 @@ import {
   ISR_TOOLTIP_INFO,
   ISR_TOOLTIP_COLLAPSE,
   ISR_TOOLTIP_GRID_OPTIONS,
-} from '../../src/data/item-search/item-search';
+} from '../../src/data/products/products';
 
 /**
  * Item Search — Products page (NM-3650), office 1101 (admin-only surface).
@@ -56,10 +56,10 @@ const isNonDescending = (values: string[]): boolean =>
 // ---------------------------------------------------------------------------- surface cases
 
 test.describe('SBC — Item Search Products surface behaviors @item-search @product-search', () => {
-  let isr: ItemSearchPage;
+  let isr: ProductsPage;
 
   test.beforeEach(async ({ authenticatedSession, config }) => {
-    isr = new ItemSearchPage(authenticatedSession.page, config);
+    isr = new ProductsPage(authenticatedSession.page, config);
     await isr.ensureCleanSearch(ISR_OFFICE);
   });
 
@@ -290,10 +290,10 @@ test.describe('SBC — Item Search Products surface behaviors @item-search @prod
 // ---------------------------------------------------------------------------- field cases
 
 test.describe('Item Search Products search panel — fields @item-search @product-search', () => {
-  let isr: ItemSearchPage;
+  let isr: ProductsPage;
 
   test.beforeEach(async ({ authenticatedSession, config }) => {
-    isr = new ItemSearchPage(authenticatedSession.page, config);
+    isr = new ProductsPage(authenticatedSession.page, config);
     await isr.ensureCleanSearch(ISR_OFFICE);
   });
 

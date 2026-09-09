@@ -1,13 +1,13 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { step } from '../../fixtures/step-decorator';
-import { ItemSearchGridBasePage } from './item-search-grid.page';
+import { ProductsGridBasePage } from './products-grid.page';
 import { Log } from '../../utils/logger';
 import { IConfig } from '../../types';
-import { itemSearchProducts as S } from '../../selectors/item-search/products';
-import { ISR_OFFICE, ISR_ROUTE } from '../../data/item-search/item-search';
+import { itemSearchProducts as S } from '../../selectors/products/products';
+import { ISR_OFFICE, ISR_ROUTE } from '../../data/products/products';
 
 /**
- * Products (Item Search) page — search panel + 13-column result grid, office 1101.
+ * Products page — search panel + 13-column result grid, office 1101.
  *
  * Two behaviors shape every helper here (both proven live 2026-08-31):
  *  - Results load ONLY on Search; Reset empties the grid to "0 products found" until the
@@ -17,13 +17,13 @@ import { ISR_OFFICE, ISR_ROUTE } from '../../data/item-search/item-search';
  *  - The page hydrates in stages behind skeleton placeholders (~20s cold, ~11s for an
  *    unfiltered search); readiness is always the placeholder census reaching zero.
  */
-export class ItemSearchPage extends ItemSearchGridBasePage {
+export class ProductsPage extends ProductsGridBasePage {
   /** The count label this grid renders after any Search or Reset. */
   protected static readonly COUNT_PATTERN = /([\d,]+)\s+products?\s+found/;
 
   constructor(page: Page, config?: IConfig) {
     super(page, config);
-    Log.info('ItemSearchPage initialized');
+    Log.info('ProductsPage initialized');
   }
 
   // ---------------------------------------------------------------- navigation & readiness
@@ -129,21 +129,21 @@ export class ItemSearchPage extends ItemSearchGridBasePage {
   async clickSearchAndWait(predicate: (n: number | null) => boolean = (n) => n !== null): Promise<number | null> {
     await this.page.locator(S.btnSearch).click();
     await this.waitForNoSkeletons();
-    return this.waitForCount(ItemSearchPage.COUNT_PATTERN, predicate);
+    return this.waitForCount(ProductsPage.COUNT_PATTERN, predicate);
   }
 
   /** Clicks Reset and waits for the documented settled state: zero found, no rows. */
   @step('Reset the search criteria')
   async clickReset(): Promise<void> {
     await this.page.locator(S.btnReset).click();
-    await this.waitForCount(ItemSearchPage.COUNT_PATTERN, (n) => n === 0);
+    await this.waitForCount(ProductsPage.COUNT_PATTERN, (n) => n === 0);
     await expect(this.page.locator('tbody tr')).toHaveCount(0, { timeout: 15_000 });
   }
 
   /** The number in the "N products found" label, or null while none is rendered. */
   @step('Read the products count')
   async readFoundCount(): Promise<number | null> {
-    return this.readCountByPattern(ItemSearchPage.COUNT_PATTERN);
+    return this.readCountByPattern(ProductsPage.COUNT_PATTERN);
   }
 
   // ---------------------------------------------------------------- location & region

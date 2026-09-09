@@ -1,5 +1,5 @@
 /**
- * Test data for the Item Search module (NM-2253): the Products search page and the
+ * Test data for the Products pages: the Products search page, its filters, and the
  * product-code dialogs behind its row toolbar. The Product Groups pages carry their own
  * data module at `data/product-groups/product-groups.ts`.
  *
