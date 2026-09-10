@@ -1,0 +1,459 @@
+- generic:
+  - alert
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic: "1101"
+                    - generic:
+                      - generic: Corporate Office Encore USA SGA
+                      - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - list:
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1101/home
+                            - img
+                            - generic: Home
+                        - listitem:
+                          - link:
+                            - /url: /navigator/locations/1101/inbox
+                            - img
+                            - generic: Inbox
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Actions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Commissions
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Tax
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Setup
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Warehouse
+                            - img
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Studio
+                            - img
+                    - generic:
+                      - generic: Search
+                      - generic:
+                        - list:
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/orders
+                              - img
+                              - generic: Order Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/fulfillments
+                              - img
+                              - generic: Job Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/assets
+                              - img
+                              - generic: Asset Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/customers
+                              - img
+                              - generic: Customer Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: DRO Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Payment Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/packages
+                              - img
+                              - generic: Package Search
+                          - listitem:
+                            - link:
+                              - /url: /navigator/locations/1101/products
+                              - img
+                              - generic: Item Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: ECT Search
+                          - listitem:
+                            - button [disabled]:
+                              - img
+                              - generic: Event Agendas
+                    - generic:
+                      - list:
+                        - listitem:
+                          - button:
+                            - img
+                            - generic: Ask Encore
+            - generic:
+              - generic:
+                - list:
+                  - listitem:
+                    - button:
+                      - generic:
+                        - generic: PC
+                      - generic:
+                        - generic: prd click auto
+                      - img
+            - button
+      - generic:
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - link:
+                        - /url: /navigator/locations/1101/products
+                        - text: Products
+                      - img
+                    - generic:
+                      - heading [level=1]: Product Groups
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - img
+                                      - text: Product Groups
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - generic:
+                                          - img
+                                        - textbox:
+                                          - /placeholder: Search Product Groups...
+                                          - text: ZZ E2E
+                                        - generic:
+                                          - button:
+                                            - img
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - img
+                                      - text: Status
+                                  - generic:
+                                    - generic:
+                                      - checkbox [checked]:
+                                        - generic:
+                                          - img
+                                      - checkbox [checked]
+                                      - generic: Active
+                              - generic:
+                                - button:
+                                  - generic: Reset
+                                - button:
+                                  - generic: Search
+                - generic:
+                  - button:
+                    - img
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img
+                        - generic: 22 product groups found
+                      - generic:
+                        - button:
+                          - img
+                          - text: Add
+                        - generic:
+                          - button:
+                            - img
+                            - generic: Grid Options
+                    - generic:
+                      - generic:
+                        - table:
+                          - rowgroup:
+                            - row:
+                              - columnheader:
+                                - generic:
+                                  - img
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: Name
+                                        - img
+                                - button
+                              - columnheader:
+                                - generic:
+                                  - img
+                                  - generic:
+                                    - generic:
+                                      - button [expanded]:
+                                        - generic: Description
+                                        - img
+                                - button
+                              - columnheader:
+                                - generic:
+                                  - img
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: Service Type
+                                        - img
+                                - button
+                              - columnheader:
+                                - generic:
+                                  - img
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: Status
+                                - button
+                          - rowgroup:
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788335968232
+                              - cell:
+                                - generic: Automated group create check 1788335968232
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788338845188
+                              - cell:
+                                - generic: Automated group create check 1788338845188
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788339195243
+                              - cell:
+                                - generic: Automated group create check 1788339195243
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788342240855
+                              - cell:
+                                - generic: Automated group create check 1788342240855
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788362772142
+                              - cell:
+                                - generic: Automated group create check 1788362772142
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788373877914
+                              - cell:
+                                - generic: Automated group create check 1788373877914
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788432444604
+                              - cell:
+                                - generic: Automated group create check 1788432444604
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788515364804
+                              - cell:
+                                - generic: Automated group create check 1788515364804
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788866967870
+                              - cell:
+                                - generic: Automated group create check 1788866967870
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788867208999
+                              - cell:
+                                - generic: Automated group create check 1788867208999
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788888713924
+                              - cell:
+                                - generic: Automated group create check 1788888713924
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788952315502
+                              - cell:
+                                - generic: Automated group create check 1788952315502
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788953221887
+                              - cell:
+                                - generic: Automated group create check 1788953221887
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788953578867
+                              - cell:
+                                - generic: Automated group create check 1788953578867
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 1788954373278
+                              - cell:
+                                - generic: Automated group create check 1788954373278
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Group 20260902-124908
+                              - cell:
+                                - generic: Automated group save-flow 20260902-124908
+                              - cell:
+                                - generic: Equipment Rental
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Special <b>&'"</b> 1788952571507
+                              - cell:
+                                - generic: Automated special-character group 1788952571507
+                              - cell:
+                                - generic: ZSub Rental Specialty
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Special <b>&'"</b> 1788953345717
+                              - cell:
+                                - generic: Automated special-character group 1788953345717
+                              - cell:
+                                - generic: ZSub Rental Specialty
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Special <b>&'"</b> 1788953821051
+                              - cell:
+                                - generic: Automated special-character group 1788953821051
+                              - cell:
+                                - generic: ZSub Rental Specialty
+                              - cell:
+                                - generic: Active
+                            - row:
+                              - cell:
+                                - generic: ZZ E2E Special <b>&'"</b> 1788954497008
+                              - cell:
+                                - generic: Automated special-character group 1788954497008
+                              - cell:
+                                - generic: ZSub Rental Specialty
+                              - cell:
+                                - generic: Active
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - combobox:
+                              - generic: "20"
+                              - img
+                            - paragraph: rows per page
+                        - generic:
+                          - button [disabled]:
+                            - img
+                          - button [disabled]:
+                            - img
+                          - generic:
+                            - textbox: "1"
+                            - generic: /
+                            - text: "2"
+                          - button:
+                            - img
+                          - button:
+                            - img
+  - region "Notifications alt+T"
+  - menu "Description" [active] [ref=f10e946]:
+    - menuitem "Sort ascending" [ref=f10e947] [cursor=pointer]:
+      - img
+      - text: Sort ascending
+    - menuitem "Sort descending" [ref=f10e948] [cursor=pointer]:
+      - img
+      - text: Sort descending
+    - separator [ref=f10e949]
+    - menuitem "Hide column" [ref=f10e950] [cursor=pointer]:
+      - img
+      - text: Hide column

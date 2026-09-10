@@ -16,7 +16,7 @@ Completion_Record: reports/walk-coverage/isr-pgr.json (status=complete, elements
 Walk_State: module=item-search-product-groups walked=[resting,search:executed,dialog:add-group]
 CrossCheck: clean — no A△B review-set elements were flagged by the enumerator for these runs; every key sits in the union denominator and is dispositioned.
 jira_tickets: [NM-2253, NM-1881, NM-1921]
-Subtask_Ownership: NM-2258 (Search For Product Groups) owns this artifact — the resting + search:executed states, TC-ISR-PGR-001, 002, 003, 004, 005, 009, 010. NM-2259 (Create new Product Groups) SPLIT OUT to `item-search-add-product-group-2026-08-31.md` on 2026-09-08 when it became its own deliverable (ISR.APG) — that artifact carries the Add-page form table, its save-cycle observations and TC-ISR-PGR-006, 007, 008, 011. No new walk was run for the split and no disposition changed; the two artifacts partition the same 2026-08-31 walk plus the 2026-09-02 create session.
+Subtask_Ownership: NM-2258 (Search For Product Groups) owns this artifact — the resting + search:executed states, TC-ISR-PGR-001 to 007 (numbered 001–005, 009 and 010 until the 2026-09-10 renumbering). NM-2259 (Create new Product Groups) SPLIT OUT to `item-search-add-product-group-2026-08-31.md` on 2026-09-08 when it became its own deliverable (ISR.APG) — that artifact carries the Add-page form table, its save-cycle observations and TC-ISR-APG-001 to 004 (numbered TC-ISR-PGR-006, 007, 008 and 011 until the 2026-09-10 renumbering). No new walk was run for the split and no disposition changed; the two artifacts partition the same 2026-08-31 walk plus the 2026-09-02 create session.
 baselineScope: baseline-absent (environment-blocked — see Baseline_Artifact; 6 access attempts, TLS reset for automated browsers, curl 200)
 
 ---
@@ -111,12 +111,12 @@ Machine denominator: **28** — the resting state. Provenance: `reports/walk-cov
 | `struct:button\|trigger-button\|div/div/skip/div/div/div` | button | 2026-08-31 | out-of-scope: outside-module — app-shell sidebar toggle (Navigator shell chrome outside every products-module denominator; the same control is enumerated by the sibling item-search inventories) |
 | `struct:a\|Products\|div/div/div/div/div/div` | a | 2026-08-31 | deferred-to-DEEP: products-back-link (back-navigation link unprobed at this tier; navigation affordance only) |
 | `struct:input\|Search Product Groups...\|form/div/div/div/div/div` | input | 2026-08-31 | covered-by-TC: TC-ISR-PGR-002 |
-| `testid:e2e-checkbox` | checkbox | 2026-08-31 | covered-by-TC: TC-ISR-PGR-005 |
+| `testid:e2e-checkbox` | checkbox | 2026-08-31 | covered-by-TC: TC-ISR-PGR-007 |
 | `struct:input\|\|div/form/div/div/div/div` | input | 2026-08-31 | deferred-to-DEEP: unnamed-search-form-input (identity unresolved at this tier; no visible control maps to it on the panel) |
-| `struct:button\|Reset\|div/div/div/div/form/div` | button | 2026-08-31 | covered-by-TC: TC-ISR-PGR-005 |
+| `struct:button\|Reset\|div/div/div/div/form/div` | button | 2026-08-31 | covered-by-TC: TC-ISR-PGR-007 |
 | `struct:button\|Search\|div/div/div/div/form/div` | button | 2026-08-31 | covered-by-TC: TC-ISR-PGR-002 |
 | `struct:button\|Collapse search panel\|div/skip/div/div/div/div` | button | 2026-08-31 | deferred-to-DEEP: pgr-collapse-toggle (same widget as the products page; per-state re-verification is deep-tier here) |
-| `struct:button\|Add\|div/div/div/div/div/div` | button | 2026-08-31 | covered-by-TC: TC-ISR-PGR-006 |
+| `struct:button\|Add\|div/div/div/div/div/div` | button | 2026-08-31 | covered-by-TC: TC-ISR-APG-001 |
 | `id:radix-_r_#_ [archetype×5]` | button | 2026-08-31 | deferred-to-DEEP: pgr-column-menu-items (menu internals unprobed at this tier; same archetype as the products-page column menus) |
 | `struct:th\|Name\|div/div/div/table/thead/tr` | th | 2026-08-31 | affordance-probed: affordance: popover → column sort/hide menu (th click delegates to the embedded column-menu trigger; per-column menu coverage rides the colmenu dispositions) · provenance: live · evidence: .playwright-cli/isr-2026-09-01/pgr-th-click-menu-open.yml (2026-09-01 probe, 4/4 th clicks → menu:true oracle after each, aria-sort untouched, no navigation; positive control .playwright-cli/isr-2026-09-01/pgr-positive-control-name-menu.yml) |
 | `struct:button\|Resize column productGroupName\|div/div/table/thead/tr/th` | button | 2026-08-31 | deferred-to-DEEP: resize-productGroupName (column-resize drag mechanics and geometry assertions are deep-tier work) |
@@ -151,8 +151,8 @@ The group list is a result surface. Families dispositioned —
 - **result-fidelity** → TC-ISR-PGR-002 (QUICK)
 - **pagination** → TC-ISR-PGR-004 (QUICK)
 - **empty-vol** → TC-ISR-PGR-003 (QUICK — the live zero-on-empty contract)
-- **persistence** → TC-ISR-PGR-009 (QUICK)
-- **render-state** → TC-ISR-PGR-010 (QUICK — Status column shows Active under the active filter)
+- **persistence** → TC-ISR-PGR-005 (QUICK)
+- **render-state** → TC-ISR-PGR-006 (QUICK — Status column shows Active under the active filter)
 - `out-of-scope:sorting=per-column menus unprobed on this grid at this tier; the four colmenu deferral rows above carry the family to the deep pass`
 - `out-of-scope:combination=single text filter plus one checkbox; no multi-criteria intersection exists on this panel to combine`
 

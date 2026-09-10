@@ -50,7 +50,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.ensureCleanSearch(ISR_OFFICE);
   });
 
-  test('TC-ISR-PGR-006: The Add page opens with a held-back Save', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-001: The Add page opens with a held-back Save', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     expect(await pgr.addNameBox().inputValue()).toBe('');
@@ -65,7 +65,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-007: The sub-class picker shows its two panels', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-002: The sub-class picker shows its two panels', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     const text = await pgr.readAddPageText();
@@ -79,7 +79,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-008: Cancel leaves the Add page without saving', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-003: Cancel leaves the Add page without saving', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     await pgr.typeAddName('X');
@@ -91,7 +91,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-011: A completed Add page saves and the new group is found again', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-004: A completed Add page saves and the new group is found again', async ({ dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(420_000);
     // A per-run unique suffix so repeated runs never collide on the same name.
@@ -119,7 +119,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     expect(await pgr.readColumnValues('Status')).toEqual(['Active']);
   });
 
-  test('TC-ISR-PGR-012: Name accepts exactly 50 characters and drops the rest silently', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-005: Name accepts exactly 50 characters and drops the rest silently', async ({ dependencyGate }) => {
     dependencyGate([]);
     const max = PGR_ADD_LIMITS.nameMaxLength;
     await pgr.clickAdd();
@@ -137,7 +137,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-013: Description accepts exactly 100 characters and drops the rest silently', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-006: Description accepts exactly 100 characters and drops the rest silently', async ({ dependencyGate }) => {
     dependencyGate([]);
     const max = PGR_ADD_LIMITS.descriptionMaxLength;
     await pgr.clickAdd();
@@ -150,7 +150,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-014: Clearing a filled Name by either method holds Save back and marks the box invalid', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-007: Clearing a filled Name by either method holds Save back and marks the box invalid', async ({ dependencyGate }) => {
     dependencyGate([]);
     const name = 'Clear check';
     await pgr.clickAdd();
@@ -173,21 +173,21 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-015: A whitespace-only Name counts as empty; a padded Name is accepted', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-008: A whitespace-only Name counts as empty; a padded Name is accepted', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     await completeRequiredSet(pgr, 'Padding check', 'padding check');
     await pgr.pasteAddName('   ');
     await expect.poll(() => pgr.isAddNameInvalid(), { timeout: 5_000 }).toBe(true);
     expect(await pgr.isAddSaveEnabled()).toBe(false);
-    // Surrounding spaces are accepted here; the server trims them (TC-ISR-PGR-018 proves it).
+    // Surrounding spaces are accepted here; the server trims them (TC-ISR-APG-011 proves it).
     await pgr.pasteAddName('  Padding check  ');
     await expect.poll(() => pgr.isAddSaveEnabled(), { timeout: 5_000 }).toBe(true);
     expect(await pgr.isAddNameInvalid()).toBe(false);
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-016: Every required field gates Save, and Active does not', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-009: Every required field gates Save, and Active does not', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     await pgr.typeAddName('Gate check');
@@ -217,7 +217,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-017: The Service Type list offers its 90 options with no search box, and first, middle and last all select', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-010: The Service Type list offers its 90 options with no search box, and first, middle and last all select', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     const { options, hasSearchBox } = await pgr.readServiceTypeOptions();
@@ -234,7 +234,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-018: A name already used by another group is rejected, with or without a trailing space', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-011: A name already used by another group is rejected, with or without a trailing space', async ({ dependencyGate }) => {
     dependencyGate([]);
     const unique = Date.now();
     const description = `duplicate name check ${unique}`;
@@ -252,19 +252,19 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-019: A description already used by another group is rejected even with a new name', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-012: A description already used by another group is rejected even with a new name', async ({ dependencyGate }) => {
     dependencyGate([]);
     const name = `${PGR_ADD_GROUP.namePrefix} ${Date.now()}`;
     await pgr.clickAdd();
     await completeRequiredSet(pgr, name, PGR_EXISTING_GROUP.description);
-    // DOM-only — no Jira story: the uniqueness of descriptions was found live, not in a ticket.
+    // The rule NM-1851 asked for: a description already in use is rejected at creation, the same way a duplicate name is.
     expect(await pgr.saveExpectingRejection())
       .toBe(`Product group name '${name}' or group description '${PGR_EXISTING_GROUP.description}' already exists.`);
     expect(await pgr.isAddSaveEnabled()).toBe(true);
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-020: The picker search filters the catalog by substring regardless of case and empties on no match', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-013: The picker search filters the catalog by substring regardless of case and empties on no match', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     const full = await pgr.waitForCatalogCount(1, Number.MAX_SAFE_INTEGER);
@@ -287,7 +287,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-021: The Labor filter narrows the catalog and unchecking restores it', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-014: The Labor filter narrows the catalog and unchecking restores it', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     const full = await pgr.waitForCatalogCount(1, Number.MAX_SAFE_INTEGER);
@@ -303,7 +303,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-022: Sort order flips the catalog between ascending and descending', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-015: Sort order flips the catalog between ascending and descending', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     await pgr.waitForCatalogCount(1, Number.MAX_SAFE_INTEGER);
@@ -321,7 +321,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-023: Reset clears the picker\'s search, filter and sort but keeps an added sub-class', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-016: Reset clears the picker\'s search, filter and sort but keeps an added sub-class', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     const full = await pgr.waitForCatalogCount(1, Number.MAX_SAFE_INTEGER);
@@ -342,7 +342,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-024: Double-click adds an item once and the × control removes it', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-017: Double-click adds an item once and the × control removes it', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     const full = await pgr.waitForCatalogCount(1, Number.MAX_SAFE_INTEGER);
@@ -361,7 +361,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-025: Dragging an item onto the Sub Classes area adds it', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-018: Dragging an item onto the Sub Classes area adds it', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     await pgr.waitForCatalogCount(1, Number.MAX_SAFE_INTEGER);
@@ -372,7 +372,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-026: The divider button collapses and expands the sub-class panel', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-019: The divider button collapses and expands the sub-class panel', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     await pgr.waitForCatalogCount(1, Number.MAX_SAFE_INTEGER);
@@ -387,7 +387,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-027: A group saved with Active cleared is created inactive and found with the list\'s Active filter cleared', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-020: A group saved with Active cleared is created inactive and found with the list\'s Active filter cleared', async ({ dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(420_000);
     const unique = Date.now();
@@ -415,7 +415,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     }
   });
 
-  test('TC-ISR-PGR-028: Special characters in the name are stored verbatim and the last Service Type saves', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-021: Special characters in the name are stored verbatim and the last Service Type saves', async ({ dependencyGate }) => {
     dependencyGate([]);
     test.setTimeout(420_000);
     const unique = Date.now();
@@ -433,7 +433,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     expect(await pgr.readColumnValues('Status')).toEqual(['Active']);
   });
 
-  test('TC-ISR-PGR-029: Browser Back leaves the Add page without saving or warning', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-022: Browser Back leaves the Add page without saving or warning', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     await pgr.typeAddName('dirty');
@@ -444,7 +444,7 @@ test.describe('Item Search Add Product Group page — fields and create @item-se
     await pgr.clickAddCancel();
   });
 
-  test('TC-ISR-PGR-030: The breadcrumb leaves the Add page without saving or warning', async ({ dependencyGate }) => {
+  test('TC-ISR-APG-023: The breadcrumb leaves the Add page without saving or warning', async ({ dependencyGate }) => {
     dependencyGate([]);
     await pgr.clickAdd();
     await pgr.typeAddName('dirty crumb');

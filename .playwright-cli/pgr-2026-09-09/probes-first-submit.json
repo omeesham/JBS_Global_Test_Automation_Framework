@@ -1,0 +1,69 @@
+{
+  "date": "2026-09-09T14:57:46.877Z",
+  "runs": [
+    {
+      "label": "fill+Enter",
+      "valueAfterAct": "ZZ E2E",
+      "firstReacted": false,
+      "firstMs": 8041,
+      "countAfterFirst": "0 product groups found",
+      "sessionAfterFirst": "{\"_version\":1,\"state\":{\"searchText\":\"\",\"active\":true,\"sortBy\":\"productGroupName\",\"sortDirection\":\"asc\",\"pageIndex\":1,\"pageSize\":20}}",
+      "secondReacted": true,
+      "secondMs": 32,
+      "rows": 20
+    },
+    {
+      "label": "fill,wait3s,Enter",
+      "valueAfterAct": "ZZ E2E",
+      "firstReacted": true,
+      "firstMs": 3083,
+      "countAfterFirst": "0 product groups found",
+      "sessionAfterFirst": "{\"_version\":1,\"state\":{\"searchText\":\"ZZ E2E\",\"active\":true,\"sortBy\":\"productGroupName\",\"sortDirection\":\"asc\",\"pageIndex\":1,\"pageSize\":20}}",
+      "rows": 20
+    },
+    {
+      "label": "click-input,type-keys,Enter",
+      "valueAfterAct": "ZZ E2E",
+      "firstReacted": false,
+      "firstMs": 8386,
+      "countAfterFirst": "0 product groups found",
+      "sessionAfterFirst": "{\"_version\":1,\"state\":{\"searchText\":\"\",\"active\":true,\"sortBy\":\"productGroupName\",\"sortDirection\":\"asc\",\"pageIndex\":1,\"pageSize\":20}}",
+      "secondReacted": true,
+      "secondMs": 33,
+      "rows": 20
+    },
+    {
+      "label": "click-input,type-keys,Search-button",
+      "valueAfterAct": "ZZ E2E",
+      "firstReacted": false,
+      "firstMs": 8411,
+      "countAfterFirst": "0 product groups found",
+      "sessionAfterFirst": "{\"_version\":1,\"state\":{\"searchText\":\"\",\"active\":true,\"sortBy\":\"productGroupName\",\"sortDirection\":\"asc\",\"pageIndex\":1,\"pageSize\":20}}",
+      "secondReacted": true,
+      "secondMs": 35,
+      "rows": 20
+    },
+    {
+      "label": "neutral-click,fill,Enter",
+      "valueAfterAct": "ZZ E2E",
+      "firstReacted": false,
+      "firstMs": 8067,
+      "countAfterFirst": "0 product groups found",
+      "sessionAfterFirst": "{\"_version\":1,\"state\":{\"searchText\":\"\",\"active\":true,\"sortBy\":\"productGroupName\",\"sortDirection\":\"asc\",\"pageIndex\":1,\"pageSize\":20}}",
+      "secondReacted": true,
+      "secondMs": 39,
+      "rows": 20
+    },
+    {
+      "label": "fill,Search-button",
+      "valueAfterAct": "ZZ E2E",
+      "firstReacted": false,
+      "firstMs": 8105,
+      "countAfterFirst": "0 product groups found",
+      "sessionAfterFirst": "{\"_version\":1,\"state\":{\"searchText\":\"\",\"active\":true,\"sortBy\":\"productGroupName\",\"sortDirection\":\"asc\",\"pageIndex\":1,\"pageSize\":20}}",
+      "secondReacted": true,
+      "secondMs": 32,
+      "rows": 20
+    }
+  ]
+}

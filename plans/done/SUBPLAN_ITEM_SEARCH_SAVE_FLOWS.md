@@ -44,7 +44,7 @@ inherited claim nobody has re-checked.
 | Sub-task | Today | Missing |
 |---|---|---|
 | NM-2257 Add Product Code | Form opens, Save held back while required fields empty, Product Type unlocks + filters Service Type, Cancel discards (TC-ISR-PCD-006/007/008/009) | Nothing ever fills the form and clicks Save. No evidence a product code can be created. |
-| NM-2259 Create new Product Group | Add page opens with Save held back, sub-class picker shows two panels, Cancel exits (TC-ISR-PGR-006/007/008) | No group is ever created, and none is searched for afterwards. |
+| NM-2259 Create new Product Group | Add page opens with Save held back, sub-class picker shows two panels, Cancel exits (TC-ISR-APG-001/007/008) | No group is ever created, and none is searched for afterwards. |
 | NM-2254 Product Search Filters | Quantity>0 narrows results (TC-ISR-PRS-012) | The Active checkbox is inventoried but nothing toggles it and asserts the row set changes. Not a save — a missing effect assertion. |
 | NM-2256 Check Availability Calendar Button | Not covered | Parked as "the button is inert". That is an **inherited claim** from the 2026-08-31 walk, never re-driven. |
 
@@ -162,7 +162,7 @@ Provisional set, finalized by Phase 0.5. IDs continue each submodule's sequence.
 |---|---|---|
 | TC-ISR-PRS-031 | NM-2254 | Toggling the Active checkbox changes the result set — capture rows with it on, toggle, re-search, assert the row set differs and in which direction. Identity-based, not a bare count. |
 | TC-ISR-PCD-011 | NM-2257 | A product code filled on the Item segment saves, and the new code is found by searching for it after a reload — persistence proven by re-read, never by the save call (LR-067). |
-| TC-ISR-PGR-011 | NM-2259 | A product group created on the Add page saves, and the new group is returned by the Product Groups search after a reload. |
+| TC-ISR-APG-004 | NM-2259 | A product group created on the Add page saves, and the new group is returned by the Product Groups search after a reload. |
 | TC-ISR-PRS-032 | NM-2256 | **Conditional on R5**: if the control responds, assert what it opens and what it shows. If R5 proves it inert across varied waits, no case is authored — instead the block is recorded with its evidence and raised as an owner question. |
 
 Land MD + test-plan + workbook parity in this same wave (LR-ENC-002): the `item_search_product_search`,
@@ -271,7 +271,7 @@ survived a gate built to catch exactly it.
 ### Sub-tasks moved partial → complete
 - **NM-2254 Product Search Filters** — `TC-ISR-PRS-031`: toggles the Active checkbox and asserts the result-set change by IDENTITY (unchecked Product-Code-ID set ⊇ active set, AND ≥1 inactive product revealed, AND re-checking restores the active set) — never a bare count. Anchor word SM58 (39 active / 45 unchecked / restored to 39), re-verified live 2026-09-02.
 - **NM-2257 Add Product Code** — `TC-ISR-PCD-011`: fills the Item-segment form (Name / Item Description / Product Type EQUIPMENT / Service Type Equipment Rental), Saves, and proves persistence by searching the new code's name back after a reload (LR-067). Real save `POST /navigator/api/product/create` (200, success), toast "Product created successfully.".
-- **NM-2259 Create Product Group** — `TC-ISR-PGR-011`: fills the Add page (Name / Description / Service Type / one sub-class via double-click), Saves, and finds the new group by search after the list reloads (LR-067). Real save `POST /navigator/api/location/add-update-product-group` (200, success), toast "Product Group created successfully".
+- **NM-2259 Create Product Group** — `TC-ISR-APG-004`: fills the Add page (Name / Description / Service Type / one sub-class via double-click), Saves, and finds the new group by search after the list reloads (LR-067). Real save `POST /navigator/api/location/add-update-product-group` (200, success), toast "Product Group created successfully".
 
 ### NM-2256 View Availability — re-driven, not inherited (no TC authored)
 Phase 0.5 R5 re-drove the control with a positive control (View Product Code opens its dialog on the same instrument) plus varied waits (+2s / +60s / +3s): no dialog, no drawer, no URL change, constant body length. Verdict: inert **because it is app-gated behind the not-yet-functional Prep/Return date feature** (standing owner ruling), not a code defect. `TC-ISR-PRS-032` deliberately not authored; NM-2256 recorded as an evidenced block with the owner question in the walk-evidence Observations. (LR-ENC-009: markup/enable-state alone is never a bug here.)
@@ -283,12 +283,12 @@ Item Add segment covered by `TC-ISR-PCD-011` (real save). The four non-Item segm
 Registered the two Item Search save describes in `scripts/check-save-route-parity.mjs` REGISTRY and added `saveNewCodeAndConfirm` / `saveNewGroupAndConfirm` to its REAL_SAVE_HELPERS. `node scripts/check-save-route-parity.mjs` → PASS (4 routes). The registry-is-opt-in gap (no forcing function for an unregistered save-capable spec) is surfaced, not fixed — a guardrail-machinery change needs the owner's go.
 
 ### TCs implemented / dropped
-- Implemented: 3 — `TC-ISR-PRS-031`, `TC-ISR-PCD-011`, `TC-ISR-PGR-011`.
+- Implemented: 3 — `TC-ISR-PRS-031`, `TC-ISR-PCD-011`, `TC-ISR-APG-004`.
 - Dropped: 1 — `TC-ISR-PRS-032` (NM-2256): NOT-AUTOMATABLE — the control is app-gated inert behind the disabled date feature; evidence in walk-evidence R5 plus a recorded owner question. This is the plan's own R5-conditional outcome, not a silent skip.
 
 ### Verification (all green, 2026-09-02)
 - `npx tsc -p clients/encore/tsconfig.json --noEmit` → exit 0.
-- Solo (retries=0): `TC-ISR-PRS-031` 19.7s, `TC-ISR-PCD-011` 22.2s, `TC-ISR-PGR-011` 17.5s — all pass.
+- Solo (retries=0): `TC-ISR-PRS-031` 19.7s, `TC-ISR-PCD-011` 22.2s, `TC-ISR-APG-004` 17.5s — all pass.
 - `tests/item-search/` run-all (retries=0): **54 passed, 0 failed** (9.5m) — no serial contamination (LR-018). (The reporter marks the passing date-render test PRS-021 with a cosmetic `x` glyph; a solo re-run confirmed Playwright exit 0 / "2 passed".)
 - `npm run check:spec-quality` → exit 0 (unfailable / swallowed / sleeps / reload gates clean; reject-oracle is announce-only, pre-existing, involving none of the new tests).
 - `npm run check:tc-parity` → PASS (3 new TCs present in spec + MD + XLSX).

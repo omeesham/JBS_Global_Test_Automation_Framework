@@ -23,12 +23,12 @@
 | Add form Product Type → Service Type (PCD) | Cascading dropdown | none | TC-ISR-PCD-006 (rest state) + TC-ISR-PCD-007 (enable + filter) | per-type option-set matrix (10 × lists) |
 | Translations grid (PCD) | Multi-row editable grid | none | TC-ISR-PCD-004 (structure) | translation save-cycle |
 | Search Product Groups (PGR) | Plain text | none | TC-ISR-PGR-002 (positive) + TC-ISR-PGR-003 (empty-criteria live contract) | — |
-| Active (PGR) | Checkbox | none | TC-ISR-PGR-005 (survives Reset) | inactive-groups view |
-| Add form Name / Description (PGR) | Plain text ×2 | none | TC-ISR-PGR-006 (required-empty + Save disabled) | save-cycle (creates data) |
-| Add form Service Type (PGR) | Dropdown / combobox | none | TC-ISR-PGR-006 (presence) | option-set enumeration |
-| Sub Classes picker (PGR) | Drag-and-drop source row (dual-list) | none | TC-ISR-PGR-007 (structure + instruction) | drag path + double-click add (mutating) |
+| Active (PGR) | Checkbox | none | TC-ISR-PGR-007 (survives Reset) | inactive-groups view |
+| Add form Name / Description (PGR) | Plain text ×2 | none | TC-ISR-APG-001 (required-empty + Save disabled) | save-cycle (creates data) |
+| Add form Service Type (PGR) | Dropdown / combobox | none | TC-ISR-APG-001 (presence) | option-set enumeration |
+| Sub Classes picker (PGR) | Drag-and-drop source row (dual-list) | none | TC-ISR-APG-002 (structure + instruction) | drag path + double-click add (mutating) |
 
-§2.1 rejection-affordance note: no field in this module surfaced an inline rejection at QUICK depth (free-text search fields accept anything; required-field invalid flags render at rest in the Add dialogs and are asserted by TC-ISR-PCD-006 / TC-ISR-PGR-006). The boundary battery that would drive rejections is DEEP-tier here.
+§2.1 rejection-affordance note: no field in this module surfaced an inline rejection at QUICK depth (free-text search fields accept anything; required-field invalid flags render at rest in the Add dialogs and are asserted by TC-ISR-PCD-006 / TC-ISR-APG-001). The boundary battery that would drive rejections is DEEP-tier here.
 
 ## §3 Surface-Behavior Cases (SBC)
 
@@ -51,8 +51,8 @@
 | result-fidelity | TC-ISR-PGR-002 | "Audio" → 82 found, rows match |
 | pagination | TC-ISR-PGR-004 | 20/page default; move |
 | empty-vol | TC-ISR-PGR-003 | live zero-on-empty contract (discussion item noted) |
-| persistence | TC-ISR-PGR-009 | executed search survives leave-and-return |
-| render-state | TC-ISR-PGR-010 | Status column renders Active under the active filter |
+| persistence | TC-ISR-PGR-005 | executed search survives leave-and-return |
+| render-state | TC-ISR-PGR-006 | Status column renders Active under the active filter |
 | sorting | out-of-scope:sorting=per-column menus unprobed on this grid at this tier; colmenu deferral rows carry the family to DEEP |
 | combination | out-of-scope:combination=single text filter plus one checkbox; no multi-criteria intersection exists to combine |
 

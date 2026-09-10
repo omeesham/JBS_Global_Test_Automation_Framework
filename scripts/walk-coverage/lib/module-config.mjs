@@ -91,7 +91,7 @@ export const MODULE_CONFIG = {
     requiredStates: [
       { label: 'resting' },
       { label: 'search:executed' },
-      { label: 'dialog:add-group' },
+      // 'dialog:add-group' dropped 2026-09-09 — Add is a route to the Add page, which has its own entry below.
     ],
   },
   'item-search-add-product-group': {

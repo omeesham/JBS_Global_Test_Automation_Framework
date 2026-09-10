@@ -23,7 +23,42 @@ export const itemSearchProductGroups = {
   gridRows: 'tbody tr',
   NAME_NEXT_PAGE: 'Go to next page',
   NAME_FIRST_PAGE: 'Go to first page',
+  NAME_PREV_PAGE: 'Go to previous page',
+  NAME_LAST_PAGE: 'Go to last page',
   NAME_PAGE_NUMBER: 'Current page number',
+  /** The × inside the search box — an unlabeled button that exists only while the box holds text
+   *  (verified live 2026-09-09); the icon class is the only stable anchor. */
+  searchClearButton: 'main form button:has(svg.lucide-x)',
+  /** The spinner the search panel shows while a search is in flight (present ~0.4s on 22 rows). */
+  searchLoader: 'main form svg.lucide-loader-circle',
+  /** The empty-state text the grid shows at rest and after a no-match search. */
+  TEXT_NO_RESULTS: 'No results',
+  /** The Grid Options trigger carries its name as screen-reader text; the header menu triggers are
+   *  named after their columns. Both are Radix menus whose ids change on every render. */
+  NAME_GRID_OPTIONS: 'Grid Options',
+  MENU_RESET_VIEW: 'Reset to Default View',
+  MENU_SORT_ASCENDING: 'Sort ascending',
+  MENU_SORT_DESCENDING: 'Sort descending',
+  MENU_HIDE_COLUMN: 'Hide column',
+  menu: '[role="menu"]',
+  listbox: '[role="listbox"]',
+  /** The result grid's table — its left edge and width move when the search panel collapses. */
+  gridTable: 'main table',
+  /** Each header cell carries a drag grip (reorder) and an edge handle (resize); the handle is named
+   *  "Resize column <field>" after the column's field key. */
+  headerGrip: 'svg.lucide-grip-vertical',
+  RESIZE_HANDLE_PREFIX: 'Resize column ',
+  /** Sort markers drawn in a header cell: ascending, descending, or the neutral marker of a
+   *  sortable-but-unsorted column (Status draws none — it cannot be sorted). */
+  sortMarkerAscending: 'svg.lucide-arrow-up',
+  sortMarkerDescending: 'svg.lucide-arrow-down',
+  sortMarkerNeutral: 'svg.lucide-arrow-up-down',
+  /** A result row opens the group's Edit page at this address. */
+  EDIT_URL_PATTERN: /\/products\/product-groups\/edit\/\d+/,
+  TEXT_EDIT_HEADING: 'Edit',
+  /** The Priced / Not Priced badge beside the Edit form's Active checkbox. */
+  PRICE_BADGE_PATTERN: /^(Not )?Priced$/,
+  NAME_TRANSLATIONS: 'Click to show translations popup',
 
   // ---------------------------------------------------------------- add page
   PLACEHOLDER_ADD_NAME: 'Enter Product Group Name',

@@ -3,7 +3,31 @@ import { step } from '../../fixtures/step-decorator';
 import { ProductsGridBasePage } from '../products/products-grid.page';
 import { itemSearchProductGroups as S } from '../../selectors/product-groups/product-groups';
 import { ISR_OFFICE } from '../../data/products/products';
-import { PGR_ROUTE } from '../../data/product-groups/product-groups';
+import {
+  PGR_ROUTE,
+  PGR_DEFAULT_PAGE_SIZE,
+  PGR_DEFAULT_COLUMN_ORDER,
+  PGR_COLUMN_FIELDS,
+  PGR_STORAGE_KEYS,
+  PgrStoredSearch,
+  PgrStoredGridLayout,
+} from '../../data/product-groups/product-groups';
+
+/** What a column header draws as its sort marker. */
+export type PgrSortMarker = 'ascending' | 'descending' | 'neutral' | 'none';
+
+/** What the Edit page shows the moment a result row opens it. */
+export interface PgrEditLanding {
+  heading: string;
+  name: string;
+  description: string;
+  activeChecked: boolean;
+  priceBadge: string;
+  saveEnabled: boolean;
+  cancelEnabled: boolean;
+  breadcrumbs: string[];
+  hasTranslationsButton: boolean;
+}
 
 /**
  * Product Groups page — search panel, 4-column grid at a 20-row page size, and the
@@ -616,5 +640,457 @@ export class ProductGroupsPage extends ProductsGridBasePage {
   async clickBreadcrumbToGroups(): Promise<void> {
     await this.page.getByRole('link', { name: S.LINK_PRODUCT_GROUPS, exact: true }).click();
     await this.waitForReady();
+  }
+
+  // ---------------------------------------------------------------- list page: search box extras
+
+  /** Presses Enter in the group search box and waits for the count label to satisfy the predicate. */
+  @step('Run the group search with the Enter key')
+  async pressEnterAndWait(predicate: (n: number | null) => boolean = (n) => n !== null): Promise<number | null> {
+    await this.searchBox().press('Enter');
+    await this.waitForNoSkeletons();
+    return this.waitForCount(ProductGroupsPage.COUNT_PATTERN, predicate);
+  }
+
+  /** Whether the search box shows its × clear control (it renders only while the box holds text). */
+  @step('Read whether the search box shows its clear control')
+  async isClearIconShown(): Promise<boolean> {
+    return (await this.page.locator(S.searchClearButton).count()) > 0;
+  }
+
+  /** Clicks the × inside the search box; only the box empties, the results stay. */
+  @step('Clear the search box with its clear control')
+  async clickClearIcon(): Promise<void> {
+    await this.page.locator(S.searchClearButton).click();
+    await expect(this.searchBox()).toHaveValue('', { timeout: 5_000 });
+  }
+
+  /** Whether the grid shows its "No results" placeholder. */
+  @step('Read whether the grid shows No results')
+  async isNoResultsShown(): Promise<boolean> {
+    return this.page.getByText(S.TEXT_NO_RESULTS, { exact: true }).isVisible().catch(() => false);
+  }
+
+  /**
+   * Starts watching for the in-flight search loader and the grid placeholders. Both are gone
+   * again within half a second of a search, so a read after the fact would miss them — the
+   * watcher records them the moment they appear.
+   */
+  @step('Watch for the search loader')
+  async armSearchLoaderWatch(): Promise<void> {
+    await this.page.evaluate(({ loader, skeleton }) => {
+      const w = window as unknown as { __searchLoaderWatch?: { loaderSeen: boolean; skeletonSeen: boolean; observer: MutationObserver } };
+      w.__searchLoaderWatch?.observer.disconnect();
+      const watch = {
+        loaderSeen: false,
+        skeletonSeen: false,
+        observer: new MutationObserver(() => {
+          if (document.querySelector(loader)) watch.loaderSeen = true;
+          if (document.querySelector(skeleton)) watch.skeletonSeen = true;
+        }),
+      };
+      watch.observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+      w.__searchLoaderWatch = watch;
+    }, { loader: S.searchLoader, skeleton: S.skeleton });
+  }
+
+  /** What the loader watch saw since it was armed, and whether the loader is still on screen. */
+  @step('Read the search loader watch')
+  async readSearchLoaderWatch(): Promise<{ loaderSeen: boolean; skeletonSeen: boolean; loaderStillShown: boolean }> {
+    return this.page.evaluate((loader) => {
+      const w = window as unknown as { __searchLoaderWatch?: { loaderSeen: boolean; skeletonSeen: boolean } };
+      return {
+        loaderSeen: w.__searchLoaderWatch?.loaderSeen ?? false,
+        skeletonSeen: w.__searchLoaderWatch?.skeletonSeen ?? false,
+        loaderStillShown: document.querySelector(loader) !== null,
+      };
+    }, S.searchLoader);
+  }
+
+  /**
+   * Types a word into the group search box without the settle pause the ordinary typing helper
+   * adds, so a submit can follow the last keystroke at once.
+   */
+  @step('Type a word into the search box without pausing')
+  async typeSearchWithoutPause(word: string): Promise<void> {
+    const box = this.searchBox();
+    await box.click();
+    await this.page.keyboard.press('Control+a');
+    await this.page.keyboard.press('Delete');
+    await box.pressSequentially(word, { delay: 40 });
+  }
+
+  /**
+   * Presses Enter in the search box and waits for whatever that submit does to finish. A submit that
+   * starts a search shows the loader and the placeholder rows, and both are waited out; a submit that
+   * starts nothing ends after a short grace period. No claim is made about the result, so the caller
+   * can assert which term actually ran.
+   */
+  @step('Submit with Enter and wait for the search to finish')
+  async pressEnterAndWaitForSearchToFinish(): Promise<void> {
+    await this.armSearchLoaderWatch();
+    await this.searchBox().press('Enter');
+    // A bounded in-page wait: it resolves as soon as a search starts, or when the grace period runs
+    // out and none has — a transition that legitimately may not happen cannot be a hard wait.
+    await this.page.evaluate(
+      (grace) =>
+        new Promise<void>((resolve) => {
+          const w = window as unknown as { __searchLoaderWatch?: { loaderSeen: boolean; skeletonSeen: boolean } };
+          const startedAt = Date.now();
+          const tick = () => {
+            const watch = w.__searchLoaderWatch;
+            if (watch?.loaderSeen || watch?.skeletonSeen || Date.now() - startedAt > grace) resolve();
+            else setTimeout(tick, 50);
+          };
+          tick();
+        }),
+      1_500,
+    );
+    await expect.poll(async () => (await this.readSearchLoaderWatch()).loaderStillShown, { timeout: 30_000 }).toBe(false);
+    await this.waitForNoSkeletons();
+  }
+
+  /** Forgets the executed search the page keeps in session storage and reloads, so the page starts as a first visit. */
+  @step('Reload the page as a first visit')
+  async forgetStoredSearch(): Promise<void> {
+    await this.page.evaluate((key) => sessionStorage.removeItem(key), PGR_STORAGE_KEYS.search);
+    await this.reload();
+    expect(await this.readStoredSearchState()).toBeNull();
+  }
+
+  // ---------------------------------------------------------------- list page: stored state
+
+  /** The executed search the page keeps in session storage, or null before any search ran. */
+  @step('Read the stored search state')
+  async readStoredSearchState(): Promise<PgrStoredSearch | null> {
+    return this.page.evaluate((key) => {
+      const raw = sessionStorage.getItem(key);
+      return raw ? (JSON.parse(raw) as { state: PgrStoredSearch }).state : null;
+    }, PGR_STORAGE_KEYS.search);
+  }
+
+  /** The grid layout (column visibility, order, widths) the page keeps in local storage. */
+  @step('Read the stored grid layout')
+  async readStoredGridLayout(): Promise<PgrStoredGridLayout> {
+    return this.page.evaluate(
+      (key) => JSON.parse(localStorage.getItem(key) ?? '{}') as PgrStoredGridLayout,
+      PGR_STORAGE_KEYS.gridLayout,
+    );
+  }
+
+  /** Reloads the page by address and waits for it to hydrate again. */
+  @step('Reload the Product Groups page')
+  async reload(): Promise<void> {
+    await this.page.reload({ waitUntil: 'domcontentloaded' });
+    await this.waitForReady();
+    await this.waitForAngularStable();
+  }
+
+  /**
+   * Per-test baseline for the grid: the default page size, the default sort and the default
+   * column layout. Sorting, page size and layout all outlive a form Reset — they ride the stored
+   * search state and the stored layout — so a case that changed any of them would otherwise hand
+   * the next case a different grid. Reset to Default View is the only control that clears a sort.
+   */
+  @step('Restore the default grid view')
+  async ensureDefaultGridView(): Promise<void> {
+    if ((await this.readRowsPerPage()) !== PGR_DEFAULT_PAGE_SIZE) {
+      await this.selectRowsPerPage(PGR_DEFAULT_PAGE_SIZE);
+    }
+    const layout = await this.readStoredGridLayout();
+    const search = await this.readStoredSearchState();
+    const allShown = Object.values(layout.columnVisibility ?? {}).every((shown) => shown);
+    const defaultOrder = JSON.stringify(layout.columnOrder ?? PGR_DEFAULT_COLUMN_ORDER) === JSON.stringify(PGR_DEFAULT_COLUMN_ORDER);
+    const defaultWidths = Object.keys(layout.columnSizing ?? {}).length === 0;
+    const defaultSort = search === null || (search.sortBy === PGR_COLUMN_FIELDS.Name && search.sortDirection === 'asc');
+    if (!allShown || !defaultOrder || !defaultWidths || !defaultSort) {
+      await this.resetToDefaultView();
+    }
+  }
+
+  // ---------------------------------------------------------------- list page: rows and the Edit landing
+
+  /** Clicks one cell of a result row and waits for that group's Edit page to render its form. */
+  @step('Open a result row')
+  async openRow(rowIndex: number, columnName: string): Promise<void> {
+    const headers = await this.readHeaderNames();
+    const column = headers.indexOf(columnName);
+    if (column < 0) {
+      throw new Error(`The grid shows no "${columnName}" column to click`);
+    }
+    await this.page.locator(S.gridRows).nth(rowIndex).locator('td').nth(column).click();
+    await this.page.waitForURL(S.EDIT_URL_PATTERN, { timeout: 30_000 });
+    await this.waitForNoSkeletons();
+    await expect(this.page.locator(S.addNameInput)).toBeVisible({ timeout: 30_000 });
+  }
+
+  /** What the Edit page shows on landing — heading, the group's values and its control states. */
+  @step('Read the Edit page landing')
+  async readEditLanding(): Promise<PgrEditLanding> {
+    const heading = ((await this.page.getByRole('heading').first().textContent()) ?? '').trim();
+    const priceBadge = ((await this.page.getByText(S.PRICE_BADGE_PATTERN).first().textContent()) ?? '').trim();
+    const breadcrumbs = (await this.page.getByRole('link').allTextContents())
+      .map((t) => t.trim())
+      .filter((t) => t === S.LINK_PRODUCTS || t === S.LINK_PRODUCT_GROUPS);
+    return {
+      heading,
+      name: await this.page.locator(S.addNameInput).inputValue(),
+      description: await this.page.locator(S.addDescriptionInput).inputValue(),
+      activeChecked: await this.isAddActiveChecked(),
+      priceBadge,
+      saveEnabled: await this.isAddSaveEnabled(),
+      cancelEnabled: await this.addCancelButton().isEnabled(),
+      breadcrumbs,
+      hasTranslationsButton: (await this.page.getByRole('button', { name: S.NAME_TRANSLATIONS, exact: true }).count()) > 0,
+    };
+  }
+
+  /** Whether the first row's Name cell renders any bold element — markup in a name must stay text. */
+  @step('Read whether the first Name cell renders markup')
+  async doesFirstNameCellRenderMarkup(): Promise<boolean> {
+    return this.page.evaluate(() => {
+      const headers = Array.from(document.querySelectorAll('thead th')).map((t) => (t.textContent ?? '').trim());
+      const cell = document.querySelector('tbody tr')?.querySelectorAll('td').item(headers.indexOf('Name'));
+      return cell !== null && cell !== undefined && cell.querySelector('b, strong') !== null;
+    });
+  }
+
+  /** Clicks the "Products" breadcrumb and waits for the Products page. */
+  @step('Click the Products breadcrumb')
+  async clickBreadcrumbToProducts(): Promise<void> {
+    await this.page.getByRole('link', { name: S.LINK_PRODUCTS, exact: true }).click();
+    await expect(this.page).toHaveURL(/\/products\/?$/, { timeout: 30_000 });
+    await this.waitForNoSkeletons();
+  }
+
+  // ---------------------------------------------------------------- list page: pager
+
+  /** Types a page number into the page box and presses Enter. */
+  @step('Jump to a page through the page box')
+  async jumpToPage(value: string): Promise<void> {
+    const box = this.pageNumberBox();
+    await box.click();
+    await this.page.keyboard.press('Control+a');
+    await box.pressSequentially(value, { delay: 40 });
+    await box.press('Enter');
+    await this.waitForNoSkeletons();
+  }
+
+  /** Types into the page box without submitting and returns what the box holds afterwards. */
+  @step('Type into the page box without submitting')
+  async typeIntoPageBox(value: string): Promise<string> {
+    const box = this.pageNumberBox();
+    await box.click();
+    await this.page.keyboard.press('Control+a');
+    await box.pressSequentially(value, { delay: 40 });
+    const held = (await box.inputValue()).trim();
+    await box.press('Escape');
+    return held;
+  }
+
+  /** Chooses a rows-per-page size and waits for the grid to reshape. */
+  @step('Choose a rows-per-page size')
+  async selectRowsPerPage(size: string): Promise<void> {
+    await this.rowsPerPageCombo().click();
+    const listbox = this.page.locator(S.listbox);
+    await listbox.waitFor({ state: 'visible', timeout: 5_000 });
+    await listbox.getByRole('option', { name: size, exact: true }).click();
+    await listbox.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+    await this.waitForNoSkeletons();
+    await expect.poll(() => this.readRowsPerPage(), { timeout: 15_000 }).toBe(size);
+  }
+
+  // ---------------------------------------------------------------- list page: column menus and sorting
+
+  private headerCell(columnName: string): Locator {
+    return this.page.locator(S.gridHeaderCells).filter({ hasText: new RegExp(`^${columnName}$`) });
+  }
+
+  /** Clicks a column's header cell itself (not its menu button) and waits for the column menu. */
+  @step('Click a column header cell')
+  async clickHeaderCell(columnName: string): Promise<void> {
+    await this.headerCell(columnName).click();
+    await this.page.locator(S.menu).waitFor({ state: 'visible', timeout: 5_000 });
+  }
+
+  /**
+   * Waits until the open menu has stayed mounted for a moment. The menu re-mounts once right
+   * after it opens, which detaches an entry clicked too early (seen live: the click retried
+   * against a detached entry until it timed out).
+   */
+  private async waitForMenuToSettle(): Promise<void> {
+    await this.page.locator(S.menu).waitFor({ state: 'visible', timeout: 5_000 });
+    await this.page.waitForFunction(
+      ({ selector, holdMs }) => {
+        const menu = document.querySelector(selector);
+        if (!menu) return false;
+        const w = window as unknown as { __menuHold?: { el: Element; since: number } };
+        if (!w.__menuHold || w.__menuHold.el !== menu) {
+          w.__menuHold = { el: menu, since: Date.now() };
+          return false;
+        }
+        return Date.now() - w.__menuHold.since >= holdMs;
+      },
+      { selector: S.menu, holdMs: 1_200 },
+      { timeout: 15_000 },
+    );
+  }
+
+  /** Chooses an entry in the open column menu or Grid Options menu and waits for the grid to settle. */
+  @step('Choose a menu entry')
+  async chooseMenuEntry(name: string): Promise<void> {
+    await this.waitForMenuToSettle();
+    await this.page
+      .getByRole('menuitem', { name, exact: true })
+      .or(this.page.getByRole('menuitemcheckbox', { name, exact: true }))
+      .click();
+    await this.page.locator(S.menu).waitFor({ state: 'hidden', timeout: 10_000 });
+    await this.waitForNoSkeletons();
+  }
+
+  /** Opens a column's menu and chooses one of its entries. */
+  @step('Choose a column menu entry')
+  async chooseColumnMenuEntry(columnName: string, entry: string): Promise<void> {
+    await this.openColumnMenu(columnName);
+    await this.chooseMenuEntry(entry);
+  }
+
+  /** Reads a column menu's entries in order, then closes it with Escape. */
+  @step('Read a column menu')
+  async readColumnMenuEntries(columnName: string): Promise<string[]> {
+    await this.openColumnMenu(columnName);
+    await this.waitForMenuToSettle();
+    const entries = await this.readOpenMenuItems();
+    await this.closeOpenMenu();
+    return entries;
+  }
+
+  /** Whether any menu is open. */
+  @step('Read whether a menu is open')
+  async isMenuOpen(): Promise<boolean> {
+    return (await this.page.locator(S.menu).count()) > 0;
+  }
+
+  /** The sort marker a column header draws: ascending, descending, neutral (sortable, unsorted) or none. */
+  @step('Read a column sort marker')
+  async readSortMarker(columnName: string): Promise<PgrSortMarker> {
+    const cell = this.headerCell(columnName);
+    if ((await cell.locator(S.sortMarkerAscending).count()) > 0) return 'ascending';
+    if ((await cell.locator(S.sortMarkerDescending).count()) > 0) return 'descending';
+    if ((await cell.locator(S.sortMarkerNeutral).count()) > 0) return 'neutral';
+    return 'none';
+  }
+
+  // ---------------------------------------------------------------- list page: Grid Options
+
+  gridOptionsButton(): Locator {
+    return this.page.getByRole('button', { name: S.NAME_GRID_OPTIONS, exact: true });
+  }
+
+  /** Opens the Grid Options menu and waits for it to settle. */
+  @step('Open the Grid Options menu')
+  async openGridOptions(): Promise<void> {
+    await this.gridOptionsButton().click();
+    await this.waitForMenuToSettle();
+  }
+
+  /** The Grid Options entries in order with their checked state (null for the reset entry), then closes the menu. */
+  @step('Read the Grid Options entries')
+  async readGridOptionsEntries(): Promise<{ label: string; checked: boolean | null }[]> {
+    await this.openGridOptions();
+    const entries = await this.page
+      .locator('[role="menuitem"], [role="menuitemcheckbox"]')
+      .evaluateAll((items) => items.map((item) => {
+        const checked = item.getAttribute('aria-checked');
+        return { label: (item.textContent ?? '').trim(), checked: checked === null ? null : checked === 'true' };
+      }));
+    await this.closeOpenMenu();
+    return entries.filter((e) => e.label.length > 0);
+  }
+
+  /** Toggles a column's visibility through its Grid Options entry. */
+  @step('Toggle a column in Grid Options')
+  async toggleGridOptionsColumn(columnName: string): Promise<void> {
+    await this.openGridOptions();
+    await this.chooseMenuEntry(columnName);
+  }
+
+  /** Chooses Reset to Default View in Grid Options. */
+  @step('Reset the grid to its default view')
+  async resetToDefaultView(): Promise<void> {
+    await this.openGridOptions();
+    await this.chooseMenuEntry(S.MENU_RESET_VIEW);
+  }
+
+  // ---------------------------------------------------------------- list page: header drags and geometry
+
+  /** A column header's rendered width in pixels. */
+  @step('Read a column header width')
+  async readHeaderWidth(columnName: string): Promise<number> {
+    const box = await this.headerCell(columnName).boundingBox();
+    if (!box) {
+      throw new Error(`The "${columnName}" header has no layout box`);
+    }
+    return Math.round(box.width);
+  }
+
+  /** Whether the search panel is collapsed — the divider toggle then offers to expand it. */
+  @step('Read whether the search panel is collapsed')
+  async isSearchPanelCollapsed(): Promise<boolean> {
+    return (await this.page.getByRole('button', { name: S.NAME_EXPAND_PANEL, exact: true }).count()) > 0;
+  }
+
+  /** The result table's left edge and width — both move when the search panel collapses. */
+  @step('Read the result table geometry')
+  async readTableGeometry(): Promise<{ left: number; width: number }> {
+    const box = await this.page.locator(S.gridTable).boundingBox();
+    if (!box) {
+      throw new Error('The result table has no layout box');
+    }
+    return { left: Math.round(box.x), width: Math.round(box.width) };
+  }
+
+  /**
+   * Drags a column header's grip onto another header with a real pointer sequence — press,
+   * move in steps, pause, release. The stepped moves are what make the header's drag fire.
+   */
+  @step('Drag a column header onto another header')
+  async dragColumnOnto(sourceColumn: string, targetColumn: string): Promise<void> {
+    const from = await this.headerCell(sourceColumn).locator(S.headerGrip).boundingBox();
+    const to = await this.headerCell(targetColumn).boundingBox();
+    if (!from || !to) {
+      throw new Error('The header grip or the target header has no layout box to drag between');
+    }
+    const mouse = this.page.mouse;
+    const startX = from.x + from.width / 2;
+    const startY = from.y + from.height / 2;
+    await mouse.move(startX, startY);
+    await mouse.down();
+    await mouse.move(startX + 10, startY + 2, { steps: 5 });
+    await mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 25 });
+    // A moment over the target before releasing lets the drop target register the hover.
+    await expect(this.headerCell(targetColumn)).toBeVisible({ timeout: 1_000 });
+    await mouse.up();
+    await this.waitForNoSkeletons();
+  }
+
+  /** Drags a column's resize handle horizontally by the given distance (negative = left). */
+  @step('Drag a column resize handle')
+  async dragResizeHandle(columnName: string, distancePx: number): Promise<void> {
+    const field = PGR_COLUMN_FIELDS[columnName as keyof typeof PGR_COLUMN_FIELDS];
+    const handle = this.page.getByRole('button', { name: `${S.RESIZE_HANDLE_PREFIX}${field}`, exact: true });
+    const box = await handle.boundingBox();
+    if (!box) {
+      throw new Error(`The "${columnName}" resize handle has no layout box`);
+    }
+    const mouse = this.page.mouse;
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await mouse.move(x, y);
+    await mouse.down();
+    await mouse.move(x + (distancePx > 0 ? 10 : -10), y, { steps: 3 });
+    await mouse.move(x + distancePx, y, { steps: Math.max(10, Math.round(Math.abs(distancePx) / 8)) });
+    await mouse.up();
+    await this.waitForNoSkeletons();
   }
 }

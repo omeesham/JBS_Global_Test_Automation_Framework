@@ -1,15 +1,15 @@
 # Item Search — Create new Product Groups Test Cases
 
 **Module**: item-search
-**Submodule**: APG (Create new Product Groups — cases stay in the shared TC-ISR-PGR-* sequence)
+**Submodule**: APG (Create new Product Groups)
 **Page**: Add Product Group (`/locations/1101/products/product-groups` → Add — a route, not a dialog)
 **Test Entity**: Office 1101
 **Updated**: 2026-09-09
 **Total TCs**: 23
 **Coverage mode**: DEEP — every control on the page has a case; the only exclusions are listed with reasons in the test plan
-**Governing Requirement**: NM-2259 (Automate → Product → Create new Product Groups); parent story NM-2253. Behaviour rules taken from Jira: NM-1757 (duplicate name rejected; success message), NM-2050 (Reset keeps added sub-classes), NM-1907 (Save held back however Name is cleared), NM-2043 / NM-2055 (post-save landing — see the contradiction note on TC-ISR-PGR-011)
-**Verified against**: field inventory `item-search-add-product-group-2026-09-09.md` (full re-walk, three real creates, five rejected saves); the earlier `item-search-add-product-group-2026-08-31.md` and the 2026-09-02 create session (product group id 4581) remain the provenance of TC-006 to TC-011
-**Sibling file**: `item_search_product_groups_test_cases.md` holds the group list and search cases (NM-2258) — TC-ISR-PGR-001, 002, 003, 004, 005, 009, 010 — from the same TC-ISR-PGR-* sequence. The Add page is reached from that page's Add button, so every case here starts from it.
+**Governing Requirement**: NM-2259 (Automate → Product → Create new Product Groups); parent story NM-2253. Behaviour rules taken from Jira: NM-1757 (duplicate name rejected; success message), NM-2050 (Reset keeps added sub-classes), NM-1907 (Save held back however Name is cleared), NM-2043 / NM-2055 (post-save landing — see the contradiction note on TC-ISR-APG-004)
+**Verified against**: field inventory `item-search-add-product-group-2026-09-09.md` (full re-walk, three real creates, five rejected saves); the earlier `item-search-add-product-group-2026-08-31.md` and the 2026-09-02 create session (product group id 4581) remain the provenance of TC-001 to TC-004
+**Sibling file**: `item_search_product_groups_test_cases.md` holds the group list and search cases (NM-2258) — TC-ISR-PGR-001 to TC-ISR-PGR-039, their own numbered sequence. The Add page is reached from that page's Add button, so every case here starts from it.
 
 ---
 
@@ -68,7 +68,7 @@
 
 ---
 
-## TC-ISR-PGR-006: The Add page opens with a held-back Save
+## TC-ISR-APG-001: The Add page opens with a held-back Save
 
 **Automatable**: Yes
 **Preconditions**: The Product Groups page is open.
@@ -85,7 +85,7 @@
 
 ---
 
-## TC-ISR-PGR-007: The sub-class picker shows its two panels
+## TC-ISR-APG-002: The sub-class picker shows its two panels
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open.
@@ -96,11 +96,11 @@
 | 1 | Read the left panel | A search box and a long list of sub-class items |
 | 2 | Read the Sub Classes area on the right | It is marked required and shows the instruction "Drag or double‑click items from the left to add sub‑classes" |
 
-**Notes**: Structure only — this case reads the picker's two panels without adding anything. Adding by double-click is covered by TC-ISR-PGR-011 and TC-ISR-PGR-024, by drag in TC-ISR-PGR-025; the panel's own controls have their own cases (020–023, 026).
+**Notes**: Structure only — this case reads the picker's two panels without adding anything. Adding by double-click is covered by TC-ISR-APG-004 and TC-ISR-APG-017, by drag in TC-ISR-APG-018; the panel's own controls have their own cases (020–023, 026).
 
 ---
 
-## TC-ISR-PGR-008: Cancel leaves the Add page without saving
+## TC-ISR-APG-003: Cancel leaves the Add page without saving
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open with a character typed into Name.
@@ -115,7 +115,7 @@
 
 ---
 
-## TC-ISR-PGR-011: A completed Add page saves a new product group and it is found again
+## TC-ISR-APG-004: A completed Add page saves a new product group and it is found again
 
 **Automatable**: Yes
 **Preconditions**: The Product Groups page is open for office 1101.
@@ -133,7 +133,7 @@
 
 ---
 
-## TC-ISR-PGR-012: Name accepts exactly 50 characters and drops the rest silently
+## TC-ISR-APG-005: Name accepts exactly 50 characters and drops the rest silently
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open with an empty form.
@@ -151,7 +151,7 @@
 
 ---
 
-## TC-ISR-PGR-013: Description accepts exactly 100 characters and drops the rest silently
+## TC-ISR-APG-006: Description accepts exactly 100 characters and drops the rest silently
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open with an empty form.
@@ -168,7 +168,7 @@
 
 ---
 
-## TC-ISR-PGR-014: Clearing a filled Name by either method holds Save back and marks the box invalid
+## TC-ISR-APG-007: Clearing a filled Name by either method holds Save back and marks the box invalid
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open with Name, Description, a Service Type and one sub-class set, so Save is enabled.
@@ -187,7 +187,7 @@
 
 ---
 
-## TC-ISR-PGR-015: A whitespace-only Name counts as empty; a padded Name is accepted
+## TC-ISR-APG-008: A whitespace-only Name counts as empty; a padded Name is accepted
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open with Description, a Service Type and one sub-class set.
@@ -199,11 +199,11 @@
 | 2 | Fill Name with a value surrounded by spaces | The box is not marked invalid and Save enables |
 | 3 | Click Cancel | The list page returns; nothing was saved |
 
-**Notes**: Negative set for the Name field (whitespace-only, leading/trailing space). The server trims surrounding spaces before saving — proven by TC-ISR-PGR-018's trailing-space rejection, so no padded group is created here.
+**Notes**: Negative set for the Name field (whitespace-only, leading/trailing space). The server trims surrounding spaces before saving — proven by TC-ISR-APG-011's trailing-space rejection, so no padded group is created here.
 
 ---
 
-## TC-ISR-PGR-016: Every required field gates Save, and Active does not
+## TC-ISR-APG-009: Every required field gates Save, and Active does not
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open with an empty form.
@@ -220,11 +220,11 @@
 | 7 | Clear Active, then check it again | Save stays enabled both times |
 | 8 | Click Cancel | The list page returns; nothing was saved |
 
-**Notes**: The required set is Name, Description, Service Type and at least one sub-class; Active is optional. Name's own clearing is TC-ISR-PGR-014.
+**Notes**: The required set is Name, Description, Service Type and at least one sub-class; Active is optional. Name's own clearing is TC-ISR-APG-007.
 
 ---
 
-## TC-ISR-PGR-017: The Service Type list offers its 90 options with no search box, and first, middle and last all select
+## TC-ISR-APG-010: The Service Type list offers its 90 options with no search box, and first, middle and last all select
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open with an empty form.
@@ -238,11 +238,11 @@
 | 4 | Open the list and click a middle option ("Lighting") | The selector shows "Lighting" |
 | 5 | Click Cancel | The list page returns; nothing was saved |
 
-**Notes**: Dropdown set: each documented option is checked for presence and order against the inventory's list; first, last and one middle option are selected. Saving the first option is every create case; saving the last is TC-ISR-PGR-028. Saving each of the 90 is out of scope (see the plan).
+**Notes**: Dropdown set: each documented option is checked for presence and order against the inventory's list; first, last and one middle option are selected. Saving the first option is every create case; saving the last is TC-ISR-APG-021. Saving each of the 90 is out of scope (see the plan).
 
 ---
 
-## TC-ISR-PGR-018: A name already used by another group is rejected, with or without a trailing space
+## TC-ISR-APG-011: A name already used by another group is rejected, with or without a trailing space
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open. The fixture group `ZZ E2E Walk 2026-09-09 A` (description `walk probe A`) exists on office 1101.
@@ -259,7 +259,7 @@
 
 ---
 
-## TC-ISR-PGR-019: A description already used by another group is rejected even with a new name
+## TC-ISR-APG-012: A description already used by another group is rejected even with a new name
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open. The fixture group `ZZ E2E Walk 2026-09-09 A` (description `walk probe A`) exists on office 1101.
@@ -271,11 +271,11 @@
 | 2 | Click Save | An error toast reads `Product group name '<the new name>' or group description 'walk probe A' already exists.`; the page stays on the Add form; Save is still enabled |
 | 3 | Click Cancel | The list page returns; nothing was created |
 
-**Notes**: No Jira ticket states that descriptions must be unique — the rule was found live on 2026-09-09 and is recorded as a discussion item in the inventory. The case pins the behaviour as observed.
+**Notes**: NM-1851 (QA Defect, Done) asked for exactly this: duplicate descriptions used to pass creation and block a later update, and the fix applies the description check at creation "similar to duplicate name validation". The 2026-09-09 walk first recorded the rule as unstated; the same-day Jira pass for the list page found the ticket and the inventory's discussion item was withdrawn. The case pins the fixed behaviour.
 
 ---
 
-## TC-ISR-PGR-020: The picker search filters the catalog by substring regardless of case and empties on no match
+## TC-ISR-APG-013: The picker search filters the catalog by substring regardless of case and empties on no match
 
 **Automatable**: Yes
 **Surface_Family**: result-fidelity + empty-vol (DEEP)
@@ -295,7 +295,7 @@
 
 ---
 
-## TC-ISR-PGR-021: The Labor filter narrows the catalog and unchecking restores it
+## TC-ISR-APG-014: The Labor filter narrows the catalog and unchecking restores it
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open.
@@ -312,7 +312,7 @@
 
 ---
 
-## TC-ISR-PGR-022: Sort order flips the catalog between ascending and descending
+## TC-ISR-APG-015: Sort order flips the catalog between ascending and descending
 
 **Automatable**: Yes
 **Surface_Family**: sorting (DEEP)
@@ -330,7 +330,7 @@
 
 ---
 
-## TC-ISR-PGR-023: Reset clears the picker's search, filter and sort but keeps an added sub-class
+## TC-ISR-APG-016: Reset clears the picker's search, filter and sort but keeps an added sub-class
 
 **Automatable**: Yes
 **Surface_Family**: combination (DEEP)
@@ -348,7 +348,7 @@
 
 ---
 
-## TC-ISR-PGR-024: Double-click adds an item once and the × control removes it
+## TC-ISR-APG-017: Double-click adds an item once and the × control removes it
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open.
@@ -365,7 +365,7 @@
 
 ---
 
-## TC-ISR-PGR-025: Dragging an item onto the Sub Classes area adds it
+## TC-ISR-APG-018: Dragging an item onto the Sub Classes area adds it
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open with no sub-class added.
@@ -380,7 +380,7 @@
 
 ---
 
-## TC-ISR-PGR-026: The divider button collapses and expands the sub-class panel
+## TC-ISR-APG-019: The divider button collapses and expands the sub-class panel
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open.
@@ -397,7 +397,7 @@
 
 ---
 
-## TC-ISR-PGR-027: A group saved with Active cleared is created inactive and found with the list's Active filter cleared
+## TC-ISR-APG-020: A group saved with Active cleared is created inactive and found with the list's Active filter cleared
 
 **Automatable**: Yes
 **Preconditions**: The Product Groups page is open for office 1101.
@@ -414,7 +414,7 @@
 
 ---
 
-## TC-ISR-PGR-028: Special characters in the name are stored verbatim and the last Service Type saves
+## TC-ISR-APG-021: Special characters in the name are stored verbatim and the last Service Type saves
 
 **Automatable**: Yes
 **Preconditions**: The Product Groups page is open for office 1101.
@@ -430,7 +430,7 @@
 
 ---
 
-## TC-ISR-PGR-029: Browser Back leaves the Add page without saving or warning
+## TC-ISR-APG-022: Browser Back leaves the Add page without saving or warning
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open, reached from the list page.
@@ -442,9 +442,9 @@
 | 2 | Go back in the browser history | The list page returns with no warning prompt |
 | 3 | Click Add | The form is empty; nothing was kept |
 
-**Notes**: Persistence family for a form with no stored state: there is no navigate-away guard on this page — the same silent discard as Cancel (TC-ISR-PGR-008), by the other exit.
+**Notes**: Persistence family for a form with no stored state: there is no navigate-away guard on this page — the same silent discard as Cancel (TC-ISR-APG-003), by the other exit.
 
-## TC-ISR-PGR-030: The breadcrumb leaves the Add page without saving or warning
+## TC-ISR-APG-023: The breadcrumb leaves the Add page without saving or warning
 
 **Automatable**: Yes
 **Preconditions**: The Add page is open, reached from the list page.
@@ -456,4 +456,4 @@
 | 2 | Click the "Product Groups" breadcrumb above the form | The list page opens with no warning prompt |
 | 3 | Click Add | The form is empty; nothing was kept |
 
-**Notes**: The third exit from the page after Cancel (TC-ISR-PGR-008) and browser Back (TC-ISR-PGR-029): the breadcrumb is a plain link, so it discards typed input silently too — probed live before authoring (no prompt, empty form on return). Persistence family for a form with no stored state.
+**Notes**: The third exit from the page after Cancel (TC-ISR-APG-003) and browser Back (TC-ISR-APG-022): the breadcrumb is a plain link, so it discards typed input silently too — probed live before authoring (no prompt, empty form on return). Persistence family for a form with no stored state.

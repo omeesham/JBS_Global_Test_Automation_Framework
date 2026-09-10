@@ -42,7 +42,7 @@ baselineScope: baseline-absent (environment-blocked — see Baseline_Artifact; 6
 | Description | `(none) — placeholder "Enter Product Group Description"` | Plain text | empty | required | enabled | n/a | `affordance: none`. |
 | Service Type | `(none) — trigger shows "Service Type"` | Dropdown / combobox (Radix) | placeholder | required | enabled | n/a | Options unenumerated at this tier (deferral). |
 | Active | `(none) — checkbox in the form` | Checkbox (native + Radix) | checked | n/a | enabled | n/a | |
-| Sub Classes | `(none) — dual-list region` | Drag-and-drop source row (dual-list picker) | empty; instruction "Drag or double-click items from the left to add sub-classes" | required (starred) | enabled | picker search box filters the left list | Left list is very large (whole sub-class catalog). Drag path is deep-tier; the double-click add path is covered by TC-ISR-PGR-011. |
+| Sub Classes | `(none) — dual-list region` | Drag-and-drop source row (dual-list picker) | empty; instruction "Drag or double-click items from the left to add sub-classes" | required (starred) | enabled | picker search box filters the left list | Left list is very large (whole sub-class catalog). Drag path is deep-tier; the double-click add path is covered by TC-ISR-APG-004. |
 | Cancel | `(none) — text "Cancel"` | *(action)* | n/a | n/a | enabled | returns to the list page; typed input discarded silently (no unsaved-changes prompt — probed live with Name="X") | |
 | Save | `(none) — text "Save"` | *(action)* | n/a | n/a | **disabled** at rest and with only Name filled; **enabled** once Name, Description, Service Type and ≥1 Sub Class are all set | validity-gated | Clicked on 2026-09-02 — see Save-cycle observations. |
 
@@ -96,17 +96,17 @@ Machine denominator: **24** — the `dialog:add-group` state. Provenance: `repor
 
 **Denominator caveat (carried over verbatim — do not read this number as Add-page form coverage)**: the branch clicked Add, but the run's snapshot preceded the route change, so the enumerated key set is the LIST page's, not the Add form's (the state label "dialog" is a recorded misnomer — Add is a page route). All 24 keys therefore duplicate the list-page manifest dispositions held in the sibling artifact `item-search-product-groups-2026-08-31.md`; they are not re-listed here, because re-listing list-page keys under an Add-page artifact would misreport what the enumerator counted.
 
-**What actually covers this page**: the Add form is agent-walked per §20-Q with snapshot evidence (`.playwright-cli/isr-2026-08-31/pgr-add-page.yml`) and every field is inventoried in the Field Inventory table above — covered by TC-ISR-PGR-006 (required-empty form, held-back Save), TC-ISR-PGR-007 (picker structure), TC-ISR-PGR-008 (silent discard on Cancel) and TC-ISR-PGR-011 (real create + search-back). Two deferrals ride the picker fields:
+**What actually covers this page**: the Add form is agent-walked per §20-Q with snapshot evidence (`.playwright-cli/isr-2026-08-31/pgr-add-page.yml`) and every field is inventoried in the Field Inventory table above — covered by TC-ISR-APG-001 (required-empty form, held-back Save), TC-ISR-APG-002 (picker structure), TC-ISR-APG-003 (silent discard on Cancel) and TC-ISR-APG-004 (real create + search-back). Two deferrals ride the picker fields:
 
 | element/launcher | disposition |
 |---|---|
-| `pgr-add-duallist-drag` | deferred-to-DEEP: drag-to-add mechanics on the sub-class picker are deep-tier work; the reliable double-click path is covered by TC-ISR-PGR-011 |
+| `pgr-add-duallist-drag` | deferred-to-DEEP: drag-to-add mechanics on the sub-class picker are deep-tier work; the reliable double-click path is covered by TC-ISR-APG-004 |
 | `pgr-add-servicetype-options` | deferred-to-DEEP: option-set enumeration for the add-form dropdown is deep-tier here |
 
 ### §3 surface families (LR-065)
 
 The Add page is a form, not a result surface. The dual-list picker's left panel is a list —
-- **render-state** → TC-ISR-PGR-007 (QUICK — the picker renders its two panels and its instruction)
+- **render-state** → TC-ISR-APG-002 (QUICK — the picker renders its two panels and its instruction)
 - `out-of-scope:result-fidelity=the picker's own search over the sub-class catalog is a deep-tier filter check, not a result grid this tier asserts`
 - `out-of-scope:pagination=the picker list scrolls; it renders no pagination control`
 - `out-of-scope:empty-vol=no empty state is reachable at this tier — the catalog is always populated on 1101`
@@ -122,6 +122,6 @@ The Add page is a form, not a result surface. The dual-list picker's left panel 
 
 ## Save & cleanup disposition (2026-09-02)
 
-- **Create Product Group save is covered** by TC-ISR-PGR-011: a completed Add page (Name / Description / Service Type / ≥1 Sub Class added by double-click) saves via `POST /navigator/api/location/add-update-product-group` — verified live, product group id 4581 — and is confirmed by a Product Groups search-back per LR-067.
+- **Create Product Group save is covered** by TC-ISR-APG-004: a completed Add page (Name / Description / Service Type / ≥1 Sub Class added by double-click) saves via `POST /navigator/api/location/add-update-product-group` — verified live, product group id 4581 — and is confirmed by a Product Groups search-back per LR-067.
 - **Cleanup**: there is no hard delete for a product group, and the deactivate-via-edit path was **not** pinned this pass, so the create case leaves its per-run-unique group on 1101. This accumulation is accepted test residue on the fully-writable e2e environment (LR-ENC-007), stated here rather than hidden.
 - **Sub-class add path**: the reliable **double-click** path is covered; the drag path is a deferral (flaky, frequently never fires the drop).

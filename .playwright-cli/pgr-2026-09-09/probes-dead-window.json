@@ -1,0 +1,109 @@
+{
+  "date": "2026-09-09T14:55:18.081Z",
+  "runs": [
+    {
+      "label": "enter-immediate-A",
+      "firstDelayMs": 0,
+      "useButton": false,
+      "attempts": [
+        {
+          "i": 0,
+          "at": 5957,
+          "val": "ZZ E2E",
+          "ok": false
+        },
+        {
+          "i": 1,
+          "at": 7079,
+          "val": "ZZ E2E",
+          "ok": true
+        }
+      ],
+      "headerAt": 5904,
+      "skeletonsGoneAt": 5936,
+      "gridOptionsAt": 5955,
+      "firstSuccessAt": 7079,
+      "attemptsNeeded": 2,
+      "rows": 20,
+      "count": "22 product groups found"
+    },
+    {
+      "label": "enter-immediate-B",
+      "firstDelayMs": 0,
+      "useButton": false,
+      "attempts": [
+        {
+          "i": 0,
+          "at": 6075,
+          "val": "ZZ E2E",
+          "ok": false
+        },
+        {
+          "i": 1,
+          "at": 7179,
+          "val": "ZZ E2E",
+          "ok": true
+        }
+      ],
+      "headerAt": 6023,
+      "skeletonsGoneAt": 6055,
+      "gridOptionsAt": 6073,
+      "firstSuccessAt": 7179,
+      "attemptsNeeded": 2,
+      "rows": 20,
+      "count": "22 product groups found"
+    },
+    {
+      "label": "enter-after-20s",
+      "firstDelayMs": 20000,
+      "useButton": false,
+      "attempts": [
+        {
+          "i": 0,
+          "at": 30232,
+          "val": "ZZ E2E",
+          "ok": false
+        },
+        {
+          "i": 1,
+          "at": 31301,
+          "val": "ZZ E2E",
+          "ok": true
+        }
+      ],
+      "headerAt": 10185,
+      "skeletonsGoneAt": 10209,
+      "gridOptionsAt": 10220,
+      "firstSuccessAt": 31301,
+      "attemptsNeeded": 2,
+      "rows": 20,
+      "count": "22 product groups found"
+    },
+    {
+      "label": "button-immediate",
+      "firstDelayMs": 0,
+      "useButton": true,
+      "attempts": [
+        {
+          "i": 0,
+          "at": 6927,
+          "val": "ZZ E2E",
+          "ok": false
+        },
+        {
+          "i": 1,
+          "at": 8015,
+          "val": "ZZ E2E",
+          "ok": true
+        }
+      ],
+      "headerAt": 6909,
+      "skeletonsGoneAt": 6920,
+      "gridOptionsAt": 6923,
+      "firstSuccessAt": 8015,
+      "attemptsNeeded": 2,
+      "rows": 20,
+      "count": "22 product groups found"
+    }
+  ]
+}

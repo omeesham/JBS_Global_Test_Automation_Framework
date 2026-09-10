@@ -24,6 +24,110 @@ export const PGR_COLUMNS = ['Name', 'Description', 'Service Type', 'Status'] as 
 /** The Product Groups page turns a smaller page — 20 rows — by design difference. */
 export const PGR_DEFAULT_PAGE_SIZE = '20';
 
+/** The rows-per-page choices, verbatim and in order (read live 2026-09-09). */
+export const PGR_PAGE_SIZES = ['10', '20', '30', '40', '50'] as const;
+
+/**
+ * Search terms for the list page's deep cases. They lean on the automation-owned "ZZ E2E"
+ * family (22 groups on 2026-09-09 — 17 active, 5 inactive — two pages at 20 rows) because its
+ * composition is known; the create cases only ever add more "ZZ E2E Group <timestamp>" rows.
+ */
+export const PGR_DEEP_SEARCH = {
+  /** The family word: every automation-owned group's name starts with it. */
+  word: 'ZZ E2E',
+  lowerCaseWord: 'zz e2e',
+  paddedWord: '   ZZ E2E   ',
+  spacesOnly: '     ',
+  /** One group, never edited: name and description read live 2026-09-09 (group 4583). */
+  singleMatchName: 'ZZ E2E Group 1788335968232',
+  singleMatchDescription: 'Automated group create check 1788335968232',
+  /** The same two words of that name, in order and reversed. */
+  phraseInOrder: 'Group 1788335968232',
+  phraseReversed: '1788335968232 Group',
+  /** Appears in the automation-owned descriptions and in no group name. */
+  descriptionPhrase: 'Automated group create check',
+  /** A word from the names next to a word from the descriptions — no single field holds both. */
+  crossFieldPhrase: 'Group Automated',
+  /** Special-character fragments carried by the "ZZ E2E Special" groups. */
+  ampersandQuote: `&'`,
+  markupTag: '<b>',
+  /** A literal percent sign — a wildcard would return the whole catalog instead. */
+  percent: '%',
+  noMatch: 'zzzz-no-match-9f3',
+  /** The box has no maximum length; a 200-character term is accepted and matches nothing. */
+  longTermLength: 200,
+  /** A second executed term for the persistence and defect cases. */
+  secondWord: 'Audio',
+} as const;
+
+/** The grid's column field keys, in default order, as the stored layout and the resize handles name them. */
+export const PGR_COLUMN_FIELDS = {
+  Name: 'productGroupName',
+  Description: 'productGroupDescription',
+  'Service Type': 'serviceTypeName',
+  Status: 'active',
+} as const;
+
+export const PGR_DEFAULT_COLUMN_ORDER = [
+  PGR_COLUMN_FIELDS.Name,
+  PGR_COLUMN_FIELDS.Description,
+  PGR_COLUMN_FIELDS['Service Type'],
+  PGR_COLUMN_FIELDS.Status,
+] as const;
+
+/** The width the Name column asks for by default; a resize drag stores this plus the drag distance. */
+export const PGR_DEFAULT_NAME_COLUMN_WIDTH = 400;
+
+/** Pixels the resize case drags the Name column's edge to the right. */
+export const PGR_RESIZE_DRAG_PX = 150;
+
+/** The entries each column menu offers (read live 2026-09-09): Name cannot be hidden, Status cannot be sorted. */
+export const PGR_COLUMN_MENU_ENTRIES = {
+  Name: ['Sort ascending', 'Sort descending'],
+  Description: ['Sort ascending', 'Sort descending', 'Hide column'],
+  'Service Type': ['Sort ascending', 'Sort descending', 'Hide column'],
+  Status: ['Hide column'],
+} as const;
+
+/** The Grid Options menu, in order: the reset entry then one toggle per hideable column. */
+export const PGR_GRID_OPTIONS_ENTRIES = ['Reset to Default View', 'Description', 'Service Type', 'Status'] as const;
+
+/** Menu entries the cases choose by name. */
+export const PGR_MENU = {
+  sortAscending: 'Sort ascending',
+  sortDescending: 'Sort descending',
+  hideColumn: 'Hide column',
+  resetView: 'Reset to Default View',
+} as const;
+
+/** The heading the Edit page shows when a result row opens it (read live 2026-09-09). */
+export const PGR_EDIT_HEADING = 'Edit';
+
+/** Browser-storage keys the page keeps its executed search and its grid layout under. */
+export const PGR_STORAGE_KEYS = {
+  /** Session storage: the executed search — text, Active flag, sort, page and page size. */
+  search: 'navigator:productGroups:searchState',
+  /** Local storage: column visibility, order and widths. */
+  gridLayout: 'product-groups-table-settings',
+} as const;
+
+/** Shape of the executed-search state under {@link PGR_STORAGE_KEYS.search}. */
+export interface PgrStoredSearch {
+  searchText: string;
+  active: boolean;
+  sortBy: string;
+  sortDirection: 'asc' | 'desc';
+  pageIndex: number;
+  pageSize: number;
+}
+
+/** Shape of the grid layout under {@link PGR_STORAGE_KEYS.gridLayout}. */
+export interface PgrStoredGridLayout {
+  columnVisibility?: Record<string, boolean>;
+  columnOrder?: string[];
+  columnSizing?: Record<string, number>;
+}
+
 /**
  * Values for creating a product group from the Add page. A group needs a name, a
  * description, a service type and at least one sub-class (added by double-clicking any

@@ -230,7 +230,10 @@ export const MODULE_CONFIG = {
     openerTestidPatterns: [],
     openerRoleTextPatterns: [
       { role: 'button', text: 'Search', branch: 'search:executed' },
-      { role: 'button', text: 'Add', branch: 'dialog:add-group' },
+      // The Add button is a ROUTE to the Add Product Group page, not a dialog. That page carries its own
+      // config below ('item-search-add-product-group'), and its 7,394-row sub-class catalog hangs the
+      // derive-type pass, so the list module no longer follows it (opener dropped 2026-09-09; the
+      // 2026-08-31 'dialog:add-group' run snapshotted before the route change and only duplicated the list keys).
     ],
     excludeOptionRoles: true,
     ...MC_DATA['item-search-product-groups'],

@@ -1,0 +1,68 @@
+{
+  "date": "2026-09-09T15:11:06.887Z",
+  "handles": [
+    {
+      "label": "Resize column productGroupName",
+      "th": [
+        321,
+        369,
+        179,
+        93
+      ],
+      "sizing": {
+        "productGroupName": 460
+      }
+    },
+    {
+      "label": "Resize column productGroupDescription",
+      "th": [
+        319,
+        373,
+        177,
+        92
+      ],
+      "sizing": {
+        "productGroupName": 460,
+        "productGroupDescription": 510
+      }
+    },
+    {
+      "label": "Resize column serviceTypeName",
+      "th": [
+        318,
+        372,
+        180,
+        92
+      ],
+      "sizing": {
+        "productGroupName": 460,
+        "productGroupDescription": 510,
+        "serviceTypeName": 410
+      }
+    },
+    {
+      "label": "Resize column active",
+      "th": [
+        317,
+        371,
+        178,
+        96
+      ],
+      "sizing": {
+        "productGroupName": 460,
+        "productGroupDescription": 510,
+        "serviceTypeName": 410,
+        "active": 210
+      }
+    }
+  ],
+  "before": {
+    "th": [
+      317,
+      370,
+      181,
+      94
+    ],
+    "sizing": {}
+  }
+}

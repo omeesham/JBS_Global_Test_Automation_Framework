@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-09T15:02:23.200Z",
+  "page": "products",
+  "before": {
+    "table": 1925,
+    "container": 1035,
+    "scrollW": 1925,
+    "firstTh": 134,
+    "firstThStyle": "width: 70px",
+    "tableStyle": "width: 1315px;",
+    "sizing": {}
+  },
+  "handle": "Resize column MajorCategory",
+  "after200": {
+    "table": 1925,
+    "container": 1035,
+    "scrollW": 1925,
+    "firstTh": 134,
+    "firstThStyle": "width: 270px",
+    "tableStyle": "width: 1515px;",
+    "sizing": {
+      "MajorCategory": 270
+    }
+  }
+}

@@ -1,0 +1,454 @@
+{
+  "date": "2026-09-09T14:52:41.392Z",
+  "searchRetry": 1,
+  "loader": {
+    "observer": [
+      {
+        "t": 12867,
+        "kind": "added-desc",
+        "tag": "svg",
+        "cls": "lucide lucide-loader-circle size-4 animate-spin text-muted-foreground",
+        "inForm": true
+      },
+      {
+        "t": 12867,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12867,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12867,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12867,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12867,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12867,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-3 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      },
+      {
+        "t": 12868,
+        "kind": "added-desc",
+        "tag": "DIV",
+        "cls": "bg-accent animate-pulse h-4 w-full rounded-md",
+        "inForm": false
+      }
+    ],
+    "samples": [
+      {
+        "t": 35,
+        "spin": 0,
+        "skel": 0,
+        "inpDis": false,
+        "btnDis": false,
+        "rows": 0,
+        "formSvg": "lucide-search,lucide-search,lucide-list-filter,lucide-check"
+      },
+      {
+        "t": 58,
+        "spin": 0,
+        "skel": 0,
+        "inpDis": false,
+        "btnDis": false,
+        "rows": 0,
+        "formSvg": "lucide-search,lucide-search,lucide-x,lucide-list-filter,lucide-check"
+      },
+      {
+        "t": 12932,
+        "spin": 1,
+        "skel": 132,
+        "inpDis": false,
+        "btnDis": false,
+        "rows": 0,
+        "formSvg": "lucide-search,lucide-search,lucide-x,lucide-loader-circle+animate-spin,lucide-list-filter,lucide-check"
+      },
+      {
+        "t": 13306,
+        "spin": 0,
+        "skel": 0,
+        "inpDis": false,
+        "btnDis": false,
+        "rows": 20,
+        "formSvg": "lucide-search,lucide-search,lucide-x,lucide-list-filter,lucide-check"
+      }
+    ],
+    "rows": 20,
+    "count": "22 product groups found"
+  },
+  "resize": {
+    "before": [
+      [
+        "Name",
+        317
+      ],
+      [
+        "Description",
+        370
+      ],
+      [
+        "Service Type",
+        181
+      ],
+      [
+        "Status",
+        94
+      ]
+    ],
+    "settingsBefore": "{\"columnVisibility\":{},\"columnOrder\":[\"productGroupName\",\"productGroupDescription\",\"serviceTypeName\",\"active\"],\"columnSizing\":{},\"sorting\":[]}",
+    "handleBox": {
+      "x": 950.046875,
+      "y": 105,
+      "width": 4,
+      "height": 32
+    },
+    "after": [
+      [
+        "Name",
+        325
+      ],
+      [
+        "Description",
+        368
+      ],
+      [
+        "Service Type",
+        177
+      ],
+      [
+        "Status",
+        92
+      ]
+    ],
+    "settingsAfter": "{\"columnVisibility\":{},\"columnOrder\":[\"productGroupName\",\"productGroupDescription\",\"serviceTypeName\",\"active\"],\"columnSizing\":{\"productGroupName\":520},\"sorting\":[]}",
+    "afterReload": [
+      [
+        "Name",
+        325
+      ],
+      [
+        "Description",
+        368
+      ],
+      [
+        "Service Type",
+        177
+      ],
+      [
+        "Status",
+        92
+      ]
+    ],
+    "settingsAfterReload": "{\"columnVisibility\":{},\"columnOrder\":[\"productGroupName\",\"productGroupDescription\",\"serviceTypeName\",\"active\"],\"columnSizing\":{\"productGroupName\":520},\"sorting\":[]}"
+  },
+  "reorder": {
+    "before": [
+      "Name",
+      "Description",
+      "Service Type",
+      "Status"
+    ],
+    "gripBox": {
+      "x": 644,
+      "y": 115,
+      "width": 12,
+      "height": 12
+    },
+    "targetBox": {
+      "x": 1330.640625,
+      "y": 105,
+      "width": 176.890625,
+      "height": 32.5
+    },
+    "afterMouseDrag": [
+      "Description",
+      "Name",
+      "Service Type",
+      "Status"
+    ],
+    "settingsAfterDrag": "{\"columnVisibility\":{},\"columnOrder\":[\"productGroupDescription\",\"productGroupName\",\"serviceTypeName\",\"active\"],\"columnSizing\":{\"productGroupName\":520},\"sorting\":[]}",
+    "afterReload": [
+      "Description",
+      "Name",
+      "Service Type",
+      "Status"
+    ]
+  },
+  "reset": {
+    "gridBtnSelector": "#radix-_r_14_",
+    "widths": [
+      [
+        "Name",
+        317
+      ],
+      [
+        "Description",
+        370
+      ],
+      [
+        "Service Type",
+        181
+      ],
+      [
+        "Status",
+        94
+      ]
+    ],
+    "order": [
+      "Name",
+      "Description",
+      "Service Type",
+      "Status"
+    ],
+    "settings": "{\"columnVisibility\":{},\"columnOrder\":[\"productGroupName\",\"productGroupDescription\",\"serviceTypeName\",\"active\"],\"columnSizing\":{},\"sorting\":[]}"
+  }
+}

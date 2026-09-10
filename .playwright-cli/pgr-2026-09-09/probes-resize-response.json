@@ -1,0 +1,150 @@
+{
+  "date": "2026-09-09T14:59:30.936Z",
+  "searchAttempts": 2,
+  "before": {
+    "table": 962,
+    "container": 962,
+    "scrollW": 962,
+    "th": [
+      317,
+      370,
+      181,
+      94
+    ],
+    "td": [
+      317,
+      370,
+      181,
+      94
+    ],
+    "thStyle": [
+      "width: 400px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 450px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 350px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 150px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;"
+    ],
+    "tableStyle": "width: 100%;",
+    "tableClass": "w-full caption-bottom text-sm",
+    "sizing": {}
+  },
+  "drag+50": {
+    "handleX": 952,
+    "releasedAt": 1002,
+    "table": 962,
+    "container": 962,
+    "scrollW": 962,
+    "th": [
+      320,
+      369,
+      179,
+      93
+    ],
+    "td": [
+      320,
+      369,
+      179,
+      93
+    ],
+    "thStyle": [
+      "width: 450px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 450px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 350px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 150px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;"
+    ],
+    "tableStyle": "width: 100%;",
+    "tableClass": "w-full caption-bottom text-sm",
+    "sizing": {
+      "productGroupName": 450
+    }
+  },
+  "drag+150": {
+    "handleX": 956,
+    "releasedAt": 1106,
+    "table": 962,
+    "container": 962,
+    "scrollW": 962,
+    "th": [
+      328,
+      367,
+      175,
+      92
+    ],
+    "td": [
+      328,
+      367,
+      175,
+      92
+    ],
+    "thStyle": [
+      "width: 600px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 450px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 350px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 150px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;"
+    ],
+    "tableStyle": "width: 100%;",
+    "tableClass": "w-full caption-bottom text-sm",
+    "sizing": {
+      "productGroupName": 600
+    }
+  },
+  "drag+300": {
+    "handleX": 964,
+    "releasedAt": 1264,
+    "table": 962,
+    "container": 962,
+    "scrollW": 962,
+    "th": [
+      336,
+      365,
+      170,
+      90
+    ],
+    "td": [
+      336,
+      365,
+      170,
+      90
+    ],
+    "thStyle": [
+      "width: 900px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 450px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 350px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 150px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;"
+    ],
+    "tableStyle": "width: 100%;",
+    "tableClass": "w-full caption-bottom text-sm",
+    "sizing": {
+      "productGroupName": 900
+    }
+  },
+  "drag-300": {
+    "handleX": 972,
+    "releasedAt": 672,
+    "table": 962,
+    "container": 962,
+    "scrollW": 962,
+    "th": [
+      328,
+      367,
+      175,
+      92
+    ],
+    "td": [
+      328,
+      367,
+      175,
+      92
+    ],
+    "thStyle": [
+      "width: 600px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 450px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 350px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;",
+      "width: 150px; min-width: 80px; white-space: normal; height: auto; vertical-align: top;"
+    ],
+    "tableStyle": "width: 100%;",
+    "tableClass": "w-full caption-bottom text-sm",
+    "sizing": {
+      "productGroupName": 600
+    }
+  }
+}

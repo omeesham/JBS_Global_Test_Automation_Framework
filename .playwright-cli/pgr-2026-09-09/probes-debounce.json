@@ -1,0 +1,76 @@
+{
+  "date": "2026-09-09T15:00:36.438Z",
+  "pauses": [
+    {
+      "pause": 0,
+      "searchText": "",
+      "count": "0 product groups found",
+      "rows": 0,
+      "box": "ZZ E2E",
+      "usedTypedText": false
+    },
+    {
+      "pause": 250,
+      "searchText": "ZZ E2E",
+      "count": "22 product groups found",
+      "rows": 20,
+      "box": "ZZ E2E",
+      "usedTypedText": true
+    },
+    {
+      "pause": 500,
+      "searchText": "ZZ E2E",
+      "count": "22 product groups found",
+      "rows": 20,
+      "box": "ZZ E2E",
+      "usedTypedText": true
+    },
+    {
+      "pause": 750,
+      "searchText": "ZZ E2E",
+      "count": "22 product groups found",
+      "rows": 20,
+      "box": "ZZ E2E",
+      "usedTypedText": true
+    },
+    {
+      "pause": 1000,
+      "searchText": "ZZ E2E",
+      "count": "22 product groups found",
+      "rows": 20,
+      "box": "ZZ E2E",
+      "usedTypedText": true
+    },
+    {
+      "pause": 1500,
+      "searchText": "ZZ E2E",
+      "count": "22 product groups found",
+      "rows": 20,
+      "box": "ZZ E2E",
+      "usedTypedText": true
+    },
+    {
+      "pause": 2500,
+      "searchText": "ZZ E2E",
+      "count": "22 product groups found",
+      "rows": 20,
+      "box": "ZZ E2E",
+      "usedTypedText": true
+    }
+  ],
+  "staleSecond": {
+    "first": {
+      "searchText": "ZZ E2E",
+      "count": "22 product groups found",
+      "rows": 20,
+      "box": "ZZ E2E"
+    },
+    "second": {
+      "searchText": "ZZ E2E",
+      "count": "22 product groups found",
+      "rows": 20,
+      "box": "Audio"
+    },
+    "staleTermSearched": true
+  }
+}

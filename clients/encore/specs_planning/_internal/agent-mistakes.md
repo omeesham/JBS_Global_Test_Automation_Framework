@@ -502,3 +502,9 @@ grep-verifiable line item in PLAN_DELIVERABLE_QUALITY_UPGRADE.md.
 **What**: `rm -rf reports/test-results playwright-report/...` before run 2 destroyed the failure screenshot that proved the toast persistence (both leftover toasts with TC-018's values on TC-019's form). The inventory now cites my transcription of the screenshot plus the copied run log instead of the screenshot itself.
 
 **Rule**: before clearing a run's artifacts, copy anything cited — or citable — as evidence into the dated evidence directory. Cleaning protects the NEXT run's integrity; it is not a licence to destroy the last run's proof.
+
+## CEO-M29 — I suppressed a click's error output and read the unchanged grid as "the sort items are inert" (Sev S1, 2026-09-09)
+
+**What**: on the Product Groups list I clicked `menuitem "Sort descending"` in the Status column menu with `2>&1 | grep -i error | head -1` on the click and `>/dev/null` on its siblings, then read the grid: unchanged order, unchanged icons, unchanged session state — and wrote "the Status menu offers Sort ascending/descending but neither does anything" as a BUG-CANDIDATE, twice, in two batches. The item never existed: the Status menu holds only "Hide column" (it is a non-sortable column, exactly like Available / In Sequence on the Products grid). A header-cell click that listed the real items exposed it; the button path with errors visible confirmed it (`does not match any elements`).
+
+**Rule**: a read-back after an action only means something when the action is proven to have happened. Never discard the click's own result when the next read depends on it; treat "no change after the click" as "did the click land?" first (LR-061 B — the positive control), and enumerate a menu's items before clicking one by name. A defect claim built on a suppressed error is fabrication-class, not a misread.

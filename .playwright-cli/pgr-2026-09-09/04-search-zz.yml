@@ -1,0 +1,397 @@
+- generic [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - generic [ref=e21]:
+      - list [ref=e23]:
+        - listitem [ref=e24]:
+          - button "1101 Corporate Office Encore USA SGA" [ref=e452] [cursor=pointer]:
+            - generic [ref=e27]: "1101"
+            - generic [ref=e28]:
+              - generic [ref=e29]: Corporate Office Encore USA SGA
+              - img [ref=e30]
+      - generic [ref=e36]:
+        - list [ref=e38]:
+          - listitem [ref=e39]:
+            - link "Home" [ref=e453] [cursor=pointer]:
+              - /url: /navigator/locations/1101/home
+              - img [ref=e41]
+              - generic [ref=e44]: Home
+          - listitem [ref=e45]:
+            - link "Inbox" [ref=e454] [cursor=pointer]:
+              - /url: /navigator/locations/1101/inbox
+              - img [ref=e47]
+              - generic [ref=e50]: Inbox
+          - listitem [ref=e51]:
+            - button "Actions" [ref=e455] [cursor=pointer]:
+              - img [ref=e53]
+              - generic [ref=e55]: Actions
+              - img [ref=e56]
+          - listitem [ref=e58]:
+            - button "Commissions" [ref=e456] [cursor=pointer]:
+              - img [ref=e60]
+              - generic [ref=e62]: Commissions
+              - img [ref=e63]
+          - listitem [ref=e65]:
+            - button "Tax" [ref=e457] [cursor=pointer]:
+              - img [ref=e67]
+              - generic [ref=e70]: Tax
+              - img [ref=e71]
+          - listitem [ref=e73]:
+            - button "Setup" [ref=e458] [cursor=pointer]:
+              - img [ref=e75]
+              - generic [ref=e78]: Setup
+              - img [ref=e79]
+          - listitem [ref=e81]:
+            - button "Warehouse" [ref=e459] [cursor=pointer]:
+              - img [ref=e83]
+              - generic [ref=e86]: Warehouse
+              - img [ref=e87]
+          - listitem [ref=e89]:
+            - button "Studio" [ref=e460] [cursor=pointer]:
+              - img [ref=e91]
+              - generic [ref=e93]: Studio
+              - img [ref=e94]
+        - generic [ref=e96]:
+          - generic [ref=e97]: Search
+          - list [ref=e99]:
+            - listitem [ref=e100]:
+              - link "Order Search" [ref=e461] [cursor=pointer]:
+                - /url: /navigator/locations/1101/orders
+                - img [ref=e102]
+                - generic [ref=e106]: Order Search
+            - listitem [ref=e107]:
+              - link "Job Search" [ref=e462] [cursor=pointer]:
+                - /url: /navigator/locations/1101/fulfillments
+                - img [ref=e109]
+                - generic [ref=e112]: Job Search
+            - listitem [ref=e113]:
+              - link "Asset Search" [ref=e463] [cursor=pointer]:
+                - /url: /navigator/locations/1101/assets
+                - img [ref=e115]
+                - generic [ref=e118]: Asset Search
+            - listitem [ref=e119]:
+              - link "Customer Search" [ref=e464] [cursor=pointer]:
+                - /url: /navigator/locations/1101/customers
+                - img [ref=e121]
+                - generic [ref=e124]: Customer Search
+            - listitem [ref=e125]:
+              - button "DRO Search" [disabled]:
+                - img
+                - generic: DRO Search
+            - listitem [ref=e126]:
+              - button "Payment Search" [disabled]:
+                - img
+                - generic: Payment Search
+            - listitem [ref=e127]:
+              - link "Package Search" [ref=e465] [cursor=pointer]:
+                - /url: /navigator/locations/1101/packages
+                - img [ref=e129]
+                - generic [ref=e133]: Package Search
+            - listitem [ref=e134]:
+              - link "Item Search" [ref=e466] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+                - img [ref=e136]
+                - generic [ref=e146]: Item Search
+            - listitem [ref=e147]:
+              - button "ECT Search" [disabled]:
+                - img
+                - generic: ECT Search
+            - listitem [ref=e148]:
+              - button "Event Agendas" [disabled]:
+                - img
+                - generic: Event Agendas
+        - list [ref=e150]:
+          - listitem [ref=e151]:
+            - button "Ask Encore" [ref=e467] [cursor=pointer]:
+              - img [ref=e153]
+              - generic [ref=e155]: Ask Encore
+      - list [ref=e158]:
+        - listitem [ref=e159]:
+          - button "PC prd click auto" [ref=e468] [cursor=pointer]:
+            - generic [ref=e162]: PC
+            - generic [ref=e164]: prd click auto
+            - img [ref=e165]
+      - button "Click to restore sidebar" [ref=e469]
+    - main [ref=e171]:
+      - generic [ref=e172]:
+        - generic [ref=e174]:
+          - button "trigger-button" [ref=e470] [cursor=pointer]:
+            - img
+          - generic [ref=e177]:
+            - generic [ref=e178]:
+              - link "Products" [ref=e471] [cursor=pointer]:
+                - /url: /navigator/locations/1101/products
+              - img [ref=e180]
+            - heading "Product Groups" [level=1] [ref=e472]
+        - generic [ref=e185]:
+          - generic [ref=e192]:
+            - generic [ref=e193]:
+              - generic [ref=e194]:
+                - generic [ref=e196]:
+                  - img [ref=e197]
+                  - text: Product Groups
+                - generic [ref=e202]:
+                  - img [ref=e204]
+                  - textbox "Search Product Groups..." [active] [ref=e473]: ZZ E2E
+                  - button [ref=e475] [cursor=pointer]:
+                    - img
+              - generic [ref=e208]:
+                - generic [ref=e210]:
+                  - img [ref=e211]
+                  - text: Status
+                - generic [ref=e213]:
+                  - checkbox [checked] [ref=e214] [cursor=pointer]:
+                    - generic:
+                      - img
+                  - checkbox [checked]
+                  - generic [ref=e215]: Active
+            - generic [ref=e216]:
+              - button "Reset" [ref=e476] [cursor=pointer]:
+                - generic [ref=e218]: Reset
+              - button "Search" [ref=e477] [cursor=pointer]:
+                - generic [ref=e220]: Search
+          - button "Collapse search panel" [ref=e478] [cursor=pointer]:
+            - img
+          - generic [ref=e224]:
+            - generic [ref=e225]:
+              - generic [ref=e226]:
+                - img [ref=e227]
+                - generic [ref=e231]: 22 product groups found
+              - generic [ref=e232]:
+                - button "Add" [ref=e479] [cursor=pointer]:
+                  - img
+                  - text: Add
+                - button "Grid Options" [ref=e480] [cursor=pointer]:
+                  - img
+                  - generic [ref=e236]: Grid Options
+            - table [ref=e497]:
+              - rowgroup [ref=e498]:
+                - row "Name Resize column productGroupName Description Resize column productGroupDescription Service Type Resize column serviceTypeName Status Resize column active" [ref=e499]:
+                  - columnheader "Name Resize column productGroupName" [ref=e500]:
+                    - generic [ref=e501]:
+                      - img [ref=e502]
+                      - button "Name" [ref=e511] [cursor=pointer]:
+                        - generic [ref=e512]: Name
+                        - img
+                    - button "Resize column productGroupName" [ref=e513]
+                  - columnheader "Description Resize column productGroupDescription" [ref=e514]:
+                    - generic [ref=e515]:
+                      - img [ref=e516]
+                      - button "Description" [ref=e525] [cursor=pointer]:
+                        - generic [ref=e526]: Description
+                        - img
+                    - button "Resize column productGroupDescription" [ref=e527]
+                  - columnheader "Service Type Resize column serviceTypeName" [ref=e528]:
+                    - generic [ref=e529]:
+                      - img [ref=e530]
+                      - button "Service Type" [ref=e539] [cursor=pointer]:
+                        - generic [ref=e540]: Service Type
+                        - img
+                    - button "Resize column serviceTypeName" [ref=e541]
+                  - columnheader "Status Resize column active" [ref=e542]:
+                    - generic [ref=e543]:
+                      - img [ref=e544]
+                      - button "Status" [ref=e553] [cursor=pointer]:
+                        - generic [ref=e554]: Status
+                    - button "Resize column active" [ref=e555]
+              - rowgroup [ref=e556]:
+                - row "ZZ E2E Group 1788335968232 Automated group create check 1788335968232 Equipment Rental Active" [ref=e557] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788335968232" [ref=e558]:
+                    - generic [ref=e559]: ZZ E2E Group 1788335968232
+                  - cell "Automated group create check 1788335968232" [ref=e560]:
+                    - generic [ref=e561]: Automated group create check 1788335968232
+                  - cell "Equipment Rental" [ref=e562]:
+                    - generic [ref=e563]: Equipment Rental
+                  - cell "Active" [ref=e564]:
+                    - generic [ref=e565]: Active
+                - row "ZZ E2E Group 1788338845188 Automated group create check 1788338845188 Equipment Rental Active" [ref=e566] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788338845188" [ref=e567]:
+                    - generic [ref=e568]: ZZ E2E Group 1788338845188
+                  - cell "Automated group create check 1788338845188" [ref=e569]:
+                    - generic [ref=e570]: Automated group create check 1788338845188
+                  - cell "Equipment Rental" [ref=e571]:
+                    - generic [ref=e572]: Equipment Rental
+                  - cell "Active" [ref=e573]:
+                    - generic [ref=e574]: Active
+                - row "ZZ E2E Group 1788339195243 Automated group create check 1788339195243 Equipment Rental Active" [ref=e575] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788339195243" [ref=e576]:
+                    - generic [ref=e577]: ZZ E2E Group 1788339195243
+                  - cell "Automated group create check 1788339195243" [ref=e578]:
+                    - generic [ref=e579]: Automated group create check 1788339195243
+                  - cell "Equipment Rental" [ref=e580]:
+                    - generic [ref=e581]: Equipment Rental
+                  - cell "Active" [ref=e582]:
+                    - generic [ref=e583]: Active
+                - row "ZZ E2E Group 1788342240855 Automated group create check 1788342240855 Equipment Rental Active" [ref=e584] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788342240855" [ref=e585]:
+                    - generic [ref=e586]: ZZ E2E Group 1788342240855
+                  - cell "Automated group create check 1788342240855" [ref=e587]:
+                    - generic [ref=e588]: Automated group create check 1788342240855
+                  - cell "Equipment Rental" [ref=e589]:
+                    - generic [ref=e590]: Equipment Rental
+                  - cell "Active" [ref=e591]:
+                    - generic [ref=e592]: Active
+                - row "ZZ E2E Group 1788362772142 Automated group create check 1788362772142 Equipment Rental Active" [ref=e593] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788362772142" [ref=e594]:
+                    - generic [ref=e595]: ZZ E2E Group 1788362772142
+                  - cell "Automated group create check 1788362772142" [ref=e596]:
+                    - generic [ref=e597]: Automated group create check 1788362772142
+                  - cell "Equipment Rental" [ref=e598]:
+                    - generic [ref=e599]: Equipment Rental
+                  - cell "Active" [ref=e600]:
+                    - generic [ref=e601]: Active
+                - row "ZZ E2E Group 1788373877914 Automated group create check 1788373877914 Equipment Rental Active" [ref=e602] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788373877914" [ref=e603]:
+                    - generic [ref=e604]: ZZ E2E Group 1788373877914
+                  - cell "Automated group create check 1788373877914" [ref=e605]:
+                    - generic [ref=e606]: Automated group create check 1788373877914
+                  - cell "Equipment Rental" [ref=e607]:
+                    - generic [ref=e608]: Equipment Rental
+                  - cell "Active" [ref=e609]:
+                    - generic [ref=e610]: Active
+                - row "ZZ E2E Group 1788432444604 Automated group create check 1788432444604 Equipment Rental Active" [ref=e611] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788432444604" [ref=e612]:
+                    - generic [ref=e613]: ZZ E2E Group 1788432444604
+                  - cell "Automated group create check 1788432444604" [ref=e614]:
+                    - generic [ref=e615]: Automated group create check 1788432444604
+                  - cell "Equipment Rental" [ref=e616]:
+                    - generic [ref=e617]: Equipment Rental
+                  - cell "Active" [ref=e618]:
+                    - generic [ref=e619]: Active
+                - row "ZZ E2E Group 1788515364804 Automated group create check 1788515364804 Equipment Rental Active" [ref=e620] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788515364804" [ref=e621]:
+                    - generic [ref=e622]: ZZ E2E Group 1788515364804
+                  - cell "Automated group create check 1788515364804" [ref=e623]:
+                    - generic [ref=e624]: Automated group create check 1788515364804
+                  - cell "Equipment Rental" [ref=e625]:
+                    - generic [ref=e626]: Equipment Rental
+                  - cell "Active" [ref=e627]:
+                    - generic [ref=e628]: Active
+                - row "ZZ E2E Group 1788866967870 Automated group create check 1788866967870 Equipment Rental Active" [ref=e629] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788866967870" [ref=e630]:
+                    - generic [ref=e631]: ZZ E2E Group 1788866967870
+                  - cell "Automated group create check 1788866967870" [ref=e632]:
+                    - generic [ref=e633]: Automated group create check 1788866967870
+                  - cell "Equipment Rental" [ref=e634]:
+                    - generic [ref=e635]: Equipment Rental
+                  - cell "Active" [ref=e636]:
+                    - generic [ref=e637]: Active
+                - row "ZZ E2E Group 1788867208999 Automated group create check 1788867208999 Equipment Rental Active" [ref=e638] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788867208999" [ref=e639]:
+                    - generic [ref=e640]: ZZ E2E Group 1788867208999
+                  - cell "Automated group create check 1788867208999" [ref=e641]:
+                    - generic [ref=e642]: Automated group create check 1788867208999
+                  - cell "Equipment Rental" [ref=e643]:
+                    - generic [ref=e644]: Equipment Rental
+                  - cell "Active" [ref=e645]:
+                    - generic [ref=e646]: Active
+                - row "ZZ E2E Group 1788888713924 Automated group create check 1788888713924 Equipment Rental Active" [ref=e647] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788888713924" [ref=e648]:
+                    - generic [ref=e649]: ZZ E2E Group 1788888713924
+                  - cell "Automated group create check 1788888713924" [ref=e650]:
+                    - generic [ref=e651]: Automated group create check 1788888713924
+                  - cell "Equipment Rental" [ref=e652]:
+                    - generic [ref=e653]: Equipment Rental
+                  - cell "Active" [ref=e654]:
+                    - generic [ref=e655]: Active
+                - row "ZZ E2E Group 1788952315502 Automated group create check 1788952315502 Equipment Rental Active" [ref=e656] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788952315502" [ref=e657]:
+                    - generic [ref=e658]: ZZ E2E Group 1788952315502
+                  - cell "Automated group create check 1788952315502" [ref=e659]:
+                    - generic [ref=e660]: Automated group create check 1788952315502
+                  - cell "Equipment Rental" [ref=e661]:
+                    - generic [ref=e662]: Equipment Rental
+                  - cell "Active" [ref=e663]:
+                    - generic [ref=e664]: Active
+                - row "ZZ E2E Group 1788953221887 Automated group create check 1788953221887 Equipment Rental Active" [ref=e665] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788953221887" [ref=e666]:
+                    - generic [ref=e667]: ZZ E2E Group 1788953221887
+                  - cell "Automated group create check 1788953221887" [ref=e668]:
+                    - generic [ref=e669]: Automated group create check 1788953221887
+                  - cell "Equipment Rental" [ref=e670]:
+                    - generic [ref=e671]: Equipment Rental
+                  - cell "Active" [ref=e672]:
+                    - generic [ref=e673]: Active
+                - row "ZZ E2E Group 1788953578867 Automated group create check 1788953578867 Equipment Rental Active" [ref=e674] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788953578867" [ref=e675]:
+                    - generic [ref=e676]: ZZ E2E Group 1788953578867
+                  - cell "Automated group create check 1788953578867" [ref=e677]:
+                    - generic [ref=e678]: Automated group create check 1788953578867
+                  - cell "Equipment Rental" [ref=e679]:
+                    - generic [ref=e680]: Equipment Rental
+                  - cell "Active" [ref=e681]:
+                    - generic [ref=e682]: Active
+                - row "ZZ E2E Group 1788954373278 Automated group create check 1788954373278 Equipment Rental Active" [ref=e683] [cursor=pointer]:
+                  - cell "ZZ E2E Group 1788954373278" [ref=e684]:
+                    - generic [ref=e685]: ZZ E2E Group 1788954373278
+                  - cell "Automated group create check 1788954373278" [ref=e686]:
+                    - generic [ref=e687]: Automated group create check 1788954373278
+                  - cell "Equipment Rental" [ref=e688]:
+                    - generic [ref=e689]: Equipment Rental
+                  - cell "Active" [ref=e690]:
+                    - generic [ref=e691]: Active
+                - row "ZZ E2E Group 20260902-124908 Automated group save-flow 20260902-124908 Equipment Rental Active" [ref=e692] [cursor=pointer]:
+                  - cell "ZZ E2E Group 20260902-124908" [ref=e693]:
+                    - generic [ref=e694]: ZZ E2E Group 20260902-124908
+                  - cell "Automated group save-flow 20260902-124908" [ref=e695]:
+                    - generic [ref=e696]: Automated group save-flow 20260902-124908
+                  - cell "Equipment Rental" [ref=e697]:
+                    - generic [ref=e698]: Equipment Rental
+                  - cell "Active" [ref=e699]:
+                    - generic [ref=e700]: Active
+                - row "ZZ E2E Special <b>&'\"</b> 1788952571507 Automated special-character group 1788952571507 ZSub Rental Specialty Active" [ref=e701] [cursor=pointer]:
+                  - cell "ZZ E2E Special <b>&'\"</b> 1788952571507" [ref=e702]:
+                    - generic [ref=e703]: ZZ E2E Special <b>&'"</b> 1788952571507
+                  - cell "Automated special-character group 1788952571507" [ref=e704]:
+                    - generic [ref=e705]: Automated special-character group 1788952571507
+                  - cell "ZSub Rental Specialty" [ref=e706]:
+                    - generic [ref=e707]: ZSub Rental Specialty
+                  - cell "Active" [ref=e708]:
+                    - generic [ref=e709]: Active
+                - row "ZZ E2E Special <b>&'\"</b> 1788953345717 Automated special-character group 1788953345717 ZSub Rental Specialty Active" [ref=e710] [cursor=pointer]:
+                  - cell "ZZ E2E Special <b>&'\"</b> 1788953345717" [ref=e711]:
+                    - generic [ref=e712]: ZZ E2E Special <b>&'"</b> 1788953345717
+                  - cell "Automated special-character group 1788953345717" [ref=e713]:
+                    - generic [ref=e714]: Automated special-character group 1788953345717
+                  - cell "ZSub Rental Specialty" [ref=e715]:
+                    - generic [ref=e716]: ZSub Rental Specialty
+                  - cell "Active" [ref=e717]:
+                    - generic [ref=e718]: Active
+                - row "ZZ E2E Special <b>&'\"</b> 1788953821051 Automated special-character group 1788953821051 ZSub Rental Specialty Active" [ref=e719] [cursor=pointer]:
+                  - cell "ZZ E2E Special <b>&'\"</b> 1788953821051" [ref=e720]:
+                    - generic [ref=e721]: ZZ E2E Special <b>&'"</b> 1788953821051
+                  - cell "Automated special-character group 1788953821051" [ref=e722]:
+                    - generic [ref=e723]: Automated special-character group 1788953821051
+                  - cell "ZSub Rental Specialty" [ref=e724]:
+                    - generic [ref=e725]: ZSub Rental Specialty
+                  - cell "Active" [ref=e726]:
+                    - generic [ref=e727]: Active
+                - row "ZZ E2E Special <b>&'\"</b> 1788954497008 Automated special-character group 1788954497008 ZSub Rental Specialty Active" [ref=e728] [cursor=pointer]:
+                  - cell "ZZ E2E Special <b>&'\"</b> 1788954497008" [ref=e729]:
+                    - generic [ref=e730]: ZZ E2E Special <b>&'"</b> 1788954497008
+                  - cell "Automated special-character group 1788954497008" [ref=e731]:
+                    - generic [ref=e732]: Automated special-character group 1788954497008
+                  - cell "ZSub Rental Specialty" [ref=e733]:
+                    - generic [ref=e734]: ZSub Rental Specialty
+                  - cell "Active" [ref=e735]:
+                    - generic [ref=e736]: Active
+            - generic [ref=e306]:
+              - generic [ref=e308]:
+                - combobox [ref=e309] [cursor=pointer]:
+                  - generic: "20"
+                  - img
+                - paragraph [ref=e310]: rows per page
+              - generic [ref=e311]:
+                - button "Go to first page" [disabled]:
+                  - img
+                - button "Go to previous page" [disabled]:
+                  - img
+                - generic [ref=e312]:
+                  - textbox "Current page number" [ref=e494]: "1"
+                  - generic [ref=e314]: /
+                  - text: "2"
+                - button "Go to next page" [ref=e737] [cursor=pointer]:
+                  - img
+                - button "Go to last page" [ref=e738] [cursor=pointer]:
+                  - img
+  - region "Notifications alt+T"
