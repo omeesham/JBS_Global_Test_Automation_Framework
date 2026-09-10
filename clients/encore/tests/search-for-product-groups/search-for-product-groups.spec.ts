@@ -25,8 +25,8 @@ import {
  *
  * Covers arriving at the page, running a group search, the empty-search and pagination
  * contracts, Reset, search persistence across navigation, and the status column. The
- * create flow behind the page's Add button is the sibling sub-task NM-2259 and lives in
- * `tests/create-new-product-groups/`.
+ * create flow behind the page's Add button is the sibling sub-task NM-2259 and has its own
+ * spec and workbook, delivered separately.
  *
  * Shares the Products page's behaviors (skeleton hydration, storage-restored executed
  * searches, no auto-search on load) with two deliberate differences asserted here: an
