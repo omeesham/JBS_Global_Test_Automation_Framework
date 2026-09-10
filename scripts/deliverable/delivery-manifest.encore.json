@@ -1191,7 +1191,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 49,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    },
    "specs": [
     "tests/corporate-override/corporate-override-labor-grid.spec.ts"
@@ -1265,7 +1265,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 50,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    },
    "specs": [
     "tests/corporate-override/corporate-override-export.spec.ts"
@@ -1310,7 +1310,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 51,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    },
    "specs": [
     "tests/corporate-override/corporate-override-import.spec.ts"
@@ -1608,7 +1608,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 52,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    }
   },
   {
@@ -1652,7 +1652,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 53,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    }
   },
   {
@@ -1711,7 +1711,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 54,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    }
   },
   {
@@ -1765,7 +1765,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 55,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    }
   },
   {
@@ -1806,7 +1806,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 56,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    }
   },
   {
@@ -1858,7 +1858,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 57,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    }
   },
   {
@@ -1893,7 +1893,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 58,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    }
   },
   {
@@ -1951,13 +1951,13 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 60,
-    "blob_sha": "979c1629b65440401fff69223e66895e6f050927"
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
    }
   },
   {
    "code": "ISR.PGR",
    "name": "Item Search — Search For Product Groups",
-   "status": "withheld",
+   "status": "approved-next",
    "specs": [
     "tests/search-for-product-groups/search-for-product-groups.spec.ts"
    ],
@@ -2015,7 +2015,12 @@
    ],
    "sheets": [
     "item_search_product_groups"
-   ]
+   ],
+   "approved_ref": {
+    "path": "scripts/deliverable/approval-log.md",
+    "line": 61,
+    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+   }
   },
   {
    "code": "ISR.APG",
