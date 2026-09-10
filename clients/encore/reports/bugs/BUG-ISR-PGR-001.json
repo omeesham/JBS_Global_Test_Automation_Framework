@@ -3,7 +3,7 @@
   "title": "Item Search — Product Groups: a search submitted within about 250 ms of the last keystroke runs the PREVIOUS term, so the first search on a fresh page runs empty and a quick edit re-runs the old word",
   "module": "Item Search",
   "severity": "medium",
-  "status": "open",
+  "status": "withdrawn",
   "discoveredDate": "2026-09-09",
   "requirementSource": "NM-1617 (Enter in the search box must trigger the search) and NM-972 (search by Name and Description) both describe a search that runs the term the user typed; no ticket covers the timing between the last keystroke and the submit. Jira was read-only this session — no ticket for this timing gap was found by JQL on 2026-09-09.",
   "stepsToReproduce": [
@@ -23,7 +23,19 @@
   },
   "baselineComparison": "baseline-absent",
   "baselineEvidence": null,
-  "affectedTests": ["TC-ISR-PGR-016"],
+  "affectedTests": [
+    "TC-ISR-PGR-016"
+  ],
   "networkEvidence": "The search posts to the page route itself (a server action), so the request is not distinguishable by URL; the term that ran is proven by the stored executed search (session storage searchText) and the count label read after each submit — both show the previous term.",
-  "notes": "Severity assessed medium: a fast typist gets an empty or stale result with no message, and the box contradicts the grid. Workaround: pause before pressing Enter or Search, or press it twice. The automation types with a settle of 800 ms before any submit, so every other case here stays green; TC-ISR-PGR-016 asserts the intended behaviour (the typed term runs at once) and fails on purpose until the fix lands — its failure is the evidence vehicle for this defect, and it passes unchanged once the fix is in."
+  "notes": "WITHDRAWN 2026-09-10 by owner ruling: accepted behaviour, not a defect. TC-ISR-PGR-016 is flipped from a deliberately failing statement of the typed-term-runs-at-once intent into a passing case that pins both halves of the accepted contract: an immediate submit runs the previously committed term, a submit after the pause runs the typed word. History preserved: Severity assessed medium: a fast typist gets an empty or stale result with no message, and the box contradicts the grid. Workaround: pause before pressing Enter or Search, or press it twice. The automation types with a settle of 800 ms before any submit, so every other case here stays green; TC-ISR-PGR-016 asserts the intended behaviour (the typed term runs at once) and fails on purpose until the fix lands — its failure is the evidence vehicle for this defect, and it passes unchanged once the fix is in.",
+  "verificationLog": [
+    {
+      "verifierAgent": "OWNER (Claude)",
+      "verifiedDate": "2026-09-10",
+      "verdict": "WITHDRAWN-ACCEPTED-BEHAVIOR",
+      "detail": "Owner ruling in chat, 2026-09-10 (Vikas Yadav): not a defect - accepted behaviour of the page. The measured facts of the filing stand unchanged (the observation is real and reproducible); only the classification changes. Consequence: TC-ISR-PGR-016 is flipped from a deliberately failing statement of the typed-term-runs-at-once intent into a passing case that pins both halves of the accepted contract: an immediate submit runs the previously committed term, a submit after the pause runs the typed word. No product fix is expected or tracked from this record.",
+      "minimalRepro": "n/a - behaviour accepted as designed by the owner; the filed steps still reproduce the observation.",
+      "evidence": []
+    }
+  ]
 }

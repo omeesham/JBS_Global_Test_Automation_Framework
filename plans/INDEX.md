@@ -5,7 +5,7 @@
 
 **Refresh model**: this file is **fully regenerated** every time the script runs — there is no "move" or "add" between sections. When a plan moves `pending/` → `done/`, the next reindex re-evaluates every plan's dependencies and re-sorts the table from scratch. Triggers: manual `npm run plans:reindex`, pre-commit hook (`.githooks/pre-commit` runs `:check` and fails the commit if INDEX is stale), and `/execute` Phase 3.5 step 3 (LR-035).
 
-**Totals**: 165 pending · 492 done · 162 stale (>14d) · 0 DONE-in-pending
+**Totals**: 165 pending · 493 done · 162 stale (>14d) · 0 DONE-in-pending
 
 ---
 
@@ -380,7 +380,8 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 | File | Title | Status | Completed |
 |---|---|---|---|
 | [SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md](done/SUBPLAN_DQU_05A_LI_TC_PHASE_0_LINT_SWEEP.md) | SUBPLAN: LI Test-Case MD — Phase 0 Lint Sweep | SUPERSEDED | never (folded scope) |
-| [PLAN_NM2258_NM2259_PRODUCT_GROUPS.md](done/PLAN_NM2258_NM2259_PRODUCT_GROUPS.md) | PLAN_NM2258_NM2259_PRODUCT_GROUPS — split the Product Groups coverage into its two sub-task deliverables | DONE | 2026-09-08 (Phases 1–5) · 2026-09-09 (Phases 6–8) · 2026-09-10 (Phase 9) |
+| [PLAN_NM2258_SEARCH_FOR_PRODUCT_GROUPS.md](done/PLAN_NM2258_SEARCH_FOR_PRODUCT_GROUPS.md) | PLAN_NM2258_SEARCH_FOR_PRODUCT_GROUPS — the Product Groups list page (NM-2258): packaged as its own deliverable, re-walked to depth and covered | DONE | 2026-09-08 (Phases 1–5) · 2026-09-09 (Phases 6 and 8) · 2026-09-10 (Phase 9, the owner ruling, the sort-order fix, Phase 10) |
+| [PLAN_NM2259_CREATE_NEW_PRODUCT_GROUPS.md](done/PLAN_NM2259_CREATE_NEW_PRODUCT_GROUPS.md) | PLAN_NM2259_CREATE_NEW_PRODUCT_GROUPS — the Add Product Group page (NM-2259): packaged as its own deliverable, re-walked to depth and covered | DONE | 2026-09-08 (Phases 1–5) · 2026-09-09 (Phases 6 and 7, the correction in Phase 8) · 2026-09-10 (the toast-read fix, Phase 9, the landing ruling, Phase 10) |
 | [PLAN_NM2257_ADD_PRODUCT_CODE.md](done/PLAN_NM2257_ADD_PRODUCT_CODE.md) | PLAN_NM2257_ADD_PRODUCT_CODE — ship the Add Product Code sub-task as its own deliverable | DONE | 2026-09-03 → 2026-09-04 (field-length coverage 2026-09-03; the ownership split 2026-09-04) |
 | [PLAN_NM2254_PRODUCT_SEARCH_FILTERS.md](done/PLAN_NM2254_PRODUCT_SEARCH_FILTERS.md) | PLAN_NM2254_PRODUCT_SEARCH_FILTERS — own the Filters half of the Product Search page | DONE | 2026-09-02 (ownership split; the coverage itself landed 2026-08-31 → 2026-09-01 under the parent) |
 | [PLAN_NM3650_PRODUCT_SEARCH.md](done/PLAN_NM3650_PRODUCT_SEARCH.md) | PLAN_NM3650_PRODUCT_SEARCH — own the search + result-grid half of the Product Search page | DONE | 2026-09-02 (ownership split; the coverage itself landed 2026-08-31 → 2026-09-01 under the parent) |
@@ -880,7 +881,7 @@ Completed plans, sorted by Executed date desc. Historical reference — do not m
 plans/
   INDEX.md              ← this file (auto-generated)
   pending/              ← active plans (165 files)
-  done/                 ← completed plans (492 files)
+  done/                 ← completed plans (493 files)
 ```
 
 When completing a plan:
@@ -895,7 +896,8 @@ When completing a plan:
 | Date | Folder | File | Status |
 |---|---|---|---|
 | 2026-09-10 | pending | [PLAN_BIG_PIVOT_FCC_MASTER.md](pending/PLAN_BIG_PIVOT_FCC_MASTER.md) | PENDING |
-| 2026-09-10 | done | [PLAN_NM2258_NM2259_PRODUCT_GROUPS.md](done/PLAN_NM2258_NM2259_PRODUCT_GROUPS.md) | DONE |
+| 2026-09-10 | done | [PLAN_NM2258_SEARCH_FOR_PRODUCT_GROUPS.md](done/PLAN_NM2258_SEARCH_FOR_PRODUCT_GROUPS.md) | DONE |
+| 2026-09-10 | done | [PLAN_NM2259_CREATE_NEW_PRODUCT_GROUPS.md](done/PLAN_NM2259_CREATE_NEW_PRODUCT_GROUPS.md) | DONE |
 | 2026-09-10 | done | [SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md](done/SUBPLAN_ITEM_SEARCH_SAVE_FLOWS.md) | DONE |
 | 2026-09-04 | done | [PLAN_NM2257_ADD_PRODUCT_CODE.md](done/PLAN_NM2257_ADD_PRODUCT_CODE.md) | DONE |
 | 2026-09-02 | done | [PLAN_NM2254_PRODUCT_SEARCH_FILTERS.md](done/PLAN_NM2254_PRODUCT_SEARCH_FILTERS.md) | DONE |
@@ -933,4 +935,3 @@ When completing a plan:
 | 2026-08-18 | done | [PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK.md](done/PLAN_NM3344_SERVICE_CHARGE_COVERAGE_QUICK.md) | DONE |
 | 2026-08-18 | done | [PLAN_ORCH_EFFICIENCY_LEARNING.md](done/PLAN_ORCH_EFFICIENCY_LEARNING.md) | DONE |
 | 2026-08-18 | done | [SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md](done/SUBPLAN_REPO_02_CLAUDE_COPILOT_CONSOLIDATION.md) | SUPERSEDED |
-| 2026-08-18 | done | [SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md](done/SUBPLAN_REPO_13_COPILOT_ACCOUNTABILITY.md) | SUPERSEDED |

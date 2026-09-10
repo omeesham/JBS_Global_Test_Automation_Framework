@@ -104,8 +104,6 @@ export const itemSearchProductGroups = {
   /** The divider toggle between the picker and the form; its label flips with the state. */
   NAME_COLLAPSE_PANEL: 'Collapse search panel',
   NAME_EXPAND_PANEL: 'Expand search panel',
-  /** The error toast the server answers a duplicate name or description with. */
-  TOAST_ALREADY_EXISTS: /already exists\.$/,
 
   // ---------------------------------------------------------------- create confirmation
   /** Backend endpoint the add form posts to — filtered on so the save wait keys only on

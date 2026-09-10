@@ -1,0 +1,175 @@
+{
+  "started": "2026-09-10T09:41:34.989Z",
+  "steps": [
+    {
+      "t": "2026-09-10T09:41:45.489Z",
+      "k": "A0 add page landing",
+      "v": {
+        "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups/add",
+        "saveEnabled": false,
+        "nameVisible": true,
+        "nameValue": "",
+        "nameInvalid": "false",
+        "toasts": []
+      }
+    },
+    {
+      "t": "2026-09-10T09:41:50.651Z",
+      "k": "A1 form filled",
+      "v": {
+        "name": "ZZ E2E Probe 1789033305490",
+        "serviceType": "Equipment Rental",
+        "subClassesAdded": 1,
+        "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups/add",
+        "saveEnabled": true,
+        "nameVisible": true,
+        "nameValue": "ZZ E2E Probe 1789033305490",
+        "nameInvalid": "false",
+        "toasts": []
+      }
+    },
+    {
+      "t": "2026-09-10T09:41:51.169Z",
+      "k": "A2 create response",
+      "v": {
+        "status": 200,
+        "body": "{\"success\":true,\"data\":{\"id\":4620,\"productGroupName\":\"ZZ E2E Probe 1789033305490\",\"productGroupDescription\":\"Probe description 1789033305490\",\"serviceTypeNameId\":3,\"serviceTypeName\":\"Equipment Rental\",\"productIds\":[102039],\"active\":true,\"translations\":[],\"subclasses\":[{\"id\":102039,\"name\":\"\"}],\"creat"
+      }
+    },
+    {
+      "t": "2026-09-10T09:42:26.697Z",
+      "k": "A3 1.5 s after Save",
+      "v": {
+        "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups",
+        "saveEnabled": null,
+        "nameVisible": false,
+        "nameValue": null,
+        "nameInvalid": null,
+        "toasts": []
+      }
+    },
+    {
+      "t": "2026-09-10T09:43:03.775Z",
+      "k": "A4 after another 3000 ms",
+      "v": {
+        "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups",
+        "saveEnabled": null,
+        "nameVisible": false,
+        "nameValue": null,
+        "nameInvalid": null,
+        "toasts": []
+      }
+    },
+    {
+      "t": "2026-09-10T09:43:42.822Z",
+      "k": "A4 after another 5000 ms",
+      "v": {
+        "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups",
+        "saveEnabled": null,
+        "nameVisible": false,
+        "nameValue": null,
+        "nameInvalid": null,
+        "toasts": []
+      }
+    },
+    {
+      "t": "2026-09-10T09:44:26.877Z",
+      "k": "A4 after another 10000 ms",
+      "v": {
+        "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups",
+        "saveEnabled": null,
+        "nameVisible": false,
+        "nameValue": null,
+        "nameInvalid": null,
+        "toasts": []
+      }
+    },
+    {
+      "t": "2026-09-10T09:44:33.490Z",
+      "k": "B0 list search",
+      "v": {
+        "countText": "1 product groups found",
+        "headers": [
+          "Name",
+          "Description",
+          "Service Type",
+          "Status"
+        ],
+        "rowText": "ZZ E2E Probe 1789033305490\n\t\nProbe description 1789033305490\n\t\nEquipment Rental\n\t\nActive"
+      }
+    },
+    {
+      "t": "2026-09-10T09:44:38.401Z",
+      "k": "B1 edit page landing",
+      "v": {
+        "heading": "Edit",
+        "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups/edit/4620",
+        "saveEnabled": false,
+        "nameVisible": true,
+        "nameValue": "ZZ E2E Probe 1789033305490",
+        "nameInvalid": "false",
+        "toasts": []
+      }
+    },
+    {
+      "t": "2026-09-10T09:44:39.580Z",
+      "k": "B2 after Ctrl+A, Delete",
+      "v": {
+        "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups/edit/4620",
+        "saveEnabled": false,
+        "nameVisible": true,
+        "nameValue": "",
+        "nameInvalid": "true",
+        "toasts": []
+      }
+    },
+    {
+      "t": "2026-09-10T09:44:39.685Z",
+      "k": "B3 Save stayed disabled - nothing clicked",
+      "v": {}
+    },
+    {
+      "t": "2026-09-10T09:44:48.621Z",
+      "k": "B4 cleared one character at a time",
+      "v": {
+        "before": "ZZ E2E Probe 1789033305490",
+        "seen": [
+          {
+            "removed": 1,
+            "saveEnabled": true,
+            "nameValue": "ZZ E2E Probe 178903330549"
+          },
+          {
+            "removed": 14,
+            "saveEnabled": true,
+            "nameValue": "ZZ E2E Probe"
+          },
+          {
+            "removed": 26,
+            "saveEnabled": false,
+            "nameValue": ""
+          }
+        ],
+        "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups/edit/4620",
+        "saveEnabled": false,
+        "nameVisible": true,
+        "nameValue": "",
+        "nameInvalid": "true",
+        "toasts": []
+      }
+    },
+    {
+      "t": "2026-09-10T09:44:51.077Z",
+      "k": "B5 typed a changed name (positive control)",
+      "v": {
+        "url": "https://cloudapps-e2e.encoreglobal.com/navigator/locations/1101/products/product-groups/edit/4620",
+        "saveEnabled": true,
+        "nameVisible": true,
+        "nameValue": "ZZ E2E Probe 1789033305490 X",
+        "nameInvalid": "false",
+        "toasts": []
+      }
+    }
+  ],
+  "finished": "2026-09-10T09:44:51.077Z"
+}

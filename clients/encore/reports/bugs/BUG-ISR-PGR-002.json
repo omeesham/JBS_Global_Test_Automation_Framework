@@ -3,7 +3,7 @@
   "title": "Item Search — Product Groups: dragging a column edge stores the whole drag distance but the column renders only about 6% of it, because the result table is pinned to its container width",
   "module": "Item Search",
   "severity": "low",
-  "status": "open",
+  "status": "withdrawn",
   "discoveredDate": "2026-09-09",
   "requirementSource": "NM-1852 (Grid Options: column width persists locally and Reset to Default View clears it) — the feature exists, so a drag is meant to resize the column visibly, as it does on the Item Search -> Products grid, where the same handle moves the column edge with the pointer.",
   "stepsToReproduce": [
@@ -22,7 +22,19 @@
   },
   "baselineComparison": "baseline-absent",
   "baselineEvidence": null,
-  "affectedTests": ["TC-ISR-PGR-038"],
+  "affectedTests": [
+    "TC-ISR-PGR-038"
+  ],
   "networkEvidence": "n/a — a client-side layout defect; no request is involved. The stored preference is written to local storage on release and restored after a reload.",
-  "notes": "Severity assessed low: a usability defect with no data impact. TC-ISR-PGR-038 asserts the stored delta plus 'wider than before' and deliberately not a one-to-one rendered change; tighten it to the rendered width once the fix lands."
+  "notes": "WITHDRAWN 2026-09-10 by owner ruling: accepted behaviour, not a defect. TC-ISR-PGR-038 is unchanged: it already asserts the stored delta plus wider-than-before and never a one-to-one rendered change, so it pins the accepted behaviour as is. History preserved: Severity assessed low: a usability defect with no data impact. TC-ISR-PGR-038 asserts the stored delta plus 'wider than before' and deliberately not a one-to-one rendered change; tighten it to the rendered width once the fix lands.",
+  "verificationLog": [
+    {
+      "verifierAgent": "OWNER (Claude)",
+      "verifiedDate": "2026-09-10",
+      "verdict": "WITHDRAWN-ACCEPTED-BEHAVIOR",
+      "detail": "Owner ruling in chat, 2026-09-10 (Vikas Yadav): not a defect - accepted behaviour of the page. The measured facts of the filing stand unchanged (the observation is real and reproducible); only the classification changes. Consequence: TC-ISR-PGR-038 is unchanged: it already asserts the stored delta plus wider-than-before and never a one-to-one rendered change, so it pins the accepted behaviour as is. No product fix is expected or tracked from this record.",
+      "minimalRepro": "n/a - behaviour accepted as designed by the owner; the filed steps still reproduce the observation.",
+      "evidence": []
+    }
+  ]
 }

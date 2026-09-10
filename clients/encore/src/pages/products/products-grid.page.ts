@@ -48,10 +48,22 @@ export abstract class ProductsGridBasePage extends BasePage {
     await this.page.keyboard.press('Control+a');
     await this.page.keyboard.press('Delete');
     if (value !== '') {
-      await box.pressSequentially(value, { delay: 40 });
+      // The per-key delay is deliberate, so a long value spends most of the action in that
+      // delay by design — a 200-character term needs 8 s of delay alone and overran the
+      // standard action budget once the machine was under load. The action therefore gets
+      // its own delay on top of the standard budget, instead of paying for it out of it.
+      await box.pressSequentially(value, {
+        delay: ProductsGridBasePage.TYPING_DELAY_MS,
+        timeout: ProductsGridBasePage.ACTION_BUDGET_MS + value.length * ProductsGridBasePage.TYPING_DELAY_MS,
+      });
     }
     await this.page.waitForTimeout(800);
   }
+
+  /** Per-key delay for typed values — keystrokes are debounced into the model (see typeByKeys). */
+  private static readonly TYPING_DELAY_MS = 40;
+  /** The suite's standard per-action budget, the same 10 s the config gives every action. */
+  private static readonly ACTION_BUDGET_MS = 10_000;
 
   /** All grid header names in order (empty header cells filtered out). */
   @step('Read the grid header row')

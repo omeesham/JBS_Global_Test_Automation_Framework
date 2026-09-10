@@ -1,0 +1,62 @@
+{
+  "started": "2026-09-10T09:45:52.992Z",
+  "create": {
+    "t": 470,
+    "status": 200
+  },
+  "navigations": [
+    {
+      "t": -10454,
+      "url": "/add"
+    },
+    {
+      "t": -8166,
+      "url": "/add"
+    },
+    {
+      "t": -5619,
+      "url": "/add"
+    },
+    {
+      "t": 1219,
+      "url": ""
+    }
+  ],
+  "observerLog": [
+    {
+      "t": 1789033565507,
+      "ev": "added",
+      "text": "Product Group created successfully",
+      "url": "/navigator/locations/1101/products/product-groups/add"
+    }
+  ],
+  "sampleChanges": [
+    {
+      "t": 206,
+      "path": "/navigator/locations/1101/products/product-groups/add",
+      "toasts": [],
+      "log": 0,
+      "hasObserver": true
+    },
+    {
+      "t": 531,
+      "path": "/navigator/locations/1101/products/product-groups/add",
+      "toasts": [
+        "Product Group created successfully"
+      ],
+      "log": 1,
+      "hasObserver": true
+    },
+    {
+      "t": 1279,
+      "path": "/navigator/locations/1101/products/product-groups",
+      "toasts": [
+        "Product Group created successfully"
+      ],
+      "log": 1,
+      "hasObserver": true
+    }
+  ],
+  "sampleCount": 80,
+  "finished": "2026-09-10T09:46:13.854Z"
+}

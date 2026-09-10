@@ -4,7 +4,7 @@
 **Submodule**: PGR (Search For Product Groups)
 **Page**: Product Groups list (`/locations/1101/products/product-groups`)
 **Test Entity**: Office 1101
-**Updated**: 2026-09-09
+**Updated**: 2026-09-10
 **Total TCs**: 39
 **Coverage mode**: DEEP (L2) — the 2026-09-09 deep re-walk over the 2026-08-31 QUICK (L1) pass (TC-ISR-PGR-001 to 007 quick; TC-ISR-PGR-008 to 039 deep)
 **Governing Requirement**: NM-2258 (Automate → Product → Search For Product Groups); parent story NM-2253
@@ -41,7 +41,7 @@
 | Spaces-only counts as empty | Five spaces return "0 product groups found", like an empty box. |
 | Active is a status switch | Checked lists active groups only; cleared lists inactive groups only; there is no "both". The flag rides with the executed search and survives a reload. |
 | Rows open the Edit page | Any cell click navigates to the group's Edit page; browser Back and the Product Groups breadcrumb restore the results and the page number (NM-1924). |
-| Default order is Name ascending | By character code (NM-1618); one sort at a time; Name, Description and Service Type sort via the header cell or the column menu; Status is not sortable. |
+| Default order is Name ascending | Ignoring letter case (NM-1618; verified 2026-09-10 on the Description column); one sort at a time; Name, Description and Service Type sort via the header cell or the column menu; Status is not sortable. |
 | Sort persists | A sort survives a new search, the form Reset and a reload; sorting from a later page returns to page 1 (NM-2064); only Reset to Default View clears it. |
 | Rows per page is retained | 10 / 20 / 30 / 40 / 50; a change re-runs the search and is kept across navigation and reload (NM-1910). |
 | Reset resets the pager | From any page, Reset returns to page 1 of 1 with zero found (NM-1909). |
@@ -49,7 +49,7 @@
 | Page box accepts digits only | Non-digits are ignored while typing; an out-of-range page snaps back to the current page on Enter. |
 | × clears the box only | The results, the count and the stored term stay until Reset or a new search. |
 | Collapse is not remembered | Collapsing the search panel widens the grid; a reload reopens the panel. |
-| Known defect — typing debounce | A submit within about 250 ms of the last keystroke runs the previous term (the first search on a fresh page runs empty). TC-016 pins it as a skipped case; every other case pauses before submitting. |
+| Typing debounce (accepted behaviour) | A submit within about 250 ms of the last keystroke runs the previous term (the first search on a fresh page runs empty); ruled accepted behaviour, not a defect, by the owner on 2026-09-10. TC-016 pins it as a passing case; every other case pauses before submitting. |
 
 ## MCP_VERIFICATION_LOG
 
@@ -323,7 +323,7 @@
 
 ---
 
-## TC-ISR-PGR-016: A search submitted within the typing debounce runs the previous term (known defect)
+## TC-ISR-PGR-016: A submit inside the typing debounce runs the previous term; after the pause the typed word runs
 
 **Automatable**: Yes
 **Surface_Family**: result-fidelity (DEEP)
@@ -332,10 +332,12 @@
 **Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
-| 1 | Click the box, type `ZZ E2E` by keystrokes and press Enter immediately (no pause) | Intent: the typed term is searched and its groups are found. Today: the empty term is searched — "0 product groups found" with `ZZ E2E` still in the box |
-| 2 | Search `ZZ E2E` properly (pause before Enter), then select all, type `Audio` and press Enter at once | Intent: the `Audio` groups. Today: the `ZZ E2E` rows stay while the box reads `Audio` |
+| 1 | Click the box, type `ZZ E2E` by keystrokes and press Enter immediately (no pause) | The previously committed term runs — on a first visit the empty term: "0 product groups found", no rows, `ZZ E2E` still in the box |
+| 2 | Type `ZZ E2E` again, pause, and press Enter | The `ZZ E2E` groups are found |
+| 3 | Select all, type `Audio` and press Enter at once | The `ZZ E2E` rows and count stay while the box reads `Audio` |
+| 4 | Type `Audio` again, pause, and press Enter | The `Audio` groups replace the rows |
 
-**Notes**: BUG-CANDIDATE PGR-SEARCH-DEBOUNCE — reproduced in every fresh context with Enter and with the Search button; a pause of 250 ms or more before submitting avoids it. The spec runs this case as written and it fails on purpose today: its assertions state the intended behaviour (the typed term runs at once) and the failure is the evidence for the defect. No skip is applied — the suite reports one expected failure until the fix lands, after which the case passes unchanged and becomes an ordinary result-fidelity case.
+**Notes**: Keystrokes are committed to the search model on a short delay (about 250 ms) and a submit reads the model, so a submit inside that window runs the previously committed term; reproduced in every fresh context with Enter and with the Search button. Ruled accepted behaviour, not a defect, by the owner on 2026-09-10 (BUG-ISR-PGR-001 withdrawn). Until that ruling the case asserted the typed term running at once and failed on purpose as the defect's evidence; it now pins both halves of the contract — an immediate submit runs the previous term, a paused submit runs the typed word. The Search button is not driven here; every other case submits only after the page object's settle pause.
 
 ---
 
@@ -542,10 +544,10 @@
 **Steps**:
 | # | Step | Expected Result |
 |---|------|-----------------|
-| 1 | Read the Name column on page 1 | Every name is ≤ the next one (ascending by character code — `<` sorts before `A`) |
+| 1 | Read the Name column on page 1 | Every name is ≤ the next one (ascending with letter case ignored — `<` sorts before `A`) |
 | 2 | Read the header markers | The Name header shows the ascending arrow; Description and Service Type show the neutral (unsorted) marker; Status shows none |
 
-**Notes**: NM-1618 (the list was descending). The order is server-side by code point, so a name starting with `<` precedes one starting with `A`.
+**Notes**: NM-1618 (the list was descending). The order is server-side and ignores letter case (verified 2026-09-10: descriptions sorted descending read walk, Toast, special, Probe, Automated), so a name starting with `<` still precedes one starting with `A`.
 
 ---
 

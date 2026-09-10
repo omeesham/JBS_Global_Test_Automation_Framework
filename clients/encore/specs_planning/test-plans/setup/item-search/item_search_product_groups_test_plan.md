@@ -54,7 +54,7 @@ The create spec adds `ZZ E2E Group <timestamp>` rows over time, which only grows
 | Constraint | Consequence for execution |
 |---|---|
 | No auto-search on load; an empty search returns zero | Cases type their word before Search; the zero-on-empty contract is its own case, never an accident |
-| A submit within about 250 ms of the last keystroke runs the previous term (known defect, TC-016) | The page object settles at least 400 ms after typing, reads the box back, then presses Enter; no case submits at once except TC-016 |
+| A submit within about 250 ms of the last keystroke runs the previous term (accepted behaviour by owner ruling 2026-09-10, pinned by TC-016) | The page object settles at least 400 ms after typing, reads the box back, then presses Enter; no case submits at once except TC-016 |
 | The executed search, the Active flag, the sort, the page and the page size are restored from session storage; the grid layout from local storage | Every case starts from Reset; cases that touch sorting or the layout end with Grid Options → Reset to Default View, because the form Reset does not clear a sort |
 | Nothing on this page saves | Every case here reads, resets or navigates; the module's only create lives in the NM-2259 plan |
 | This page turns 20 rows per page | Pagination assertions use the 20-row size and restore it after a rows-per-page case |
@@ -102,4 +102,4 @@ The create spec adds `ZZ E2E Group <timestamp>` rows over time, which only grows
 | TC-ISR-PGR-022 | A loader shows in the search box while a search runs | Surface — render-state (DEEP) | Yes |
 | TC-ISR-PGR-015 | Names containing markup render as literal text | Surface — render-state (DEEP) | Yes |
 | TC-ISR-PGR-023 | The Products breadcrumb returns to the Products page | Surface — render/readiness | Yes |
-| TC-ISR-PGR-016 | A search submitted within the typing debounce runs the previous term (known defect) | Surface — result-fidelity (DEEP) | Yes (skipped — known defect) |
+| TC-ISR-PGR-016 | A submit inside the typing debounce runs the previous term; after the pause the typed word runs | Surface — result-fidelity (DEEP) | Yes |

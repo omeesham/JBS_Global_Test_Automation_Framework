@@ -48,9 +48,14 @@ import {
  */
 test.describe.configure({ timeout: 300_000 });
 
-/** True when the values are in non-descending order by character code — the grid's own order. */
-const isNonDescendingByCode = (values: string[]): boolean =>
-  values.every((v, i) => i === 0 || (values[i - 1] ?? '') <= v);
+/**
+ * True when the values are in non-descending order by character code with letter case ignored —
+ * the grid's own order. The grid sorts case-insensitively (read live 2026-09-10: descriptions sorted
+ * descending ran "walk …", "Toast …", "special …", "Probe …", "Automated …"), so a plain code
+ * comparison, which puts every lowercase initial after every uppercase one, misreads a mixed-case column.
+ */
+const isNonDescendingIgnoringCase = (values: string[]): boolean =>
+  values.every((v, i) => i === 0 || (values[i - 1] ?? '').toLowerCase() <= v.toLowerCase());
 
 const PAGER_BUTTONS = ['Go to first page', 'Go to previous page', 'Go to next page', 'Go to last page'] as const;
 
@@ -348,30 +353,37 @@ test.describe('Item Search Product Groups search contract @item-search @product-
     expect(await pgr.doesFirstNameCellRenderMarkup()).toBe(false);
   });
 
-  test('TC-ISR-PGR-016: A search submitted within the typing debounce runs the previous term (known defect)', async ({ dependencyGate }) => {
+  test('TC-ISR-PGR-016: A submit inside the typing debounce runs the previous term; after the pause the typed word runs', async ({ dependencyGate }) => {
     dependencyGate([]);
-    test.setTimeout(420_000);
-    // This case states what the page is meant to do and, today, fails on purpose: keystrokes reach the
-    // search on a short delay, and a submit inside that delay runs the term committed before it — the
-    // empty term on a first visit, the old word after an executed search. The failure is the proof of
-    // the filed defect; once the fix lands the case passes unchanged. The checks are soft so that every
-    // fact is reported in one run.
-    const softly = expect.configure({ soft: true });
-    // A first visit: the first immediate submit must run the typed word, not the empty term.
+    // Keystrokes reach the search on a short delay, and a submit inside that delay runs the term
+    // committed before it: the empty term on a first visit, the old word after an executed search.
+    // Accepted as the page's designed behaviour (ruling of 2026-09-10), so this case pins it together
+    // with the other half of the contract: a submit after the pause runs the word in the box.
+    // A first visit: an immediate submit runs the empty term, so nothing is found.
     await pgr.forgetStoredSearch();
     await pgr.typeSearchWithoutPause(PGR_DEEP_SEARCH.word);
     await pgr.pressEnterAndWaitForSearchToFinish();
-    softly((await pgr.readStoredSearchState())?.searchText, 'the term the first immediate submit ran').toBe(PGR_DEEP_SEARCH.word);
-    softly((await pgr.readFoundCount()) as number, 'groups found by the first immediate submit').toBeGreaterThan(0);
-    // An executed search edited and submitted at once must run the new word, not the old one.
-    await pgr.clickReset();
+    expect((await pgr.readStoredSearchState())?.searchText, 'the term the first immediate submit ran').toBe('');
+    await expect.poll(() => pgr.readFoundCount(), { message: 'groups found by the first immediate submit', timeout: 15_000 }).toBe(0);
+    expect(await pgr.readSearch(), 'the box keeps the typed word').toBe(PGR_DEEP_SEARCH.word);
+    // The same word submitted after the pause runs and finds the family.
     await pgr.typeSearch(PGR_DEEP_SEARCH.word);
-    expect((await pgr.clickSearchAndWait((n) => n !== null && n > 0)) as number).toBeGreaterThan(0);
+    await pgr.pressEnterAndWaitForSearchToFinish();
+    expect((await pgr.readStoredSearchState())?.searchText, 'the term the paused submit ran').toBe(PGR_DEEP_SEARCH.word);
+    await expect.poll(() => pgr.readFoundCount(), { message: 'groups found by the paused submit', timeout: 15_000 }).toBeGreaterThan(0);
     const familyFirstRow = await pgr.readFirstRowText();
+    // An executed search edited and submitted at once re-runs the old word, and the rows stay.
     await pgr.typeSearchWithoutPause(PGR_DEEP_SEARCH.secondWord);
     await pgr.pressEnterAndWaitForSearchToFinish();
-    softly((await pgr.readStoredSearchState())?.searchText, 'the term the immediate re-submit ran').toBe(PGR_DEEP_SEARCH.secondWord);
-    expect(await pgr.readFirstRowText(), 'the first row after the immediate re-submit').not.toBe(familyFirstRow);
+    expect((await pgr.readStoredSearchState())?.searchText, 'the term the immediate re-submit ran').toBe(PGR_DEEP_SEARCH.word);
+    expect(await pgr.readFirstRowText(), 'the first row after the immediate re-submit').toBe(familyFirstRow);
+    expect(await pgr.readSearch(), 'the box keeps the new word').toBe(PGR_DEEP_SEARCH.secondWord);
+    // The new word submitted after the pause runs and replaces the rows.
+    await pgr.typeSearch(PGR_DEEP_SEARCH.secondWord);
+    await pgr.pressEnterAndWaitForSearchToFinish();
+    expect((await pgr.readStoredSearchState())?.searchText, 'the term the paused re-submit ran').toBe(PGR_DEEP_SEARCH.secondWord);
+    await expect.poll(() => pgr.readFoundCount(), { message: 'groups found by the paused re-submit', timeout: 15_000 }).toBeGreaterThan(0);
+    expect(await pgr.readFirstRowText(), 'the first row after the paused re-submit').not.toBe(familyFirstRow);
   });
 });
 
@@ -670,7 +682,7 @@ test.describe('Item Search Product Groups sorting @item-search @product-groups',
     expect((await pgr.clickSearchAndWait((n) => n !== null && n > 0)) as number).toBeGreaterThan(0);
     const names = await pgr.readColumnValues('Name');
     expect(names.length).toBeGreaterThan(0);
-    expect(isNonDescendingByCode(names)).toBe(true);
+    expect(isNonDescendingIgnoringCase(names)).toBe(true);
     expect(await pgr.readSortMarker('Name')).toBe('ascending');
     expect(await pgr.readSortMarker('Description')).toBe('neutral');
     expect(await pgr.readSortMarker('Service Type')).toBe('neutral');
@@ -689,11 +701,11 @@ test.describe('Item Search Product Groups sorting @item-search @product-groups',
     await pgr.chooseColumnMenuEntry('Name', PGR_MENU.sortDescending);
     await expect.poll(async () => await pgr.readFirstRowText(), { timeout: 60_000 }).not.toBe(ascendingFirstRow);
     const descending = await pgr.readColumnValues('Name');
-    expect(isNonDescendingByCode([...descending].reverse())).toBe(true);
+    expect(isNonDescendingIgnoringCase([...descending].reverse())).toBe(true);
     expect(await pgr.readSortMarker('Name')).toBe('descending');
     await pgr.chooseColumnMenuEntry('Name', PGR_MENU.sortAscending);
     await expect.poll(async () => await pgr.readFirstRowText(), { timeout: 60_000 }).toBe(ascendingFirstRow);
-    expect(isNonDescendingByCode(await pgr.readColumnValues('Name'))).toBe(true);
+    expect(isNonDescendingIgnoringCase(await pgr.readColumnValues('Name'))).toBe(true);
     expect(await pgr.readSortMarker('Name')).toBe('ascending');
   });
 
@@ -705,19 +717,19 @@ test.describe('Item Search Product Groups sorting @item-search @product-groups',
     await pgr.chooseColumnMenuEntry('Description', PGR_MENU.sortDescending);
     const descriptions = (await pgr.readColumnValues('Description')).filter((v) => v !== '');
     expect(descriptions.length).toBeGreaterThan(0);
-    expect(isNonDescendingByCode([...descriptions].reverse())).toBe(true);
+    expect(isNonDescendingIgnoringCase([...descriptions].reverse())).toBe(true);
     expect(await pgr.readSortMarker('Description')).toBe('descending');
     // One sort at a time — the marker leaves Name.
     expect(await pgr.readSortMarker('Name')).toBe('neutral');
     await pgr.chooseColumnMenuEntry('Service Type', PGR_MENU.sortAscending);
     const typesAscending = await pgr.readColumnValues('Service Type');
     expect(typesAscending.length).toBeGreaterThan(0);
-    expect(isNonDescendingByCode(typesAscending)).toBe(true);
+    expect(isNonDescendingIgnoringCase(typesAscending)).toBe(true);
     expect(await pgr.readSortMarker('Service Type')).toBe('ascending');
     expect(await pgr.readSortMarker('Description')).toBe('neutral');
     await pgr.chooseColumnMenuEntry('Service Type', PGR_MENU.sortDescending);
     const typesDescending = await pgr.readColumnValues('Service Type');
-    expect(isNonDescendingByCode([...typesDescending].reverse())).toBe(true);
+    expect(isNonDescendingIgnoringCase([...typesDescending].reverse())).toBe(true);
     expect(await pgr.readSortMarker('Service Type')).toBe('descending');
   });
 
@@ -834,7 +846,7 @@ test.describe('Item Search Product Groups grid layout @item-search @product-grou
     await pgr.resetToDefaultView();
     await expect.poll(async () => await pgr.readHeaderNames(), { timeout: 30_000 }).toEqual([...PGR_COLUMNS]);
     await expect.poll(async () => await pgr.readSortMarker('Name'), { timeout: 30_000 }).toBe('ascending');
-    expect(isNonDescendingByCode(await pgr.readColumnValues('Name'))).toBe(true);
+    expect(isNonDescendingIgnoringCase(await pgr.readColumnValues('Name'))).toBe(true);
     await expect.poll(async () => await pgr.readPageNumber(), { timeout: 60_000 }).toBe('1');
     expect(await pgr.readFoundCount()).toBe(count);
     const layout = await pgr.readStoredGridLayout();

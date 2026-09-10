@@ -3,7 +3,7 @@
   "title": "Item Search — Product Groups: a single match reads '1 product groups found' (plural noun for a count of one)",
   "module": "Item Search",
   "severity": "low",
-  "status": "open",
+  "status": "withdrawn",
   "discoveredDate": "2026-09-09",
   "requirementSource": "No ticket names the count label's wording. Filed as a cosmetic grammar defect on a label every search renders; the Products page's sibling label was not checked for the same count.",
   "stepsToReproduce": [
@@ -20,7 +20,19 @@
   },
   "baselineComparison": "baseline-absent",
   "baselineEvidence": null,
-  "affectedTests": ["TC-ISR-PGR-014"],
+  "affectedTests": [
+    "TC-ISR-PGR-014"
+  ],
   "networkEvidence": "n/a — a client-side label.",
-  "notes": "Severity assessed low: cosmetic. TC-ISR-PGR-014 asserts the number and the row, not the wording, so it stays green; tighten it to the singular once the label is fixed."
+  "notes": "WITHDRAWN 2026-09-10 by owner ruling: accepted behaviour, not a defect. TC-ISR-PGR-014 is unchanged: it asserts the number and the single row, not the wording of the label. History preserved: Severity assessed low: cosmetic. TC-ISR-PGR-014 asserts the number and the row, not the wording, so it stays green; tighten it to the singular once the label is fixed.",
+  "verificationLog": [
+    {
+      "verifierAgent": "OWNER (Claude)",
+      "verifiedDate": "2026-09-10",
+      "verdict": "WITHDRAWN-ACCEPTED-BEHAVIOR",
+      "detail": "Owner ruling in chat, 2026-09-10 (Vikas Yadav): not a defect - accepted behaviour of the page. The measured facts of the filing stand unchanged (the observation is real and reproducible); only the classification changes. Consequence: TC-ISR-PGR-014 is unchanged: it asserts the number and the single row, not the wording of the label. No product fix is expected or tracked from this record.",
+      "minimalRepro": "n/a - behaviour accepted as designed by the owner; the filed steps still reproduce the observation.",
+      "evidence": []
+    }
+  ]
 }

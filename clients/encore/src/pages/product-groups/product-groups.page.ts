@@ -280,22 +280,72 @@ export class ProductGroupsPage extends ProductsGridBasePage {
 
   /**
    * Clicks Save on a form the server is expected to reject and returns the text of the
-   * rejection toast THAT click raised. Rejection toasts outlive the page they were raised
-   * on — an earlier attempt's message can still be on screen — so the method counts the
-   * matching toasts before the click, waits for one more, and reads the newest (the toaster
-   * renders the newest toast first). A toast that was already there can never satisfy the
-   * wait. The form must still be open afterwards — the app keeps every value so the user
-   * can correct it.
+   * toast THAT click raised. Rejection toasts outlive the page they were raised on — an
+   * earlier attempt's message can still be on screen — and they disappear on their own after
+   * about ten seconds, so neither "a matching toast exists" nor "one more toast than before"
+   * is a safe read: the first is satisfied by a leftover, the second fails when a leftover
+   * expires during the wait. The method therefore watches the page for toasts added after
+   * the watch is armed and returns the text of the first one, whatever was already on screen
+   * and however long it lives. The form must still be open afterwards — the app keeps every
+   * value so the user can correct it; if it closed instead, the save went through and the
+   * error names the toast the page showed.
    */
   @step('Save and read the server rejection')
   async saveExpectingRejection(): Promise<string> {
-    const toasts = this.page.locator(S.TOAST).filter({ hasText: S.TOAST_ALREADY_EXISTS });
-    const before = await toasts.count();
+    await this.armToastWatch();
     await this.addSaveButton().click();
-    await expect(toasts, 'the save should raise a rejection toast').toHaveCount(before + 1, { timeout: 20_000 });
-    const text = (await toasts.first().innerText()).replace(/\s+/g, ' ').trim();
-    await expect(this.addNameBox(), 'the form should still be open after a rejected save').toBeVisible();
+    const toast = await this.page
+      .waitForFunction(
+        () => {
+          const w = window as unknown as { __toastWatch?: { added: HTMLElement[] } };
+          const first = w.__toastWatch?.added.find((el) => el.innerText.trim().length > 0);
+          return first ? first.innerText : null;
+        },
+        undefined,
+        { timeout: 20_000 },
+      )
+      .catch((error: Error) => {
+        throw new Error(`No toast appeared within 20 s of clicking Save on ${this.page.url()} — ${error.message}`);
+      });
+    const text = String(await toast.jsonValue()).replace(/\s+/g, ' ').trim();
+    await this.disarmToastWatch();
+    if (!(await this.addNameBox().isVisible())) {
+      throw new Error(`The save was not rejected — the form closed and the page showed "${text}" (now at ${this.page.url()})`);
+    }
     return text;
+  }
+
+  /**
+   * Watches the page for toasts added from now on. Armed before an action so that a toast
+   * already on screen can never be mistaken for the one the action raises.
+   */
+  private async armToastWatch(): Promise<void> {
+    await this.page.evaluate((toastSelector) => {
+      const w = window as unknown as { __toastWatch?: { added: HTMLElement[]; observer: MutationObserver } };
+      w.__toastWatch?.observer.disconnect();
+      const watch = {
+        added: [] as HTMLElement[],
+        observer: new MutationObserver((records) => {
+          for (const record of records) {
+            for (const node of Array.from(record.addedNodes)) {
+              if (!(node instanceof HTMLElement)) continue;
+              const toasts = node.matches(toastSelector) ? [node] : Array.from(node.querySelectorAll<HTMLElement>(toastSelector));
+              for (const t of toasts) if (!watch.added.includes(t)) watch.added.push(t);
+            }
+          }
+        }),
+      };
+      watch.observer.observe(document.body, { childList: true, subtree: true });
+      w.__toastWatch = watch;
+    }, S.TOAST);
+  }
+
+  /** Stops the toast watch. */
+  private async disarmToastWatch(): Promise<void> {
+    await this.page.evaluate(() => {
+      const w = window as unknown as { __toastWatch?: { observer: MutationObserver } };
+      w.__toastWatch?.observer.disconnect();
+    });
   }
 
   // ---------------------------------------------------------------- add-page text boxes
