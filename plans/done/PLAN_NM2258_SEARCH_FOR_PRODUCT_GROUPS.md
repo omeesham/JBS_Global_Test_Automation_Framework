@@ -367,6 +367,27 @@ of the boundary, so the branch cut has to carry them twice rather than split the
 | `clients/encore/specs_planning/_internal/agent-activity-log.md` | one log; rows for both tickets |
 | `scripts/check-per-test-baseline.mjs`, `scripts/check-save-route-parity.mjs` | gate registries repointed in Phase 3 |
 
+**Phase 11 — shipped to the client repo (2026-09-10, owner-directed).** The owner asked for the
+commit and the NM-2258 push first, on a new branch, and confirmed sprint 18 when asked, so the
+branch is `feature/sprint18-vikas-NM-2258`. Approval-log row 61 records the decision and the
+manifest's `ISR.PGR` entry moved to approved-next (commit b8d27451, every approval pin re-hashed to
+the log's new blob with the validator's defect classes unchanged). The ship script's dry run then
+failed its scope gate twice, both times correctly: the list spec's header comment named the
+sibling's `tests/` folder, which the gate reads as a reference to a surface not on the branch
+(fixed in the comment under BUILDER, commit dc7a90e3); and the NM-2259 workbook rode into the
+payload, because the script's workbook resolver matches only module-level folders, so every
+feature-named workbook folder is "unresolvable" and kept fail-open, the same class as the
+documented corporate-override and discount-matrix stragglers. The payload was corrected by the
+documented method rather than by editing the script: in the kept scratch the six foreign workbooks
+were removed, the deliverable commit amended, a fresh archive extracted, and all three ship gates
+re-run green (deny-list on 147 files, approved scope, structural names) before pushing from the
+scratch with the script's own first-push command. Verified on the remote by fetching the URL: tip
+`c31899aa`, 147 files, one spec with TC-ISR-PGR-001 … 039 (39 unique ids), the per-ticket workbook
+plus the master trimmed to Overview + `item_search_product_groups` and the standing QA tracker, no
+internal material, the shipped `.env.local` a blank template. The branch is new, so there is no
+earlier TC set to regress against. The team repo is not pushed. The Add page follows on its own
+branch; its workbook will need the same removal until the resolver learns the sub-task folders.
+
 ---
 
 ## Verification
@@ -407,6 +428,10 @@ of the boundary, so the branch cut has to carry them twice rather than split the
 | Sort-order oracle fix — list spec solo (39 cases) | **40 passed** (39 cases + auth setup), 0 failed, 0 retries (5.8m) — the list spec's first fully green run |
 | Ruling close-out gates — client `tsc --noEmit`, `check:spec-quality`, spec-sleeps, `check:step-labels`, `check:tc-parity`, `xlsx:build` + `xlsx:lint`, `verify-no-forbidden --staged-diff` | exit 0 / the pre-existing TC-SVC-HIS-012 receipt note only / none / PASS / PASS / PASS with 0 vocab hits / no marker hits |
 | Phase 10 — plan closure validator on this plan and the sibling, `plans:reindex`, activity-log validator, `verify-no-forbidden --staged-diff` | PASS on both (enforced at write time by the plan-closure gate and re-run by command after the index was rebuilt) · `plans/INDEX.md` regenerated · OK, no backdating · no marker hits |
+| Phase 11 — delivery-manifest validator after the approval edit | same classes as its baseline (the pre-existing evidence warnings on delivered rows only); approval log append-only (`1 0` in the numstat) |
+| Phase 11 — ship dry runs (`--keep-scratch`) | scope gate FAIL ×2, both correct: the sibling-folder comment (fixed, dc7a90e3) and the withheld NM-2259 workbook (removed from the scratch payload) |
+| Phase 11 — gates on the corrected extract | deny-list OK (147 files) · approved scope PASS · structural names PASS |
+| Phase 11 — remote after the push (fetched by URL) | `feature/sprint18-vikas-NM-2258` tip `c31899aa`, 147 files, 1 spec, 39 unique TC ids, 3 workbooks, leak check clean, `.env.local` blank |
 
 The full-family runs are the load-bearing ones: they prove the page-object move and the Phase 6
 rename did not break the three sub-tasks already delivered to the client (ISR.PRS, ISR.PRF, ISR.APC),
@@ -449,10 +474,10 @@ in either.
 
 ## Not done — and why
 
-- **No approval-log row, no push.** The `ISR.PGR` manifest entry is `withheld`. The owner's standing
-  instruction on this work was "don't push or ship until i asked you to", and an approval row
-  records an owner decision that has not been given. The branch name and the push remain the
-  owner's call.
+- **Shipped to the client repo on 2026-09-10 (Phase 11), team repo not pushed.** Approval-log
+  row 61, `ISR.PGR` approved-next, client branch `feature/sprint18-vikas-NM-2258` at tip
+  `c31899aa`. The framework commits behind it (005eb8bd, b8d27451, dc7a90e3) sit on NM-2253 and
+  go to the team repo only when the owner asks.
 - **Coverage deliberately outside the list page.** The Add page (the sibling's), editing on the Edit
   page (a different route with its own form; no ticket among NM-2253/2258/2259 covers it), the
   NM-1707 layout rule, and a both-statuses listing — listed with reasons in the test plan's
@@ -463,7 +488,7 @@ in either.
   keep the measured facts.
 - **`reports/walkthrough/` has no §2 row for BUILDER.** The spot-check log was written by OWNER at
   close-out after the identity gate denied BUILDER; a governance fix to §2 is the durable answer.
-- **The branch cut — not started.** The owner's process pushes NM-2258 and NM-2259 on separate
-  branches, one after the other, each run on its own; branch names and the cut wait for the owner's
-  go. The list spec already runs standalone (39 cases in `search-for-product-groups`, 40 of 40 green
-  on 2026-09-10), and the Phase 10 table names the files both branches must carry.
+- **The Add page's branch — not yet.** NM-2259 follows on its own client branch after this one,
+  on the owner's go; its workbook has to be kept off by hand until the ship script's workbook
+  resolver learns the sub-task folders (Phase 11). The Phase 10 table names the files both branches
+  carry.
