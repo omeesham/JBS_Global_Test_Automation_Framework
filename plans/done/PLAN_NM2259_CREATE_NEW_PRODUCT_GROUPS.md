@@ -3,7 +3,7 @@
 **Status**: DONE
 **Priority**: P1
 **Created**: 2026-09-08 (as one plan for both Product Groups sub-tasks; a plan of its own since 2026-09-10)
-**Executed**: 2026-09-08 (Phases 1–5) · 2026-09-09 (Phases 6 and 7, the correction in Phase 8) · 2026-09-10 (the toast-read fix, Phase 9, the landing ruling, Phase 10)
+**Executed**: 2026-09-08 (Phases 1–5) · 2026-09-09 (Phases 6 and 7, the correction in Phase 8) · 2026-09-10 (the toast-read fix, Phase 9, the landing ruling, Phase 10) · 2026-09-11 (Phase 11, the ship)
 **Identity**: OWNER (spec + data + page-object + selector work under BUILDER; the re-walk under GIVER; registries, manifest and plan under OWNER)
 **Parent**: PLAN_NM2253_ITEM_SEARCH_COVERAGE_QUICK.md
 **Sibling**: PLAN_NM2258_SEARCH_FOR_PRODUCT_GROUPS.md — the Product Groups list page, the other half of the Product Groups coverage; pushed on its own branch before this one
@@ -360,6 +360,27 @@ of the boundary, so the branch cut has to carry them twice rather than split the
 | `clients/encore/specs_planning/_internal/agent-activity-log.md` | one log; rows for both tickets |
 | `scripts/check-per-test-baseline.mjs`, `scripts/check-save-route-parity.mjs` | gate registries repointed in Phase 3 |
 
+**Phase 11 — shipped to the client repo (2026-09-11, owner-directed).** The owner asked to start the
+NM-2259 ship on sprint 18, so the branch is `feature/sprint18-vikas-NM-2259`. Approval-log row 62
+records the decision and the manifest's `ISR.APG` entry moved to approved-next (every approval pin
+re-hashed to the log's new blob, the validator's defect classes unchanged, the log append-only). The
+Add-page spec ran on its own first for the ticket's HTML report (`reports/html-report-nm-2259`,
+gitignored): 24 passed — 23 cases plus the auth setup — 0 failed, 0 flaky, 4.0 min, at HEAD 9c706aef.
+The ship script's dry run passed its three gates at the first attempt: with the workbook-resolver fix
+committed that morning (9c706aef) the list page's workbook was trimmed automatically, and only the
+four documented module-level stragglers (corporate-override-location-picker and the three
+discount-matrix workbooks) rode along. They were removed by the documented method rather than by
+editing the script — `git rm` in the kept scratch, the deliverable commit amended under the
+deliverable identity, a fresh archive extracted and all three gates re-run green (deny-list on 147
+files, approved scope, structural names) — before pushing from the scratch with the script's own
+first-push command. Verified on the remote: tip `6efda9d7`, 147 files, one spec with TC-ISR-APG-001
+… 023 (23 unique ids), the per-ticket workbook plus the master trimmed to Overview +
+`item_search_add_product_group` and the standing QA tracker, no internal material, the shipped
+`.env.local` a blank template. The branch is new, so there is no earlier TC set to regress against.
+The spec's header comment names the sibling's `tests/` folder by path; the scope gate accepts it
+because the sibling is approved and delivered, and the sentence is true of the sibling's branch. The
+team repo is not pushed.
+
 ---
 
 ## Verification
@@ -400,6 +421,10 @@ of the boundary, so the branch cut has to carry them twice rather than split the
 | Landing ruling 2026-09-10 — live probes on 1101 (`.playwright-cli/apg-2026-09-10/`) | five saves, all landing on the list page within ~1.2 s with the success toast still showing; NM-1907 / NM-1757 / NM-2055 / NM-1851 / NM-2050 fixed on e2e; NM-2036 needs a read-only user |
 | Ruling close-out gates — client `tsc --noEmit`, `check:spec-quality`, spec-sleeps, `check:step-labels`, `check:tc-parity`, `xlsx:build` + `xlsx:lint`, `verify-no-forbidden --staged-diff` | exit 0 / the pre-existing TC-SVC-HIS-012 receipt note only / none / PASS / PASS / PASS with 0 vocab hits / no marker hits |
 | Phase 10 — plan closure validator on this plan and the sibling, `plans:reindex`, activity-log validator, `verify-no-forbidden --staged-diff` | PASS on both (enforced at write time by the plan-closure gate and re-run by command after the index was rebuilt) · `plans/INDEX.md` regenerated · OK, no backdating · no marker hits |
+| Phase 11 — Add-page spec on its own for the ticket's HTML report (`reports/html-report-nm-2259`) | **24 passed** (23 cases + auth setup), 0 failed, 0 flaky, 0 retries (4.0m) at HEAD 9c706aef |
+| Phase 11 — delivery-manifest validator after the approval edit | same classes as its baseline (18 pre-existing evidence warnings on delivered rows); approval log append-only (`1 0` in the numstat), 12 pins re-hashed to the new blob |
+| Phase 11 — ship dry run (`--keep-scratch`) | deny-list OK (151 files) · approved scope PASS · structural names PASS at the first attempt; the list page's workbook trimmed by the resolver fix (9c706aef); the four module-level stragglers kept fail-open, as documented |
+| Phase 11 — gates on the corrected extract, then the remote after the push | deny-list OK (147 files) · approved scope PASS · structural names PASS; `feature/sprint18-vikas-NM-2259` tip `6efda9d7`, 147 files, 1 spec, 23 unique TC ids, 3 workbooks (own + master trimmed to Overview + `item_search_add_product_group` + tracker), leak check clean, `.env.local` blank |
 
 The full-family runs are the load-bearing ones: they prove the page-object move and the Phase 6
 rename did not break the three sub-tasks already delivered to the client (ISR.PRS, ISR.PRF, ISR.APC),
@@ -443,10 +468,11 @@ in either.
 
 ## Not done — and why
 
-- **No approval-log row, no push.** The `ISR.APG` manifest entry is `withheld`. The owner's standing
-  instruction on this work was "don't push or ship until i asked you to", and an approval row
-  records an owner decision that has not been given. The branch name and the push remain the
-  owner's call.
+- **Shipped to the client repo on 2026-09-11 (Phase 11), team repo not pushed.** Approval-log
+  row 62, `ISR.APG` approved-next, client branch `feature/sprint18-vikas-NM-2259` at tip
+  `6efda9d7`. The framework-side record (approval row 62, the manifest flip, this plan phase, the
+  activity-log rows) is on the local NM-2253 branch and reaches the team repo only when the owner
+  asks.
 - **Coverage still open after Phase 7.** Editing or deactivating a created group (a different route
   with its own form; there is no delete), role-based access (NM-2036 — one automation user), and
   saving each of the 90 Service Type options (presence and order are asserted; the first and last are
@@ -460,9 +486,8 @@ in either.
   findings (description uniqueness is NM-1851's rule; rejection toasts expire after about 10 s).
 - **`reports/walkthrough/` has no §2 row for BUILDER.** The spot-check log was written by OWNER at
   close-out after the identity gate denied BUILDER; a governance fix to §2 is the durable answer.
-- **The branch cut — not started.** The owner's process pushes NM-2258 and NM-2259 on separate
-  branches, one after the other, each run on its own; branch names and the cut wait for the owner's
-  go. The Add spec already runs standalone (23 cases in `create-new-product-groups`, 24 of 24 green
-  on 2026-09-10 after the toast-read fix); TC-ISR-APG-004 proves its save through the list page's
-  search-back, a one-way dependency that stays inside NM-2259 through the shared page object. The
-  Phase 10 table names the files both branches must carry.
+- **The branch cut — done.** NM-2258 went first (`feature/sprint18-vikas-NM-2258`, 2026-09-10) and
+  this ticket followed on its own branch on 2026-09-11 (Phase 11). Each branch carries only its own
+  spec and workbook plus the shared files in the Phase 10 table, and each spec ran green on its own
+  the day it shipped (this one 24 of 24; TC-ISR-APG-004 proves its save through the list page's
+  search-back, a one-way dependency that stays inside NM-2259 through the shared page object).

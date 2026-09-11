@@ -1191,7 +1191,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 49,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    },
    "specs": [
     "tests/corporate-override/corporate-override-labor-grid.spec.ts"
@@ -1265,7 +1265,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 50,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    },
    "specs": [
     "tests/corporate-override/corporate-override-export.spec.ts"
@@ -1310,7 +1310,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 51,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    },
    "specs": [
     "tests/corporate-override/corporate-override-import.spec.ts"
@@ -1608,7 +1608,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 52,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    }
   },
   {
@@ -1652,7 +1652,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 53,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    }
   },
   {
@@ -1711,7 +1711,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 54,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    }
   },
   {
@@ -1765,7 +1765,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 55,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    }
   },
   {
@@ -1806,7 +1806,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 56,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    }
   },
   {
@@ -1858,7 +1858,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 57,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    }
   },
   {
@@ -1893,7 +1893,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 58,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    }
   },
   {
@@ -1951,7 +1951,7 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 60,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    }
   },
   {
@@ -2019,13 +2019,13 @@
    "approved_ref": {
     "path": "scripts/deliverable/approval-log.md",
     "line": 61,
-    "blob_sha": "34273fc9722e05958f0fed977d472f0d589dad41"
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
    }
   },
   {
    "code": "ISR.APG",
    "name": "Item Search — Create new Product Groups",
-   "status": "withheld",
+   "status": "approved-next",
    "specs": [
     "tests/create-new-product-groups/create-new-product-groups.spec.ts"
    ],
@@ -2067,7 +2067,12 @@
    ],
    "sheets": [
     "item_search_add_product_group"
-   ]
+   ],
+   "approved_ref": {
+    "path": "scripts/deliverable/approval-log.md",
+    "line": 62,
+    "blob_sha": "a408efbe347d970fbac647e0805749839329cc5c"
+   }
   },
   {
    "code": "INTERNAL.UNIT",
