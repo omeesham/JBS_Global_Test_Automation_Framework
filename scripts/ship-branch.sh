@@ -265,7 +265,9 @@ fi
 #     are untouched â€” xlsx-trim handles the consolidated one in step 3 below. Workbooks
 #     are module-scoped, so they filter by --modules via module-codes.json â€” NOT by
 #     --surface globs (which are file-scoped and cannot reliably match paths that
-#     include a directory component).
+#     include a directory component). A sub-task folder declared on a submodule entry
+#     (module-codes.json dir) resolves by folder alone; module-level folders still
+#     resolve by workbook stem vs sheet name.
 if [[ -d "$SCRATCH/testcases" ]]; then
   node -e '
     const fs = require("fs");
@@ -280,7 +282,20 @@ if [[ -d "$SCRATCH/testcases" ]]; then
       for (const [code, mod] of Object.entries(reg.modules)) {
         if (mod.dir === dir) { groupCode = code; break; }
       }
-      if (!groupCode || !reg.submodules[groupCode]) return null;
+      if (!groupCode) {
+        // A sub-task workbook lives in a folder declared on its SUBMODULE entry
+        // (dir on reg.submodules[group][sub], e.g. search-for-product-groups -> ISR.PGR),
+        // so the folder alone names the owner and no stem/sheet match is needed. A folder
+        // claimed by two sub-tasks stays unresolvable and is kept, like any unknown folder.
+        const owners = [];
+        for (const [group, subs] of Object.entries(reg.submodules)) {
+          for (const [code, sub] of Object.entries(subs)) {
+            if (sub.dir === dir) owners.push(group + "." + code);
+          }
+        }
+        return owners.length === 1 ? owners[0] : null;
+      }
+      if (!reg.submodules[groupCode]) return null;
       const candidates = [normalized];
       if (normalized.startsWith("location_") && !normalized.startsWith("locations_")) {
         candidates.push("locations_" + normalized.slice("location_".length));
